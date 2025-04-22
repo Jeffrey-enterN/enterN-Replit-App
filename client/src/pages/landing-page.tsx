@@ -177,18 +177,6 @@ export default function LandingPage() {
             <div className="px-5 py-2">
               <a href="#" className="text-base text-gray-500 hover:text-gray-900">Jobseekers</a>
             </div>
-            <div className="px-5 py-2">
-              <a href="https://www.enter-n.com/blog" className="text-base text-gray-500 hover:text-gray-900">Blog</a>
-            </div>
-            <div className="px-5 py-2">
-              <a href="#" className="text-base text-gray-500 hover:text-gray-900">Contact</a>
-            </div>
-            <div className="px-5 py-2">
-              <a href="#" className="text-base text-gray-500 hover:text-gray-900">Privacy</a>
-            </div>
-            <div className="px-5 py-2">
-              <a href="#" className="text-base text-gray-500 hover:text-gray-900">Terms</a>
-            </div>
           </nav>
           <div className="mt-8 flex justify-center space-x-6">
             <a href="https://www.facebook.com/enterN.platform" className="text-gray-400 hover:text-gray-500">
