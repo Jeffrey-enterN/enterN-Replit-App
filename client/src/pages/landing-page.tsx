@@ -31,33 +31,33 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen flex flex-col">
       {/* Navbar */}
-      <nav className="bg-white shadow-sm sticky top-0 z-50">
+      <nav className="bg-white shadow-md sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex">
               <div className="flex-shrink-0 flex items-center">
                 {/* Logo */}
                 <div className="flex items-center space-x-2">
-                  <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
-                    <span className="text-white font-bold text-lg">e</span>
+                  <div className="w-10 h-10 rounded-full btn-gradient flex items-center justify-center">
+                    <span className="text-white font-bold text-xl">e</span>
                   </div>
-                  <span className="text-primary font-heading font-bold text-xl">enterN</span>
+                  <span className="text-gradient font-heading font-bold text-2xl">enterN</span>
                 </div>
               </div>
             </div>
             <div className="flex items-center">
               {user ? (
-                <Button asChild variant="ghost" className="rounded-md px-4 py-2 text-sm font-medium">
+                <Button asChild className="btn-gradient rounded-md px-6 py-2 text-sm font-medium">
                   <Link href={user.userType === USER_TYPES.JOBSEEKER ? '/jobseeker/dashboard' : '/employer/dashboard'}>
                     Dashboard
                   </Link>
                 </Button>
               ) : (
                 <>
-                  <Button asChild variant="ghost" className="rounded-md px-4 py-2 text-sm font-medium">
+                  <Button asChild className="btn-gradient-outline rounded-md px-6 py-2 text-sm font-medium border border-[#5CE1E6]">
                     <Link href="/auth">Sign In</Link>
                   </Button>
-                  <Button asChild className="ml-3 rounded-md px-4 py-2 text-sm font-medium">
+                  <Button asChild className="ml-3 btn-gradient rounded-md px-6 py-2 text-sm font-medium">
                     <Link href="/auth">Sign Up</Link>
                   </Button>
                 </>
