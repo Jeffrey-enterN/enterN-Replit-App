@@ -1,0 +1,589 @@
+Technical Requirements & Proposed Tools
+Platform Requirements for enterN MVP
+The following list is a comprehensive list of all desired functionality and features for the enterN platform. Those highlighted bullets in the following list are considered ‘must-have’ for minimal user acceptance for the proposed beta test phase. 
+
+Feature
+Functionality
+User Impacted
+Est. Time to Build
+User Authentication & Role Management
+Security & Login + Role-Based Access for Different Users
+All
+
+
+Jobseeker Profile Anonymization
+Jobseeker Profile Initially Shows to Employer in Match Feed without Name, Email, or Phone
+Jobseeker Users
+Employer Users
+
+
+
+
+Employer Analytics Dashboard
+Reporting & KPIs
+Employer Users
+
+
+
+
+Jobseeker Profile Survey System (36 Sliders)
+Profile Creation
+Jobseeker Users
+
+
+
+
+Employer Profile
+Profile Creation
+Employer Users
+
+
+Job Postings
+Profile Creation
+Employer Users
+
+
+Symmetrical Match Mechanism
+Matching
+Jobseeker Users
+Employer Users
+
+
+In-App Messaging
+Post-Match Communication
+All
+
+
+Scheduling Tools
+Post-Match Communication
+All
+
+
+SMS Integration
+Post-Match Communication
+All
+
+
+Ghost Icon
+Indicate Unresponsive Users
+All
+
+
+Campus Rep User
+Support
+Campus Rep User
+Jobseeker User
+Employer User
+
+
+Jobseeker Analytics Dashboard
+Reporting & KPIs
+Jobseeker Users
+
+
+Platform Analytics
+Reporting & KPIs
+enterN Users
+
+
+Employer Swipe Performance Dashboard
+Reporting & KPIs
+enterN Users
+
+
+ATS Integrations
+Job Postings
+Profile Imports
+Jobseeker Users
+enterN Users
+
+
+Job Scrape
+(Pull Jobs from Indeed, LinkedIn, etc)
+Job Postings
+enterN Users
+
+
+Automated Notifications
+Notifications
+All
+
+
+Push Notifications
+Notifications
+All
+
+
+Location-Based Services
+Match Feed
+Jobseeker Users
+Employer Users
+
+
+Condition-Based Rank & Sort in Match Feed
+Match Feed
+All
+
+
+Machine Learning to Improve Match Feed
+Match Feed
+All
+
+
+AI To Populate Job Postings
+Job Postings
+Employer Users
+
+
+Data Encryption
+
+
+
+
+
+
+Input Validation
+
+
+
+
+
+
+Data Sanitization
+
+
+
+
+
+
+Avoid 3rd Party Scripts
+
+
+
+
+
+
+Secure Web Environment
+
+
+
+
+
+
+SSL Certificate
+
+
+
+
+
+
+Mobile Friendly
+(Mobile First?)
+
+
+
+
+
+
+Accessibility
+
+
+
+
+
+
+Back-End Database
+
+
+
+
+
+
+Microservices & APIs
+
+
+
+
+
+
+Jobseeker Login Page
+Front-End
+
+
+
+
+Jobseeker Profile Page
+Front-End
+
+
+
+
+Jobseeker Dashboard
+Front-End
+
+
+
+
+Jobseeker Match Feed
+
+
+
+
+
+
+Jobseeker Notifications Feed
+
+
+
+
+
+
+Employer Login Page
+
+
+
+
+
+
+Employer Profile Page
+
+
+
+
+
+
+Employer Admin Page
+
+
+
+
+
+
+Employer Job Postings Page
+
+
+
+
+
+
+Individual Job Posting Page
+
+
+
+
+
+
+Employer Dashboard
+
+
+
+
+
+
+Employer Match Feed
+
+
+
+
+
+
+Employer Notifications Feed
+
+
+
+
+
+
+Test Environment
+
+
+
+
+
+
+QA Environment
+
+
+
+
+
+
+Test Automation
+
+
+
+
+
+
+Chatbot for Support
+
+
+
+
+
+
+Feedback Request
+
+
+
+
+
+
+Support Ticket System
+
+
+
+
+
+
+Preferred Ranges on Sliders
+
+
+Employer Users
+
+
+Data Export
+Reporting
+Employer Users
+
+
+Social Media Integration
+
+
+
+
+
+
+Security Compliance
+
+
+
+
+
+
+Responsive Web Application
+
+
+
+
+
+
+Restful API
+
+
+
+
+
+
+Microservices Architecture
+
+
+
+
+
+
+Relational Database
+
+
+
+
+
+
+Caching Layer
+
+
+
+
+
+
+Search Engine (For Identifying Employers)
+
+
+
+
+
+
+Containerization
+
+
+
+
+
+
+API Gateways
+
+
+
+
+
+
+Data Synchronization
+
+
+
+
+
+
+Employer Metadata
+
+
+
+
+
+
+Jobseeker Metadata
+
+
+
+
+
+
+Swipe Mechanic
+
+
+
+
+
+
+Alternative for Swipe Mechanic on Desktop
+
+
+
+
+
+
+Activity Feeds
+Provide users with periodic updates on activity (right swipes, profile views, etc) to encourage engagement
+
+
+
+
+User Reporting
+Allow users to report inappropriate behavior
+
+
+
+
+Jobseeker QR Code
+Fast Match at Job Fairs
+
+
+
+
+Employer QR Code
+Fast Match at Job Fairs
+
+
+
+
+Mobile Tablet Kiosk
+Booth Display at Job Fairs
+enterN Users
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

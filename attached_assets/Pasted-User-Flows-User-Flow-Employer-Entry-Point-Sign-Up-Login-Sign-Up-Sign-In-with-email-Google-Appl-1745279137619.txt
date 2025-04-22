@@ -1,0 +1,100 @@
+User Flows
+User Flow: Employer
+Entry Point: Sign-Up/Login
+Sign-Up / Sign-In with email, Google, Apple, LinkedIn
+Confirm business email domain matches company
+Create Company Profile
+Primary Employer Info:
+Company Name
+Company Industry
+Company Headquarters Location
+Additional Offices
+Number of Employees
+Year Founded
+About
+Mission & Values
+Perks & Benefits
+Job Postings
+Position Title
+Position Function
+Type: Internship, Entry-Level
+Location
+Onsite/Hybrid/Remote
+About The Role
+Responsibilities (What They’ll Do)
+If Multiple Users for Enterprise Organization
+Initial Setup Will Make Superuser - they can assign this role to others
+Can invite other users from their organization (must have matching email domain)
+Each user has their own independent match feed
+Each user can only see their own dashboard/metrics
+Superuser can see all users’ dashboard/metrics individually or for the organization
+Employer Match Feed
+First Queue: Jobseekers at a specific job fair (If not at a job fair, enter in at Second Queue)
+Second Queue: Jobseekers local to hiring location(s) or with those locations set as preferred locations
+Third Queue: All jobseekers on the platform
+Employer will swipe left (reject) or swipe right (interest) to indicate if they wish to connect with jobseekers
+If a jobseeker swipes right (interest) on an employer, the employer will receive a notification indicating there is a new match; if it happens at the time of the swipe, they will be prompted on-screen
+Once a symmetric match is made, the employer may send up to three (3) posted jobs to the jobseeker; they will wait for that jobseeker to verify interest in the specific role
+✅ (Interest) → Proceed to Communication | ❌ (Reject) → Return to Match Feed
+Employer/Jobseeker Communication
+The employer user can pre-load their profile with a calendar scheduling link (calendly, similar) so that when there is verified interest in a specific role, the jobseeker can self-schedule an interview
+The employer user can pre-load their profile with an invite to apply link that will direct matched jobseekers to their applicant tracking system (less preferred)
+The employer can contact the jobseeker within the app using an internal messaging system
+The employer can contact the jobseeker outside of the app using email or phone
+Status Updates
+The employer will have three metrics for step/status:
+Matches
+Interview
+Offer
+The individual job postings will have three metrics for step status:
+Open
+Filled
+Expired
+
+
+User Flow: Jobseeker
+Entry Point: Sign-Up/Login
+Sign-Up / Sign-In with email, Google, Apple, LinkedIn
+Students may create an account with their own email but must verify an email with their school’s domain to be able to access job-fair-specific employer match feeds
+
+Profile Creation
+Review: https://jeffrey-entern.github.io/JobseekerMVP)
+First Name
+Last Name
+Email
+Mobile Number
+Summary
+School
+Level of Degree
+Major
+Preferred Industries
+Preferred Location(s)
+Six Sections with Six Sliders Each, 36 Sliders in Total
+Jobseeker Match Feed
+First Queue: Employers at their job fair
+✅ Interested → Adds This User to the Employer’s Match Feed
+❌ Not Interested → Does Not Add This User to the Employer’s Match Feed
+Second Queue: Employers in preferred locations
+✅ Interested → Adds This User to the Employer’s Match Feed
+❌ Not Interested → Does Not Add This User to the Employer’s Match Feed
+Third Queue: All employers on the app
+✅ Interested → Adds This User to the Employer’s Match Feed
+❌ Not Interested → Does Not Add This User to the Employer’s Match Feed
+If the jobseeker has not yet encountered an employer on their match feed, they are visible by default until they swipe left (not interested) on a specific employer. 
+If the jobseeker swipes left on a specific user, their profile is hidden from all employer users for that specific employer
+Job Sharing & Interest Verification
+Once a mutual match occurs, the employer is notified and can share up to three (3) job postings with the jobseeker user
+The jobseeker will review each posting and can utilize the same swipe mechanic to indicate their interest with either a left swipe (not interested) or a right swipe (interested)
+Upon confirmation of interest from a jobseeker user to a specific role, their name and contact information are revealed to the employer and the employer user receives a push notification of that update and communication should begin
+Employer/Jobseeker Communication
+The employer user can pre-load their profile with a calendar scheduling link (calendly, similar) so that when there is verified interest in a specific role, the jobseeker can self-schedule an interview
+The employer user can pre-load their profile with an invite to apply link that will direct matched jobseekers to their applicant tracking system (less preferred)
+The employer can contact the jobseeker within the app using an internal messaging system
+The employer can contact the jobseeker outside of the app using email or phone
+Notes & Suggestions
+There should be a timer when push notifications are sent; at 4 hours, 8 hours, 24 hours and 48 hours the users should be ‘nudged’ to take action
+For the employer super user it would be highly desired for that user to be able to act as a proxy on any other employer user accounts that are within the same employer - this would allow team members to ensure matches are addressed in a reasonable timeframe if someone is out or if there is a change in personnel
+For posting jobs, it is critical that some form of API integration is implemented in the MVP or at least the foundation for that to occur in a very early update for employers to sync their job postings from their career site or ATS into the enterN platform
+Required at the MVP level for posting jobs is the option for employers to input a URL for a job and the platform will parse that job description for the required fields within the system, there should be a fallback for manual input if there is a parsing failure
+
+

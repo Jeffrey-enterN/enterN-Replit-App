@@ -1,0 +1,289 @@
+enterN | Slider Mechanic Ideation
+Last Edit: 03/28/2025 // Last Editor: Jeffrey Inman
+
+Organizational Values & Mission Alignment
+Clear, Unyielding Mission
+   ← Strictly Defined Mission Statements  |  Adaptable, Evolving Mission Focus →
+
+Traditional Values | 
+   ← Emphasis on Legacy & Stability  |  Innovative, Risk-Tolerant Values →
+
+Formal Value Communication
+   ← Explicit, Written Value Statements  |  Emergent, Informal Value Expression →
+
+Uniform Cultural Expectations
+   ← Standardized Organizational Culture  |  Diverse, Personalized Cultural Expression →
+
+Stable Vision vs. Dynamic Goals
+   ← Consistent, Long-Term Goals  |  Fluid, Changing Strategic Directions →
+
+Long-Term Stability vs. Short-Term Innovation
+   ← Values Stability and Consistency  |  Values Continuous Innovation and Change →
+
+Centralized Decision-Making vs. Empowered Teams
+   ← Prefers Top-Down Direction  |  Values Decentralized, Team Empowerment →
+
+Tradition vs. Experimentation
+   ← Emphasizes Time-Honored Practices  |  Embraces New Ideas and Experimentation →
+
+Compliance vs. Agility
+   ← Focuses on Adhering to Established Standards  |  Prioritizes Agile Adaptation over Rigidity →
+
+Community Engagement vs. Market Leadership
+   ← Prioritizes Social Responsibility and Local Impact  |  Emphasizes Competitive, Market-Driven Success →
+
+Work Style Preferences
+Fixed Schedule vs. Flexible Hours
+   ← Prefers a Consistent, Fixed Work Schedule  |  Values Flexible, Adaptive Working Hours →
+
+Detailed Documentation vs. Minimal Paperwork
+   ← Values Comprehensive Documentation and Processes  |  Prefers Minimal Administrative Overhead →
+
+Predictable Workflow vs. Varied Tasks
+   ← Thrives on Repetitive, Predictable Tasks  |  Enjoys a Variety of Task Types and Challenges →
+
+Constant Communication vs. Deep Focus
+   ← Prefers Regular Team Check-Ins  |  Values Minimal Interruptions for Deep Work →
+
+Methodical Execution vs. Rapid Iteration
+   ← Favors a Step-by-Step, Methodical Approach  |  Prefers Quick Experimentation and Iterative Processes →
+
+Routine vs. Flexibility
+   ← Highly Structured Daily Routine  |  Flexible, Self-Paced Work Environment →
+
+Detailed Guidance vs. Autonomy
+   ← Preference for Step-by-Step Instructions  |  Desire for Independent Decision-Making →
+
+Team Orientation vs. Individual Focus
+   ← Collaborative, Group-Driven Work  |  Independent, Solo Work Preference →
+
+Planned vs. Spontaneous Workflow
+   ← Reliance on Detailed Planning  |  Adaptability to Spontaneous Tasks →
+
+Standardized Processes vs. Custom Approaches
+   ← Following Established Processes  |  Tailoring Methods to the Situation →
+
+
+Preferred Leadership & Supervisor Styles
+Policy Rigor vs. Situational Adaptability
+   ← Strict Adherence to Policies  |  Adaptable to Situations →
+
+Structured Mentorship vs. Self-Directed Development
+   ← Emphasis on Formal Training & Mentorship  |  Preference for Independent Learning →
+
+Directive vs. Hands-Off Approach
+   ← Taskmaster & Transparent Guidance  |  Hands-Off & Ambiguous Support →
+
+Public vs. Private Recognition
+   ← Prefers Public Acknowledgment  |  Favors Private Recognition →
+
+Competitive vs. Collaborative Environment
+   ← Encourages Competition Among Team Members  |  Fosters a Collaborative Team Spirit →
+
+Clear Boundaries vs. High Availability
+   ← Sets Firm Boundaries  |  Always Accessible for Support →
+
+Hands-On Coaching vs. Autonomous Direction
+   ← Prefers Leaders Who Coach Actively  |  Values Leaders Who Grant Independent Decision-Making →
+
+Formal Feedback Sessions vs. Casual Check-Ins
+   ← Expects Scheduled, Formalized Feedback  |  Values Informal, Spontaneous Feedback →
+
+Clear Role Definitions vs. Fluid Responsibilities
+   ← Prefers Clearly Defined Roles and Responsibilities  |  Comfortable with Evolving Role Expectations →
+
+Process Emphasis vs. Outcome Focus
+   ← Values Leaders Who Emphasize Process and Procedure  |  Favors Leaders Focused on Results and Outcomes →
+
+Risk-Averse vs. Risk-Tolerant Leadership
+   ← Prefers Leaders Who Avoid Risk  |  Values Leaders Who Embrace Calculated Risks →
+
+Preferred Work Environment
+Controlled vs. Dynamic Settings
+   ← Quiet, Controlled Workspace  |  Dynamic, Open-Plan Environment →
+
+Formal Hierarchy vs. Casual Structure
+   ← Traditional, Hierarchical Office Setting  |  Casual, Flat Organizational Structure →
+
+Routine vs. Variety
+   ← Predictable, Routine-Based Environment  |  Ever-Changing, Fast-Paced Atmosphere →
+
+Stability vs. Spontaneity
+   ← Stable, Consistent Work Conditions  |  Variety and Spontaneity in Tasks →
+
+Minimal Distractions vs. Lively Interaction
+   ← Minimal Social Interactions  |  Lively, Collaborative Workspaces →
+
+Quiet Individual Spaces vs. Open Collaborative Areas
+   ← Prefers Private, Quiet Workspaces  |  Thrives in Open, Collaborative Settings →
+
+Consistent Environment vs. Varied Work Settings
+   ← Values a Consistent, Unchanging Workspace  |  Enjoys Switching Between Different Work Settings (office, remote, co-working) →
+
+Formal Atmosphere vs. Casual Culture
+   ← Prefers a Formal, Professional Office  |  Values a Relaxed, Casual Work Culture →
+
+Traditional Setup vs. Modern Tech-Driven Space
+   ← Favors a Conventional Office Layout  |  Embraces a Modern, Innovative Workspace with the Latest Tech →
+
+Predictable Scheduling vs. Event-Driven Workflow
+   ← Prefers Regular, Predictable Work Patterns  |  Excels in Environments Driven by Projects or Events →
+
+
+Collaboration & Communication Style Preferences
+Direct vs. Nuanced Communication
+   ← Direct, Clear-Cut Communication  |  Nuanced, Contextual Dialogue →
+
+Formal Meetings vs. Informal Chats
+   ← Structured, Scheduled Meetings  |  Casual, Ad-Hoc Discussions →
+
+Frequent Check-Ins vs. Autonomous Workflow
+   ← Regular, Frequent Updates  |  Minimal Interruptions and Independence →
+
+Written vs. Verbal Communication
+   ← Preference for Written Communication  |  Preference for Face-to-Face or Verbal Exchanges →
+
+Group Collaboration vs. Selective Interaction
+   ← Open, Group Collaboration  |  Selective, One-on-One Interactions →
+
+Scheduled Communication vs. Spontaneous Interaction
+   ← Prefers Pre-Planned Communication Sessions  |  Values Spontaneous, Impromptu Discussions →
+
+Formal Written Communication vs. Informal Messaging
+   ← Values Formal, Documented Communication  |  Prefers Informal, Real-Time Messaging →
+
+Cross-Functional Collaboration vs. Department Focus
+   ← Enjoys Collaborating Across Different Teams  |  Prefers Working Within a Single Department →
+
+Consensus-Driven vs. Leader-Directed Communication
+   ← Values Group Consensus and Shared Input  |  Favors Directives from Leadership in Communication →
+
+Structured Feedback Channels vs. Open-Door Policies
+   ← Prefers Organized, Scheduled Feedback Opportunities  |  Values an Open-Door Approach for Continuous, Informal Feedback →
+
+
+Growth, Intrinsic Motivation & Development Goals
+Structured Development vs. Self-Directed Growth
+   ← Clear, Formal Career Development Plans  |  Self-Directed, Organic Growth Opportunities →
+
+External Rewards vs. Intrinsic Satisfaction
+   ← Motivated by External Recognition and Incentives  |  Driven by Internal Fulfillment and Passion →
+
+Skill-Specific Training vs. Exploratory Learning
+   ← Focused, Specialized Training Programs  |  Broad, Exploratory Learning Experiences →
+
+Long-Term Advancement vs. Short-Term Achievements
+   ← Focus on Long-Term Career Progression  |  Emphasis on Short-Term, Project-Based Success →
+
+Goal-Driven Metrics vs. Personal Fulfillment
+   ← Measured by Formal Performance Metrics  |  Success Defined by Personal Growth and Engagement →
+
+Formal Career Ladder vs. Skill-Based Growth
+   ← Values a Clear Hierarchical Career Path  |  Prefers Growth Based on Skills and Competence →
+
+Achievement-Oriented vs. Learning-Oriented
+   ← Driven by Achieving Targets and Recognitions  |  Motivated by Continuous Learning and Personal Development →
+
+External Benchmarking vs. Self-Reflection
+   ← Measures Success Against External Standards  |  Values Personal Benchmarks and Self-Reflection →
+
+Structured Workshops vs. Self-Guided Projects
+   ← Prefers Organized Training Programs and Workshops  |  Favors Self-Guided, Project-Based Learning →
+
+Quantitative Goals vs. Qualitative Impact
+   ← Focused on Measurable, Quantitative Targets  |  Driven by the Qualitative Impact and Personal Fulfillment of Work →
+
+Problem-Solving & Decision-Making
+Analytical vs. Intuitive Approach
+   ← Data-Driven, Analytical Decision Making  |  Gut-Feeling, Intuitive Judgments →
+
+Collaborative vs. Independent Decisions
+   ← Group Consensus in Problem Solving  |  Independent, Solo Decision Making →
+
+Structured vs. Creative Problem-Solving
+   ← Preference for Established Frameworks  |  Creative, Flexible Problem-Solving Approaches →
+
+Methodical vs. Rapid Response
+   ← Step-by-Step, Methodical Resolution  |  Quick, Adaptive Reactions to Challenges →
+
+Consensus-Seeking vs. Decisive Leadership
+   ← Relying on Team Input  |  Making Swift, Decisive Choices →
+
+Systematic Analysis vs. Brainstorming Sessions
+   ← Prefers a Step-by-Step Analytical Approach  |  Enjoys Collaborative Brainstorming for Creative Solutions →
+
+Data Reliance vs. Experience Reliance
+   ← Bases Decisions on Hard Data and Metrics  |  Values Personal Experience and Intuition in Decision-Making →
+
+Incremental Change vs. Radical Innovation
+   ← Favors Small, Incremental Adjustments  |  Open to Bold, Transformative Solutions →
+
+Consensus Building vs. Quick, Decisive Action
+   ← Prefers Building Consensus with Team Input  |  Values Swift, Authoritative Decision-Making →
+
+Risk Mitigation vs. Opportunity Seizing
+   ← Prioritizes Minimizing Risks in Decision-Making  |  Focuses on Seizing Opportunities, Even if Involving Some Risk →
+
+
+Adaptability & Resilience
+Stable vs. Dynamic Environment Preference
+   ← Prefers a Predictable, Stable Environment  |  Thrives in Dynamic, Changing Conditions →
+
+Routine vs. Rapid Adjustment
+   ← Comfort in Following Established Routines  |  Quick to Adapt to New Circumstances →
+
+Recovery Speed
+   ← Takes Time to Recover from Setbacks  |  Bounces Back Quickly from Challenges →
+
+Proactive Change vs. Reactive Adaptation
+   ← Prefers to Maintain Current Methods  |  Proactively Seeks Change and Innovation →
+
+Comfort with Ambiguity vs. Need for Clarity
+   ← Requires Clear Guidelines in Uncertain Situations  |  Comfortable Navigating Ambiguity and Uncertainty →
+
+Planned Contingencies vs. Impromptu Responses
+   ← Prefers Detailed Contingency Plans for Change  |  Comfortable Making Impromptu Adjustments →
+
+Slow Adaptation vs. Rapid Learning
+   ← Takes Time to Adjust to New Situations  |  Quickly Adapts and Learns from Change →
+
+Structured Recovery vs. Creative Bounce-Back
+   ← Follows a Clear, Structured Process to Recover from Setbacks  |  Uses Creative Strategies to Bounce Back →
+
+Preference for Stability vs. Thriving in Uncertainty
+   ← Seeks a Stable and Predictable Environment  |  Excels in Uncertain, Ambiguous Conditions →
+
+Reliance on Routine vs. Active Change-Seeking
+   ← Finds Comfort in Established Routines Even When Things Shift  |  Actively Seeks New Challenges and Change →
+
+
+Emotional Intelligence & Interpersonal Effectiveness
+Emotional Sensitivity vs. Logical Focus
+   ← Prioritizes Understanding Others’ Emotions  |  Focuses More on Facts and Logic in Interactions →
+
+Open Expression vs. Reserved Emotion
+   ← Comfortable Expressing Feelings Openly  |  Prefers to Keep Emotions Private →
+
+Empathetic Listening vs. Task-Focused Communication
+   ← Values Empathetic, Supportive Listening  |  Leans Toward Solution-Oriented, Task-Focused Dialogue →
+
+Collaborative Conflict Resolution vs. Assertive Confrontation
+   ← Seeks Collaborative, Mediated Solutions  |  Favors Direct, Assertive Resolution Approaches →
+
+Group Harmony vs. Individual Accountability
+   ← Emphasizes Maintaining Group Harmony  |  Prioritizes Individual Accountability and Direct Feedback →
+
+Empathetic Engagement vs. Objective Interaction
+   ← Prioritizes Deep Emotional Engagement  |  Maintains an Objective, Fact-Focused Interaction →
+
+Conflict Avoidance vs. Constructive Confrontation
+   ← Tends to Avoid Conflict to Preserve Harmony  |  Comfortable Engaging in Constructive Confrontation →
+
+Relationship Building vs. Task Completion Focus
+   ← Prioritizes Developing Interpersonal Relationships  |  Focuses Primarily on Task Completion and Results →
+
+Expressive Communication vs. Reserved Demeanor
+   ← Openly Expresses Emotions and Opinions  |  Maintains a Reserved, Controlled Demeanor in Interactions →
+
+Collaborative Resolution vs. Independent Problem-Solving
+   ← Prefers Resolving Interpersonal Issues Through Group Discussion  |  Tends to Resolve Issues Independently and Privately →
