@@ -54,7 +54,7 @@ export class MemStorage implements IStorage {
   private employerProfileDrafts: Map<number, any>;
   
   currentId: number;
-  sessionStore: session.SessionStore;
+  sessionStore: SessionStore;
 
   constructor() {
     this.users = new Map();
@@ -83,7 +83,12 @@ export class MemStorage implements IStorage {
 
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = this.currentId++;
-    const user: User = { ...insertUser, id };
+    const user: User = { 
+      ...insertUser, 
+      id, 
+      createdAt: new Date(), 
+      updatedAt: new Date() 
+    };
     this.users.set(id, user);
     return user;
   }
