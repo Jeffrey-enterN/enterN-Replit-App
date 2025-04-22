@@ -74,8 +74,8 @@ export default function LandingPage() {
             <main className="mt-10 mx-auto max-w-7xl px-4 sm:mt-12 sm:px-6 md:mt-16 lg:mt-20 lg:px-8 xl:mt-28">
               <div className="sm:text-center lg:text-left">
                 <h1 className="text-4xl tracking-tight font-bold text-gray-900 sm:text-5xl md:text-6xl font-heading">
-                  <span className="block xl:inline">The future of</span>
-                  <span className="block text-primary xl:inline"> early talent hiring</span>
+                  <span className="block">Welcome to enterN</span>
+                  <span className="block text-primary"> We are rewiring hiring</span>
                 </h1>
                 <p className="mt-3 text-base text-gray-600 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
                   enterN connects employers with early-career talent based on organizational fit and values alignment, not just resumes. Build meaningful connections that lead to lasting careers.
@@ -103,9 +103,7 @@ export default function LandingPage() {
             </main>
           </div>
         </div>
-        <div className="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2">
-          <img className="h-56 w-full object-cover sm:h-72 md:h-96 lg:w-full lg:h-full" src="https://images.unsplash.com/photo-1573497491765-dccce02b29df?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1740&q=80" alt="Team collaborating" />
-        </div>
+        {/* No photo here as requested */}
       </div>
 
       {/* Features Section */}
@@ -177,7 +175,7 @@ export default function LandingPage() {
               <a href="#" className="text-base text-gray-500 hover:text-gray-900">Jobseekers</a>
             </div>
             <div className="px-5 py-2">
-              <a href="#" className="text-base text-gray-500 hover:text-gray-900">Blog</a>
+              <a href="https://www.enter-n.com/blog" className="text-base text-gray-500 hover:text-gray-900">Blog</a>
             </div>
             <div className="px-5 py-2">
               <a href="#" className="text-base text-gray-500 hover:text-gray-900">Contact</a>
@@ -190,21 +188,24 @@ export default function LandingPage() {
             </div>
           </nav>
           <div className="mt-8 flex justify-center space-x-6">
-            <a href="#" className="text-gray-400 hover:text-gray-500">
+            <a href="https://www.facebook.com/enterN.platform" className="text-gray-400 hover:text-gray-500">
               <span className="sr-only">Facebook</span>
               <i className="fab fa-facebook h-6 w-6"></i>
             </a>
-            <a href="#" className="text-gray-400 hover:text-gray-500">
-              <span className="sr-only">Twitter</span>
-              <i className="fab fa-twitter h-6 w-6"></i>
-            </a>
-            <a href="#" className="text-gray-400 hover:text-gray-500">
+            <a href="https://www.linkedin.com/company/104826614/admin/dashboard/" className="text-gray-400 hover:text-gray-500">
               <span className="sr-only">LinkedIn</span>
               <i className="fab fa-linkedin h-6 w-6"></i>
             </a>
+            <a href="https://www.enter-n.com" className="text-gray-400 hover:text-gray-500">
+              <span className="sr-only">Website</span>
+              <i className="fas fa-globe h-6 w-6"></i>
+            </a>
           </div>
           <p className="mt-8 text-center text-base text-gray-400">
-            &copy; 2023 enterN, Inc. All rights reserved.
+            © 2025 enterN, All rights reserved. | enterN is committed to rewiring hiring: building a faster, fairer, and frictionless process for all.
+          </p>
+          <p className="mt-2 text-center text-sm text-gray-400">
+            Beta version. For bugs or suggestions, email info@enter-n.com
           </p>
         </div>
       </footer>
