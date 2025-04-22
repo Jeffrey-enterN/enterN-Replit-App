@@ -95,7 +95,7 @@ export default function LandingPage() {
                     <Button 
                       onClick={navigateToEmployer}
                       variant="outline"
-                      className="w-full flex items-center justify-center px-8 py-3 border-0 text-base font-medium rounded-md btn-gradient-outline md:py-4 md:text-lg md:px-10"
+                      className="w-full flex items-center justify-center px-8 py-3 border border-[#5CE1E6] text-base font-medium rounded-md btn-gradient-outline md:py-4 md:text-lg md:px-10"
                     >
                       <i className="fas fa-building mr-2"></i>
                       I'm an Employer
