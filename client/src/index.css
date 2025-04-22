@@ -79,4 +79,35 @@
   .social-auth-button {
     @apply w-full py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none flex items-center justify-center;
   }
+  
+  .text-gradient {
+    @apply text-transparent bg-clip-text;
+    background-image: linear-gradient(135deg, #FF66C4, #5CE1E6);
+  }
+  
+  .btn-gradient {
+    background-image: linear-gradient(135deg, #FF66C4, #5CE1E6);
+    @apply text-white transition-all duration-300 hover:shadow-lg hover:shadow-brand-pink/20;
+  }
+  
+  .btn-gradient-outline {
+    background: linear-gradient(white, white) padding-box,
+                linear-gradient(135deg, #FF66C4, #5CE1E6) border-box;
+    border: 2px solid transparent;
+    @apply text-transparent bg-clip-text transition-all duration-300 hover:shadow-lg hover:shadow-brand-cyan/20;
+    background-image: linear-gradient(135deg, #FF66C4, #5CE1E6);
+  }
+  
+  .btn-circle {
+    @apply h-40 w-40 rounded-full flex flex-col items-center justify-center gap-3 text-base font-medium;
+    transition: all 0.3s ease;
+  }
+  
+  .btn-circle:hover {
+    transform: scale(1.05);
+  }
+  
+  .btn-circle-icon {
+    @apply text-2xl mb-2;
+  }
 }
