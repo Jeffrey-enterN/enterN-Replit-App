@@ -81,22 +81,26 @@ export default function LandingPage() {
                 <p className="mt-3 text-base text-gray-600 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
                   enterN connects employers with early-career talent based on organizational fit and values alignment, not just resumes. Build meaningful connections that lead to lasting careers.
                 </p>
-                <div className="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start gap-8">
-                  <Button 
-                    onClick={navigateToJobseeker}
-                    className="btn-gradient btn-circle shadow-xl"
-                  >
-                    <i className="fas fa-briefcase btn-circle-icon"></i>
-                    <span>I'm a Jobseeker</span>
-                  </Button>
-                  <Button 
-                    onClick={navigateToEmployer}
-                    variant="outline"
-                    className="btn-gradient-outline btn-circle shadow-md"
-                  >
-                    <i className="fas fa-building btn-circle-icon"></i>
-                    <span>I'm an Employer</span>
-                  </Button>
+                <div className="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start">
+                  <div className="rounded-md shadow">
+                    <Button 
+                      onClick={navigateToJobseeker}
+                      className="w-full flex items-center justify-center px-8 py-3 border-0 text-base font-medium rounded-md text-white btn-gradient md:py-4 md:text-lg md:px-10"
+                    >
+                      <i className="fas fa-briefcase mr-2"></i>
+                      I'm a Jobseeker
+                    </Button>
+                  </div>
+                  <div className="mt-3 sm:mt-0 sm:ml-3">
+                    <Button 
+                      onClick={navigateToEmployer}
+                      variant="outline"
+                      className="w-full flex items-center justify-center px-8 py-3 border-0 text-base font-medium rounded-md btn-gradient-outline md:py-4 md:text-lg md:px-10"
+                    >
+                      <i className="fas fa-building mr-2"></i>
+                      I'm an Employer
+                    </Button>
+                  </div>
                 </div>
               </div>
             </main>
