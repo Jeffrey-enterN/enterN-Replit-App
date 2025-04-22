@@ -54,7 +54,7 @@ export default function LandingPage() {
                 </Button>
               ) : (
                 <>
-                  <Button asChild className="btn-gradient-outline rounded-md px-6 py-2 text-sm font-medium border border-[#5CE1E6]">
+                  <Button asChild className="rounded-md px-6 py-2 text-sm font-medium border border-[#5CE1E6] bg-white text-[#FF66C4] hover:bg-gray-50">
                     <Link href="/auth">Sign In</Link>
                   </Button>
                   <Button asChild className="ml-3 btn-gradient rounded-md px-6 py-2 text-sm font-medium">
@@ -95,7 +95,7 @@ export default function LandingPage() {
                     <Button 
                       onClick={navigateToEmployer}
                       variant="outline"
-                      className="w-full flex items-center justify-center px-8 py-3 border border-[#5CE1E6] text-base font-medium rounded-md btn-gradient-outline md:py-4 md:text-lg md:px-10"
+                      className="w-full flex items-center justify-center px-8 py-3 border border-[#5CE1E6] text-base font-medium rounded-md bg-white text-[#FF66C4] hover:bg-gray-50 md:py-4 md:text-lg md:px-10"
                     >
                       <i className="fas fa-building mr-2"></i>
                       I'm an Employer
