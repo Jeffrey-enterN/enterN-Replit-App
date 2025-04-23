@@ -38,9 +38,9 @@ const formSchema = z.object({
   school: z.string().min(1, { message: 'School is required' }),
   degreeLevel: z.string().min(1, { message: 'Degree level is required' }),
   major: z.string().min(1, { message: 'Major is required' }),
-  preferredLocations: z.array(z.string()).min(1, { message: 'Select at least one preferred location' }),
+  portfolioUrl: z.string().url({ message: 'Please enter a valid URL' }).optional().or(z.literal('')),
+  preferredLocations: z.array(z.string()).min(1, { message: 'Add at least one preferred location' }),
   workArrangements: z.array(z.string()).min(1, { message: 'Select at least one work arrangement' }),
-  summary: z.string().optional(),
   // Slider values will be handled separately
 });
 
@@ -61,9 +61,9 @@ export default function JobseekerProfileForm() {
       school: '',
       degreeLevel: '',
       major: '',
+      portfolioUrl: '',
       preferredLocations: [],
       workArrangements: [],
-      summary: '',
     },
   });
 
@@ -251,17 +251,20 @@ export default function JobseekerProfileForm() {
 
                 <FormField
                   control={form.control}
-                  name="summary"
+                  name="portfolioUrl"
                   render={({ field }) => (
                     <FormItem className="sm:col-span-6">
-                      <FormLabel>Professional Summary</FormLabel>
+                      <FormLabel>Portfolio URL</FormLabel>
                       <FormControl>
-                        <Textarea 
+                        <Input 
+                          type="url"
                           {...field} 
-                          placeholder="Write a brief summary about yourself, your skills, and career goals"
-                          className="h-24"
+                          placeholder="https://portfolio.example.com"
                         />
                       </FormControl>
+                      <FormDescription>
+                        Optional: Add a link to your portfolio, personal website, or LinkedIn profile.
+                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
