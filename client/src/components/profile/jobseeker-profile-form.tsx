@@ -6,8 +6,9 @@ import { useLocation } from 'wouter';
 import { useToast } from '@/hooks/use-toast';
 import { useMutation } from '@tanstack/react-query';
 import { apiRequest, queryClient } from '@/lib/queryClient';
-import { DEGREE_LEVELS, LOCATIONS, WORK_ARRANGEMENTS, SLIDER_CATEGORIES } from '@/lib/constants';
-import SliderSection from './slider-section';
+import { DEGREE_LEVELS, WORK_ARRANGEMENTS, SLIDER_CATEGORIES } from '@/lib/constants';
+import CollapsibleSliderSection from './collapsible-slider-section';
+import { LocationInput } from '@/components/ui/location-input';
 
 import {
   Form,
@@ -20,7 +21,6 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectContent,
@@ -280,49 +280,21 @@ export default function JobseekerProfileForm() {
                 <FormField
                   control={form.control}
                   name="preferredLocations"
-                  render={() => (
+                  render={({ field }) => (
                     <FormItem>
                       <div className="mb-4">
                         <FormLabel>Preferred Locations</FormLabel>
                         <FormDescription>
-                          Select all locations where you'd be interested in working.
+                          Enter locations where you'd be interested in working (up to 10).
                         </FormDescription>
                       </div>
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                        {LOCATIONS.map((location) => (
-                          <FormField
-                            key={location}
-                            control={form.control}
-                            name="preferredLocations"
-                            render={({ field }) => {
-                              return (
-                                <FormItem
-                                  key={location}
-                                  className="flex flex-row items-start space-x-3 space-y-0"
-                                >
-                                  <FormControl>
-                                    <Checkbox
-                                      checked={field.value?.includes(location)}
-                                      onCheckedChange={(checked) => {
-                                        return checked
-                                          ? field.onChange([...field.value, location])
-                                          : field.onChange(
-                                              field.value?.filter(
-                                                (value) => value !== location
-                                              )
-                                            )
-                                      }}
-                                    />
-                                  </FormControl>
-                                  <FormLabel className="font-normal">
-                                    {location}
-                                  </FormLabel>
-                                </FormItem>
-                              )
-                            }}
-                          />
-                        ))}
-                      </div>
+                      <FormControl>
+                        <LocationInput
+                          value={field.value}
+                          onChange={field.onChange}
+                          maxLocations={10}
+                        />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -382,24 +354,11 @@ export default function JobseekerProfileForm() {
             </div>
 
             {/* Organization Fit Sliders */}
-            <div>
-              <h2 className="text-xl font-semibold text-gray-900 font-heading mb-6">Organizational Fit</h2>
-              <p className="text-sm text-gray-600 mb-6">
-                These sliders help employers understand your preferences and work style, leading to better matches.
-              </p>
-              
-              <div className="space-y-8">
-                {SLIDER_CATEGORIES.map((category) => (
-                  <SliderSection
-                    key={category.id}
-                    title={category.title}
-                    sliders={category.sliders}
-                    values={sliderValues}
-                    onChange={updateSliderValue}
-                  />
-                ))}
-              </div>
-            </div>
+            <CollapsibleSliderSection
+              categories={SLIDER_CATEGORIES}
+              values={sliderValues}
+              onChange={updateSliderValue}
+            />
           </div>
 
           <div className="pt-8">
