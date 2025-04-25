@@ -19,8 +19,8 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import SocialAuthButtons from './social-auth-buttons';
 
-// Basic schema for all users
-const baseSchema = {
+// Basic schema for registration - simplified to just the essentials
+const formSchema = z.object({
   username: z.string().email({ message: 'Please enter a valid email address' }),
   password: z.string().min(6, { message: 'Password must be at least 6 characters' }),
   confirmPassword: z.string(),
@@ -28,29 +28,10 @@ const baseSchema = {
     message: 'You must agree to the terms and conditions',
   }),
   userType: z.union([z.literal(USER_TYPES.JOBSEEKER), z.literal(USER_TYPES.EMPLOYER)]),
-};
-
-// Additional fields for jobseekers
-const jobseekerSchema = {
-  firstName: z.string().min(1, { message: 'First name is required' }),
-  lastName: z.string().min(1, { message: 'Last name is required' }),
-  email: z.string().email({ message: 'Please enter a valid email address' }).optional(),
-  phone: z.string().min(10, { message: 'Please enter a valid phone number' }).optional(),
-};
-
-// Additional fields for employers
-const employerSchema = {
-  companyName: z.string().min(1, { message: 'Company name is required' }).optional(),
-};
-
-// Combined schema with conditional fields based on user type
-const formSchema = z.object(baseSchema)
-  .extend(jobseekerSchema)
-  .extend(employerSchema)
-  .refine(data => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
-    path: ['confirmPassword'],
-  });
+}).refine(data => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ['confirmPassword'],
+});
 
 type FormData = z.infer<typeof formSchema>;
 
@@ -66,30 +47,14 @@ export default function RegisterForm() {
       confirmPassword: '',
       terms: false,
       userType: USER_TYPES.JOBSEEKER,
-      firstName: '',
-      lastName: '',
-      email: '',
-      phone: '',
-      companyName: '',
     },
   });
 
-  // Watch for changes to userType to conditionally validate fields
+  // Watch for changes to userType
   const userType = form.watch('userType');
 
-  // Reset irrelevant fields when user type changes
-  useEffect(() => {
-    if (userType === USER_TYPES.JOBSEEKER) {
-      form.setValue('companyName', '');
-    } else {
-      form.setValue('firstName', '');
-      form.setValue('lastName', '');
-      form.setValue('phone', '');
-    }
-  }, [userType, form]);
-
   function onSubmit(data: FormData) {
-    // Use the email as username for login
+    // Just send the minimal data needed for account creation
     const formattedData = {
       username: data.username,
       password: data.password,
@@ -97,24 +62,13 @@ export default function RegisterForm() {
       email: data.username, // Copy email for clarity in database
     };
 
-    // Add user type specific fields
-    if (data.userType === USER_TYPES.JOBSEEKER) {
-      Object.assign(formattedData, {
-        firstName: data.firstName,
-        lastName: data.lastName,
-        phone: data.phone,
-      });
-    } else {
-      Object.assign(formattedData, {
-        companyName: data.companyName,
-      });
-    }
-
     console.log('Submitting registration data:', formattedData);
     
     registerMutation.mutate(formattedData, {
       onSuccess: (data) => {
         console.log('Registration successful:', data);
+        // After successful registration, redirect to contact details page
+        // This will be implemented in the next step
       },
       onError: (error) => {
         console.error('Registration error:', error);
@@ -259,91 +213,7 @@ export default function RegisterForm() {
             )}
           />
 
-          {/* Conditional fields based on user type */}
-          {userType === USER_TYPES.JOBSEEKER && (
-            <>
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="firstName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="sr-only">First Name</FormLabel>
-                      <FormControl>
-                        <Input 
-                          placeholder="First name" 
-                          autoComplete="given-name" 
-                          {...field} 
-                          className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="lastName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="sr-only">Last Name</FormLabel>
-                      <FormControl>
-                        <Input 
-                          placeholder="Last name" 
-                          autoComplete="family-name" 
-                          {...field} 
-                          className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <FormField
-                control={form.control}
-                name="phone"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="sr-only">Phone Number</FormLabel>
-                    <FormControl>
-                      <Input 
-                        placeholder="Phone number" 
-                        type="tel"
-                        autoComplete="tel" 
-                        {...field} 
-                        className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </>
-          )}
-
-          {userType === USER_TYPES.EMPLOYER && (
-            <FormField
-              control={form.control}
-              name="companyName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="sr-only">Company Name</FormLabel>
-                  <FormControl>
-                    <Input 
-                      placeholder="Company name" 
-                      autoComplete="organization" 
-                      {...field} 
-                      className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          )}
+          {/* Contact details will be collected in the next step */}
 
           <FormField
             control={form.control}

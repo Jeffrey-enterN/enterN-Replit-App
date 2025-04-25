@@ -77,29 +77,13 @@ export function setupAuth(app: Express) {
         username, 
         password, 
         userType, 
-        firstName, 
-        lastName, 
-        companyName,
-        email,
-        phone 
+        email
       } = req.body;
       
       // Validate required fields
       if (!username || !password || !userType) {
         console.log("Validation failed: Missing required fields");
         return res.status(400).json({ message: "Username, password, and user type are required" });
-      }
-
-      // Validate jobseeker-specific required fields
-      if (userType === 'jobseeker' && (!firstName || !lastName)) {
-        console.log("Validation failed: Missing jobseeker fields");
-        return res.status(400).json({ message: "First name and last name are required for jobseekers" });
-      }
-      
-      // Validate employer-specific required fields
-      if (userType === 'employer' && !companyName) {
-        console.log("Validation failed: Missing employer fields");
-        return res.status(400).json({ message: "Company name is required for employers" });
       }
 
       const existingUser = await storage.getUserByUsername(username);
@@ -110,26 +94,22 @@ export function setupAuth(app: Express) {
 
       const hashedPassword = await hashPassword(password);
       
-      // Create user with all provided fields
+      // Create user with minimal data - contact details will be added later
       console.log("Creating user with data:", { 
         username, 
         userType, 
-        firstName, 
-        lastName, 
-        companyName, 
-        email: email || username,
-        phone 
+        email: email || username
       });
       
       const user = await storage.createUser({
         username,
         password: hashedPassword,
         userType,
-        firstName,
-        lastName,
-        companyName,
         email: email || username, // Use the username (email) if email not explicitly provided
-        phone,
+        firstName: null,
+        lastName: null,
+        companyName: null,
+        phone: null,
       });
 
       // Remove password from the response
