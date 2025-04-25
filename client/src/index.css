@@ -81,8 +81,10 @@
   }
   
   .text-gradient {
-    @apply text-transparent bg-clip-text;
+    @apply text-transparent bg-clip-text px-1;
     background-image: linear-gradient(135deg, #FF66C4, #5CE1E6);
+    padding-top: 0.2em;
+    padding-bottom: 0.2em;
   }
   
   .btn-gradient {
