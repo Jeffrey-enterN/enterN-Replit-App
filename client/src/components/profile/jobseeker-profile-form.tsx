@@ -66,26 +66,29 @@ export default function JobseekerProfileForm() {
   const [currentStep, setCurrentStep] = useState(1);
   const [sliderValues, setSliderValues] = useState<Record<string, number>>({});
   
+  // State to persist form data between steps
+  const [formData, setFormData] = useState<Partial<FormValues>>({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    schoolEmail: '',
+    school: '',
+    degreeLevel: '',
+    major: '',
+    portfolioUrl: '',
+    preferredLocations: [],
+    workArrangements: [],
+    industryPreferences: [],
+    functionalPreferences: '',
+  });
+  
   // Track slider section completion
   const [completedSections, setCompletedSections] = useState<Record<string, boolean>>({});
 
   const form = useForm<FormValues>({
     resolver: zodResolver(currentStep === 1 ? step1Schema : currentStep === 2 ? step2Schema : formSchema),
-    defaultValues: {
-      firstName: '',
-      lastName: '',
-      email: '',
-      phone: '',
-      schoolEmail: '',
-      school: '',
-      degreeLevel: '',
-      major: '',
-      portfolioUrl: '',
-      preferredLocations: [],
-      workArrangements: [],
-      industryPreferences: [],
-      functionalPreferences: '',
-    },
+    defaultValues: formData,
     mode: 'onChange'
   });
 
@@ -162,6 +165,18 @@ export default function JobseekerProfileForm() {
     },
   });
 
+  // Effect to update form when data changes
+  React.useEffect(() => {
+    const subscription = form.watch((value) => {
+      setFormData(current => ({
+        ...current,
+        ...value
+      }));
+    });
+    
+    return () => subscription.unsubscribe();
+  }, [form]);
+
   const handleNextStep = async () => {
     if (currentStep === 1) {
       // Validate step 1 fields
@@ -171,6 +186,13 @@ export default function JobseekerProfileForm() {
       ]);
       
       if (isValid) {
+        // Get current values
+        const currentValues = form.getValues();
+        // Update form data
+        setFormData(prev => ({
+          ...prev,
+          ...currentValues
+        }));
         setCurrentStep(2);
       }
     } else if (currentStep === 2) {
@@ -180,6 +202,13 @@ export default function JobseekerProfileForm() {
       ]);
       
       if (isValid) {
+        // Get current values
+        const currentValues = form.getValues();
+        // Update form data
+        setFormData(prev => ({
+          ...prev,
+          ...currentValues
+        }));
         setCurrentStep(3);
       }
     }
@@ -187,6 +216,13 @@ export default function JobseekerProfileForm() {
 
   const handlePreviousStep = () => {
     if (currentStep > 1) {
+      // Get current values to persist them
+      const currentValues = form.getValues();
+      // Update form data
+      setFormData(prev => ({
+        ...prev,
+        ...currentValues
+      }));
       setCurrentStep(currentStep - 1);
     }
   };
