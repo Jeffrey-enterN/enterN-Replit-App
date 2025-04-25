@@ -80,8 +80,8 @@ export const SLIDER_CATEGORIES = [
     ]
   },
   {
-    id: 'work-style',
-    title: 'Work Style Preferences',
+    id: 'working-style',
+    title: 'Working Style',
     sliders: [
       { id: 'schedule', left: 'Fixed Schedule', right: 'Flexible Hours' },
       { id: 'documentation', left: 'Detailed Documentation', right: 'Minimal Paperwork' },
@@ -93,7 +93,7 @@ export const SLIDER_CATEGORIES = [
   },
   {
     id: 'leadership-style',
-    title: 'Preferred Leadership & Supervisor Styles',
+    title: 'Leadership & Supervisor\'s Style',
     sliders: [
       { id: 'policy-rigor', left: 'Strict Adherence to Policies', right: 'Adaptable to Situations' },
       { id: 'mentorship', left: 'Emphasis on Formal Training & Mentorship', right: 'Preference for Independent Learning' },
@@ -105,7 +105,7 @@ export const SLIDER_CATEGORIES = [
   },
   {
     id: 'work-environment',
-    title: 'Preferred Work Environment',
+    title: 'Work Environment',
     sliders: [
       { id: 'setting', left: 'Quiet, Controlled Workspace', right: 'Dynamic, Open-Plan Environment' },
       { id: 'structure', left: 'Traditional, Hierarchical Office Setting', right: 'Casual, Flat Organizational Structure' },
@@ -117,7 +117,7 @@ export const SLIDER_CATEGORIES = [
   },
   {
     id: 'collaboration-style',
-    title: 'Collaboration & Communication Style Preferences',
+    title: 'Collaboration & Communication Style',
     sliders: [
       { id: 'direct-communication', left: 'Direct, Clear-Cut Communication', right: 'Nuanced, Contextual Dialogue' },
       { id: 'meeting-style', left: 'Structured, Scheduled Meetings', right: 'Casual, Ad-Hoc Discussions' },
@@ -129,7 +129,7 @@ export const SLIDER_CATEGORIES = [
   },
   {
     id: 'growth-motivation',
-    title: 'Growth, Intrinsic Motivation & Development Goals',
+    title: 'Growth, Motivation, & Development',
     sliders: [
       { id: 'development-path', left: 'Clear, Formal Career Development Plans', right: 'Self-Directed, Organic Growth Opportunities' },
       { id: 'motivation-source', left: 'Motivated by External Recognition and Incentives', right: 'Driven by Internal Fulfillment and Passion' },
@@ -137,6 +137,35 @@ export const SLIDER_CATEGORIES = [
       { id: 'achievement-timeline', left: 'Focus on Long-Term Career Progression', right: 'Emphasis on Short-Term, Project-Based Success' },
       { id: 'success-metrics', left: 'Measured by Formal Performance Metrics', right: 'Success Defined by Personal Growth and Engagement' },
       { id: 'growth-path', left: 'Values a Clear Hierarchical Career Path', right: 'Prefers Growth Based on Skills and Competence' }
+    ]
+  },
+  {
+    id: 'problem-solving',
+    title: 'Problem Solving & Decision-Making',
+    sliders: [
+      { id: 'problem-approach', left: 'Analytical, Data-Driven Approach', right: 'Intuitive, Experience-Based Solutions' },
+      { id: 'decision-speed', left: 'Thoughtful, Deliberate Decisions', right: 'Quick, Adaptive Decision-Making' },
+      { id: 'input-preference', left: 'Values Diverse Input & Opinions', right: 'Relies on Personal Expertise & Judgment' },
+      { id: 'risk-tolerance', left: 'Cautious, Risk-Averse Approach', right: 'Comfortable with Calculated Risk-Taking' }
+    ]
+  },
+  {
+    id: 'adaptability',
+    title: 'Adaptability & Resilience',
+    sliders: [
+      { id: 'change-response', left: 'Prefers Stability & Predictability', right: 'Embraces Change & Uncertainty' },
+      { id: 'setback-handling', left: 'Process-Oriented When Facing Setbacks', right: 'Results-Focused During Challenges' },
+      { id: 'pressure-response', left: 'Maintains Calm, Methodical Approach Under Pressure', right: 'Becomes Energized, Dynamic When Deadlines Loom' }
+    ]
+  },
+  {
+    id: 'emotional-intelligence',
+    title: 'Emotional Intelligence & Interpersonal Effectiveness',
+    sliders: [
+      { id: 'conflict-management', left: 'Addresses Conflicts Directly & Immediately', right: 'Takes Time to Reflect Before Addressing Issues' },
+      { id: 'feedback-preference', left: 'Prefers Direct, Straightforward Feedback', right: 'Values Tactful, Considerate Critique' },
+      { id: 'relationship-building', left: 'Builds Relationships Based on Professional Merit', right: 'Values Personal Connection in Working Relationships' },
+      { id: 'empathy-approach', left: 'Focuses on Logical Problem Resolution', right: 'Prioritizes Understanding Others\' Perspectives' }
     ]
   }
 ];

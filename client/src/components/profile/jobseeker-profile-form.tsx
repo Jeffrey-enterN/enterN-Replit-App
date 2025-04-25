@@ -6,9 +6,10 @@ import { useLocation } from 'wouter';
 import { useToast } from '@/hooks/use-toast';
 import { useMutation } from '@tanstack/react-query';
 import { apiRequest, queryClient } from '@/lib/queryClient';
-import { DEGREE_LEVELS, WORK_ARRANGEMENTS, SLIDER_CATEGORIES } from '@/lib/constants';
+import { DEGREE_LEVELS, WORK_ARRANGEMENTS, SLIDER_CATEGORIES, INDUSTRIES } from '@/lib/constants';
 import CollapsibleSliderSection from './collapsible-slider-section';
 import { LocationInput } from '@/components/ui/location-input';
+import { Check, ChevronRight } from 'lucide-react';
 
 import {
   Form,
@@ -30,33 +31,51 @@ import {
 } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 
-const formSchema = z.object({
+// Define the schema for step 1
+const step1Schema = z.object({
   firstName: z.string().min(1, { message: 'First name is required' }),
   lastName: z.string().min(1, { message: 'Last name is required' }),
   email: z.string().email({ message: 'Please enter a valid email' }),
+  phone: z.string().min(10, { message: 'Please enter a valid phone number' }),
   schoolEmail: z.string().email({ message: 'Please enter a valid school email' }).optional().or(z.literal('')),
   school: z.string().min(1, { message: 'School is required' }),
   degreeLevel: z.string().min(1, { message: 'Degree level is required' }),
   major: z.string().min(1, { message: 'Major is required' }),
+});
+
+// Define the schema for step 2
+const step2Schema = z.object({
   portfolioUrl: z.string().url({ message: 'Please enter a valid URL' }).optional().or(z.literal('')),
   preferredLocations: z.array(z.string()).min(1, { message: 'Add at least one preferred location' }),
   workArrangements: z.array(z.string()).min(1, { message: 'Select at least one work arrangement' }),
-  // Slider values will be handled separately
+  industryPreferences: z.array(z.string()).optional(),
+  functionalPreferences: z.string().optional(),
 });
 
+// Combine schemas for the final form validation
+const formSchema = step1Schema.merge(step2Schema);
+
+type Step1Values = z.infer<typeof step1Schema>;
+type Step2Values = z.infer<typeof step2Schema>;
 type FormValues = z.infer<typeof formSchema>;
 
 export default function JobseekerProfileForm() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
+  // Track the current step (1, 2, or 3)
+  const [currentStep, setCurrentStep] = useState(1);
   const [sliderValues, setSliderValues] = useState<Record<string, number>>({});
+  
+  // Track slider section completion
+  const [completedSections, setCompletedSections] = useState<Record<string, boolean>>({});
 
   const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(currentStep === 1 ? step1Schema : currentStep === 2 ? step2Schema : formSchema),
     defaultValues: {
       firstName: '',
       lastName: '',
       email: '',
+      phone: '',
       schoolEmail: '',
       school: '',
       degreeLevel: '',
@@ -64,7 +83,10 @@ export default function JobseekerProfileForm() {
       portfolioUrl: '',
       preferredLocations: [],
       workArrangements: [],
+      industryPreferences: [],
+      functionalPreferences: '',
     },
+    mode: 'onChange'
   });
 
   const updateSliderValue = (id: string, value: number) => {
@@ -72,6 +94,30 @@ export default function JobseekerProfileForm() {
       ...prev,
       [id]: value
     }));
+  };
+
+  // Helper to check if a slider category is completed
+  const checkCategoryCompletion = (categoryId: string) => {
+    const category = SLIDER_CATEGORIES.find(cat => cat.id === categoryId);
+    if (!category) return false;
+    
+    return category.sliders.every(slider => slider.id in sliderValues);
+  };
+
+  // Update section completion status
+  const updateSectionCompletion = (categoryId: string) => {
+    const isComplete = checkCategoryCompletion(categoryId);
+    setCompletedSections(prev => ({
+      ...prev,
+      [categoryId]: isComplete
+    }));
+  };
+
+  // Calculate completion percentage for all slider sections
+  const calculateSliderCompletionPercentage = () => {
+    const totalSliders = SLIDER_CATEGORIES.reduce((acc, cat) => acc + cat.sliders.length, 0);
+    const completedSliders = Object.keys(sliderValues).length;
+    return Math.round((completedSliders / totalSliders) * 100);
   };
 
   const createProfileMutation = useMutation({
@@ -116,6 +162,35 @@ export default function JobseekerProfileForm() {
     },
   });
 
+  const handleNextStep = async () => {
+    if (currentStep === 1) {
+      // Validate step 1 fields
+      const isValid = await form.trigger([
+        'firstName', 'lastName', 'email', 'phone', 
+        'schoolEmail', 'school', 'degreeLevel', 'major'
+      ]);
+      
+      if (isValid) {
+        setCurrentStep(2);
+      }
+    } else if (currentStep === 2) {
+      // Validate step 2 fields
+      const isValid = await form.trigger([
+        'portfolioUrl', 'preferredLocations', 'workArrangements'
+      ]);
+      
+      if (isValid) {
+        setCurrentStep(3);
+      }
+    }
+  };
+
+  const handlePreviousStep = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
+
   const onSubmit = (data: FormValues) => {
     createProfileMutation.mutate({ ...data, sliderValues });
   };
@@ -125,260 +200,434 @@ export default function JobseekerProfileForm() {
     saveDraftMutation.mutate({ ...data, sliderValues });
   };
 
+  // Progress indicators
+  const renderStepIndicator = () => {
+    return (
+      <div className="flex items-center justify-center mb-8">
+        <div className="flex items-center">
+          <div className={`flex items-center justify-center w-8 h-8 rounded-full ${currentStep >= 1 ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'}`}>
+            {currentStep > 1 ? <Check className="h-5 w-5" /> : 1}
+          </div>
+          <div className={`w-12 h-1 ${currentStep >= 2 ? 'bg-primary' : 'bg-gray-200'}`}></div>
+          <div className={`flex items-center justify-center w-8 h-8 rounded-full ${currentStep >= 2 ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'}`}>
+            {currentStep > 2 ? <Check className="h-5 w-5" /> : 2}
+          </div>
+          <div className={`w-12 h-1 ${currentStep >= 3 ? 'bg-primary' : 'bg-gray-200'}`}></div>
+          <div className={`flex items-center justify-center w-8 h-8 rounded-full ${currentStep >= 3 ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'}`}>
+            3
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="bg-white shadow-sm rounded-lg p-6 mb-8">
+      {renderStepIndicator()}
+      
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <div className="space-y-8">
-            {/* Essential Information Section */}
-            <div>
-              <h2 className="text-xl font-semibold text-gray-900 font-heading mb-6">Essential Information</h2>
-              <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
-                <FormField
-                  control={form.control}
-                  name="firstName"
-                  render={({ field }) => (
-                    <FormItem className="sm:col-span-3">
-                      <FormLabel>First name</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="lastName"
-                  render={({ field }) => (
-                    <FormItem className="sm:col-span-3">
-                      <FormLabel>Last name</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem className="sm:col-span-6">
-                      <FormLabel>Email address</FormLabel>
-                      <FormControl>
-                        <Input type="email" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="schoolEmail"
-                  render={({ field }) => (
-                    <FormItem className="sm:col-span-6">
-                      <FormLabel>School email (if different)</FormLabel>
-                      <FormControl>
-                        <Input type="email" {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        This email will be used to verify your school affiliation.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="school"
-                  render={({ field }) => (
-                    <FormItem className="sm:col-span-3">
-                      <FormLabel>School</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="degreeLevel"
-                  render={({ field }) => (
-                    <FormItem className="sm:col-span-3">
-                      <FormLabel>Level of degree</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
+            {/* Step 1: Essential Information */}
+            {currentStep === 1 && (
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900 font-heading mb-6">Step 1: Essential Information</h2>
+                <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                  <FormField
+                    control={form.control}
+                    name="firstName"
+                    render={({ field }) => (
+                      <FormItem className="sm:col-span-3">
+                        <FormLabel>First name *</FormLabel>
                         <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select a degree level" />
-                          </SelectTrigger>
+                          <Input {...field} />
                         </FormControl>
-                        <SelectContent>
-                          {DEGREE_LEVELS.map((level) => (
-                            <SelectItem key={level} value={level}>
-                              {level}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                <FormField
-                  control={form.control}
-                  name="major"
-                  render={({ field }) => (
-                    <FormItem className="sm:col-span-6">
-                      <FormLabel>Major</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                  <FormField
+                    control={form.control}
+                    name="lastName"
+                    render={({ field }) => (
+                      <FormItem className="sm:col-span-3">
+                        <FormLabel>Last name *</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                <FormField
-                  control={form.control}
-                  name="portfolioUrl"
-                  render={({ field }) => (
-                    <FormItem className="sm:col-span-6">
-                      <FormLabel>Portfolio URL</FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="url"
-                          {...field} 
-                          placeholder="https://portfolio.example.com"
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Optional: Add a link to your portfolio, personal website, or LinkedIn profile.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem className="sm:col-span-3">
+                        <FormLabel>Email address *</FormLabel>
+                        <FormControl>
+                          <Input type="email" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="phone"
+                    render={({ field }) => (
+                      <FormItem className="sm:col-span-3">
+                        <FormLabel>Phone number *</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="school"
+                    render={({ field }) => (
+                      <FormItem className="sm:col-span-6">
+                        <FormLabel>School *</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="schoolEmail"
+                    render={({ field }) => (
+                      <FormItem className="sm:col-span-6">
+                        <FormLabel>School email (if different)</FormLabel>
+                        <FormControl>
+                          <Input type="email" {...field} />
+                        </FormControl>
+                        <FormDescription>
+                          This email will be used to verify your school affiliation.
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="degreeLevel"
+                    render={({ field }) => (
+                      <FormItem className="sm:col-span-3">
+                        <FormLabel>Level of degree *</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a degree level" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {DEGREE_LEVELS.map((level) => (
+                              <SelectItem key={level} value={level}>
+                                {level}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="major"
+                    render={({ field }) => (
+                      <FormItem className="sm:col-span-3">
+                        <FormLabel>Major *</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
               </div>
-            </div>
+            )}
 
-            {/* Preferences Section */}
-            <div>
-              <h2 className="text-xl font-semibold text-gray-900 font-heading mb-6">Your Preferences</h2>
-              
-              <div className="space-y-6">
-                <FormField
-                  control={form.control}
-                  name="preferredLocations"
-                  render={({ field }) => (
-                    <FormItem>
-                      <div className="mb-4">
-                        <FormLabel>Preferred Locations</FormLabel>
-                        <FormDescription>
-                          Enter locations where you'd be interested in working (up to 10).
-                        </FormDescription>
-                      </div>
-                      <FormControl>
-                        <LocationInput
-                          value={field.value}
-                          onChange={field.onChange}
-                          maxLocations={10}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="workArrangements"
-                  render={() => (
-                    <FormItem>
-                      <div className="mb-4">
-                        <FormLabel>Preferred Work Arrangements</FormLabel>
-                        <FormDescription>
-                          Select all work arrangements you'd be open to.
-                        </FormDescription>
-                      </div>
-                      <div className="grid grid-cols-2 gap-2">
-                        {WORK_ARRANGEMENTS.map((arrangement) => (
-                          <FormField
-                            key={arrangement.id}
-                            control={form.control}
-                            name="workArrangements"
-                            render={({ field }) => {
-                              return (
-                                <FormItem
-                                  key={arrangement.id}
-                                  className="flex flex-row items-start space-x-3 space-y-0"
-                                >
-                                  <FormControl>
-                                    <Checkbox
-                                      checked={field.value?.includes(arrangement.id)}
-                                      onCheckedChange={(checked) => {
-                                        return checked
-                                          ? field.onChange([...field.value, arrangement.id])
-                                          : field.onChange(
-                                              field.value?.filter(
-                                                (value) => value !== arrangement.id
-                                              )
-                                            )
-                                      }}
-                                    />
-                                  </FormControl>
-                                  <FormLabel className="font-normal">
-                                    {arrangement.label}
-                                  </FormLabel>
-                                </FormItem>
-                              )
-                            }}
+            {/* Step 2: Portfolio and Preferences */}
+            {currentStep === 2 && (
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900 font-heading mb-6">Step 2: Portfolio & Location Preferences</h2>
+                
+                <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                  <FormField
+                    control={form.control}
+                    name="portfolioUrl"
+                    render={({ field }) => (
+                      <FormItem className="sm:col-span-6">
+                        <FormLabel>Portfolio URL</FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="url"
+                            {...field} 
+                            placeholder="https://portfolio.example.com"
                           />
-                        ))}
-                      </div>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                        </FormControl>
+                        <FormDescription>
+                          Optional: Add a link to your portfolio, personal website, or LinkedIn profile.
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                
+                <div className="space-y-6 mt-6">
+                  <FormField
+                    control={form.control}
+                    name="preferredLocations"
+                    render={({ field }) => (
+                      <FormItem>
+                        <div className="mb-4">
+                          <FormLabel>Preferred Locations *</FormLabel>
+                          <FormDescription>
+                            Enter locations where you'd be interested in working (up to 10).
+                          </FormDescription>
+                        </div>
+                        <FormControl>
+                          <LocationInput
+                            value={field.value}
+                            onChange={field.onChange}
+                            maxLocations={10}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="workArrangements"
+                    render={() => (
+                      <FormItem>
+                        <div className="mb-4">
+                          <FormLabel>Preferred Work Arrangements *</FormLabel>
+                          <FormDescription>
+                            Select all work arrangements you'd be open to.
+                          </FormDescription>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                          {WORK_ARRANGEMENTS.map((arrangement) => (
+                            <FormField
+                              key={arrangement.id}
+                              control={form.control}
+                              name="workArrangements"
+                              render={({ field }) => {
+                                return (
+                                  <FormItem
+                                    key={arrangement.id}
+                                    className="flex flex-row items-start space-x-3 space-y-0"
+                                  >
+                                    <FormControl>
+                                      <Checkbox
+                                        checked={field.value?.includes(arrangement.id)}
+                                        onCheckedChange={(checked) => {
+                                          return checked
+                                            ? field.onChange([...field.value, arrangement.id])
+                                            : field.onChange(
+                                                field.value?.filter(
+                                                  (value) => value !== arrangement.id
+                                                )
+                                              )
+                                        }}
+                                      />
+                                    </FormControl>
+                                    <FormLabel className="font-normal">
+                                      {arrangement.label}
+                                    </FormLabel>
+                                  </FormItem>
+                                )
+                              }}
+                            />
+                          ))}
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="industryPreferences"
+                    render={() => (
+                      <FormItem>
+                        <div className="mb-4">
+                          <FormLabel>Industry Preferences</FormLabel>
+                          <FormDescription>
+                            Select industries you're interested in working in.
+                          </FormDescription>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                          {INDUSTRIES.map((industry) => (
+                            <FormField
+                              key={industry}
+                              control={form.control}
+                              name="industryPreferences"
+                              render={({ field }) => {
+                                return (
+                                  <FormItem
+                                    key={industry}
+                                    className="flex flex-row items-start space-x-3 space-y-0"
+                                  >
+                                    <FormControl>
+                                      <Checkbox
+                                        checked={field.value?.includes(industry)}
+                                        onCheckedChange={(checked) => {
+                                          return checked
+                                            ? field.onChange([...field.value || [], industry])
+                                            : field.onChange(
+                                                field.value?.filter(
+                                                  (value) => value !== industry
+                                                )
+                                              )
+                                        }}
+                                      />
+                                    </FormControl>
+                                    <FormLabel className="font-normal">
+                                      {industry}
+                                    </FormLabel>
+                                  </FormItem>
+                                )
+                              }}
+                            />
+                          ))}
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="functionalPreferences"
+                    render={({ field }) => (
+                      <FormItem className="sm:col-span-6">
+                        <FormLabel>Functional Preferences</FormLabel>
+                        <FormControl>
+                          <Input {...field} placeholder="e.g., Marketing, Development, Design, Sales" />
+                        </FormControl>
+                        <FormDescription>
+                          Enter functional areas you're interested in working in, separated by commas.
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Step 3: Organization Fit Sliders */}
+            {currentStep === 3 && (
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900 font-heading mb-4">
+                  Step 3: Preference-Based Profile
+                </h2>
+                <p className="text-sm text-gray-600 mb-6">
+                  These sliders help employers understand your preferences and work style, 
+                  leading to better matches. Complete as many sections as possible for the 
+                  most accurate matches.
+                </p>
+                
+                <div className="mb-8">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-sm font-medium">Slider completion: {calculateSliderCompletionPercentage()}%</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2.5">
+                    <div 
+                      className="bg-primary h-2.5 rounded-full" 
+                      style={{ width: `${calculateSliderCompletionPercentage()}%` }}
+                    ></div>
+                  </div>
+                </div>
+                
+                <CollapsibleSliderSection
+                  categories={SLIDER_CATEGORIES}
+                  values={sliderValues}
+                  onChange={(id, value) => {
+                    updateSliderValue(id, value);
+                    // Find which category this slider belongs to
+                    const category = SLIDER_CATEGORIES.find(cat => 
+                      cat.sliders.some(slider => slider.id === id)
+                    );
+                    if (category) {
+                      updateSectionCompletion(category.id);
+                    }
+                  }}
                 />
               </div>
-            </div>
-
-            {/* Organization Fit Sliders */}
-            <CollapsibleSliderSection
-              categories={SLIDER_CATEGORIES}
-              values={sliderValues}
-              onChange={updateSliderValue}
-            />
+            )}
           </div>
 
           <div className="pt-8">
-            <div className="flex justify-end">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={onSaveDraft}
-                disabled={saveDraftMutation.isPending}
-                className="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-              >
-                {saveDraftMutation.isPending ? 'Saving...' : 'Save as Draft'}
-              </Button>
-              <Button
-                type="submit"
-                disabled={createProfileMutation.isPending}
-                className="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-              >
-                {createProfileMutation.isPending ? 'Submitting...' : 'Complete Profile'}
-              </Button>
+            <div className="flex justify-between">
+              {/* Back button shown on steps 2 and 3 */}
+              {currentStep > 1 ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handlePreviousStep}
+                  className="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+                >
+                  Back
+                </Button>
+              ) : (
+                <div></div> // Empty div to maintain flex spacing
+              )}
+              
+              <div className="flex space-x-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={onSaveDraft}
+                  disabled={saveDraftMutation.isPending}
+                  className="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+                >
+                  {saveDraftMutation.isPending ? 'Saving...' : 'Save as Draft'}
+                </Button>
+                
+                {/* Next button on steps 1 and 2 */}
+                {currentStep < 3 ? (
+                  <Button
+                    type="button"
+                    onClick={handleNextStep}
+                    className="inline-flex items-center justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+                  >
+                    Continue <ChevronRight className="ml-1 h-4 w-4" />
+                  </Button>
+                ) : (
+                  // Submit button on step 3
+                  <Button
+                    type="submit"
+                    disabled={createProfileMutation.isPending}
+                    className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+                  >
+                    {createProfileMutation.isPending ? 'Submitting...' : 'Complete Profile'}
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
         </form>
