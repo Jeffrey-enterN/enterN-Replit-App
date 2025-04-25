@@ -71,6 +71,8 @@ export function setupAuth(app: Express) {
 
   app.post("/api/register", async (req, res, next) => {
     try {
+      console.log("Registration request received:", req.body);
+      
       const { 
         username, 
         password, 
@@ -84,27 +86,41 @@ export function setupAuth(app: Express) {
       
       // Validate required fields
       if (!username || !password || !userType) {
+        console.log("Validation failed: Missing required fields");
         return res.status(400).json({ message: "Username, password, and user type are required" });
       }
 
       // Validate jobseeker-specific required fields
       if (userType === 'jobseeker' && (!firstName || !lastName)) {
+        console.log("Validation failed: Missing jobseeker fields");
         return res.status(400).json({ message: "First name and last name are required for jobseekers" });
       }
       
       // Validate employer-specific required fields
       if (userType === 'employer' && !companyName) {
+        console.log("Validation failed: Missing employer fields");
         return res.status(400).json({ message: "Company name is required for employers" });
       }
 
       const existingUser = await storage.getUserByUsername(username);
       if (existingUser) {
+        console.log("Validation failed: Username already exists");
         return res.status(400).json({ message: "Username already exists" });
       }
 
       const hashedPassword = await hashPassword(password);
       
       // Create user with all provided fields
+      console.log("Creating user with data:", { 
+        username, 
+        userType, 
+        firstName, 
+        lastName, 
+        companyName, 
+        email: email || username,
+        phone 
+      });
+      
       const user = await storage.createUser({
         username,
         password: hashedPassword,
@@ -124,7 +140,12 @@ export function setupAuth(app: Express) {
         res.status(201).json(userWithoutPassword);
       });
     } catch (error) {
-      next(error);
+      console.error("Registration error:", error);
+      if (error instanceof Error) {
+        res.status(500).json({ message: error.message });
+      } else {
+        res.status(500).json({ message: "An unknown error occurred during registration" });
+      }
     }
   });
 

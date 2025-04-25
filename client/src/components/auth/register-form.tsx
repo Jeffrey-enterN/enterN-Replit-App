@@ -110,7 +110,16 @@ export default function RegisterForm() {
       });
     }
 
-    registerMutation.mutate(formattedData);
+    console.log('Submitting registration data:', formattedData);
+    
+    registerMutation.mutate(formattedData, {
+      onSuccess: (data) => {
+        console.log('Registration successful:', data);
+      },
+      onError: (error) => {
+        console.error('Registration error:', error);
+      }
+    });
   }
 
   return (
