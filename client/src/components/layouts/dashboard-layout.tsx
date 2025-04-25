@@ -2,6 +2,7 @@ import React, { ReactNode } from 'react';
 import { Link, useLocation } from 'wouter';
 import { useAuth } from '@/context/auth-context';
 import { USER_TYPES } from '@/lib/constants';
+import enternLogo from '@/assets/entern-logo.png';
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -25,11 +26,8 @@ export default function DashboardLayout({ children, title, subtitle }: Dashboard
           <div className="flex justify-between h-16">
             <div className="flex">
               <Link href="/" className="flex-shrink-0 flex items-center cursor-pointer">
-                <div className="flex items-center space-x-2">
-                  <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
-                    <span className="text-white font-bold text-lg">e</span>
-                  </div>
-                  <span className="text-primary font-heading font-bold text-xl">enterN</span>
+                <div className="flex items-center">
+                  <img src={enternLogo} alt="enterN Logo" className="h-9" />
                 </div>
               </Link>
               <div className="hidden sm:ml-6 sm:flex sm:space-x-8">

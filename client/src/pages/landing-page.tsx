@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Link, useLocation } from 'wouter';
 import { useAuth } from '@/context/auth-context';
 import { USER_TYPES } from '@/lib/constants';
+import enternLogo from '@/assets/entern-logo.png';
 
 export default function LandingPage() {
   const { user } = useAuth();
@@ -37,11 +38,8 @@ export default function LandingPage() {
             <div className="flex">
               <div className="flex-shrink-0 flex items-center">
                 {/* Logo */}
-                <div className="flex items-center space-x-2">
-                  <div className="w-10 h-10 rounded-full btn-gradient flex items-center justify-center">
-                    <span className="text-white font-bold text-xl">e</span>
-                  </div>
-                  <span className="text-gradient font-heading font-bold text-2xl">enterN</span>
+                <div className="flex items-center">
+                  <img src={enternLogo} alt="enterN Logo" className="h-10" />
                 </div>
               </div>
             </div>
