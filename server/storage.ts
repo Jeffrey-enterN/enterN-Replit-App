@@ -153,17 +153,64 @@ export class MemStorage implements IStorage {
 
   async getJobseekerDashboard(userId: number): Promise<any> {
     const profile = this.jobseekerProfiles.get(userId);
-    const profileCompletionPercentage = profile ? 85 : 10; // Mock calculation
+    const user = this.users.get(userId);
     
+    // Calculate profile completion percentage more accurately
+    let completionScore = 0;
+    let totalFields = 0;
+    
+    // Basic user fields (firstName, lastName, email, phone)
+    if (user) {
+      totalFields += 4;
+      if (user.firstName) completionScore += 1;
+      if (user.lastName) completionScore += 1;
+      if (user.email) completionScore += 1;
+      if (user.phone) completionScore += 1;
+    }
+    
+    // Profile fields
+    if (profile) {
+      // Education fields
+      totalFields += 3;
+      if (profile.education.degree) completionScore += 1;
+      if (profile.education.school) completionScore += 1;
+      if (profile.education.major) completionScore += 1;
+      
+      // Experience fields
+      totalFields += 3;
+      if (profile.experience.length > 0) {
+        completionScore += 3; // Full score if there's at least one experience entry
+      }
+      
+      // Skills fields
+      totalFields += 1;
+      if (profile.skills.length > 0) completionScore += 1;
+      
+      // Sliders
+      totalFields += 1;
+      if (Object.keys(profile.sliderValues).length > 0) completionScore += 1;
+      
+      // Location preferences
+      totalFields += 1;
+      if (profile.locationPreferences.length > 0) completionScore += 1;
+    }
+    
+    const profileCompletionPercentage = Math.round((completionScore / totalFields) * 100) || 0;
     const matches = this.matches.filter(match => match.jobseekerId === userId);
+    
+    // Get profile views count
+    let profileViews = 0;
+    if (profile?.viewedBy) {
+      profileViews = profile.viewedBy.length;
+    }
     
     return {
       stats: {
         profileCompletion: {
           percentage: profileCompletionPercentage,
-          increase: 20
+          increase: profileCompletionPercentage > 0 ? 5 : 0 // Small increase if any progress
         },
-        profileViews: 28,
+        profileViews: profileViews,
         matches: matches.length
       },
       recentMatches: matches.slice(0, 5).map(match => {
