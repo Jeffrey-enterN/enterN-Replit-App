@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -12,13 +12,15 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import SocialAuthButtons from './social-auth-buttons';
 
-const formSchema = z.object({
+// Basic schema for all users
+const baseSchema = {
   username: z.string().email({ message: 'Please enter a valid email address' }),
   password: z.string().min(6, { message: 'Password must be at least 6 characters' }),
   confirmPassword: z.string(),
@@ -26,10 +28,29 @@ const formSchema = z.object({
     message: 'You must agree to the terms and conditions',
   }),
   userType: z.union([z.literal(USER_TYPES.JOBSEEKER), z.literal(USER_TYPES.EMPLOYER)]),
-}).refine(data => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ['confirmPassword'],
-});
+};
+
+// Additional fields for jobseekers
+const jobseekerSchema = {
+  firstName: z.string().min(1, { message: 'First name is required' }),
+  lastName: z.string().min(1, { message: 'Last name is required' }),
+  email: z.string().email({ message: 'Please enter a valid email address' }).optional(),
+  phone: z.string().min(10, { message: 'Please enter a valid phone number' }).optional(),
+};
+
+// Additional fields for employers
+const employerSchema = {
+  companyName: z.string().min(1, { message: 'Company name is required' }).optional(),
+};
+
+// Combined schema with conditional fields based on user type
+const formSchema = z.object(baseSchema)
+  .extend(jobseekerSchema)
+  .extend(employerSchema)
+  .refine(data => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ['confirmPassword'],
+  });
 
 type FormData = z.infer<typeof formSchema>;
 
@@ -45,15 +66,51 @@ export default function RegisterForm() {
       confirmPassword: '',
       terms: false,
       userType: USER_TYPES.JOBSEEKER,
+      firstName: '',
+      lastName: '',
+      email: '',
+      phone: '',
+      companyName: '',
     },
   });
 
+  // Watch for changes to userType to conditionally validate fields
+  const userType = form.watch('userType');
+
+  // Reset irrelevant fields when user type changes
+  useEffect(() => {
+    if (userType === USER_TYPES.JOBSEEKER) {
+      form.setValue('companyName', '');
+    } else {
+      form.setValue('firstName', '');
+      form.setValue('lastName', '');
+      form.setValue('phone', '');
+    }
+  }, [userType, form]);
+
   function onSubmit(data: FormData) {
-    registerMutation.mutate({
+    // Use the email as username for login
+    const formattedData = {
       username: data.username,
       password: data.password,
       userType: data.userType,
-    });
+      email: data.username, // Copy email for clarity in database
+    };
+
+    // Add user type specific fields
+    if (data.userType === USER_TYPES.JOBSEEKER) {
+      Object.assign(formattedData, {
+        firstName: data.firstName,
+        lastName: data.lastName,
+        phone: data.phone,
+      });
+    } else {
+      Object.assign(formattedData, {
+        companyName: data.companyName,
+      });
+    }
+
+    registerMutation.mutate(formattedData);
   }
 
   return (
@@ -192,6 +249,92 @@ export default function RegisterForm() {
               </FormItem>
             )}
           />
+
+          {/* Conditional fields based on user type */}
+          {userType === USER_TYPES.JOBSEEKER && (
+            <>
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="firstName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="sr-only">First Name</FormLabel>
+                      <FormControl>
+                        <Input 
+                          placeholder="First name" 
+                          autoComplete="given-name" 
+                          {...field} 
+                          className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="lastName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="sr-only">Last Name</FormLabel>
+                      <FormControl>
+                        <Input 
+                          placeholder="Last name" 
+                          autoComplete="family-name" 
+                          {...field} 
+                          className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <FormField
+                control={form.control}
+                name="phone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="sr-only">Phone Number</FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder="Phone number" 
+                        type="tel"
+                        autoComplete="tel" 
+                        {...field} 
+                        className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </>
+          )}
+
+          {userType === USER_TYPES.EMPLOYER && (
+            <FormField
+              control={form.control}
+              name="companyName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="sr-only">Company Name</FormLabel>
+                  <FormControl>
+                    <Input 
+                      placeholder="Company name" 
+                      autoComplete="organization" 
+                      {...field} 
+                      className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
 
           <FormField
             control={form.control}
