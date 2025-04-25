@@ -1,5 +1,6 @@
-import { pgTable, text, serial, integer, boolean, timestamp, varchar } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, varchar, uuid, jsonb, json } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
+import { relations } from "drizzle-orm";
 import { z } from "zod";
 
 export const USER_TYPES = {
@@ -8,6 +9,8 @@ export const USER_TYPES = {
 } as const;
 
 export type UserType = (typeof USER_TYPES)[keyof typeof USER_TYPES];
+
+// === USER TABLES ===
 
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
@@ -21,6 +24,24 @@ export const users = pgTable("users", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+export const usersRelations = relations(users, ({ one, many }) => ({
+  jobseekerProfile: one(jobseekerProfiles, {
+    fields: [users.id],
+    references: [jobseekerProfiles.userId],
+  }),
+  employerProfile: one(employerProfiles, {
+    fields: [users.id],
+    references: [employerProfiles.userId],
+  }),
+  jobseekerSwipes: many(swipes, {
+    relationName: "jobseekerSwipes",
+  }),
+  employerSwipes: many(swipes, {
+    relationName: "employerSwipes",
+  }),
+  jobPostings: many(jobPostings)
+}));
+
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
@@ -33,77 +54,183 @@ export const insertUserSchema = createInsertSchema(users).pick({
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 
-// Jobseeker Profile Schema
-export interface JobseekerProfile {
-  id: string;
-  userId: number;
-  firstName?: string;
-  lastName?: string;
-  email?: string;
-  schoolEmail?: string;
-  school?: string;
-  degreeLevel?: string;
-  major?: string;
-  preferredLocations?: string[];
-  workArrangements?: string[];
-  summary?: string;
-  sliderValues?: Record<string, number>;
-  createdAt: Date;
-  updatedAt: Date;
-}
+// === JOBSEEKER PROFILES ===
 
-// Employer Profile Schema
-export interface EmployerProfile {
-  id: string;
-  userId: number;
-  companyName?: string;
-  companyWebsite?: string;
-  headquarters?: string;
-  yearFounded?: number;
-  companySize?: string;
-  companyIndustry?: string;
-  aboutCompany?: string;
-  additionalOffices?: string[];
-  companyMission?: string;
-  companyValues?: string;
-  benefits?: string[];
-  additionalBenefits?: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
+export const jobseekerProfiles = pgTable("jobseeker_profiles", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  firstName: text("first_name"),
+  lastName: text("last_name"),
+  email: text("email"),
+  schoolEmail: text("school_email"),
+  school: text("school"),
+  degreeLevel: text("degree_level"),
+  major: text("major"),
+  portfolioUrl: text("portfolio_url"),
+  preferredLocations: jsonb("preferred_locations").$type<string[]>(),
+  workArrangements: jsonb("work_arrangements").$type<string[]>(),
+  sliderValues: jsonb("slider_values").$type<Record<string, number>>(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
 
-// Job Posting Schema
-export interface JobPosting {
-  id: string;
-  employerId: number;
-  title: string;
-  description: string;
-  location: string;
-  employmentType: string; // Full-time, Part-time, Contract, Internship
-  workType: string; // Remote, Hybrid, Onsite
-  department?: string;
-  requirements?: string[];
-  responsibilities?: string[];
-  status: 'active' | 'filled' | 'expired';
-  createdAt: Date;
-  updatedAt: Date;
-}
+export const jobseekerProfilesRelations = relations(jobseekerProfiles, ({ one, many }) => ({
+  user: one(users, {
+    fields: [jobseekerProfiles.userId],
+    references: [users.id],
+  }),
+}));
 
-// Swipe Schema (for tracking left/right swipes)
-export interface Swipe {
-  id: string;
-  jobseekerId: number;
-  employerId: string;
-  interested: boolean; // true = right swipe, false = left swipe
-  createdAt: Date;
-}
+export const insertJobseekerProfileSchema = createInsertSchema(jobseekerProfiles).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
 
-// Match Schema (when both parties swipe right)
-export interface Match {
-  id: string;
-  jobseekerId: number;
-  employerId: string;
-  matchedAt: Date;
-  status: 'new' | 'job_shared' | 'interview_scheduled' | 'offer_made' | 'closed';
-  jobPostingId?: string;
-}
+export type InsertJobseekerProfile = z.infer<typeof insertJobseekerProfileSchema>;
+export type JobseekerProfile = typeof jobseekerProfiles.$inferSelect;
+
+// === EMPLOYER PROFILES ===
+
+export const employerProfiles = pgTable("employer_profiles", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  companyName: text("company_name"),
+  companyWebsite: text("company_website"),
+  headquarters: text("headquarters"),
+  yearFounded: integer("year_founded"),
+  companySize: text("company_size"),
+  companyIndustry: text("company_industry"),
+  aboutCompany: text("about_company"),
+  additionalOffices: jsonb("additional_offices").$type<string[]>(),
+  companyMission: text("company_mission"),
+  companyValues: text("company_values"),
+  benefits: jsonb("benefits").$type<string[]>(),
+  additionalBenefits: text("additional_benefits"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const employerProfilesRelations = relations(employerProfiles, ({ one, many }) => ({
+  user: one(users, {
+    fields: [employerProfiles.userId],
+    references: [users.id],
+  }),
+  jobPostings: many(jobPostings),
+}));
+
+export const insertEmployerProfileSchema = createInsertSchema(employerProfiles).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertEmployerProfile = z.infer<typeof insertEmployerProfileSchema>;
+export type EmployerProfile = typeof employerProfiles.$inferSelect;
+
+// === JOB POSTINGS ===
+
+export const jobPostings = pgTable("job_postings", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  employerId: integer("employer_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  location: text("location").notNull(),
+  employmentType: text("employment_type").notNull(), // Full-time, Part-time, Contract, Internship
+  workType: text("work_type").notNull(), // Remote, Hybrid, Onsite
+  department: text("department"),
+  requirements: jsonb("requirements").$type<string[]>(),
+  responsibilities: jsonb("responsibilities").$type<string[]>(),
+  status: text("status").notNull().default('active'),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const jobPostingsRelations = relations(jobPostings, ({ one }) => ({
+  employer: one(users, {
+    fields: [jobPostings.employerId],
+    references: [users.id],
+  }),
+  employerProfile: one(employerProfiles, {
+    fields: [jobPostings.employerId],
+    references: [employerProfiles.userId],
+  }),
+}));
+
+export const insertJobPostingSchema = createInsertSchema(jobPostings).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertJobPosting = z.infer<typeof insertJobPostingSchema>;
+export type JobPosting = typeof jobPostings.$inferSelect;
+
+// === SWIPES ===
+
+export const swipes = pgTable("swipes", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  jobseekerId: integer("jobseeker_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  employerId: integer("employer_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  interested: boolean("interested").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const swipesRelations = relations(swipes, ({ one }) => ({
+  jobseeker: one(users, {
+    fields: [swipes.jobseekerId],
+    references: [users.id],
+    relationName: "jobseekerSwipes",
+  }),
+  employer: one(users, {
+    fields: [swipes.employerId],
+    references: [users.id],
+    relationName: "employerSwipes",
+  }),
+}));
+
+export const insertSwipeSchema = createInsertSchema(swipes).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertSwipe = z.infer<typeof insertSwipeSchema>;
+export type Swipe = typeof swipes.$inferSelect;
+
+// === MATCHES ===
+
+export const matches = pgTable("matches", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  jobseekerId: integer("jobseeker_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  employerId: integer("employer_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  matchedAt: timestamp("matched_at").defaultNow(),
+  status: text("status").notNull().default('new'),
+  jobPostingId: uuid("job_posting_id").references(() => jobPostings.id, { onDelete: "set null" }),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const matchesRelations = relations(matches, ({ one }) => ({
+  jobseeker: one(users, {
+    fields: [matches.jobseekerId],
+    references: [users.id],
+  }),
+  employer: one(users, {
+    fields: [matches.employerId],
+    references: [users.id],
+  }),
+  jobPosting: one(jobPostings, {
+    fields: [matches.jobPostingId],
+    references: [jobPostings.id],
+  }),
+}));
+
+export const insertMatchSchema = createInsertSchema(matches).omit({
+  id: true,
+  matchedAt: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertMatch = z.infer<typeof insertMatchSchema>;
+export type Match = typeof matches.$inferSelect;
