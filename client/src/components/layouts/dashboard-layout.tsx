@@ -23,11 +23,11 @@ export default function DashboardLayout({ children, title, subtitle }: Dashboard
       {/* Navbar */}
       <nav className="bg-white shadow-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
+          <div className="flex justify-between h-20">
             <div className="flex">
               <Link href="/" className="flex-shrink-0 flex items-center cursor-pointer">
                 <div className="flex items-center">
-                  <img src={enternLogo} alt="enterN Logo" className="h-9" />
+                  <img src={enternLogo} alt="enterN Logo" className="h-12" />
                 </div>
               </Link>
               <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
