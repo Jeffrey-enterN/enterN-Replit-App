@@ -158,4 +158,64 @@ export function setupAuth(app: Express) {
     const { password: _, ...userWithoutPassword } = req.user;
     res.json(userWithoutPassword);
   });
+
+  // Endpoint for updating user profile with contact details
+  app.post("/api/user/profile", async (req, res, next) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "You must be logged in to update your profile" });
+      }
+
+      const userId = req.user.id;
+      const userType = req.user.userType;
+      
+      console.log("Profile update received:", req.body);
+      
+      // Validate required fields based on user type
+      if (userType === 'jobseeker') {
+        const { firstName, lastName, phone } = req.body;
+        if (!firstName || !lastName || !phone) {
+          return res.status(400).json({ message: "First name, last name, and phone are required for jobseekers" });
+        }
+        
+        // Update the user record
+        const updatedUser = await storage.updateUser(userId, {
+          firstName,
+          lastName,
+          phone
+        });
+        
+        // Remove password from the response
+        const { password: _, ...userWithoutPassword } = updatedUser;
+        res.json(userWithoutPassword);
+      } 
+      else if (userType === 'employer') {
+        const { companyName, contactName, phone } = req.body;
+        if (!companyName || !contactName || !phone) {
+          return res.status(400).json({ message: "Company name, contact name, and phone are required for employers" });
+        }
+        
+        // Update the user record
+        const updatedUser = await storage.updateUser(userId, {
+          companyName,
+          firstName: contactName, // Using firstName field for contact name
+          phone
+        });
+        
+        // Remove password from the response
+        const { password: _, ...userWithoutPassword } = updatedUser;
+        res.json(userWithoutPassword);
+      }
+      else {
+        return res.status(400).json({ message: "Invalid user type" });
+      }
+    } catch (error) {
+      console.error("Profile update error:", error);
+      if (error instanceof Error) {
+        res.status(500).json({ message: error.message });
+      } else {
+        res.status(500).json({ message: "An unknown error occurred during profile update" });
+      }
+    }
+  });
 }
