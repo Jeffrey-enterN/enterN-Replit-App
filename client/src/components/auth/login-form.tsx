@@ -15,7 +15,6 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import SocialAuthButtons from './social-auth-buttons';
 
 const formSchema = z.object({
   username: z.string().email({ message: 'Please enter a valid email address' }),
@@ -47,18 +46,6 @@ export default function LoginForm() {
 
   return (
     <div>
-      <SocialAuthButtons />
-      
-      <div className="mt-6 relative">
-        <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-gray-300"></div>
-        </div>
-        <div className="relative flex justify-center text-sm">
-          <span className="px-2 bg-gray-50 text-gray-500">
-            Or continue with
-          </span>
-        </div>
-      </div>
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="mt-8 space-y-6">

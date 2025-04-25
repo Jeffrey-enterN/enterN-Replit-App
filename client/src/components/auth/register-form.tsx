@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuth } from '@/context/auth-context';
 import { USER_TYPES, UserType } from '@/lib/constants';
+import { useLocation } from 'wouter';
 
 import {
   Form,
@@ -17,7 +18,6 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import SocialAuthButtons from './social-auth-buttons';
 
 // Basic schema for registration - simplified to just the essentials
 const formSchema = z.object({
@@ -52,6 +52,7 @@ export default function RegisterForm() {
 
   // Watch for changes to userType
   const userType = form.watch('userType');
+  const [, setLocation] = useLocation();
 
   function onSubmit(data: FormData) {
     // Just send the minimal data needed for account creation
@@ -68,7 +69,7 @@ export default function RegisterForm() {
       onSuccess: (data) => {
         console.log('Registration successful:', data);
         // After successful registration, redirect to contact details page
-        // This will be implemented in the next step
+        setLocation('/contact-details');
       },
       onError: (error) => {
         console.error('Registration error:', error);
@@ -112,30 +113,6 @@ export default function RegisterForm() {
               </svg>
               <span className="font-medium text-gray-900">Employer</span>
             </button>
-          </div>
-        </div>
-
-        <div className="mt-6 relative">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-300"></div>
-          </div>
-          <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-gray-50 text-gray-500">
-              Sign up with
-            </span>
-          </div>
-        </div>
-
-        <SocialAuthButtons />
-
-        <div className="mt-6 relative">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-300"></div>
-          </div>
-          <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-gray-50 text-gray-500">
-              Or continue with
-            </span>
           </div>
         </div>
       </div>
