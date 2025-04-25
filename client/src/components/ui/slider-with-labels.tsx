@@ -1,5 +1,6 @@
 import React from 'react';
 import { Slider } from "@/components/ui/slider";
+import { CheckCircle } from 'lucide-react';
 
 interface SliderWithLabelsProps {
   leftLabel: string;
@@ -7,6 +8,7 @@ interface SliderWithLabelsProps {
   value: number;
   onChange: (value: number) => void;
   name?: string;
+  hasValue?: boolean;
 }
 
 export function SliderWithLabels({
@@ -14,16 +16,20 @@ export function SliderWithLabels({
   rightLabel,
   value,
   onChange,
-  name
+  name,
+  hasValue = false
 }: SliderWithLabelsProps) {
   const handleValueChange = (newValue: number[]) => {
     onChange(newValue[0]);
   };
 
   return (
-    <div className="slider-with-labels">
-      <div className="slider-labels">
+    <div className="slider-with-labels space-y-2">
+      <div className="flex justify-between items-center text-sm text-gray-500">
         <span>{leftLabel}</span>
+        {hasValue && (
+          <CheckCircle className="h-4 w-4 text-green-500 ml-2" />
+        )}
         <span>{rightLabel}</span>
       </div>
       <Slider
@@ -33,7 +39,7 @@ export function SliderWithLabels({
         step={1}
         value={[value]}
         onValueChange={handleValueChange}
-        className="h-2 bg-gray-200 rounded-lg"
+        className={`h-2 ${hasValue ? 'bg-gray-100' : 'bg-gray-200'} rounded-lg`}
       />
     </div>
   );
