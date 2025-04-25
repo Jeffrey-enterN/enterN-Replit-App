@@ -437,12 +437,12 @@ export class DatabaseStorage implements IStorage {
 
   // Jobseeker profile methods
   async createJobseekerProfile(userId: number, profileData: any): Promise<JobseekerProfile> {
-    const insertData: InsertJobseekerProfile = {
+    const insertData = {
       userId,
       ...profileData
     };
     
-    const [profile] = await db.insert(jobseekerProfiles).values(insertData).returning();
+    const [profile] = await db.insert(jobseekerProfiles).values([insertData]).returning();
     return profile;
   }
 
@@ -467,12 +467,12 @@ export class DatabaseStorage implements IStorage {
       return updatedProfile;
     } else {
       // Create a new profile draft
-      const insertData: InsertJobseekerProfile = {
+      const insertData = {
         userId,
         ...draftData
       };
       
-      const [profile] = await db.insert(jobseekerProfiles).values(insertData).returning();
+      const [profile] = await db.insert(jobseekerProfiles).values([insertData]).returning();
       return profile;
     }
   }
@@ -563,21 +563,25 @@ export class DatabaseStorage implements IStorage {
       .from(swipes)
       .where(eq(swipes.jobseekerId, userId));
     
-    const employerIdsSet = new Set(swipedEmployerIds.map(s => s.employerId));
-    
     // Get employer profiles that haven't been swiped on
     const potentialEmployers = await db
-      .select()
+      .select({
+        userId: employerProfiles.userId,
+        companyName: employerProfiles.companyName,
+        headquarters: employerProfiles.headquarters,
+        aboutCompany: employerProfiles.aboutCompany
+      })
       .from(employerProfiles)
-      .innerJoin(users, eq(employerProfiles.userId, users.id))
-      .where(sql`${employerProfiles.userId} NOT IN (
-        SELECT ${swipes.employerId} FROM ${swipes} 
-        WHERE ${swipes.jobseekerId} = ${userId}
-      )`)
+      .where(
+        sql`${employerProfiles.userId} NOT IN (
+          SELECT ${swipes.employerId} FROM ${swipes} 
+          WHERE ${swipes.jobseekerId} = ${userId}
+        )`
+      )
       .limit(5);
     
     // Format the results
-    return await Promise.all(potentialEmployers.map(async ({ employer_profiles: employer }) => {
+    return await Promise.all(potentialEmployers.map(async (employer) => {
       // Get job postings for this employer
       const jobPostingsResult = await db
         .select({ title: jobPostings.title })
@@ -591,9 +595,9 @@ export class DatabaseStorage implements IStorage {
       
       return {
         id: employer.userId.toString(),
-        name: employer.companyName,
-        location: employer.headquarters,
-        description: employer.aboutCompany,
+        name: employer.companyName || 'Unknown Company',
+        location: employer.headquarters || 'Remote',
+        description: employer.aboutCompany || 'No company description available',
         positions
       };
     }));
@@ -601,13 +605,14 @@ export class DatabaseStorage implements IStorage {
 
   async handleJobseekerSwipe(jobseekerId: number, employerId: string, interested: boolean): Promise<any> {
     // Insert swipe record
-    const swipeData: InsertSwipe = {
+    const employerIdNum = parseInt(employerId);
+    const swipeData = {
       jobseekerId,
-      employerId: parseInt(employerId),
+      employerId: employerIdNum,
       interested
     };
     
-    const [swipe] = await db.insert(swipes).values(swipeData).returning();
+    const [swipe] = await db.insert(swipes).values([swipeData]).returning();
     
     // Check if there's a match (employer already swiped right on this jobseeker)
     if (interested) {
@@ -616,7 +621,7 @@ export class DatabaseStorage implements IStorage {
         .from(swipes)
         .where(
           and(
-            eq(swipes.employerId, parseInt(employerId)),
+            eq(swipes.employerId, employerIdNum),
             eq(swipes.jobseekerId, jobseekerId),
             eq(swipes.interested, true)
           )
@@ -624,13 +629,13 @@ export class DatabaseStorage implements IStorage {
       
       if (employerSwipe) {
         // Create a match
-        const matchData: InsertMatch = {
+        const matchData = {
           jobseekerId,
-          employerId: parseInt(employerId),
+          employerId: employerIdNum,
           status: 'new'
         };
         
-        const [match] = await db.insert(matches).values(matchData).returning();
+        const [match] = await db.insert(matches).values([matchData]).returning();
         return { match, isMatch: true };
       }
     }
@@ -676,12 +681,12 @@ export class DatabaseStorage implements IStorage {
 
   // Employer profile methods
   async createEmployerProfile(userId: number, profileData: any): Promise<EmployerProfile> {
-    const insertData: InsertEmployerProfile = {
+    const insertData = {
       userId,
       ...profileData
     };
     
-    const [profile] = await db.insert(employerProfiles).values(insertData).returning();
+    const [profile] = await db.insert(employerProfiles).values([insertData]).returning();
     return profile;
   }
 
@@ -706,12 +711,12 @@ export class DatabaseStorage implements IStorage {
       return updatedProfile;
     } else {
       // Create a new profile draft
-      const insertData: InsertEmployerProfile = {
+      const insertData = {
         userId,
         ...draftData
       };
       
-      const [profile] = await db.insert(employerProfiles).values(insertData).returning();
+      const [profile] = await db.insert(employerProfiles).values([insertData]).returning();
       return profile;
     }
   }
@@ -849,13 +854,14 @@ export class DatabaseStorage implements IStorage {
 
   async handleEmployerSwipe(employerId: number, jobseekerId: string, interested: boolean): Promise<any> {
     // Insert swipe record
-    const swipeData: InsertSwipe = {
+    const jobseekerIdNum = parseInt(jobseekerId);
+    const swipeData = {
       employerId,
-      jobseekerId: parseInt(jobseekerId),
+      jobseekerId: jobseekerIdNum,
       interested
     };
     
-    const [swipe] = await db.insert(swipes).values(swipeData).returning();
+    const [swipe] = await db.insert(swipes).values([swipeData]).returning();
     
     // Check if there's a match (jobseeker already swiped right on this employer)
     if (interested) {
@@ -864,7 +870,7 @@ export class DatabaseStorage implements IStorage {
         .from(swipes)
         .where(
           and(
-            eq(swipes.jobseekerId, parseInt(jobseekerId)),
+            eq(swipes.jobseekerId, jobseekerIdNum),
             eq(swipes.employerId, employerId),
             eq(swipes.interested, true)
           )
@@ -872,13 +878,13 @@ export class DatabaseStorage implements IStorage {
       
       if (jobseekerSwipe) {
         // Create a match
-        const matchData: InsertMatch = {
-          jobseekerId: parseInt(jobseekerId),
+        const matchData = {
+          jobseekerId: jobseekerIdNum,
           employerId,
           status: 'new'
         };
         
-        const [match] = await db.insert(matches).values(matchData).returning();
+        const [match] = await db.insert(matches).values([matchData]).returning();
         return { match, isMatch: true };
       }
     }
