@@ -69,91 +69,82 @@ export default function LandingPage() {
       <div className="relative bg-white overflow-hidden">
         <div className="max-w-7xl mx-auto">
           <div className="relative z-10 pb-8 bg-white sm:pb-16 md:pb-20 lg:max-w-2xl lg:w-full lg:pb-28 xl:pb-32">
-            <main className="mt-10 mx-auto max-w-7xl px-4 sm:mt-12 sm:px-6 md:mt-16 lg:mt-20 lg:px-8 xl:mt-28">
+            <main className="mt-12 mx-auto max-w-7xl px-4 sm:mt-16 sm:px-6 md:mt-20 lg:mt-24 lg:px-8 xl:mt-32">
               <div className="sm:text-center lg:text-left">
                 <h1 className="text-4xl tracking-tight font-bold text-gray-900 sm:text-5xl md:text-6xl font-heading">
-                  <span className="block">Welcome to</span>
-                  <span className="block text-gradient font-extrabold">enterN</span>
-                  <span className="block text-gradient"> We are rewiring hiring</span>
+                  <span className="block text-gradient font-extrabold">enterN: Rewiring Hiring</span>
                 </h1>
-                <p className="mt-3 text-base text-gray-600 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
+                <p className="mt-6 text-base text-gray-600 sm:mt-8 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-8 md:text-xl lg:mx-0 leading-relaxed">
                   enterN connects employers with early-career talent based on organizational fit and values alignment, not just resumes. Build meaningful connections that lead to lasting careers.
                 </p>
-                <div className="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start">
-                  <div className="rounded-md shadow">
-                    <Button 
-                      onClick={navigateToJobseeker}
-                      className="w-full flex items-center justify-center px-8 py-3 border-0 text-base font-medium rounded-md text-white btn-gradient md:py-4 md:text-lg md:px-10"
-                    >
-                      <i className="fas fa-briefcase mr-2"></i>
-                      I'm a Jobseeker
-                    </Button>
-                  </div>
-                  <div className="mt-3 sm:mt-0 sm:ml-3">
-                    <Button 
-                      onClick={navigateToEmployer}
-                      variant="outline"
-                      className="w-full flex items-center justify-center px-8 py-3 border border-[#5CE1E6] text-base font-medium rounded-md bg-white text-[#FF66C4] hover:bg-gray-50 md:py-4 md:text-lg md:px-10"
-                    >
-                      <i className="fas fa-building mr-2"></i>
-                      I'm an Employer
-                    </Button>
-                  </div>
+                <div className="mt-8 sm:mt-10 sm:flex sm:justify-center lg:justify-start gap-4">
+                  <Button 
+                    onClick={navigateToJobseeker}
+                    className="w-full flex items-center justify-center px-8 py-4 text-base font-medium rounded-lg text-white btn-gradient md:text-lg md:px-10 shadow-lg hover:shadow-xl transition-all"
+                  >
+                    I'm a Jobseeker
+                  </Button>
+                  <Button 
+                    onClick={navigateToEmployer}
+                    variant="outline"
+                    className="mt-4 sm:mt-0 w-full flex items-center justify-center px-8 py-4 border-2 border-[#5CE1E6] text-base font-medium rounded-lg bg-white text-[#FF66C4] hover:bg-gray-50 md:text-lg md:px-10 shadow-md hover:shadow-lg transition-all"
+                  >
+                    I'm an Employer
+                  </Button>
                 </div>
               </div>
             </main>
           </div>
         </div>
-        {/* No photo here as requested */}
       </div>
 
       {/* Features Section */}
-      <div className="py-12 bg-white">
+      <div className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="lg:text-center">
+          <div className="lg:text-center mb-12">
             <h2 className="text-base text-gradient font-semibold tracking-wide uppercase font-heading">How it works</h2>
             <p className="mt-2 text-3xl leading-8 font-bold tracking-tight text-gray-900 sm:text-4xl font-heading">
               A better way to <span className="text-gradient">match talent with opportunity</span>
             </p>
-            <p className="mt-4 max-w-2xl text-xl text-gray-600 lg:mx-auto">
+            <p className="mt-6 max-w-2xl text-xl text-gray-600 lg:mx-auto leading-relaxed">
               enterN uses innovative matching techniques to connect talent with employers based on what really matters.
             </p>
           </div>
 
-          <div className="mt-10">
-            <dl className="space-y-10 md:space-y-0 md:grid md:grid-cols-3 md:gap-x-8 md:gap-y-10">
-              <div className="relative">
+          <div className="mt-16">
+            <dl className="space-y-12 md:space-y-0 md:grid md:grid-cols-3 md:gap-x-8 md:gap-y-12">
+              <div className="relative bg-white p-6 rounded-xl shadow-md transform transition-all hover:scale-105">
                 <dt>
-                  <div className="absolute flex items-center justify-center h-12 w-12 rounded-md btn-gradient text-white">
-                    <i className="fas fa-user-circle"></i>
+                  <div className="absolute top-6 left-6 flex items-center justify-center h-14 w-14 rounded-md btn-gradient text-white shadow-lg">
+                    <i className="fas fa-user-circle text-xl"></i>
                   </div>
-                  <p className="ml-16 text-lg leading-6 font-medium text-gray-900">Anonymous profiles</p>
+                  <p className="ml-20 text-xl leading-6 font-medium text-gray-900 mb-4">Anonymous profiles</p>
                 </dt>
-                <dd className="mt-2 ml-16 text-base text-gray-600">
+                <dd className="mt-2 ml-20 text-base text-gray-600 leading-relaxed">
                   Jobseekers create profiles highlighting their values, preferences, and work style - not just their resume.
                 </dd>
               </div>
 
-              <div className="relative">
+              <div className="relative bg-white p-6 rounded-xl shadow-md transform transition-all hover:scale-105">
                 <dt>
-                  <div className="absolute flex items-center justify-center h-12 w-12 rounded-md btn-gradient text-white">
-                    <i className="fas fa-exchange-alt"></i>
+                  <div className="absolute top-6 left-6 flex items-center justify-center h-14 w-14 rounded-md btn-gradient text-white shadow-lg">
+                    <i className="fas fa-exchange-alt text-xl"></i>
                   </div>
-                  <p className="ml-16 text-lg leading-6 font-medium text-gray-900">Two-way matching</p>
+                  <p className="ml-20 text-xl leading-6 font-medium text-gray-900 mb-4">Two-way matching</p>
                 </dt>
-                <dd className="mt-2 ml-16 text-base text-gray-600">
+                <dd className="mt-2 ml-20 text-base text-gray-600 leading-relaxed">
                   Both employers and jobseekers express interest, creating matches based on mutual enthusiasm.
                 </dd>
               </div>
 
-              <div className="relative">
+              <div className="relative bg-white p-6 rounded-xl shadow-md transform transition-all hover:scale-105">
                 <dt>
-                  <div className="absolute flex items-center justify-center h-12 w-12 rounded-md btn-gradient text-white">
-                    <i className="fas fa-handshake"></i>
+                  <div className="absolute top-6 left-6 flex items-center justify-center h-14 w-14 rounded-md btn-gradient text-white shadow-lg">
+                    <i className="fas fa-handshake text-xl"></i>
                   </div>
-                  <p className="ml-16 text-lg leading-6 font-medium text-gray-900">Better connections</p>
+                  <p className="ml-20 text-xl leading-6 font-medium text-gray-900 mb-4">Better connections</p>
                 </dt>
-                <dd className="mt-2 ml-16 text-base text-gray-600">
+                <dd className="mt-2 ml-20 text-base text-gray-600 leading-relaxed">
                   Connect based on organizational fit and values alignment, leading to more meaningful hiring outcomes.
                 </dd>
               </div>
@@ -163,39 +154,56 @@ export default function LandingPage() {
       </div>
 
       {/* Footer */}
-      <footer className="bg-white mt-auto">
+      <footer className="bg-gray-900 text-white mt-auto">
         <div className="max-w-7xl mx-auto py-12 px-4 overflow-hidden sm:px-6 lg:px-8">
-          <nav className="-mx-5 -my-2 flex flex-wrap justify-center" aria-label="Footer">
-            <div className="px-5 py-2">
-              <a href="#" className="text-base text-gray-500 hover:text-gray-900">About</a>
+          <div className="flex flex-col md:flex-row justify-between items-center mb-8">
+            <div className="mb-6 md:mb-0">
+              <img src={enternLogo} alt="enterN Logo" className="h-14 mb-4" />
+              <p className="text-gray-300 max-w-xs">
+                Building a faster, fairer, and frictionless hiring process for all.
+              </p>
             </div>
-            <div className="px-5 py-2">
-              <a href="#" className="text-base text-gray-500 hover:text-gray-900">Employers</a>
+            
+            <div className="flex flex-col space-y-4">
+              <div className="flex space-x-8">
+                <nav className="flex flex-col space-y-4" aria-label="Footer">
+                  <a href="#" className="text-gray-300 hover:text-white transition-colors">About</a>
+                  <a href="#" className="text-gray-300 hover:text-white transition-colors">Employers</a>
+                  <a href="#" className="text-gray-300 hover:text-white transition-colors">Jobseekers</a>
+                </nav>
+                
+                <nav className="flex flex-col space-y-4" aria-label="Footer Secondary">
+                  <a href="#" className="text-gray-300 hover:text-white transition-colors">Privacy Policy</a>
+                  <a href="#" className="text-gray-300 hover:text-white transition-colors">Terms of Service</a>
+                  <a href="#" className="text-gray-300 hover:text-white transition-colors">Contact Us</a>
+                </nav>
+              </div>
+              
+              <div className="flex justify-start space-x-6 mt-4">
+                <a href="https://www.facebook.com/enterN.platform" className="text-gray-400 hover:text-white transition-colors">
+                  <span className="sr-only">Facebook</span>
+                  <i className="fab fa-facebook text-xl"></i>
+                </a>
+                <a href="https://www.linkedin.com/company/104826614/admin/dashboard/" className="text-gray-400 hover:text-white transition-colors">
+                  <span className="sr-only">LinkedIn</span>
+                  <i className="fab fa-linkedin text-xl"></i>
+                </a>
+                <a href="https://www.enter-n.com" className="text-gray-400 hover:text-white transition-colors">
+                  <span className="sr-only">Website</span>
+                  <i className="fas fa-globe text-xl"></i>
+                </a>
+              </div>
             </div>
-            <div className="px-5 py-2">
-              <a href="#" className="text-base text-gray-500 hover:text-gray-900">Jobseekers</a>
-            </div>
-          </nav>
-          <div className="mt-8 flex justify-center space-x-6">
-            <a href="https://www.facebook.com/enterN.platform" className="text-gray-400 hover:text-gray-500">
-              <span className="sr-only">Facebook</span>
-              <i className="fab fa-facebook h-6 w-6"></i>
-            </a>
-            <a href="https://www.linkedin.com/company/104826614/admin/dashboard/" className="text-gray-400 hover:text-gray-500">
-              <span className="sr-only">LinkedIn</span>
-              <i className="fab fa-linkedin h-6 w-6"></i>
-            </a>
-            <a href="https://www.enter-n.com" className="text-gray-400 hover:text-gray-500">
-              <span className="sr-only">Website</span>
-              <i className="fas fa-globe h-6 w-6"></i>
-            </a>
           </div>
-          <p className="mt-8 text-center text-base text-gray-400">
-            © 2025 enterN, All rights reserved. | enterN is committed to rewiring hiring: building a faster, fairer, and frictionless process for all.
-          </p>
-          <p className="mt-2 text-center text-sm text-gray-400">
-            Beta version. For bugs or suggestions, email info@enter-n.com
-          </p>
+          
+          <div className="border-t border-gray-800 pt-8">
+            <p className="text-center text-gray-400">
+              © 2025 enterN, All rights reserved.
+            </p>
+            <p className="mt-2 text-center text-sm text-gray-500">
+              Beta version. For bugs or suggestions, email info@enter-n.com
+            </p>
+          </div>
         </div>
       </footer>
     </div>
