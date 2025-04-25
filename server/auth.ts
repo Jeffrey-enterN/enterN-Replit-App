@@ -71,11 +71,30 @@ export function setupAuth(app: Express) {
 
   app.post("/api/register", async (req, res, next) => {
     try {
-      const { username, password, userType, firstName, lastName, companyName } = req.body;
+      const { 
+        username, 
+        password, 
+        userType, 
+        firstName, 
+        lastName, 
+        companyName,
+        email,
+        phone 
+      } = req.body;
       
       // Validate required fields
       if (!username || !password || !userType) {
         return res.status(400).json({ message: "Username, password, and user type are required" });
+      }
+
+      // Validate jobseeker-specific required fields
+      if (userType === 'jobseeker' && (!firstName || !lastName)) {
+        return res.status(400).json({ message: "First name and last name are required for jobseekers" });
+      }
+      
+      // Validate employer-specific required fields
+      if (userType === 'employer' && !companyName) {
+        return res.status(400).json({ message: "Company name is required for employers" });
       }
 
       const existingUser = await storage.getUserByUsername(username);
@@ -85,6 +104,7 @@ export function setupAuth(app: Express) {
 
       const hashedPassword = await hashPassword(password);
       
+      // Create user with all provided fields
       const user = await storage.createUser({
         username,
         password: hashedPassword,
@@ -92,6 +112,8 @@ export function setupAuth(app: Express) {
         firstName,
         lastName,
         companyName,
+        email: email || username, // Use the username (email) if email not explicitly provided
+        phone,
       });
 
       // Remove password from the response
