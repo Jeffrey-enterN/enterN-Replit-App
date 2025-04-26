@@ -25,13 +25,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Save Jobseeker Profile Draft
   app.post("/api/jobseeker/profile/draft", async (req, res) => {
-    if (!req.isAuthenticated()) return res.status(401).json({ message: "Unauthorized" });
-    if (req.user.userType !== USER_TYPES.JOBSEEKER) return res.status(403).json({ message: "Forbidden" });
+    console.log("Profile draft save attempt - isAuthenticated:", req.isAuthenticated());
+    
+    if (!req.isAuthenticated()) {
+      console.log("Unauthorized attempt to save profile draft - session info:", 
+                 { sessionID: req.sessionID, user: req.user });
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+    
+    console.log("Authenticated user saving profile draft:", req.user.id, req.user.username);
+    
+    if (req.user.userType !== USER_TYPES.JOBSEEKER) {
+      console.log("Forbidden attempt - user is not a jobseeker:", req.user.userType);
+      return res.status(403).json({ message: "Forbidden" });
+    }
 
     try {
       const profileDraft = await storage.saveJobseekerProfileDraft(req.user.id, req.body);
+      console.log("Profile draft saved successfully for user:", req.user.id);
       res.status(200).json(profileDraft);
     } catch (error) {
+      console.error("Error saving profile draft:", error);
       res.status(500).json({ message: (error as Error).message });
     }
   });
