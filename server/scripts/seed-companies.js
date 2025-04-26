@@ -3,7 +3,7 @@ import { drizzle } from 'drizzle-orm/neon-serverless';
 import { eq } from 'drizzle-orm';
 import ws from 'ws';
 import { hashPassword } from '../utils/auth-utils.js';
-import { users, employerProfiles } from '../../shared/schema.js';
+import { users, employerProfiles } from '../../shared/schema.ts';
 
 neonConfig.webSocketConstructor = ws;
 

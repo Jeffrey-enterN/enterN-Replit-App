@@ -1,9 +1,9 @@
-const { Pool } = require('@neondatabase/serverless');
-const { drizzle } = require('drizzle-orm/neon-serverless');
-const { eq } = require('drizzle-orm');
-const ws = require('ws');
-const { neonConfig } = require('@neondatabase/serverless');
-const { hashPassword } = require('../utils/auth-utils');
+import { Pool, neonConfig } from '@neondatabase/serverless';
+import { drizzle } from 'drizzle-orm/neon-serverless';
+import { eq } from 'drizzle-orm';
+import ws from 'ws';
+import { hashPassword } from '../utils/auth-utils.js';
+import { users, jobseekerProfiles } from '../../shared/schema.ts';
 
 neonConfig.webSocketConstructor = ws;
 
@@ -251,7 +251,6 @@ async function seedJobseekers() {
   try {
     const pool = new Pool({ connectionString: process.env.DATABASE_URL });
     const db = drizzle(pool);
-    const { users, jobseekerProfiles } = require('../../shared/schema');
 
     console.log('Starting jobseeker seed process...');
     
