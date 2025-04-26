@@ -121,7 +121,7 @@ export default function LandingPage() {
                   <p className="ml-20 text-xl leading-6 font-medium text-gray-900 mb-4">Anonymized Jobseeker Profiles</p>
                 </dt>
                 <dd className="mt-2 ml-20 text-base text-gray-600 leading-relaxed">
-                  We've replaced the resume with bias-resistant anonymized profiles that capture 45 points of organizational and collaborative comparability. Now you'll know if someone is a good fit, even before your first conversation.
+                  We've replaced the resume with bias-resistant anonymized profiles that capture 45 points of organizational and collaborative compatibility. Now you'll know if someone is a good fit, even before your first conversation.
                 </dd>
               </div>
 
