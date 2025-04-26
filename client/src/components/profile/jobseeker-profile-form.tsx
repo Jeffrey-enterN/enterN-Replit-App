@@ -10,6 +10,17 @@ import { DEGREE_LEVELS, WORK_ARRANGEMENTS, SLIDER_CATEGORIES, INDUSTRIES } from 
 import CollapsibleSliderSection from './collapsible-slider-section';
 import { LocationInput } from '@/components/ui/location-input';
 import { Check, ChevronRight } from 'lucide-react';
+import { useAuth } from '@/context/auth-context';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 import {
   Form,
@@ -62,6 +73,9 @@ type FormValues = z.infer<typeof formSchema>;
 export default function JobseekerProfileForm() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
+  const { user, loginMutation } = useAuth();
+  // For session expiration alert dialog
+  const [showSessionAlert, setShowSessionAlert] = useState(false);
   // Track the current step (1, 2, or 3)
   const [currentStep, setCurrentStep] = useState(1);
   const [sliderValues, setSliderValues] = useState<Record<string, number>>({});
@@ -157,11 +171,17 @@ export default function JobseekerProfileForm() {
       });
     },
     onError: (error: Error) => {
-      toast({
-        title: 'Error saving draft',
-        description: error.message,
-        variant: 'destructive',
-      });
+      // Check if this is an authentication error
+      if (error.message.includes('401') || error.message.includes('Unauthorized')) {
+        // Show session expired dialog
+        setShowSessionAlert(true);
+      } else {
+        toast({
+          title: 'Error saving draft',
+          description: error.message,
+          variant: 'destructive',
+        });
+      }
     },
   });
 
