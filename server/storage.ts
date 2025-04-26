@@ -573,10 +573,74 @@ export class DatabaseStorage implements IStorage {
       .from(jobseekerProfiles)
       .where(eq(jobseekerProfiles.userId, userId));
     
-    // Calculate profile completion percentage
-    const profileCompletionPercentage = profile ? 85 : 10;
+    // Get user data
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, userId));
     
-    // Count matches
+    // Calculate profile completion percentage more accurately
+    let completionScore = 0;
+    let totalFields = 0;
+    
+    // Basic user fields (firstName, lastName, email, phone)
+    if (user) {
+      totalFields += 4;
+      if (user.firstName) completionScore += 1;
+      if (user.lastName) completionScore += 1;
+      if (user.email) completionScore += 1;
+      if (user.phone) completionScore += 1;
+    }
+    
+    // Profile fields
+    if (profile) {
+      // Education fields
+      if (profile.education) {
+        totalFields += 3;
+        if (profile.education.degree) completionScore += 1;
+        if (profile.education.school) completionScore += 1;
+        if (profile.education.major) completionScore += 1;
+      }
+      
+      // Experience - check if it exists and has at least one entry
+      if (profile.experience) {
+        totalFields += 1;
+        if (Array.isArray(profile.experience) && profile.experience.length > 0) {
+          completionScore += 1;
+        }
+      }
+      
+      // Skills - check if it exists and has entries
+      if (profile.skills) {
+        totalFields += 1;
+        if (Array.isArray(profile.skills) && profile.skills.length > 0) {
+          completionScore += 1;
+        }
+      }
+      
+      // Slider values - check if they exist and have entries
+      if (profile.sliderValues) {
+        totalFields += 1;
+        if (Object.keys(profile.sliderValues).length > 0) {
+          completionScore += 1;
+        }
+      }
+      
+      // Location preferences - check if they exist and have entries
+      if (profile.locationPreferences) {
+        totalFields += 1;
+        if (Array.isArray(profile.locationPreferences) && profile.locationPreferences.length > 0) {
+          completionScore += 1;
+        }
+      }
+    }
+    
+    // Calculate the percentage, default to 0 if no fields are found
+    const profileCompletionPercentage = totalFields > 0 
+      ? Math.round((completionScore / totalFields) * 100) 
+      : 0;
+    
+    // Count matches - these will always be actual database counts
     const matchCount = await db
       .select({ count: sql<number>`count(*)` })
       .from(matches)
@@ -626,11 +690,11 @@ export class DatabaseStorage implements IStorage {
     return {
       stats: {
         profileCompletion: {
-          percentage: profileCompletionPercentage,
-          increase: 20
+          percentage: profileCompletionPercentage
+          // Removed the fake increase percentage
         },
-        profileViews: 28,
-        matches: matchCount[0]?.count || 0
+        profileViews: 0, // Set to 0 as we don't have actual profile view data yet
+        matches: matchCount[0]?.count || 0 // This is already based on actual data
       },
       recentMatches: recentMatchesWithNames
     };
@@ -881,9 +945,9 @@ export class DatabaseStorage implements IStorage {
     return {
       stats: {
         activeJobs: jobsCount[0]?.count || 0,
-        profileViews: 42,
+        profileViews: 0, // Set to 0 as we don't have a profile view tracking mechanism yet
         matches: matchCount[0]?.count || 0,
-        interviews: 3
+        interviews: 0 // Set to 0 as we don't have interview scheduling yet
       },
       jobs: displayJobs,
       recentMatches: recentMatches.map(match => ({
