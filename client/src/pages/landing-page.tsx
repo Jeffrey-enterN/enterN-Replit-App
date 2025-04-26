@@ -107,7 +107,7 @@ export default function LandingPage() {
               A better way to <span className="text-gradient">match talent with opportunity</span>
             </p>
             <p className="mt-6 max-w-2xl text-xl text-gray-600 lg:mx-auto leading-relaxed">
-              enterN uses innovative matching techniques to connect talent with employers based on what really matters.
+              enterN's proprietary matching algorithm connects early talent with employers based on work style compatibility and values alignment, not just skills and experience.
             </p>
           </div>
 
@@ -118,10 +118,10 @@ export default function LandingPage() {
                   <div className="absolute top-6 left-6 flex items-center justify-center h-14 w-14 rounded-md btn-gradient text-white shadow-lg">
                     <i className="fas fa-user-circle text-xl"></i>
                   </div>
-                  <p className="ml-20 text-xl leading-6 font-medium text-gray-900 mb-4">Anonymous profiles</p>
+                  <p className="ml-20 text-xl leading-6 font-medium text-gray-900 mb-4">Anonymized Jobseeker Profiles</p>
                 </dt>
                 <dd className="mt-2 ml-20 text-base text-gray-600 leading-relaxed">
-                  Jobseekers create profiles highlighting their values, preferences, and work style - not just their resume.
+                  We've replaced the resume with bias-resistant anonymized profiles that capture 45 points of organizational and collaborative comparability. Now you'll know if someone is a good fit, even before your first conversation.
                 </dd>
               </div>
 
@@ -130,10 +130,10 @@ export default function LandingPage() {
                   <div className="absolute top-6 left-6 flex items-center justify-center h-14 w-14 rounded-md btn-gradient text-white shadow-lg">
                     <i className="fas fa-exchange-alt text-xl"></i>
                   </div>
-                  <p className="ml-20 text-xl leading-6 font-medium text-gray-900 mb-4">Two-way matching</p>
+                  <p className="ml-20 text-xl leading-6 font-medium text-gray-900 mb-4">Symmetrical Matching</p>
                 </dt>
                 <dd className="mt-2 ml-20 text-base text-gray-600 leading-relaxed">
-                  Both employers and jobseekers express interest, creating matches based on mutual enthusiasm.
+                  Our platform uses a two-way matching algorithm where both jobseekers and employers express interest independently. Only when there's mutual interest does a match occur, leading to higher engagement and better conversion rates.
                 </dd>
               </div>
 
@@ -142,10 +142,10 @@ export default function LandingPage() {
                   <div className="absolute top-6 left-6 flex items-center justify-center h-14 w-14 rounded-md btn-gradient text-white shadow-lg">
                     <i className="fas fa-handshake text-xl"></i>
                   </div>
-                  <p className="ml-20 text-xl leading-6 font-medium text-gray-900 mb-4">Better connections</p>
+                  <p className="ml-20 text-xl leading-6 font-medium text-gray-900 mb-4">Organizational Alignment</p>
                 </dt>
                 <dd className="mt-2 ml-20 text-base text-gray-600 leading-relaxed">
-                  Connect based on organizational fit and values alignment, leading to more meaningful hiring outcomes.
+                  Beyond skills and experience, enterN focuses on organizational fit, supervisor compatibility, and mission alignment. Our data shows that these factors lead to higher job satisfaction, better retention, and improved productivity.
                 </dd>
               </div>
             </dl>
