@@ -49,9 +49,9 @@ const step1Schema = z.object({
   email: z.string().email({ message: 'Please enter a valid email' }),
   phone: z.string().min(10, { message: 'Please enter a valid phone number' }),
   schoolEmail: z.string().email({ message: 'Please enter a valid school email' }).optional().or(z.literal('')),
-  school: z.string().min(1, { message: 'School is required' }),
-  degreeLevel: z.string().min(1, { message: 'Degree level is required' }),
-  major: z.string().min(1, { message: 'Major is required' }),
+  school: z.string().optional().or(z.literal('')),
+  degreeLevel: z.string().optional().or(z.literal('')),
+  major: z.string().optional().or(z.literal('')),
 });
 
 // Define the schema for step 2
@@ -189,12 +189,13 @@ export default function JobseekerProfileForm() {
   React.useEffect(() => {
     const subscription = form.watch((value) => {
       // Only update with non-undefined values to avoid type errors
-      const validValue = Object.entries(value).reduce((acc, [key, val]) => {
+      const validValue: Partial<FormValues> = {};
+      Object.entries(value).forEach(([key, val]) => {
         if (val !== undefined) {
-          acc[key] = val;
+          // TypeScript requires this type assertion
+          (validValue as any)[key] = val;
         }
-        return acc;
-      }, {} as Partial<FormValues>);
+      });
       
       setFormData(current => ({
         ...current,
@@ -356,78 +357,87 @@ export default function JobseekerProfileForm() {
                     )}
                   />
 
-                  <FormField
-                    control={form.control}
-                    name="school"
-                    render={({ field }) => (
-                      <FormItem className="sm:col-span-6">
-                        <FormLabel>School *</FormLabel>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  <div className="sm:col-span-6 border rounded-lg p-6 bg-gray-50 mt-4">
+                    <h3 className="text-base font-medium text-gray-900 mb-2">Educational Information (Optional)</h3>
+                    <p className="text-sm text-gray-500 mb-4">
+                      Providing your educational information helps us connect you with relevant job fairs, campus recruiting events, and other opportunities for early career professionals.
+                    </p>
 
-                  <FormField
-                    control={form.control}
-                    name="schoolEmail"
-                    render={({ field }) => (
-                      <FormItem className="sm:col-span-6">
-                        <FormLabel>School email (if different)</FormLabel>
-                        <FormControl>
-                          <Input type="email" {...field} />
-                        </FormControl>
-                        <FormDescription>
-                          This email will be used to verify your school affiliation.
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                    <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                      <FormField
+                        control={form.control}
+                        name="school"
+                        render={({ field }) => (
+                          <FormItem className="sm:col-span-6">
+                            <FormLabel>School</FormLabel>
+                            <FormControl>
+                              <Input {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
 
-                  <FormField
-                    control={form.control}
-                    name="degreeLevel"
-                    render={({ field }) => (
-                      <FormItem className="sm:col-span-3">
-                        <FormLabel>Level of degree *</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select a degree level" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {DEGREE_LEVELS.map((level) => (
-                              <SelectItem key={level} value={level}>
-                                {level}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                      <FormField
+                        control={form.control}
+                        name="schoolEmail"
+                        render={({ field }) => (
+                          <FormItem className="sm:col-span-6">
+                            <FormLabel>School email</FormLabel>
+                            <FormControl>
+                              <Input type="email" {...field} />
+                            </FormControl>
+                            <FormDescription>
+                              If provided, this will be used to verify your school affiliation for campus events.
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
 
-                  <FormField
-                    control={form.control}
-                    name="major"
-                    render={({ field }) => (
-                      <FormItem className="sm:col-span-3">
-                        <FormLabel>Major *</FormLabel>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                      <FormField
+                        control={form.control}
+                        name="degreeLevel"
+                        render={({ field }) => (
+                          <FormItem className="sm:col-span-3">
+                            <FormLabel>Level of degree</FormLabel>
+                            <Select
+                              onValueChange={field.onChange}
+                              defaultValue={field.value}
+                            >
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select a degree level" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {DEGREE_LEVELS.map((level) => (
+                                  <SelectItem key={level} value={level}>
+                                    {level}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="major"
+                        render={({ field }) => (
+                          <FormItem className="sm:col-span-3">
+                            <FormLabel>Major</FormLabel>
+                            <FormControl>
+                              <Input {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
