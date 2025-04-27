@@ -721,7 +721,7 @@ export class DatabaseStorage implements IStorage {
           console.log(`Creating minimal jobseeker profile for user ${userId}`);
           try {
             await db.insert(jobseekerProfiles).values({
-              userId,
+              userId: userId,
               firstName: user.firstName || '',
               lastName: user.lastName || '',
               email: user.email || user.username,
@@ -772,7 +772,7 @@ export class DatabaseStorage implements IStorage {
         const jobPostingsResult = await db
           .select({ title: jobPostings.title })
           .from(jobPostings)
-          .where(eq(jobPostings.employerId, employer.userId))
+          .where(eq(jobPostings.employerId, parseInt(employer.userId.toString())))
           .limit(5);
         
         const positions = jobPostingsResult.length > 0
