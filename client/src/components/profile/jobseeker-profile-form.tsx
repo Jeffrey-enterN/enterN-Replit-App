@@ -82,9 +82,9 @@ export default function JobseekerProfileForm() {
   
   // State to persist form data between steps
   const [formData, setFormData] = useState<Partial<FormValues>>({
-    firstName: '',
-    lastName: '',
-    email: '',
+    firstName: user?.firstName || '',
+    lastName: user?.lastName || '',
+    email: user?.username || '', // Use the authenticated user's email
     phone: '',
     schoolEmail: '',
     school: '',
@@ -188,9 +188,17 @@ export default function JobseekerProfileForm() {
   // Effect to update form when data changes
   React.useEffect(() => {
     const subscription = form.watch((value) => {
+      // Only update with non-undefined values to avoid type errors
+      const validValue = Object.entries(value).reduce((acc, [key, val]) => {
+        if (val !== undefined) {
+          acc[key] = val;
+        }
+        return acc;
+      }, {} as Partial<FormValues>);
+      
       setFormData(current => ({
         ...current,
-        ...value
+        ...validValue
       }));
     });
     
@@ -324,8 +332,11 @@ export default function JobseekerProfileForm() {
                       <FormItem className="sm:col-span-3">
                         <FormLabel>Email address *</FormLabel>
                         <FormControl>
-                          <Input type="email" {...field} />
+                          <Input type="email" {...field} readOnly disabled className="bg-gray-50 cursor-not-allowed" />
                         </FormControl>
+                        <FormDescription>
+                          Using your account email for communication
+                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
