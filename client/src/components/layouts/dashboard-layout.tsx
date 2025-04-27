@@ -3,7 +3,7 @@ import { Link, useLocation } from 'wouter';
 import { useAuth } from '@/context/auth-context';
 import { USER_TYPES } from '@/lib/constants';
 import { Button } from '@/components/ui/button';
-import { SettingsDialog } from './settings-dialog';
+import { SettingsDialog } from '../layouts/settings-dialog';
 import JobseekerNav from './jobseeker-nav';
 import enternLogo from '@/assets/entern-logo.png';
 

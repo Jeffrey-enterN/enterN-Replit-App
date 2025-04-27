@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/auth-context';
 import { getInitials } from '@/lib/utils';
-import { SettingsDialog } from './settings-dialog';
+import { SettingsDialog } from '../layouts/settings-dialog';
 
 export default function JobseekerNav() {
   const { user } = useAuth();
