@@ -701,50 +701,96 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getJobseekerPotentialMatches(userId: number): Promise<any[]> {
-    // Get employers this jobseeker hasn't swiped on yet
-    const swipedEmployerIds = await db
-      .select({ employerId: swipes.employerId })
-      .from(swipes)
-      .where(eq(swipes.jobseekerId, userId));
-    
-    // Get employer profiles that haven't been swiped on
-    const potentialEmployers = await db
-      .select({
-        userId: employerProfiles.userId,
-        companyName: employerProfiles.companyName,
-        headquarters: employerProfiles.headquarters,
-        aboutCompany: employerProfiles.aboutCompany
-      })
-      .from(employerProfiles)
-      .where(
-        sql`${employerProfiles.userId} NOT IN (
-          SELECT ${swipes.employerId} FROM ${swipes} 
-          WHERE ${swipes.jobseekerId} = ${userId}
-        )`
-      )
-      .limit(5);
-    
-    // Format the results
-    return await Promise.all(potentialEmployers.map(async (employer) => {
-      // Get job postings for this employer
-      const jobPostingsResult = await db
-        .select({ title: jobPostings.title })
-        .from(jobPostings)
-        .where(eq(jobPostings.employerId, employer.userId))
+    try {
+      // Check if jobseeker profile exists
+      const [profile] = await db
+        .select()
+        .from(jobseekerProfiles)
+        .where(eq(jobseekerProfiles.userId, userId));
+      
+      // If no profile exists, create a basic profile draft to avoid errors
+      if (!profile) {
+        // Get user data
+        const [user] = await db
+          .select()
+          .from(users)
+          .where(eq(users.id, userId));
+          
+        if (user) {
+          // Create a minimal profile to ensure the rest of the functionality works
+          console.log(`Creating minimal jobseeker profile for user ${userId}`);
+          try {
+            await db.insert(jobseekerProfiles).values({
+              userId,
+              firstName: user.firstName || '',
+              lastName: user.lastName || '',
+              email: user.email || user.username,
+              schoolEmail: '',
+              school: '',
+              degreeLevel: '',
+              major: '',
+              portfolioUrl: '',
+              preferredLocations: [],
+              workArrangements: [],
+              industryPreferences: [],
+              functionalPreferences: '',
+              sliderValues: {}
+            });
+            console.log(`Created minimal jobseeker profile for user ${userId}`);
+          } catch (err) {
+            console.error(`Error creating minimal profile: ${err}`);
+          }
+        }
+      }
+      
+      // Get employers this jobseeker hasn't swiped on yet
+      const swipedEmployerIds = await db
+        .select({ employerId: swipes.employerId })
+        .from(swipes)
+        .where(eq(swipes.jobseekerId, userId));
+      
+      // Get employer profiles that haven't been swiped on
+      const potentialEmployers = await db
+        .select({
+          userId: employerProfiles.userId,
+          companyName: employerProfiles.companyName,
+          headquarters: employerProfiles.headquarters,
+          aboutCompany: employerProfiles.aboutCompany
+        })
+        .from(employerProfiles)
+        .where(
+          sql`${employerProfiles.userId} NOT IN (
+            SELECT ${swipes.employerId} FROM ${swipes} 
+            WHERE ${swipes.jobseekerId} = ${userId}
+          )`
+        )
         .limit(5);
       
-      const positions = jobPostingsResult.length > 0
-        ? jobPostingsResult.map(job => job.title)
-        : ['Software Engineer', 'Product Manager', 'UX Designer'];
-      
-      return {
-        id: employer.userId.toString(),
-        name: employer.companyName || 'Unknown Company',
-        location: employer.headquarters || 'Remote',
-        description: employer.aboutCompany || 'No company description available',
-        positions
-      };
-    }));
+      // Format the results
+      return await Promise.all(potentialEmployers.map(async (employer) => {
+        // Get job postings for this employer
+        const jobPostingsResult = await db
+          .select({ title: jobPostings.title })
+          .from(jobPostings)
+          .where(eq(jobPostings.employerId, employer.userId))
+          .limit(5);
+        
+        const positions = jobPostingsResult.length > 0
+          ? jobPostingsResult.map(job => job.title)
+          : ['Software Engineer', 'Product Manager', 'UX Designer'];
+        
+        return {
+          id: employer.userId.toString(),
+          name: employer.companyName || 'Unknown Company',
+          location: employer.headquarters || 'Remote',
+          description: employer.aboutCompany || 'No company description available',
+          positions
+        };
+      }));
+    } catch (error) {
+      console.error('Error in getJobseekerPotentialMatches:', error);
+      return []; // Return empty array instead of crashing
+    }
   }
 
   async handleJobseekerSwipe(jobseekerId: number, employerId: string, interested: boolean): Promise<any> {
