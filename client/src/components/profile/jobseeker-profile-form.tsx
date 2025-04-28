@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useLocation } from 'wouter';
 import { useToast } from '@/hooks/use-toast';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { apiRequest, queryClient } from '@/lib/queryClient';
 import { DEGREE_LEVELS, WORK_ARRANGEMENTS, SLIDER_CATEGORIES, INDUSTRIES } from '@/lib/constants';
 import CollapsibleSliderSection from './collapsible-slider-section';
@@ -99,6 +99,24 @@ export default function JobseekerProfileForm() {
   
   // Track slider section completion
   const [completedSections, setCompletedSections] = useState<Record<string, boolean>>({});
+  
+  // Query to fetch the user's profile if it exists
+  const profileQuery = useQuery({
+    queryKey: ['/api/jobseeker/profile'],
+    queryFn: async () => {
+      try {
+        const response = await apiRequest('GET', '/api/jobseeker/profile');
+        if (response.ok) {
+          return response.json();
+        }
+        return null;
+      } catch (error) {
+        console.error('Error fetching profile:', error);
+        return null;
+      }
+    },
+    enabled: !!user // Only run if user is logged in
+  });
 
   const form = useForm<FormValues>({
     resolver: zodResolver(currentStep === 1 ? step1Schema : currentStep === 2 ? step2Schema : formSchema),
@@ -184,6 +202,41 @@ export default function JobseekerProfileForm() {
       }
     },
   });
+
+  // Effect to load profile data when query completes
+  useEffect(() => {
+    if (profileQuery.data) {
+      const profile = profileQuery.data;
+      
+      // Update form data with profile values
+      const profileData: Partial<FormValues> = {
+        firstName: profile.firstName || user?.firstName || '',
+        lastName: profile.lastName || user?.lastName || '',
+        email: user?.username || '',
+        phone: profile.phone || '',
+        schoolEmail: profile.schoolEmail || '',
+        school: profile.school || '',
+        degreeLevel: profile.degreeLevel || '',
+        major: profile.major || '',
+        portfolioUrl: profile.portfolioUrl || '',
+        preferredLocations: profile.preferredLocations || [],
+        workArrangements: profile.workArrangements || [],
+        industryPreferences: profile.industryPreferences || [],
+        functionalPreferences: profile.functionalPreferences || '',
+      };
+      
+      // Set form data
+      setFormData(profileData);
+      
+      // Reset form with the new values
+      form.reset(profileData);
+      
+      // Set slider values if they exist
+      if (profile.sliderValues) {
+        setSliderValues(profile.sliderValues);
+      }
+    }
+  }, [profileQuery.data, form, user]);
 
   // Effect to update form when data changes
   React.useEffect(() => {
@@ -400,7 +453,7 @@ export default function JobseekerProfileForm() {
                         name="degreeLevel"
                         render={({ field }) => (
                           <FormItem className="sm:col-span-3">
-                            <FormLabel>Level of degree</FormLabel>
+                            <FormLabel>Highest Level of Education Obtained (Or In Progress)</FormLabel>
                             <Select
                               onValueChange={field.onChange}
                               defaultValue={field.value}

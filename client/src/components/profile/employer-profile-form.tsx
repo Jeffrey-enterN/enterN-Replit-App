@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useLocation } from 'wouter';
 import { useToast } from '@/hooks/use-toast';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { apiRequest, queryClient } from '@/lib/queryClient';
 import { COMPANY_SIZES, INDUSTRIES, COMPANY_BENEFITS } from '@/lib/constants';
 
@@ -55,6 +55,23 @@ export default function EmployerProfileForm() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const [offices, setOffices] = useState<string[]>(['']);
+  
+  // Query to fetch the employer's profile if it exists
+  const profileQuery = useQuery({
+    queryKey: ['/api/employer/profile'],
+    queryFn: async () => {
+      try {
+        const response = await apiRequest('GET', '/api/employer/profile');
+        if (response.ok) {
+          return response.json();
+        }
+        return null;
+      } catch (error) {
+        console.error('Error fetching profile:', error);
+        return null;
+      }
+    }
+  });
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -94,6 +111,34 @@ export default function EmployerProfileForm() {
     currentOffices[index] = value;
     form.setValue('additionalOffices', currentOffices);
   };
+  
+  // Effect to load profile data when query completes
+  useEffect(() => {
+    if (profileQuery.data) {
+      const profile = profileQuery.data;
+      
+      // Reset form with the profile data
+      form.reset({
+        companyName: profile.companyName || '',
+        companyWebsite: profile.companyWebsite || '',
+        headquarters: profile.headquarters || '',
+        yearFounded: profile.yearFounded || currentYear,
+        companySize: profile.companySize || '',
+        companyIndustry: profile.companyIndustry || '',
+        aboutCompany: profile.aboutCompany || '',
+        additionalOffices: profile.additionalOffices?.length ? profile.additionalOffices : [''],
+        companyMission: profile.companyMission || '',
+        companyValues: profile.companyValues || '',
+        benefits: profile.benefits || [],
+        additionalBenefits: profile.additionalBenefits || '',
+      });
+      
+      // Update offices state
+      if (profile.additionalOffices?.length) {
+        setOffices(profile.additionalOffices);
+      }
+    }
+  }, [profileQuery.data, form]);
 
   const createProfileMutation = useMutation({
     mutationFn: async (data: FormValues) => {

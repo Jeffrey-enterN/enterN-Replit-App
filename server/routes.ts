@@ -51,6 +51,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get Jobseeker Dashboard Data
+  // Get Jobseeker Profile
+  app.get("/api/jobseeker/profile", async (req, res) => {
+    if (!req.isAuthenticated()) return res.status(401).json({ message: "Unauthorized" });
+    if (req.user.userType !== USER_TYPES.JOBSEEKER) return res.status(403).json({ message: "Forbidden" });
+
+    try {
+      const profile = await storage.getJobseekerProfile(req.user.id);
+      if (profile) {
+        res.status(200).json(profile);
+      } else {
+        res.status(404).json({ message: "Profile not found" });
+      }
+    } catch (error) {
+      console.error("Error fetching profile:", error);
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
+
   app.get("/api/jobseeker/dashboard", async (req, res) => {
     if (!req.isAuthenticated()) return res.status(401).json({ message: "Unauthorized" });
     if (req.user.userType !== USER_TYPES.JOBSEEKER) return res.status(403).json({ message: "Forbidden" });
@@ -134,6 +152,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get Employer Dashboard Data
+  // Get Employer Profile
+  app.get("/api/employer/profile", async (req, res) => {
+    if (!req.isAuthenticated()) return res.status(401).json({ message: "Unauthorized" });
+    if (req.user.userType !== USER_TYPES.EMPLOYER) return res.status(403).json({ message: "Forbidden" });
+
+    try {
+      const profile = await storage.getEmployerProfile(req.user.id);
+      if (profile) {
+        res.status(200).json(profile);
+      } else {
+        res.status(404).json({ message: "Profile not found" });
+      }
+    } catch (error) {
+      console.error("Error fetching profile:", error);
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
+
   app.get("/api/employer/dashboard", async (req, res) => {
     if (!req.isAuthenticated()) return res.status(401).json({ message: "Unauthorized" });
     if (req.user.userType !== USER_TYPES.EMPLOYER) return res.status(403).json({ message: "Forbidden" });

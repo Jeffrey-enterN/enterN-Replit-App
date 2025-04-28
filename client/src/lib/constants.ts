@@ -48,10 +48,13 @@ export const COMPANY_SIZES = [
 ];
 
 export const DEGREE_LEVELS = [
-  'Associate\'s',
-  'Bachelor\'s',
-  'Master\'s',
-  'Doctoral'
+  'High School Diploma / GED',
+  'Trade School / Certification',
+  'Some College',
+  '2-Year Degree',
+  '4-Year Degree',
+  'Master\'s Degree',
+  'Doctorate'
 ];
 
 export const COMPANY_BENEFITS = [
