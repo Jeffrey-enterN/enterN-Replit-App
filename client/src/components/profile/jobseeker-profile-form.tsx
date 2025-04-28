@@ -205,8 +205,11 @@ export default function JobseekerProfileForm() {
 
   // Effect to load profile data when query completes
   useEffect(() => {
+    console.log('Profile query data:', profileQuery.data);
+    
     if (profileQuery.data) {
       const profile = profileQuery.data;
+      console.log('Loading profile data:', profile);
       
       // Update form data with profile values
       const profileData: Partial<FormValues> = {
@@ -219,11 +222,13 @@ export default function JobseekerProfileForm() {
         degreeLevel: profile.degreeLevel || '',
         major: profile.major || '',
         portfolioUrl: profile.portfolioUrl || '',
-        preferredLocations: profile.preferredLocations || [],
-        workArrangements: profile.workArrangements || [],
-        industryPreferences: profile.industryPreferences || [],
+        preferredLocations: Array.isArray(profile.preferredLocations) ? profile.preferredLocations : [],
+        workArrangements: Array.isArray(profile.workArrangements) ? profile.workArrangements : [],
+        industryPreferences: Array.isArray(profile.industryPreferences) ? profile.industryPreferences : [],
         functionalPreferences: profile.functionalPreferences || '',
       };
+      
+      console.log('Prepared profile data for form:', profileData);
       
       // Set form data
       setFormData(profileData);
@@ -233,6 +238,7 @@ export default function JobseekerProfileForm() {
       
       // Set slider values if they exist
       if (profile.sliderValues) {
+        console.log('Setting slider values:', profile.sliderValues);
         setSliderValues(profile.sliderValues);
       }
     }
