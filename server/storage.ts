@@ -487,7 +487,13 @@ export class DatabaseStorage implements IStorage {
       pool,
       createTableIfMissing: true,
       tableName: 'session',
-      schemaName: 'public'
+      schemaName: 'public',
+      // Enhanced session configuration
+      ttl: 30 * 24 * 60 * 60, // Match 30-day cookie (in seconds)
+      pruneSessionInterval: 12 * 60 * 60, // Clean up every 12 hours
+      errorLog: (err) => {
+        console.error('Session store error:', err);
+      }
     });
   }
 
@@ -780,9 +786,10 @@ export class DatabaseStorage implements IStorage {
           .where(eq(jobPostings.employerId, parseInt(employer.userId.toString())))
           .limit(5);
         
+        // Only show positions from actual job postings, or an empty array
         const positions = jobPostingsResult.length > 0
           ? jobPostingsResult.map(job => job.title)
-          : ['Software Engineer', 'Product Manager', 'UX Designer'];
+          : [];
         
         return {
           id: employer.userId.toString(),
@@ -988,29 +995,8 @@ export class DatabaseStorage implements IStorage {
       matchCount: 0 // Would need a join to count matches per job
     }));
     
-    // If no job postings in storage, return mock data
-    const displayJobs = formattedJobs.length === 0 ? [
-      {
-        id: 'job1',
-        title: 'Software Engineer',
-        department: 'Engineering',
-        location: 'San Francisco, CA',
-        workType: 'Onsite',
-        employmentType: 'Full-time',
-        status: 'Active',
-        matchCount: 5
-      },
-      {
-        id: 'job2',
-        title: 'Product Designer',
-        department: 'Design',
-        location: 'Remote',
-        workType: 'Remote',
-        employmentType: 'Full-time',
-        status: 'Active',
-        matchCount: 3
-      }
-    ] : formattedJobs;
+    // Use actual job postings from database, empty array if none exist
+    const displayJobs = formattedJobs;
     
     return {
       stats: {
@@ -1049,20 +1035,16 @@ export class DatabaseStorage implements IStorage {
       )`)
       .limit(5);
     
-    // Format the results
+    // Format the results with actual data only
     return potentialJobseekers.map(jobseeker => ({
       id: jobseeker.userId.toString(),
       education: {
-        degree: jobseeker.degreeLevel || 'Bachelor\'s',
-        major: jobseeker.major || 'Computer Science',
-        school: jobseeker.school || 'University of Technology'
+        degree: jobseeker.degreeLevel || '',
+        major: jobseeker.major || '',
+        school: jobseeker.school || ''
       },
-      locations: jobseeker.preferredLocations || ['San Francisco, CA', 'Seattle, WA', 'Remote'],
-      sliderValues: jobseeker.sliderValues || {
-        'schedule': 75,
-        'collaboration-preference': 40,
-        'execution': 60
-      }
+      locations: jobseeker.preferredLocations || [],
+      sliderValues: jobseeker.sliderValues || {}
     }));
   }
 
