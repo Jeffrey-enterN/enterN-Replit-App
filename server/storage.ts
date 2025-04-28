@@ -41,6 +41,7 @@ export interface IStorage {
   createJobseekerProfile(userId: number, profileData: any): Promise<JobseekerProfile>;
   saveJobseekerProfileDraft(userId: number, draftData: any): Promise<any>;
   getJobseekerProfile(userId: number): Promise<JobseekerProfile | undefined>;
+  getJobseekerProfileDraft(userId: number): Promise<any | undefined>;
   getJobseekerDashboard(userId: number): Promise<any>;
   getJobseekerPotentialMatches(userId: number): Promise<any[]>;
   handleJobseekerSwipe(jobseekerId: number, employerId: string, interested: boolean): Promise<any>;
@@ -149,6 +150,10 @@ export class MemStorage implements IStorage {
 
   async getJobseekerProfile(userId: number): Promise<JobseekerProfile | undefined> {
     return this.jobseekerProfiles.get(userId);
+  }
+  
+  async getJobseekerProfileDraft(userId: number): Promise<any | undefined> {
+    return this.jobseekerProfileDrafts.get(userId);
   }
 
   async getJobseekerDashboard(userId: number): Promise<any> {
@@ -918,6 +923,25 @@ export class DatabaseStorage implements IStorage {
       .where(eq(employerProfiles.userId, userId));
     
     return profile;
+  }
+  
+  async getJobseekerProfileDraft(userId: number): Promise<any | undefined> {
+    try {
+      // For the database implementation, we'll use a table or jsonb field
+      // Since we're using drafts that may have a different structure from the full profile
+      // This is a simplification - in a real implementation you might store drafts in a separate table
+      
+      // For now, fetch the profile and check for a isDraft flag or similar
+      const [profileDraft] = await db.execute(
+        sql`SELECT * FROM jobseeker_profile_drafts WHERE user_id = ${userId}`
+      );
+      
+      return profileDraft;
+    } catch (error) {
+      console.error("Error fetching jobseeker profile draft:", error);
+      // If the table doesn't exist yet, return undefined instead of throwing
+      return undefined;
+    }
   }
 
   async getEmployerDashboard(userId: number): Promise<any> {
