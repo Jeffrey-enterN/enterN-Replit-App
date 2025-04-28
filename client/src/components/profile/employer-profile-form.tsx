@@ -7,6 +7,15 @@ import { useToast } from '@/hooks/use-toast';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { apiRequest, queryClient } from '@/lib/queryClient';
 import { COMPANY_SIZES, INDUSTRIES, COMPANY_BENEFITS } from '@/lib/constants';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 import {
   Form,
@@ -55,6 +64,7 @@ export default function EmployerProfileForm() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const [offices, setOffices] = useState<string[]>(['']);
+  const [showSessionAlert, setShowSessionAlert] = useState(false);
   
   // Query to fetch the employer's profile if it exists
   const profileQuery = useQuery({

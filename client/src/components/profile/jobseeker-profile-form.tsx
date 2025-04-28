@@ -341,8 +341,38 @@ export default function JobseekerProfileForm() {
     }
   };
 
-  const onSubmit = (data: FormValues) => {
-    createProfileMutation.mutate({ ...data, sliderValues });
+  const onSubmit = async (data: FormValues) => {
+    try {
+      // First check authentication status
+      const userResponse = await apiRequest('GET', '/api/user');
+      if (!userResponse.ok) {
+        console.error('Authentication check failed before profile submission');
+        toast({
+          title: 'Session expired',
+          description: 'Your session has expired. Please log in again.',
+          variant: 'destructive',
+        });
+        setShowSessionAlert(true);
+        return;
+      }
+      
+      console.log('Submitting complete profile with form data and slider values');
+      
+      // Proceed with profile creation
+      createProfileMutation.mutate({ 
+        ...data, 
+        sliderValues,
+        // Add a timestamp for debugging
+        ...(({ _submittedAt: new Date().toISOString() } as any))
+      });
+    } catch (error) {
+      console.error('Error during profile submission:', error);
+      toast({
+        title: 'Submission Error',
+        description: 'There was a problem saving your profile. Please try again.',
+        variant: 'destructive',
+      });
+    }
   };
 
   const onSaveDraft = async () => {
