@@ -11,12 +11,13 @@ declare global {
   namespace Express {
     interface User extends SelectUser {}
   }
-  
-  // Extend the SessionData interface to include custom properties
-  namespace Express.Session {
-    interface SessionData {
-      isIOSClient?: boolean;
-    }
+}
+
+// Properly extend the session interface for TypeScript
+declare module 'express-session' {
+  interface SessionData {
+    isIOSClient?: boolean;
+    passport?: any;
   }
 }
 
@@ -36,27 +37,36 @@ async function comparePasswords(supplied: string, stored: string) {
 }
 
 export function setupAuth(app: Express) {
+  // Get session security configuration based on environment
+  const isProduction = process.env.NODE_ENV === 'production';
+  
+  // A more robust session configuration
   const sessionSettings: session.SessionOptions = {
-    secret: process.env.SESSION_SECRET || "enterN-secret-key-change-in-production",
-    // Always re-save the session even if it wasn't modified
+    // In a production environment, use a strong secret set via environment variable
+    secret: process.env.SESSION_SECRET || "enterN-secret-key-please-change-in-production",
+    // Always re-save the session even if it wasn't modified (helps with persistence)
     resave: true,
-    // Save uninitialized sessions (important for guest browsing)
+    // Save uninitialized sessions (important for guest browsing and consistent ID)
     saveUninitialized: true,
     // Use our configured store
     store: storage.sessionStore,
-    // Rolling session - reset maxAge on every response
+    // Rolling session - reset maxAge on every response (extends session lifetime with activity)
     rolling: true,
+    // Name the cookie specifically for our app to avoid conflicts
+    name: "enterN.sid",
     cookie: {
-      // Set to true only in production with HTTPS
-      secure: process.env.NODE_ENV === 'production',
+      // Set to true only in production with HTTPS, false for development
+      secure: isProduction,
       // Prevent client JavaScript from accessing the cookie
       httpOnly: true,
       // Same-site policy (lax allows cookies to be sent on navigation from external sites)
-      sameSite: 'lax',
-      // Keep cookie for 30 days
+      sameSite: isProduction ? 'lax' : 'none',
+      // Keep cookie for 30 days (in milliseconds)
       maxAge: 30 * 24 * 60 * 60 * 1000,
       // Allow cookie to be sent to all paths
-      path: '/'
+      path: '/',
+      // Domain lock to the current domain (automatically set)
+      domain: undefined
     }
   };
 
@@ -75,8 +85,9 @@ export function setupAuth(app: Express) {
     
     if (isIOS) {
       if (req.session) {
-        // Mark this as an iOS client
-        req.session.isIOSClient = true;
+        // Mark this as an iOS client and cast session to allow property assignment
+        const session = req.session as any;
+        session.isIOSClient = true;
         
         // Log session details for debugging
         console.log(`iOS client detected. Session ID: ${req.sessionID}, User authenticated: ${req.isAuthenticated()}`);
@@ -151,6 +162,18 @@ export function setupAuth(app: Express) {
         return res.status(400).json({ message: "Username already exists" });
       }
 
+      // Detect iOS clients
+      const userAgent = req.headers['user-agent'] || '';
+      const isIOS = /iPad|iPhone|iPod/.test(userAgent);
+      
+      // Customize session cookie for iOS if needed
+      if (isIOS && req.session && req.session.cookie) {
+        // Ensure cookie settings are optimal for iOS
+        console.log("Setting enhanced cookie settings for iOS client during registration");
+        req.session.cookie.secure = false; // Force non-secure for iOS testing
+        req.session.cookie.sameSite = 'none'; // iOS sometimes requires 'none'
+      }
+
       const hashedPassword = await hashPassword(password);
       
       // Create user with minimal data - contact details will be added later
@@ -186,13 +209,26 @@ export function setupAuth(app: Express) {
           
           // Log session ID for debugging
           console.log(`User registered and authenticated. Session ID: ${req.sessionID}`);
+          console.log(`Registration session cookie settings:`, {
+            secure: req.session.cookie.secure,
+            httpOnly: req.session.cookie.httpOnly,
+            sameSite: req.session.cookie.sameSite,
+            path: req.session.cookie.path,
+            maxAge: req.session.cookie.maxAge
+          });
+          
+          // Add additional headers to help preserve session
+          res.set('Cache-Control', 'private, no-cache, no-store, must-revalidate');
+          res.set('Expires', '-1');
+          res.set('Pragma', 'no-cache');
           
           res.status(201).json({
             ...userWithoutPassword,
             _meta: {
               authenticated: true,
               sessionID: req.sessionID,
-              timestamp: new Date().toISOString()
+              timestamp: new Date().toISOString(),
+              isIOS
             }
           });
         });
@@ -212,6 +248,18 @@ export function setupAuth(app: Express) {
       if (err) return next(err);
       if (!user) return res.status(401).json({ message: "Invalid username or password" });
       
+      // Detect iOS clients
+      const userAgent = req.headers['user-agent'] || '';
+      const isIOS = /iPad|iPhone|iPod/.test(userAgent);
+      
+      // Customize session cookie for iOS if needed
+      if (isIOS && req.session && req.session.cookie) {
+        // Ensure cookie settings are optimal for iOS
+        console.log("Setting enhanced cookie settings for iOS client");
+        req.session.cookie.secure = false; // Force non-secure for iOS testing
+        req.session.cookie.sameSite = 'none'; // iOS sometimes requires 'none'
+      }
+      
       req.login(user, (loginErr) => {
         if (loginErr) return next(loginErr);
         
@@ -224,15 +272,29 @@ export function setupAuth(app: Express) {
           
           // Log successful login for debugging
           console.log(`User logged in and authenticated. Session ID: ${req.sessionID}, User ID: ${user.id}`);
+          console.log(`Session cookie settings:`, {
+            secure: req.session.cookie.secure,
+            httpOnly: req.session.cookie.httpOnly,
+            sameSite: req.session.cookie.sameSite,
+            path: req.session.cookie.path,
+            maxAge: req.session.cookie.maxAge
+          });
           
           // Remove password from the response
           const { password: _, ...userWithoutPassword } = user;
+          
+          // Add additional headers to help preserve session
+          res.set('Cache-Control', 'private, no-cache, no-store, must-revalidate');
+          res.set('Expires', '-1');
+          res.set('Pragma', 'no-cache');
+          
           return res.status(200).json({
             ...userWithoutPassword,
             _meta: {
               authenticated: true,
               sessionID: req.sessionID,
-              timestamp: new Date().toISOString()
+              timestamp: new Date().toISOString(),
+              isIOS
             }
           });
         });
@@ -248,10 +310,49 @@ export function setupAuth(app: Express) {
   });
 
   app.get("/api/user", (req, res) => {
-    if (!req.isAuthenticated()) return res.sendStatus(401);
+    // Log detailed debugging info for the user endpoint
+    console.log(`/api/user request - Session ID: ${req.sessionID}`);
+    console.log(`  isAuthenticated: ${req.isAuthenticated()}`);
+    console.log(`  session exists: ${!!req.session}`);
+    
+    if (req.session) {
+      console.log(`  session cookie settings:`, {
+        secure: req.session.cookie.secure,
+        httpOnly: req.session.cookie.httpOnly,
+        sameSite: req.session.cookie.sameSite,
+        maxAge: req.session.cookie.maxAge
+      });
+      
+      // For iOS clients, ensure cookies are properly set
+      const userAgent = req.headers['user-agent'] || '';
+      const isIOS = /iPad|iPhone|iPod/.test(userAgent);
+      
+      if (isIOS) {
+        // Mark as iOS client and trace session
+        console.log(`iOS client detected on /api/user endpoint`);
+        const session = req.session as any;
+        session.isIOSClient = true;
+        
+        // Force session save to persist iOS sessions
+        req.session.touch();
+        req.session.save();
+      }
+    }
+    
+    if (!req.isAuthenticated()) {
+      console.log(`User not authenticated for /api/user - Status 401`);
+      return res.sendStatus(401);
+    }
     
     // Remove password from the response
     const { password: _, ...userWithoutPassword } = req.user;
+    
+    // Set the cache headers to prevent caching
+    res.set('Cache-Control', 'private, no-cache, no-store, must-revalidate');
+    res.set('Expires', '-1');
+    res.set('Pragma', 'no-cache');
+    
+    console.log(`User data successfully sent for user ID: ${req.user.id}`);
     res.json(userWithoutPassword);
   });
 
