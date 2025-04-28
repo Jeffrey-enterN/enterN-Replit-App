@@ -105,17 +105,43 @@ export default function JobseekerProfileForm() {
     queryKey: ['/api/jobseeker/profile'],
     queryFn: async () => {
       try {
+        console.log('Fetching user profile, authenticated user:', !!user);
         const response = await apiRequest('GET', '/api/jobseeker/profile');
+        console.log('Profile response status:', response.status);
+        
         if (response.ok) {
-          return response.json();
+          const data = await response.json();
+          console.log('Successfully loaded profile data:', data);
+          return data;
         }
+        
+        // If profile not found, it's ok, just return null
+        if (response.status === 404) {
+          console.log('No existing profile found, creating new profile form');
+          return null;
+        }
+        
+        // For authentication errors, throw so we can redirect
+        if (response.status === 401) {
+          throw new Error('Authentication error. Please login again.');
+        }
+        
+        // For other errors, just log and return null
+        console.error('Error loading profile:', response.status);
         return null;
       } catch (error) {
-        console.error('Error fetching profile:', error);
+        console.error('Exception fetching profile:', error);
+        // Show session expired dialog if auth error
+        if (error instanceof Error && error.message.includes('Authentication error')) {
+          setShowSessionAlert(true);
+        }
         return null;
       }
     },
-    enabled: !!user // Only run if user is logged in
+    enabled: !!user, // Only run if user is logged in
+    retry: false, // Don't retry on error
+    refetchOnWindowFocus: false, // Don't refetch on window focus
+    staleTime: 1000 * 60 * 5 // Consider data fresh for 5 minutes
   });
 
   const form = useForm<FormValues>({
@@ -347,6 +373,26 @@ export default function JobseekerProfileForm() {
 
   return (
     <div className="bg-white shadow-sm rounded-lg p-6 mb-8">
+      {/* Session Expired Alert Dialog */}
+      <AlertDialog open={showSessionAlert} onOpenChange={setShowSessionAlert}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Session Expired</AlertDialogTitle>
+            <AlertDialogDescription>
+              Your session has expired or you have been logged out. Please sign in again to continue.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => {
+              setShowSessionAlert(false);
+              navigate('/auth');
+            }}>
+              Sign In
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      
       {renderStepIndicator()}
       
       <Form {...form}>
