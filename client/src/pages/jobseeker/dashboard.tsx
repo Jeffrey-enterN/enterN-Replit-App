@@ -74,14 +74,12 @@ export default function JobseekerDashboard() {
     swipeMutation.mutate({ id, interested: false });
   };
 
-  // Default sample data (will be replaced by actual API data)
-  const mockStats = {
-    profileCompletion: { percentage: 85, increase: 20 },
-    profileViews: 28,
-    matches: 5,
+  // Use only real data from API
+  const stats = dashboardData?.stats || {
+    profileCompletion: { percentage: 0 },
+    profileViews: 0,
+    matches: 0
   };
-
-  const stats = dashboardData?.stats || mockStats;
 
   // Sample matches (will be replaced by actual API data)
   const mockRecentMatches: Match[] = [

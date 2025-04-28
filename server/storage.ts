@@ -698,13 +698,19 @@ export class DatabaseStorage implements IStorage {
       })
     );
     
+    // Count profile views (if viewedBy field exists)
+    let profileViews = 0;
+    if (profile?.viewedBy && Array.isArray(profile.viewedBy)) {
+      profileViews = profile.viewedBy.length;
+    }
+    
     return {
       stats: {
         profileCompletion: {
           percentage: profileCompletionPercentage
-          // Removed the fake increase percentage
+          // No fake increase
         },
-        profileViews: 0, // Set to 0 as we don't have actual profile view data yet
+        profileViews: profileViews, // Use actual view data if available
         matches: matchCount[0]?.count || 0 // This is already based on actual data
       },
       recentMatches: recentMatchesWithNames
