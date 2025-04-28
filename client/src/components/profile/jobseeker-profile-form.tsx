@@ -6,7 +6,7 @@ import { useLocation } from 'wouter';
 import { useToast } from '@/hooks/use-toast';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { apiRequest, queryClient } from '@/lib/queryClient';
-import { DEGREE_LEVELS, WORK_ARRANGEMENTS, SLIDER_CATEGORIES, INDUSTRIES } from '@/lib/constants';
+import { DEGREE_LEVELS, WORK_ARRANGEMENTS, SLIDER_CATEGORIES, INDUSTRIES, LOCATIONS, FUNCTIONAL_ROLES } from '@/lib/constants';
 import CollapsibleSliderSection from './collapsible-slider-section';
 import { LocationInput } from '@/components/ui/location-input';
 import { Check, ChevronRight } from 'lucide-react';

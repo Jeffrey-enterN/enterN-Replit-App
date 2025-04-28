@@ -12,27 +12,133 @@ export const WORK_ARRANGEMENTS = [
   { id: 'no-preference', label: 'No Preference' }
 ];
 
+export const FUNCTIONAL_ROLES = [
+  // Business Operations
+  { id: 'administration', label: 'Administration' },
+  { id: 'accounting-finance', label: 'Accounting & Finance' },
+  { id: 'operations', label: 'Operations' },
+  { id: 'hr', label: 'Human Resources' },
+  { id: 'supply-chain-logistics', label: 'Supply Chain & Logistics' },
+  { id: 'procurement-vendor-management', label: 'Procurement & Vendor Management' },
+  { id: 'facilities', label: 'Facilities' },
+  
+  // Technology & Product
+  { id: 'engineering', label: 'Engineering' },
+  { id: 'it', label: 'IT' },
+  { id: 'design', label: 'Design' },
+  { id: 'ui-ux', label: 'UI/UX' },
+  { id: 'research-development', label: 'Research & Development' },
+  { id: 'data-analytics-bi', label: 'Data Analytics & Business Intelligence' },
+  { id: 'quality-assurance', label: 'Quality Assurance & Compliance' },
+  { id: 'manufacturing-production', label: 'Manufacturing / Production' },
+  
+  // Customer-Facing
+  { id: 'marketing', label: 'Marketing' },
+  { id: 'sales-business-development', label: 'Sales & Business Development' },
+  { id: 'customer-success', label: 'Customer Success / Client Services' },
+  { id: 'pr-communications', label: 'Public Relations & Communications' },
+  
+  // Strategy & Leadership
+  { id: 'corporate-strategy', label: 'Corporate Strategy' },
+  { id: 'legal-regulatory', label: 'Legal & Regulatory Affairs' }
+];
+
 export const LOCATIONS = [
+  // Major tech hubs
   'San Francisco, CA',
+  'San Jose, CA',
+  'Oakland, CA',
   'New York, NY',
-  'Austin, TX',
-  'Seattle, WA',
   'Boston, MA',
-  'Chicago, IL',
+  'Seattle, WA',
+  'Austin, TX',
   'Denver, CO',
+  'Chicago, IL',
   'Los Angeles, CA',
-  'Remote'
+  
+  // Other major cities
+  'Atlanta, GA',
+  'Dallas, TX',
+  'Houston, TX',
+  'Miami, FL',
+  'Washington, DC',
+  'Philadelphia, PA',
+  'Phoenix, AZ',
+  'San Diego, CA',
+  'Portland, OR',
+  'Minneapolis, MN',
+  'Detroit, MI',
+  'Raleigh, NC',
+  'Charlotte, NC',
+  'Nashville, TN',
+  'Salt Lake City, UT',
+  'Pittsburgh, PA',
+  'Las Vegas, NV',
+  'Columbus, OH',
+  'Indianapolis, IN',
+  'Kansas City, MO',
+  
+  // Special options
+  'Remote - US Based',
+  'Remote - Global'
 ];
 
 export const INDUSTRIES = [
-  'Technology',
-  'Finance',
-  'Healthcare',
-  'Education',
-  'Manufacturing',
-  'Retail',
-  'Consulting',
+  // Technology & Media
+  'Software & Technology',
+  'Information Technology',
+  'Consumer Internet',
+  'Computer Hardware',
   'Media & Entertainment',
+  'Telecommunications',
+  'Gaming & Interactive Media',
+  
+  // Financial & Business Services
+  'Banking & Financial Services',
+  'Insurance',
+  'Investment Management',
+  'Accounting & Tax',
+  'Management Consulting',
+  'Legal Services',
+  'Real Estate',
+  
+  // Health & Life Sciences
+  'Healthcare Services',
+  'Pharmaceuticals',
+  'Biotechnology',
+  'Medical Devices',
+  'Health Technology',
+  
+  // Manufacturing & Industrial
+  'Manufacturing',
+  'Automotive',
+  'Aerospace & Defense',
+  'Construction & Engineering',
+  'Electronics Manufacturing',
+  'Chemical Manufacturing',
+  
+  // Consumer
+  'Retail & E-commerce',
+  'Consumer Goods',
+  'Food & Beverage',
+  'Hospitality & Travel',
+  'Luxury Goods & Services',
+  
+  // Energy & Infrastructure
+  'Energy & Utilities',
+  'Oil & Gas',
+  'Renewable Energy',
+  'Mining & Metals',
+  'Transportation & Logistics',
+  
+  // Education & Government
+  'Education',
+  'Government & Public Sector',
+  'Non-profit & NGO',
+  
+  // Other
+  'Agriculture & Agribusiness',
+  'Environmental Services',
   'Other'
 ];
 
