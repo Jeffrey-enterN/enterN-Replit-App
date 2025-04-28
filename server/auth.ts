@@ -38,14 +38,24 @@ async function comparePasswords(supplied: string, stored: string) {
 export function setupAuth(app: Express) {
   const sessionSettings: session.SessionOptions = {
     secret: process.env.SESSION_SECRET || "enterN-secret-key-change-in-production",
+    // Always re-save the session even if it wasn't modified
     resave: true,
+    // Save uninitialized sessions (important for guest browsing)
     saveUninitialized: true,
+    // Use our configured store
     store: storage.sessionStore,
+    // Rolling session - reset maxAge on every response
+    rolling: true,
     cookie: {
-      secure: false, // Set to false for development (even on HTTPS)
+      // Set to true only in production with HTTPS
+      secure: process.env.NODE_ENV === 'production',
+      // Prevent client JavaScript from accessing the cookie
       httpOnly: true,
+      // Same-site policy (lax allows cookies to be sent on navigation from external sites)
       sameSite: 'lax',
-      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+      // Keep cookie for 30 days
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+      // Allow cookie to be sent to all paths
       path: '/'
     }
   };
@@ -57,31 +67,40 @@ export function setupAuth(app: Express) {
   
   // Middleware to detect iOS clients and adjust session handling
   // Must be added after session middleware
+  // Debug middleware to log session status on every request
   app.use((req, res, next) => {
+    // Detect iOS clients
     const userAgent = req.headers['user-agent'] || '';
     const isIOS = /iPad|iPhone|iPod/.test(userAgent);
     
     if (isIOS) {
-      console.log("iOS client detected, applying special session handling");
-      
-      // Set this flag to help with debugging iOS-specific issues
       if (req.session) {
-        // Use type assertion to avoid TypeScript errors with custom properties
-        (req.session as any).isIOSClient = true;
+        // Mark this as an iOS client
+        req.session.isIOSClient = true;
         
-        // For iOS clients, force-save the session on every request
-        // This helps with mobile browser session persistence issues
-        req.session.touch();
-        req.session.save(() => {
-          next();
-        });
-      } else {
-        console.log("Warning: Session object not available for iOS client");
-        next();
+        // Log session details for debugging
+        console.log(`iOS client detected. Session ID: ${req.sessionID}, User authenticated: ${req.isAuthenticated()}`);
+        
+        // Set up a hook to save session data after response is sent
+        const oldEnd = res.end;
+        res.end = function(...args: any[]) {
+          req.session.save(() => {
+            // @ts-ignore
+            oldEnd.apply(res, args);
+          });
+          return res;
+        };
       }
-    } else {
-      next();
     }
+    
+    // For all requests (iOS or not), log auth issues
+    if (!req.isAuthenticated() && req.session) {
+      if (req.method !== 'GET' || req.path.includes('/api/')) {
+        console.log(`Not authenticated - Session ID: ${req.sessionID}, Path: ${req.path}, Method: ${req.method}`);
+      }
+    }
+    
+    next();
   });
 
   passport.use(
@@ -157,7 +176,26 @@ export function setupAuth(app: Express) {
 
       req.login(user, (err) => {
         if (err) return next(err);
-        res.status(201).json(userWithoutPassword);
+        
+        // Force session save to ensure session persists immediately
+        req.session.save((saveErr) => {
+          if (saveErr) {
+            console.error("Error saving session after registration:", saveErr);
+            return next(saveErr);
+          }
+          
+          // Log session ID for debugging
+          console.log(`User registered and authenticated. Session ID: ${req.sessionID}`);
+          
+          res.status(201).json({
+            ...userWithoutPassword,
+            _meta: {
+              authenticated: true,
+              sessionID: req.sessionID,
+              timestamp: new Date().toISOString()
+            }
+          });
+        });
       });
     } catch (error) {
       console.error("Registration error:", error);
@@ -177,9 +215,27 @@ export function setupAuth(app: Express) {
       req.login(user, (loginErr) => {
         if (loginErr) return next(loginErr);
         
-        // Remove password from the response
-        const { password: _, ...userWithoutPassword } = user;
-        return res.status(200).json(userWithoutPassword);
+        // Force session save to ensure session persists immediately
+        req.session.save((saveErr) => {
+          if (saveErr) {
+            console.error("Error saving session after login:", saveErr);
+            return next(saveErr);
+          }
+          
+          // Log successful login for debugging
+          console.log(`User logged in and authenticated. Session ID: ${req.sessionID}, User ID: ${user.id}`);
+          
+          // Remove password from the response
+          const { password: _, ...userWithoutPassword } = user;
+          return res.status(200).json({
+            ...userWithoutPassword,
+            _meta: {
+              authenticated: true,
+              sessionID: req.sessionID,
+              timestamp: new Date().toISOString()
+            }
+          });
+        });
       });
     })(req, res, next);
   });
