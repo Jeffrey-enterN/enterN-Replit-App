@@ -81,25 +81,8 @@ export default function JobseekerDashboard() {
     matches: 0
   };
 
-  // Sample matches (will be replaced by actual API data)
-  const mockRecentMatches: Match[] = [
-    {
-      id: '1',
-      name: 'InnovateTech',
-      matchDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
-      status: 'interview-scheduled',
-      statusText: 'Software Engineer Intern • May 10, 2023',
-    },
-    {
-      id: '2',
-      name: 'Future Growth',
-      matchDate: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000), // 4 days ago
-      status: 'shared-jobs',
-      statusText: '3 open positions • Data Science, Marketing',
-    },
-  ];
-
-  const recentMatches = dashboardData?.recentMatches || mockRecentMatches;
+  // Use only real matches data from API
+  const recentMatches = dashboardData?.recentMatches || [];
 
   return (
     <DashboardLayout 

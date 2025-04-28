@@ -77,35 +77,16 @@ export default function EmployerDashboard() {
     swipeMutation.mutate({ id, interested: false });
   };
 
-  // Default sample data (will be replaced by actual API data)
-  const mockStats = {
-    activeJobs: 5,
-    profileViews: 42,
-    matches: 12,
-    interviews: 3,
+  // Use only real data from API
+  const stats = dashboardData?.stats || {
+    activeJobs: 0,
+    profileViews: 0,
+    matches: 0,
+    interviews: 0
   };
 
-  const stats = dashboardData?.stats || mockStats;
-
-  // Sample matches (will be replaced by actual API data)
-  const mockRecentMatches: Match[] = [
-    {
-      id: '1',
-      name: 'Anonymous Profile',
-      matchDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
-      status: 'interview-scheduled',
-      statusText: 'Software Engineering • May 10, 2023',
-    },
-    {
-      id: '2',
-      name: 'Anonymous Profile',
-      matchDate: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000), // 4 days ago
-      status: 'message-received',
-      statusText: 'Shared additional resume details',
-    },
-  ];
-
-  const recentMatches = dashboardData?.recentMatches || mockRecentMatches;
+  // Use only real matches data from API
+  const recentMatches = dashboardData?.recentMatches || [];
 
   return (
     <DashboardLayout 
