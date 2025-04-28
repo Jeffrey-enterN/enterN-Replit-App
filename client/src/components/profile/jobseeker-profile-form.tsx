@@ -676,9 +676,9 @@ export default function JobseekerProfileForm() {
                     render={() => (
                       <FormItem>
                         <div className="mb-4">
-                          <FormLabel>Preferred Work Arrangements *</FormLabel>
+                          <FormLabel>Work Setting *</FormLabel>
                           <FormDescription>
-                            Select all work arrangements you'd be open to.
+                            Select all work settings you'd be open to.
                           </FormDescription>
                         </div>
                         <div className="grid grid-cols-2 gap-2">
@@ -775,15 +775,51 @@ export default function JobseekerProfileForm() {
                   <FormField
                     control={form.control}
                     name="functionalPreferences"
-                    render={({ field }) => (
-                      <FormItem className="sm:col-span-6">
-                        <FormLabel>Functional Preferences</FormLabel>
-                        <FormControl>
-                          <Input {...field} placeholder="e.g., Marketing, Development, Design, Sales" />
-                        </FormControl>
-                        <FormDescription>
-                          Enter functional areas you're interested in working in, separated by commas.
-                        </FormDescription>
+                    render={() => (
+                      <FormItem>
+                        <div className="mb-4">
+                          <FormLabel>Functional Preferences</FormLabel>
+                          <FormDescription>
+                            Select functional roles you're interested in.
+                          </FormDescription>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                          {FUNCTIONAL_ROLES.map((role) => (
+                            <FormField
+                              key={role.id}
+                              control={form.control}
+                              name="functionalPreferences"
+                              render={({ field }) => {
+                                // Make sure field.value is an array
+                                const valueArray = Array.isArray(field.value) ? field.value : 
+                                  field.value ? field.value.split(',').map(item => item.trim()) : [];
+                                
+                                return (
+                                  <FormItem
+                                    key={role.id}
+                                    className="flex flex-row items-start space-x-3 space-y-0"
+                                  >
+                                    <FormControl>
+                                      <Checkbox
+                                        checked={valueArray.includes(role.id)}
+                                        onCheckedChange={(checked) => {
+                                          const newValue = checked
+                                            ? [...valueArray, role.id]
+                                            : valueArray.filter(v => v !== role.id);
+                                          
+                                          field.onChange(newValue);
+                                        }}
+                                      />
+                                    </FormControl>
+                                    <FormLabel className="font-normal">
+                                      {role.label}
+                                    </FormLabel>
+                                  </FormItem>
+                                )
+                              }}
+                            />
+                          ))}
+                        </div>
                         <FormMessage />
                       </FormItem>
                     )}
