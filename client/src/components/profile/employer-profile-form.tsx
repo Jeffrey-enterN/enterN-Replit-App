@@ -192,19 +192,103 @@ export default function EmployerProfileForm() {
     },
   });
 
-  const onSubmit = (data: FormValues) => {
-    // Filter out empty office locations
-    data.additionalOffices = data.additionalOffices.filter(office => office.trim() !== '');
-    createProfileMutation.mutate(data);
+  const onSubmit = async (data: FormValues) => {
+    try {
+      // First check authentication status
+      const userResponse = await apiRequest('GET', '/api/user');
+      if (!userResponse.ok) {
+        console.error('Authentication check failed before employer profile submission');
+        toast({
+          title: 'Session expired',
+          description: 'Your session has expired. Please log in again.',
+          variant: 'destructive',
+        });
+        setShowSessionAlert(true);
+        return;
+      }
+      
+      console.log('Submitting complete employer profile with form data');
+      
+      // Filter out empty office locations
+      data.additionalOffices = data.additionalOffices.filter(office => office.trim() !== '');
+      
+      // Proceed with profile creation
+      createProfileMutation.mutate({ 
+        ...data,
+        // Add a timestamp for debugging
+        ...(({ _submittedAt: new Date().toISOString() } as any))
+      });
+    } catch (error) {
+      console.error('Error during employer profile submission:', error);
+      toast({
+        title: 'Submission Error',
+        description: 'There was a problem saving your profile. Please try again.',
+        variant: 'destructive',
+      });
+    }
   };
 
-  const onSaveDraft = () => {
-    const data = form.getValues();
-    saveDraftMutation.mutate(data);
+  const onSaveDraft = async () => {
+    try {
+      // First, check if user is authenticated
+      const userResponse = await apiRequest('GET', '/api/user');
+      
+      if (!userResponse.ok) {
+        console.error('User not authenticated before saving employer draft');
+        toast({
+          title: 'Session expired',
+          description: 'Your session has expired. Please log in again.',
+          variant: 'destructive',
+        });
+        setShowSessionAlert(true);
+        return;
+      }
+      
+      // Get form data
+      const data = form.getValues();
+      
+      // Add timestamp for tracking
+      const saveTimestamp = new Date().toISOString();
+      console.log(`Saving employer profile draft at ${saveTimestamp}`);
+      
+      // Proceed with saving the draft
+      saveDraftMutation.mutate({ 
+        ...data,
+        // Type assertion to allow extra properties for debugging
+        ...(({ _saveRequestedAt: saveTimestamp } as any))
+      });
+    } catch (error) {
+      console.error('Error checking authentication before saving employer draft:', error);
+      toast({
+        title: 'Error saving draft',
+        description: 'There was a problem saving your data. Please try again.',
+        variant: 'destructive',
+      });
+    }
   };
 
   return (
     <div className="bg-white shadow-sm rounded-lg p-6 mb-8">
+      {/* Session Expired Alert Dialog */}
+      <AlertDialog open={showSessionAlert} onOpenChange={setShowSessionAlert}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Session Expired</AlertDialogTitle>
+            <AlertDialogDescription>
+              Your session has expired or you have been logged out. Please sign in again to continue.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => {
+              setShowSessionAlert(false);
+              navigate('/auth');
+            }}>
+              Sign In
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <div className="space-y-8">
