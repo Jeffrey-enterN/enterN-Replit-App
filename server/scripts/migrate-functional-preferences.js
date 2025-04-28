@@ -1,10 +1,14 @@
 // Migration script to convert functionalPreferences from text to jsonb array
 // This script should be run before applying the schema change to avoid data loss
 
-const { Pool } = require('pg');
-const dotenv = require('dotenv');
+import { Pool, neonConfig } from '@neondatabase/serverless';
+import { config } from 'dotenv';
+import ws from 'ws';
 
-dotenv.config();
+config();
+
+// Set WebSocket constructor for Neon
+neonConfig.webSocketConstructor = ws;
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,

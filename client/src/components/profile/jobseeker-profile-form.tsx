@@ -358,9 +358,16 @@ export default function JobseekerProfileForm() {
       
       console.log('Submitting complete profile with form data and slider values');
       
+      // Handle functional preferences conversion - if it's an array, convert to string
+      const preparedData = { ...data };
+      
+      if (Array.isArray(preparedData.functionalPreferences)) {
+        preparedData.functionalPreferences = preparedData.functionalPreferences.join(',');
+      }
+      
       // Proceed with profile creation
       createProfileMutation.mutate({ 
-        ...data, 
+        ...preparedData, 
         sliderValues,
         // Add a timestamp for debugging
         ...(({ _submittedAt: new Date().toISOString() } as any))
@@ -790,9 +797,14 @@ export default function JobseekerProfileForm() {
                               control={form.control}
                               name="functionalPreferences"
                               render={({ field }) => {
-                                // Make sure field.value is an array
-                                const valueArray = Array.isArray(field.value) ? field.value : 
-                                  field.value ? field.value.split(',').map(item => item.trim()) : [];
+                                // Parse the value which could be string or array
+                                let valueArray: string[] = [];
+                                
+                                if (Array.isArray(field.value)) {
+                                  valueArray = field.value;
+                                } else if (typeof field.value === 'string' && field.value) {
+                                  valueArray = field.value.split(',').map(item => item.trim()).filter(Boolean);
+                                }
                                 
                                 return (
                                   <FormItem
