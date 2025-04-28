@@ -7,7 +7,7 @@ import { formatDate } from '@/lib/utils';
 export interface Match {
   id: string;
   name: string;
-  matchDate: Date;
+  matchDate: Date | string | number | null;
   status: 'interview-scheduled' | 'shared-jobs' | 'matched' | 'message-received';
   statusText?: string;
 }
