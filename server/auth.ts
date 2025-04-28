@@ -5,11 +5,18 @@ import session from "express-session";
 import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
 import { storage } from "./storage";
-import { User as SelectUser } from "@shared/schema";
+import { User, User as SelectUser } from "@shared/schema";
 
 declare global {
   namespace Express {
     interface User extends SelectUser {}
+  }
+  
+  // Extend the SessionData interface to include custom properties
+  namespace Express.Session {
+    interface SessionData {
+      isIOSClient?: boolean;
+    }
   }
 }
 
@@ -39,6 +46,7 @@ export function setupAuth(app: Express) {
       httpOnly: true,
       sameSite: 'lax',
       maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+      path: '/'
     }
   };
 
@@ -46,6 +54,35 @@ export function setupAuth(app: Express) {
   app.use(session(sessionSettings));
   app.use(passport.initialize());
   app.use(passport.session());
+  
+  // Middleware to detect iOS clients and adjust session handling
+  // Must be added after session middleware
+  app.use((req, res, next) => {
+    const userAgent = req.headers['user-agent'] || '';
+    const isIOS = /iPad|iPhone|iPod/.test(userAgent);
+    
+    if (isIOS) {
+      console.log("iOS client detected, applying special session handling");
+      
+      // Set this flag to help with debugging iOS-specific issues
+      if (req.session) {
+        // Use type assertion to avoid TypeScript errors with custom properties
+        (req.session as any).isIOSClient = true;
+        
+        // For iOS clients, force-save the session on every request
+        // This helps with mobile browser session persistence issues
+        req.session.touch();
+        req.session.save(() => {
+          next();
+        });
+      } else {
+        console.log("Warning: Session object not available for iOS client");
+        next();
+      }
+    } else {
+      next();
+    }
+  });
 
   passport.use(
     new LocalStrategy(async (username, password, done) => {
@@ -133,7 +170,7 @@ export function setupAuth(app: Express) {
   });
 
   app.post("/api/login", (req, res, next) => {
-    passport.authenticate("local", (err, user, info) => {
+    passport.authenticate("local", (err: Error | null, user: User | false, info: { message: string } | undefined) => {
       if (err) return next(err);
       if (!user) return res.status(401).json({ message: "Invalid username or password" });
       

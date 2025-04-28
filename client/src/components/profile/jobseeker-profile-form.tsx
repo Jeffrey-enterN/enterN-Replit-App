@@ -345,9 +345,50 @@ export default function JobseekerProfileForm() {
     createProfileMutation.mutate({ ...data, sliderValues });
   };
 
-  const onSaveDraft = () => {
+  const onSaveDraft = async () => {
     const data = form.getValues();
-    saveDraftMutation.mutate({ ...data, sliderValues });
+    
+    // Add timestamp for tracking
+    const saveTimestamp = new Date().toISOString();
+    console.log(`Saving draft at ${saveTimestamp}`);
+    
+    try {
+      // First, check if user is authenticated
+      const userResponse = await apiRequest('GET', '/api/user');
+      
+      if (!userResponse.ok) {
+        console.error('User not authenticated, redirecting to login');
+        toast({
+          title: 'Session expired',
+          description: 'Your session has expired. Please log in again.',
+          variant: 'destructive',
+        });
+        setShowSessionAlert(true);
+        return;
+      }
+      
+      // User is authenticated, proceed with saving
+      console.log('User authenticated, saving draft with data:', {
+        dataKeys: Object.keys(data),
+        sliderKeys: Object.keys(sliderValues)
+      });
+      
+      // Proceed with saving the draft
+      saveDraftMutation.mutate({ 
+        ...data, 
+        sliderValues,
+        // Type assertion to allow extra properties for debugging
+        ...(({ _saveRequestedAt: saveTimestamp } as any))
+      });
+      
+    } catch (error) {
+      console.error('Error checking authentication before saving draft:', error);
+      toast({
+        title: 'Error saving draft',
+        description: 'There was a problem saving your data. Please try again.',
+        variant: 'destructive',
+      });
+    }
   };
 
   // Progress indicators

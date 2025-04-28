@@ -26,6 +26,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Save Jobseeker Profile Draft
   app.post("/api/jobseeker/profile/draft", async (req, res) => {
     console.log("Profile draft save attempt - isAuthenticated:", req.isAuthenticated());
+    console.log("Session data:", { 
+      id: req.sessionID, 
+      cookie: req.session?.cookie, 
+      user: req.user ? { id: req.user.id, username: req.user.username } : undefined 
+    });
+    
+    // Add detailed request info for iOS debugging
+    console.log("Request headers:", {
+      userAgent: req.headers['user-agent'],
+      contentType: req.headers['content-type'],
+      host: req.headers.host,
+      origin: req.headers.origin,
+      referer: req.headers.referer
+    });
     
     if (!req.isAuthenticated()) {
       console.log("Unauthorized attempt to save profile draft - session info:", 
@@ -41,9 +55,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     try {
+      // Log payload size for debugging
+      console.log("Profile draft data size:", JSON.stringify(req.body).length, "bytes");
+      
       const profileDraft = await storage.saveJobseekerProfileDraft(req.user.id, req.body);
       console.log("Profile draft saved successfully for user:", req.user.id);
-      res.status(200).json(profileDraft);
+      
+      // Send more verbose success response with timestamp
+      res.status(200).json({
+        ...profileDraft,
+        _meta: {
+          savedAt: new Date().toISOString(),
+          message: "Profile draft saved successfully"
+        }
+      });
     } catch (error) {
       console.error("Error saving profile draft:", error);
       res.status(500).json({ message: (error as Error).message });
@@ -53,19 +78,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get Jobseeker Dashboard Data
   // Get Jobseeker Profile
   app.get("/api/jobseeker/profile", async (req, res) => {
-    if (!req.isAuthenticated()) return res.status(401).json({ message: "Unauthorized" });
-    if (req.user.userType !== USER_TYPES.JOBSEEKER) return res.status(403).json({ message: "Forbidden" });
+    console.log("Profile fetch attempt - isAuthenticated:", req.isAuthenticated());
+    console.log("Session data:", { 
+      id: req.sessionID, 
+      cookie: req.session?.cookie, 
+      user: req.user ? { id: req.user.id, username: req.user.username } : undefined 
+    });
+    
+    // Add detailed request info for iOS debugging
+    console.log("Request headers:", {
+      userAgent: req.headers['user-agent'],
+      host: req.headers.host,
+      origin: req.headers.origin,
+      referer: req.headers.referer
+    });
+    
+    if (!req.isAuthenticated()) {
+      console.log("Unauthorized attempt to fetch profile - session info:", 
+                 { sessionID: req.sessionID, user: req.user });
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+    
+    console.log("Authenticated user fetching profile:", req.user.id, req.user.username);
+    
+    if (req.user.userType !== USER_TYPES.JOBSEEKER) {
+      console.log("Forbidden attempt - user is not a jobseeker:", req.user.userType);
+      return res.status(403).json({ message: "Forbidden" });
+    }
 
     try {
       const profile = await storage.getJobseekerProfile(req.user.id);
       if (profile) {
-        res.status(200).json(profile);
+        console.log("Profile found and returned for user:", req.user.id);
+        res.status(200).json({
+          ...profile,
+          _meta: {
+            fetchedAt: new Date().toISOString(),
+            userId: req.user.id
+          }
+        });
       } else {
-        res.status(404).json({ message: "Profile not found" });
+        console.log("No profile found for user:", req.user.id);
+        res.status(404).json({ 
+          message: "Profile not found",
+          _meta: {
+            userId: req.user.id,
+            timestamp: new Date().toISOString()
+          }
+        });
       }
     } catch (error) {
       console.error("Error fetching profile:", error);
-      res.status(500).json({ message: (error as Error).message });
+      res.status(500).json({ 
+        message: (error as Error).message,
+        _meta: {
+          userId: req.user?.id,
+          timestamp: new Date().toISOString()
+        }
+      });
     }
   });
 
