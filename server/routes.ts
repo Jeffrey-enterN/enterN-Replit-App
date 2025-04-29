@@ -337,6 +337,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // View Jobseeker Profile (for employers) with profile view tracking
+  app.get("/api/employer/jobseeker/:jobseekerId", async (req, res) => {
+    if (!req.isAuthenticated()) return res.status(401).json({ message: "Unauthorized" });
+    if (req.user.userType !== USER_TYPES.EMPLOYER) return res.status(403).json({ message: "Forbidden" });
+
+    const jobseekerId = parseInt(req.params.jobseekerId);
+    if (isNaN(jobseekerId)) return res.status(400).json({ message: "Invalid jobseeker ID" });
+
+    try {
+      // Record the profile view
+      await storage.recordJobseekerProfileView(jobseekerId, req.user.id);
+      
+      // Get the jobseeker profile
+      const profile = await storage.getJobseekerProfile(jobseekerId);
+      
+      if (!profile) {
+        return res.status(404).json({ message: "Jobseeker profile not found" });
+      }
+      
+      // Return anonymized profile data to the employer
+      // Only show relevant information for matching purposes
+      const anonymizedProfile = {
+        id: profile.userId.toString(),
+        education: {
+          degree: profile.degreeLevel || '',
+          major: profile.major || '',
+          school: profile.school || ''
+        },
+        locations: profile.preferredLocations || [],
+        workArrangements: profile.workArrangements || [],
+        industryPreferences: profile.industryPreferences || [],
+        sliderValues: profile.sliderValues || {},
+        // Don't include name, contact info, or other identifying information
+      };
+      
+      res.status(200).json(anonymizedProfile);
+    } catch (error) {
+      console.error("Error viewing jobseeker profile:", error);
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
+
   // Create the HTTP server
   const httpServer = createServer(app);
 

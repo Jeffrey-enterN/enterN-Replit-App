@@ -76,6 +76,7 @@ export const jobseekerProfiles = pgTable("jobseeker_profiles", {
   industryPreferences: jsonb("industry_preferences").$type<string[]>().default([]),
   functionalPreferences: text("functional_preferences").default(''),
   sliderValues: jsonb("slider_values").$type<Record<string, number>>(),
+  viewedBy: jsonb("viewed_by").$type<number[]>().default([]),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

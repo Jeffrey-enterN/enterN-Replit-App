@@ -46,6 +46,7 @@ export interface IStorage {
   getJobseekerPotentialMatches(userId: number): Promise<any[]>;
   handleJobseekerSwipe(jobseekerId: number, employerId: string, interested: boolean): Promise<any>;
   getJobseekerRecentMatches(userId: number): Promise<any[]>;
+  recordJobseekerProfileView(jobseekerId: number, viewerId: number): Promise<void>;
 
   // Employer profile methods
   createEmployerProfile(userId: number, profileData: any): Promise<EmployerProfile>;
@@ -314,6 +315,32 @@ export class MemStorage implements IStorage {
             'Interview scheduled' : 'New match'
         };
       });
+  }
+
+  async recordJobseekerProfileView(jobseekerId: number, viewerId: number): Promise<void> {
+    try {
+      const profile = this.jobseekerProfiles.get(jobseekerId);
+      
+      if (!profile) {
+        console.error(`No profile found for jobseeker ${jobseekerId}`);
+        return;
+      }
+      
+      // Initialize viewedBy if it doesn't exist
+      if (!profile.viewedBy) {
+        profile.viewedBy = [];
+      }
+      
+      // Only add the viewer if they haven't viewed this profile before
+      if (!profile.viewedBy.includes(viewerId)) {
+        profile.viewedBy.push(viewerId);
+        console.log(`Recorded profile view: Employer ${viewerId} viewed Jobseeker ${jobseekerId}`);
+      } else {
+        console.log(`Employer ${viewerId} has already viewed Jobseeker ${jobseekerId}`);
+      }
+    } catch (error) {
+      console.error('Error recording profile view:', error);
+    }
   }
 
   // Employer profile methods
@@ -1109,6 +1136,42 @@ export class DatabaseStorage implements IStorage {
       status: match.status === 'interview_scheduled' ? 'interview-scheduled' : 'matched',
       statusText: match.status === 'interview_scheduled' ? 'Interview scheduled' : 'New match'
     }));
+  }
+
+  async recordJobseekerProfileView(jobseekerId: number, viewerId: number): Promise<void> {
+    try {
+      // Get the jobseeker profile
+      const [profile] = await db
+        .select()
+        .from(jobseekerProfiles)
+        .where(eq(jobseekerProfiles.userId, jobseekerId));
+
+      if (!profile) {
+        console.error(`No profile found for jobseeker ${jobseekerId}`);
+        return;
+      }
+
+      // Parse current viewedBy array (if it exists) or create an empty array
+      const currentViewedBy = profile.viewedBy || [];
+      
+      // Only add the viewer if they haven't viewed this profile before
+      if (!currentViewedBy.includes(viewerId)) {
+        // Add the new viewer to the array
+        const updatedViewedBy = [...currentViewedBy, viewerId];
+        
+        // Update the profile with the new viewedBy array
+        await db
+          .update(jobseekerProfiles)
+          .set({ viewedBy: updatedViewedBy })
+          .where(eq(jobseekerProfiles.userId, jobseekerId));
+        
+        console.log(`Recorded profile view: Employer ${viewerId} viewed Jobseeker ${jobseekerId}`);
+      } else {
+        console.log(`Employer ${viewerId} has already viewed Jobseeker ${jobseekerId}`);
+      }
+    } catch (error) {
+      console.error('Error recording profile view:', error);
+    }
   }
 }
 
