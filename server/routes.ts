@@ -271,12 +271,68 @@ export async function registerRoutes(app: Express): Promise<Server> {
     if (req.user.userType !== USER_TYPES.EMPLOYER) return res.status(403).json({ message: "Forbidden" });
 
     try {
+      // First check if there's a completed profile
       const profile = await storage.getEmployerProfile(req.user.id);
-      if (profile) {
-        res.status(200).json(profile);
+      
+      // Then also check if there's a draft version to merge in
+      const profileDraft = await storage.getEmployerProfileDraft(req.user.id);
+      
+      // Merge draft with profile if both exist, preferring draft values when available
+      let responseData;
+      
+      if (profile && profileDraft) {
+        // If we have both a profile and a draft, merge them prioritizing draft values
+        console.log("Found both profile and draft for employer:", req.user.id);
+        
+        // Merge the objects, giving priority to draft values
+        responseData = {
+          ...profile,
+          ...profileDraft, // Draft values overwrite profile values
+          _meta: {
+            fetchedAt: new Date().toISOString(),
+            userId: req.user.id,
+            hasDraft: true,
+            source: "merged"
+          }
+        };
+      } else if (profile) {
+        // Only have the profile
+        console.log("Profile found and returned for employer:", req.user.id);
+        responseData = {
+          ...profile,
+          _meta: {
+            fetchedAt: new Date().toISOString(),
+            userId: req.user.id,
+            hasDraft: false,
+            source: "profile"
+          }
+        };
+      } else if (profileDraft) {
+        // Only have a draft
+        console.log("Draft found and returned for employer:", req.user.id);
+        responseData = {
+          ...profileDraft,
+          _meta: {
+            fetchedAt: new Date().toISOString(),
+            userId: req.user.id,
+            hasDraft: true,
+            source: "draft"
+          }
+        };
       } else {
-        res.status(404).json({ message: "Profile not found" });
+        // No profile or draft found
+        console.log("No profile or draft found for employer:", req.user.id);
+        return res.status(404).json({ 
+          message: "Profile not found",
+          _meta: {
+            userId: req.user.id,
+            timestamp: new Date().toISOString()
+          }
+        });
       }
+      
+      // Send the response data
+      res.status(200).json(responseData);
     } catch (error) {
       console.error("Error fetching profile:", error);
       res.status(500).json({ message: (error as Error).message });

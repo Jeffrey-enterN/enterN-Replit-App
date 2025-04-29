@@ -125,30 +125,64 @@ export default function EmployerProfileForm() {
   // Effect to load profile data when query completes
   useEffect(() => {
     if (profileQuery.data) {
-      const profile = profileQuery.data;
+      const response = profileQuery.data;
       
-      // Reset form with the profile data
+      // Check the response structure
+      console.log('Profile data received', response);
+      
+      // Determine if we're working with complete profile, draft data, or merged data
+      const hasMeta = !!response._meta;
+      const isDraft = hasMeta && response._meta.hasDraft;
+      const isMerged = hasMeta && response._meta.source === 'merged';
+      
+      // Log some helpful information for debugging
+      if (hasMeta) {
+        console.log(`Profile data type: ${response._meta.source}, Has draft: ${response._meta.hasDraft}`);
+      }
+      
+      // Identify the data source - might be directly in response, or in draft_data
+      let formData;
+      
+      if (response.draft_data && (isDraft || isMerged)) {
+        // The draft data is in the draft_data field (SQL storage structure)
+        console.log('Using draft_data field for form population');
+        formData = response.draft_data;
+      } else {
+        // Use the response directly (either profile or draft data already at top level)
+        console.log('Using top-level response data for form population');
+        formData = response;
+      }
+      
+      // Reset form with the profile data, with appropriate fallbacks
       form.reset({
-        companyName: profile.companyName || '',
-        companyWebsite: profile.companyWebsite || '',
-        headquarters: profile.headquarters || '',
-        yearFounded: profile.yearFounded || currentYear,
-        companySize: profile.companySize || '',
-        companyIndustry: profile.companyIndustry || '',
-        aboutCompany: profile.aboutCompany || '',
-        additionalOffices: profile.additionalOffices?.length ? profile.additionalOffices : [''],
-        companyMission: profile.companyMission || '',
-        companyValues: profile.companyValues || '',
-        benefits: profile.benefits || [],
-        additionalBenefits: profile.additionalBenefits || '',
+        companyName: formData.companyName || '',
+        companyWebsite: formData.companyWebsite || '',
+        headquarters: formData.headquarters || '',
+        yearFounded: formData.yearFounded || currentYear,
+        companySize: formData.companySize || '',
+        companyIndustry: formData.companyIndustry || '',
+        aboutCompany: formData.aboutCompany || '',
+        additionalOffices: formData.additionalOffices?.length ? formData.additionalOffices : [''],
+        companyMission: formData.companyMission || '',
+        companyValues: formData.companyValues || '',
+        benefits: formData.benefits || [],
+        additionalBenefits: formData.additionalBenefits || '',
       });
       
       // Update offices state
-      if (profile.additionalOffices?.length) {
-        setOffices(profile.additionalOffices);
+      if (formData.additionalOffices?.length) {
+        setOffices(formData.additionalOffices);
+      }
+      
+      // If we have a draft, show a notification
+      if (isDraft) {
+        toast({
+          title: 'Draft loaded',
+          description: 'We\'ve loaded your saved draft. You can continue where you left off.',
+        });
       }
     }
-  }, [profileQuery.data, form]);
+  }, [profileQuery.data, form, toast]);
 
   const createProfileMutation = useMutation({
     mutationFn: async (data: FormValues) => {

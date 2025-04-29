@@ -930,33 +930,23 @@ export class DatabaseStorage implements IStorage {
   }
 
   async saveEmployerProfileDraft(userId: number, draftData: any): Promise<any> {
-    // Get existing profile
-    const [existingProfile] = await db
-      .select()
-      .from(employerProfiles)
-      .where(eq(employerProfiles.userId, userId));
-    
-    if (existingProfile) {
-      // Update existing profile
-      const [updatedProfile] = await db
-        .update(employerProfiles)
-        .set({
-          ...draftData,
-          updatedAt: new Date()
-        })
-        .where(eq(employerProfiles.userId, userId))
-        .returning();
+    try {
+      // Use a raw SQL query to handle draft data saving with upsert pattern
+      const result = await db.execute(sql`
+        INSERT INTO employer_profile_drafts (user_id, draft_data, updated_at)
+        VALUES (${userId}, ${JSON.stringify(draftData)}, NOW())
+        ON CONFLICT (user_id) 
+        DO UPDATE SET 
+          draft_data = ${JSON.stringify(draftData)},
+          updated_at = NOW()
+        RETURNING *
+      `);
       
-      return updatedProfile;
-    } else {
-      // Create a new profile draft
-      const insertData = {
-        userId,
-        ...draftData
-      };
-      
-      const [profile] = await db.insert(employerProfiles).values([insertData]).returning();
-      return profile;
+      console.log('Saved employer profile draft:', result.rows[0]);
+      return result.rows[0];
+    } catch (error) {
+      console.error('Error saving employer profile draft:', error);
+      throw new Error(`Failed to save draft: ${(error as Error).message}`);
     }
   }
 
@@ -967,6 +957,28 @@ export class DatabaseStorage implements IStorage {
       .where(eq(employerProfiles.userId, userId));
     
     return profile;
+  }
+  
+  async getEmployerProfileDraft(userId: number): Promise<any | undefined> {
+    try {
+      // Get the draft using a direct SQL query
+      const result = await db.execute(sql`
+        SELECT draft_data FROM employer_profile_drafts 
+        WHERE user_id = ${userId}
+        LIMIT 1
+      `);
+      
+      // Check if we got any results and return the draft data
+      if (result.rows && result.rows.length > 0) {
+        return result.rows[0].draft_data;
+      }
+      
+      return undefined;
+    } catch (error) {
+      console.error("Error fetching employer profile draft:", error);
+      // If the table doesn't exist yet, return undefined instead of throwing
+      return undefined;
+    }
   }
   
   async getJobseekerProfileDraft(userId: number): Promise<any | undefined> {
