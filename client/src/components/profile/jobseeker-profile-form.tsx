@@ -46,8 +46,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 const step1Schema = z.object({
   firstName: z.string().min(1, { message: 'First name is required' }),
   lastName: z.string().min(1, { message: 'Last name is required' }),
-  email: z.string().email({ message: 'Please enter a valid email' }),
   phone: z.string().min(10, { message: 'Please enter a valid phone number' }),
+  isStudent: z.boolean().optional(),
   schoolEmail: z.string().email({ message: 'Please enter a valid school email' }).optional().or(z.literal('')),
   school: z.string().optional().or(z.literal('')),
   degreeLevel: z.string().optional().or(z.literal('')),
@@ -84,8 +84,8 @@ export default function JobseekerProfileForm() {
   const [formData, setFormData] = useState<Partial<FormValues>>({
     firstName: user?.firstName || '',
     lastName: user?.lastName || '',
-    email: user?.username || '', // Use the authenticated user's email
     phone: '',
+    isStudent: false,
     schoolEmail: '',
     school: '',
     degreeLevel: '',
@@ -241,8 +241,8 @@ export default function JobseekerProfileForm() {
       const profileData: Partial<FormValues> = {
         firstName: profile.firstName || user?.firstName || '',
         lastName: profile.lastName || user?.lastName || '',
-        email: user?.username || '',
         phone: profile.phone || '',
+        isStudent: !!(profile.schoolEmail || profile.school || profile.degreeLevel || profile.major),
         schoolEmail: profile.schoolEmail || '',
         school: profile.school || '',
         degreeLevel: profile.degreeLevel || '',
@@ -293,11 +293,19 @@ export default function JobseekerProfileForm() {
 
   const handleNextStep = async () => {
     if (currentStep === 1) {
-      // Validate step 1 fields
+      // Validate step 1 fields - only require first name, last name, and phone
       const isValid = await form.trigger([
-        'firstName', 'lastName', 'email', 'phone', 
-        'schoolEmail', 'school', 'degreeLevel', 'major'
+        'firstName', 'lastName', 'phone'
       ]);
+      
+      // If student toggle is on, also validate education fields
+      const isStudent = form.getValues('isStudent');
+      if (isStudent) {
+        const eduFieldsValid = await form.trigger([
+          'schoolEmail', 'school', 'degreeLevel', 'major'
+        ]);
+        if (!eduFieldsValid) return;
+      }
       
       if (isValid) {
         // Get current values
