@@ -580,36 +580,19 @@ export class DatabaseStorage implements IStorage {
 
   async saveJobseekerProfileDraft(userId: number, draftData: any): Promise<any> {
     try {
-      // Check if a draft already exists for this user
-      const [existingDraft] = await db
-        .select()
-        .from(jobseekerProfileDrafts)
-        .where(eq(jobseekerProfileDrafts.userId, userId));
+      // Use a raw SQL query to handle draft data saving with upsert pattern
+      const result = await db.execute(sql`
+        INSERT INTO jobseeker_profile_drafts (user_id, draft_data, updated_at)
+        VALUES (${userId}, ${JSON.stringify(draftData)}, NOW())
+        ON CONFLICT (user_id) 
+        DO UPDATE SET 
+          draft_data = ${JSON.stringify(draftData)},
+          updated_at = NOW()
+        RETURNING *
+      `);
       
-      if (existingDraft) {
-        // Update existing draft
-        const [updatedDraft] = await db
-          .update(jobseekerProfileDrafts)
-          .set({
-            draftData: draftData,
-            updatedAt: new Date()
-          })
-          .where(eq(jobseekerProfileDrafts.userId, userId))
-          .returning();
-        
-        return updatedDraft;
-      } else {
-        // Create a new draft
-        const [newDraft] = await db
-          .insert(jobseekerProfileDrafts)
-          .values({
-            userId,
-            draftData: draftData,
-          })
-          .returning();
-        
-        return newDraft;
-      }
+      console.log('Saved jobseeker profile draft:', result.rows[0]);
+      return result.rows[0];
     } catch (error) {
       console.error('Error saving jobseeker profile draft:', error);
       throw new Error(`Failed to save draft: ${(error as Error).message}`);
@@ -988,15 +971,16 @@ export class DatabaseStorage implements IStorage {
   
   async getJobseekerProfileDraft(userId: number): Promise<any | undefined> {
     try {
-      // Get the draft from the new drafts table
-      const [draft] = await db
-        .select()
-        .from(jobseekerProfileDrafts)
-        .where(eq(jobseekerProfileDrafts.userId, userId));
+      // Get the draft using a direct SQL query
+      const result = await db.execute(sql`
+        SELECT draft_data FROM jobseeker_profile_drafts 
+        WHERE user_id = ${userId}
+        LIMIT 1
+      `);
       
-      // If draft exists, return the draftData field which contains all form values
-      if (draft) {
-        return draft.draftData;
+      // Check if we got any results and return the draft data
+      if (result.rows && result.rows.length > 0) {
+        return result.rows[0].draft_data;
       }
       
       return undefined;
