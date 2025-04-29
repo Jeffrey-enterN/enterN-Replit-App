@@ -402,12 +402,22 @@ export class MemStorage implements IStorage {
       }
     ] : jobs;
     
+    // Count profile views
+    let profileViews = 0;
+    
+    // Count the number of jobseeker profiles that have this employer in their viewedBy array
+    Array.from(this.jobseekerProfiles.values()).forEach(profile => {
+      if (profile.viewedBy && profile.viewedBy.includes(userId)) {
+        profileViews++;
+      }
+    });
+    
     return {
       stats: {
         activeJobs: mockJobs.length,
-        profileViews: 42,
+        profileViews: profileViews, // Now using actual profile view count
         matches: matches.length,
-        interviews: 3
+        interviews: 0 // Set to 0 for consistency with DatabaseStorage
       },
       jobs: mockJobs,
       recentMatches: matches.slice(0, 5).map(match => {
@@ -1031,10 +1041,20 @@ export class DatabaseStorage implements IStorage {
     // Use actual job postings from database, empty array if none exist
     const displayJobs = formattedJobs;
     
+    // Count how many jobseekers have viewed the employer's profile
+    // This implementation counts views across all company job postings
+    // by counting jobseekers whose viewedBy field includes this employer ID
+    const profileViewsQuery = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(jobseekerProfiles)
+      .where(sql`${userId} = ANY(${jobseekerProfiles.viewedBy})`);
+    
+    const profileViews = profileViewsQuery[0]?.count || 0;
+      
     return {
       stats: {
         activeJobs: jobsCount[0]?.count || 0,
-        profileViews: 0, // Set to 0 as we don't have a profile view tracking mechanism yet
+        profileViews: profileViews, // Now using actual profile view count
         matches: matchCount[0]?.count || 0,
         interviews: 0 // Set to 0 as we don't have interview scheduling yet
       },
