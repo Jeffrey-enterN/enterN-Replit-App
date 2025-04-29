@@ -97,6 +97,32 @@ export const insertJobseekerProfileSchema = createInsertSchema(jobseekerProfiles
 export type InsertJobseekerProfile = z.infer<typeof insertJobseekerProfileSchema>;
 export type JobseekerProfile = typeof jobseekerProfiles.$inferSelect;
 
+// === JOBSEEKER PROFILE DRAFTS ===
+
+export const jobseekerProfileDrafts = pgTable("jobseeker_profile_drafts", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  draftData: jsonb("draft_data").$type<any>().notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const jobseekerProfileDraftsRelations = relations(jobseekerProfileDrafts, ({ one }) => ({
+  user: one(users, {
+    fields: [jobseekerProfileDrafts.userId],
+    references: [users.id],
+  }),
+}));
+
+export const insertJobseekerProfileDraftSchema = createInsertSchema(jobseekerProfileDrafts).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertJobseekerProfileDraft = z.infer<typeof insertJobseekerProfileDraftSchema>;
+export type JobseekerProfileDraft = typeof jobseekerProfileDrafts.$inferSelect;
+
 // === EMPLOYER PROFILES ===
 
 export const employerProfiles = pgTable("employer_profiles", {
@@ -134,6 +160,32 @@ export const insertEmployerProfileSchema = createInsertSchema(employerProfiles).
 
 export type InsertEmployerProfile = z.infer<typeof insertEmployerProfileSchema>;
 export type EmployerProfile = typeof employerProfiles.$inferSelect;
+
+// === EMPLOYER PROFILE DRAFTS ===
+
+export const employerProfileDrafts = pgTable("employer_profile_drafts", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  draftData: jsonb("draft_data").$type<any>().notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const employerProfileDraftsRelations = relations(employerProfileDrafts, ({ one }) => ({
+  user: one(users, {
+    fields: [employerProfileDrafts.userId],
+    references: [users.id],
+  }),
+}));
+
+export const insertEmployerProfileDraftSchema = createInsertSchema(employerProfileDrafts).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertEmployerProfileDraft = z.infer<typeof insertEmployerProfileDraftSchema>;
+export type EmployerProfileDraft = typeof employerProfileDrafts.$inferSelect;
 
 // === JOB POSTINGS ===
 

@@ -8,6 +8,10 @@ import {
   EmployerProfile,
   employerProfiles,
   InsertEmployerProfile,
+  jobseekerProfileDrafts,
+  JobseekerProfileDraft,
+  employerProfileDrafts,
+  EmployerProfileDraft,
   Match,
   matches,
   InsertMatch,
@@ -575,33 +579,40 @@ export class DatabaseStorage implements IStorage {
   }
 
   async saveJobseekerProfileDraft(userId: number, draftData: any): Promise<any> {
-    // Get existing profile
-    const [existingProfile] = await db
-      .select()
-      .from(jobseekerProfiles)
-      .where(eq(jobseekerProfiles.userId, userId));
-    
-    if (existingProfile) {
-      // Update existing profile
-      const [updatedProfile] = await db
-        .update(jobseekerProfiles)
-        .set({
-          ...draftData,
-          updatedAt: new Date()
-        })
-        .where(eq(jobseekerProfiles.userId, userId))
-        .returning();
+    try {
+      // Check if a draft already exists for this user
+      const [existingDraft] = await db
+        .select()
+        .from(jobseekerProfileDrafts)
+        .where(eq(jobseekerProfileDrafts.userId, userId));
       
-      return updatedProfile;
-    } else {
-      // Create a new profile draft
-      const insertData = {
-        userId,
-        ...draftData
-      };
-      
-      const [profile] = await db.insert(jobseekerProfiles).values([insertData]).returning();
-      return profile;
+      if (existingDraft) {
+        // Update existing draft
+        const [updatedDraft] = await db
+          .update(jobseekerProfileDrafts)
+          .set({
+            draftData: draftData,
+            updatedAt: new Date()
+          })
+          .where(eq(jobseekerProfileDrafts.userId, userId))
+          .returning();
+        
+        return updatedDraft;
+      } else {
+        // Create a new draft
+        const [newDraft] = await db
+          .insert(jobseekerProfileDrafts)
+          .values({
+            userId,
+            draftData: draftData,
+          })
+          .returning();
+        
+        return newDraft;
+      }
+    } catch (error) {
+      console.error('Error saving jobseeker profile draft:', error);
+      throw new Error(`Failed to save draft: ${(error as Error).message}`);
     }
   }
 
@@ -977,16 +988,18 @@ export class DatabaseStorage implements IStorage {
   
   async getJobseekerProfileDraft(userId: number): Promise<any | undefined> {
     try {
-      // For the database implementation, we'll use a table or jsonb field
-      // Since we're using drafts that may have a different structure from the full profile
-      // This is a simplification - in a real implementation you might store drafts in a separate table
+      // Get the draft from the new drafts table
+      const [draft] = await db
+        .select()
+        .from(jobseekerProfileDrafts)
+        .where(eq(jobseekerProfileDrafts.userId, userId));
       
-      // For now, fetch the profile and check for a isDraft flag or similar
-      const [profileDraft] = await db.execute(
-        sql`SELECT * FROM jobseeker_profile_drafts WHERE user_id = ${userId}`
-      );
+      // If draft exists, return the draftData field which contains all form values
+      if (draft) {
+        return draft.draftData;
+      }
       
-      return profileDraft;
+      return undefined;
     } catch (error) {
       console.error("Error fetching jobseeker profile draft:", error);
       // If the table doesn't exist yet, return undefined instead of throwing
