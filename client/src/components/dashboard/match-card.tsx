@@ -107,11 +107,16 @@ export default function MatchCard({ userType, data, onInterested, onNotIntereste
     // Employer viewing jobseeker
     const jobseeker = data as JobseekerMatch;
     
-    // Select a few key sliders to display
+    // Select a few key sliders to display from different categories
     const sliderSamples = [
+      // Work Style slider
       { id: 'schedule', left: 'Fixed Schedule', right: 'Flexible Hours' },
-      { id: 'collaboration-preference', left: 'Collaborative', right: 'Independent' },
-      { id: 'execution', left: 'Methodical Execution', right: 'Rapid Iteration' }
+      // Collaboration slider
+      { id: 'teamorientation', left: 'Collaborative', right: 'Independent' },
+      // Emotional Intelligence sliders
+      { id: 'emotional-sensitivity', left: 'Prioritizes Emotions', right: 'Focuses on Logic' },
+      { id: 'communication-style', left: 'Expressive Communication', right: 'Reserved Demeanor' },
+      { id: 'relationship-task', left: 'Relationship-Focused', right: 'Task-Focused' }
     ];
     
     return (
@@ -152,7 +157,7 @@ export default function MatchCard({ userType, data, onInterested, onNotIntereste
           </div>
 
           <div className="mb-4">
-            <h5 className="text-sm font-medium text-gray-700 mb-2">Work Style</h5>
+            <h5 className="text-sm font-medium text-gray-700 mb-2">Work & Interpersonal Style</h5>
             
             {sliderSamples.map((slider) => (
               <div key={slider.id} className="mb-3">
