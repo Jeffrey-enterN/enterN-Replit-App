@@ -158,12 +158,14 @@ export default function JobseekerProfileForm() {
     }));
   };
 
-  // Helper to check if a slider category is completed
+  // Helper to check if a slider category is completed (only considering the first 5 sliders)
   const checkCategoryCompletion = (categoryId: string) => {
     const category = SLIDER_CATEGORIES.find(cat => cat.id === categoryId);
     if (!category) return false;
     
-    return category.sliders.every(slider => slider.id in sliderValues);
+    // Only check the first 5 sliders in each category
+    const visibleSliders = category.sliders.slice(0, 5);
+    return visibleSliders.every(slider => slider.id in sliderValues);
   };
 
   // Update section completion status
@@ -175,10 +177,18 @@ export default function JobseekerProfileForm() {
     }));
   };
 
-  // Calculate completion percentage for all slider sections
+  // Calculate completion percentage for all slider sections (only considering the first 5 sliders per category)
   const calculateSliderCompletionPercentage = () => {
-    const totalSliders = SLIDER_CATEGORIES.reduce((acc, cat) => acc + cat.sliders.length, 0);
-    const completedSliders = Object.keys(sliderValues).length;
+    // Count only the first 5 sliders in each category
+    const totalSliders = SLIDER_CATEGORIES.reduce((acc, cat) => acc + Math.min(5, cat.sliders.length), 0);
+    
+    // Count how many of the visible sliders have values
+    const completedSliders = SLIDER_CATEGORIES.reduce((acc, cat) => {
+      const visibleSliderIds = cat.sliders.slice(0, 5).map(s => s.id);
+      const completedInCategory = visibleSliderIds.filter(id => id in sliderValues).length;
+      return acc + completedInCategory;
+    }, 0);
+    
     return Math.round((completedSliders / totalSliders) * 100);
   };
 
