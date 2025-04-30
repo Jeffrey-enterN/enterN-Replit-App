@@ -309,10 +309,16 @@ export const SLIDER_CATEGORIES = [
     id: 'emotional-intelligence',
     title: 'Emotional Intelligence & Interpersonal Effectiveness',
     sliders: [
-      { id: 'conflict-management', left: 'Addresses Conflicts Directly & Immediately', right: 'Takes Time to Reflect Before Addressing Issues' },
-      { id: 'feedback-preference', left: 'Prefers Direct, Straightforward Feedback', right: 'Values Tactful, Considerate Critique' },
-      { id: 'relationship-building', left: 'Builds Relationships Based on Professional Merit', right: 'Values Personal Connection in Working Relationships' },
-      { id: 'empathy-approach', left: 'Focuses on Logical Problem Resolution', right: 'Prioritizes Understanding Others\' Perspectives' }
+      { id: 'emotional-sensitivity', left: 'Prioritizes Understanding Others\' Emotions', right: 'Focuses More on Facts and Logic in Interactions' },
+      { id: 'expression', left: 'Comfortable Expressing Feelings Openly', right: 'Prefers to Keep Emotions Private' },
+      { id: 'listening-style', left: 'Values Empathetic, Supportive Listening', right: 'Leans Toward Solution-Oriented, Task-Focused Dialogue' },
+      { id: 'conflict-resolution', left: 'Seeks Collaborative, Mediated Solutions', right: 'Favors Direct, Assertive Resolution Approaches' },
+      { id: 'group-individual', left: 'Emphasizes Maintaining Group Harmony', right: 'Prioritizes Individual Accountability and Direct Feedback' },
+      { id: 'empathetic-objective', left: 'Prioritizes Deep Emotional Engagement', right: 'Maintains an Objective, Fact-Focused Interaction' },
+      { id: 'conflict-approach', left: 'Tends to Avoid Conflict to Preserve Harmony', right: 'Comfortable Engaging in Constructive Confrontation' },
+      { id: 'relationship-task', left: 'Prioritizes Developing Interpersonal Relationships', right: 'Focuses Primarily on Task Completion and Results' },
+      { id: 'communication-style', left: 'Openly Expresses Emotions and Opinions', right: 'Maintains a Reserved, Controlled Demeanor in Interactions' },
+      { id: 'resolution-style', left: 'Prefers Resolving Interpersonal Issues Through Group Discussion', right: 'Tends to Resolve Issues Independently and Privately' }
     ]
   }
 ];
