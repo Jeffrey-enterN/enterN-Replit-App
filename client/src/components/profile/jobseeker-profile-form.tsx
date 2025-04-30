@@ -267,7 +267,7 @@ export default function JobseekerProfileForm() {
           } else if (profile.functionalPreferences.includes(',')) {
             // Comma-separated string
             console.log('Converting comma-separated string to JSON array');
-            const array = profile.functionalPreferences.split(',').map(item => item.trim()).filter(Boolean);
+            const array = profile.functionalPreferences.split(',').map((item: string) => item.trim()).filter(Boolean);
             formattedFunctionalPreferences = JSON.stringify(array);
           }
         } catch (e) {
