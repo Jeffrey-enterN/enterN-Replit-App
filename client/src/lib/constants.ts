@@ -291,11 +291,18 @@ export const SLIDER_CATEGORIES = [
   },
   {
     id: 'adaptability',
-    title: 'Adaptability & Resilience',
+    title: 'Stable vs. Dynamic Environment Preference',
     sliders: [
-      { id: 'change-response', left: 'Prefers Stability & Predictability', right: 'Embraces Change & Uncertainty' },
-      { id: 'setback-handling', left: 'Process-Oriented When Facing Setbacks', right: 'Results-Focused During Challenges' },
-      { id: 'pressure-response', left: 'Maintains Calm, Methodical Approach Under Pressure', right: 'Becomes Energized, Dynamic When Deadlines Loom' }
+      { id: 'change-response', left: 'Prefers a Predictable, Stable Environment', right: 'Thrives in Dynamic, Changing Conditions' },
+      { id: 'routine-adjustment', left: 'Comfort in Following Established Routines', right: 'Quick to Adapt to New Circumstances' },
+      { id: 'recovery-speed', left: 'Takes Time to Recover from Setbacks', right: 'Bounces Back Quickly from Challenges' },
+      { id: 'proactive-reactive', left: 'Prefers to Maintain Current Methods', right: 'Proactively Seeks Change and Innovation' },
+      { id: 'ambiguity-clarity', left: 'Requires Clear Guidelines in Uncertain Situations', right: 'Comfortable Navigating Ambiguity and Uncertainty' },
+      { id: 'contingency-impromptu', left: 'Prefers Detailed Contingency Plans for Change', right: 'Comfortable Making Impromptu Adjustments' },
+      { id: 'adaptation-learning', left: 'Takes Time to Adjust to New Situations', right: 'Quickly Adapts and Learns from Change' },
+      { id: 'structured-creative-recovery', left: 'Follows a Clear, Structured Process to Recover from Setbacks', right: 'Uses Creative Strategies to Bounce Back' },
+      { id: 'stability-uncertainty', left: 'Seeks a Stable and Predictable Environment', right: 'Excels in Uncertain, Ambiguous Conditions' },
+      { id: 'routine-seeking-change', left: 'Finds Comfort in Established Routines Even When Things Shift', right: 'Actively Seeks New Challenges and Change' }
     ]
   },
   {
