@@ -100,7 +100,7 @@ export default function OverviewStats({ userType, stats }: OverviewStatsProps) {
                 </div>
                 <div className="mt-3">
                   <Link href="/jobseeker/profile" className="text-sm font-medium text-primary hover:text-primary/80">
-                    Complete your profile <span aria-hidden="true">&rarr;</span>
+                    {stats.profileCompletion.percentage >= 100 ? "Update your profile" : "Complete your profile"} <span aria-hidden="true">&rarr;</span>
                   </Link>
                 </div>
               </div>
