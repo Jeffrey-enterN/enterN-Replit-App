@@ -275,12 +275,18 @@ export const SLIDER_CATEGORIES = [
   },
   {
     id: 'problem-solving',
-    title: 'Problem Solving & Decision-Making',
+    title: 'Problem-Solving & Decision-Making',
     sliders: [
-      { id: 'problem-approach', left: 'Analytical, Data-Driven Approach', right: 'Intuitive, Experience-Based Solutions' },
-      { id: 'decision-speed', left: 'Thoughtful, Deliberate Decisions', right: 'Quick, Adaptive Decision-Making' },
-      { id: 'input-preference', left: 'Values Diverse Input & Opinions', right: 'Relies on Personal Expertise & Judgment' },
-      { id: 'risk-tolerance', left: 'Cautious, Risk-Averse Approach', right: 'Comfortable with Calculated Risk-Taking' }
+      { id: 'problem-approach', left: 'Data-Driven, Analytical Decision Making', right: 'Gut-Feeling, Intuitive Judgments' },
+      { id: 'collaborative-decisions', left: 'Group Consensus in Problem Solving', right: 'Independent, Solo Decision Making' },
+      { id: 'structured-creative', left: 'Preference for Established Frameworks', right: 'Creative, Flexible Problem-Solving Approaches' },
+      { id: 'decision-speed', left: 'Step-by-Step, Methodical Resolution', right: 'Quick, Adaptive Reactions to Challenges' },
+      { id: 'consensus-decisive', left: 'Relying on Team Input', right: 'Making Swift, Decisive Choices' },
+      { id: 'system-brainstorm', left: 'Prefers a Step-by-Step Analytical Approach', right: 'Enjoys Collaborative Brainstorming for Creative Solutions' },
+      { id: 'data-experience', left: 'Bases Decisions on Hard Data and Metrics', right: 'Values Personal Experience and Intuition in Decision-Making' },
+      { id: 'incremental-radical', left: 'Favors Small, Incremental Adjustments', right: 'Open to Bold, Transformative Solutions' },
+      { id: 'consensus-action', left: 'Prefers Building Consensus with Team Input', right: 'Values Swift, Authoritative Decision-Making' },
+      { id: 'risk-opportunity', left: 'Prioritizes Minimizing Risks in Decision-Making', right: 'Focuses on Seizing Opportunities, Even if Involving Some Risk' }
     ]
   },
   {
