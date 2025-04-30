@@ -210,14 +210,19 @@ export const SLIDER_CATEGORIES = [
   },
   {
     id: 'leadership-style',
-    title: 'Leadership & Supervisor\'s Style',
+    title: 'Preferred Leadership & Supervisor Styles',
     sliders: [
       { id: 'policy-rigor', left: 'Strict Adherence to Policies', right: 'Adaptable to Situations' },
       { id: 'mentorship', left: 'Emphasis on Formal Training & Mentorship', right: 'Preference for Independent Learning' },
       { id: 'leadership-approach', left: 'Taskmaster & Transparent Guidance', right: 'Hands-Off & Ambiguous Support' },
       { id: 'recognition', left: 'Prefers Public Acknowledgment', right: 'Favors Private Recognition' },
       { id: 'team-environment', left: 'Encourages Competition Among Team Members', right: 'Fosters a Collaborative Team Spirit' },
-      { id: 'feedback', left: 'Expects Scheduled, Formalized Feedback', right: 'Values Informal, Spontaneous Feedback' }
+      { id: 'boundaries', left: 'Sets Firm Boundaries', right: 'Always Accessible for Support' },
+      { id: 'coaching', left: 'Prefers Leaders Who Coach Actively', right: 'Values Leaders Who Grant Independent Decision-Making' },
+      { id: 'feedback', left: 'Expects Scheduled, Formalized Feedback', right: 'Values Informal, Spontaneous Feedback' },
+      { id: 'role-definition', left: 'Prefers Clearly Defined Roles and Responsibilities', right: 'Comfortable with Evolving Role Expectations' },
+      { id: 'process-outcome', left: 'Values Leaders Who Emphasize Process and Procedure', right: 'Favors Leaders Focused on Results and Outcomes' },
+      { id: 'risk-leadership', left: 'Prefers Leaders Who Avoid Risk', right: 'Values Leaders Who Embrace Calculated Risks' }
     ]
   },
   {
