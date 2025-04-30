@@ -367,12 +367,9 @@ export default function JobseekerProfileForm() {
       
       console.log('Submitting complete profile with form data and slider values');
       
-      // Handle functional preferences conversion - if it's an array, convert to string
+      // We'll keep the data as-is since our functionalPreferences is already in JSON string format
+      // from our checkbox handling, which is what the schema expects
       const preparedData = { ...data };
-      
-      if (Array.isArray(preparedData.functionalPreferences)) {
-        preparedData.functionalPreferences = preparedData.functionalPreferences.join(',');
-      }
       
       // Proceed with profile creation
       createProfileMutation.mutate({ 
@@ -809,13 +806,28 @@ export default function JobseekerProfileForm() {
                               control={form.control}
                               name="functionalPreferences"
                               render={({ field }) => {
-                                // Parse the value which could be string or array
+                                // Parse the value which could be JSON string, comma-separated string, or array
                                 let valueArray: string[] = [];
                                 
                                 if (Array.isArray(field.value)) {
+                                  // Direct array (shouldn't normally happen based on schema)
                                   valueArray = field.value;
-                                } else if (typeof field.value === 'string' && field.value) {
-                                  valueArray = field.value.split(',').map(item => item.trim()).filter(Boolean);
+                                } else if (typeof field.value === 'string') {
+                                  try {
+                                    // First try to parse as JSON string (new format)
+                                    if (field.value.startsWith('[')) {
+                                      valueArray = JSON.parse(field.value);
+                                    } else if (field.value === '{}') {
+                                      // Empty object string from database
+                                      valueArray = [];
+                                    } else if (field.value) {
+                                      // Fallback to comma-separated string (legacy format)
+                                      valueArray = field.value.split(',').map(item => item.trim()).filter(Boolean);
+                                    }
+                                  } catch (e) {
+                                    console.error('Error parsing functional preferences:', e);
+                                    valueArray = [];
+                                  }
                                 }
                                 
                                 return (
@@ -827,10 +839,15 @@ export default function JobseekerProfileForm() {
                                       <Checkbox
                                         checked={valueArray.includes(role.id)}
                                         onCheckedChange={(checked) => {
-                                          const newValue = checked
+                                          // Update the array of selected roles
+                                          const newArray = checked
                                             ? [...valueArray, role.id]
                                             : valueArray.filter(v => v !== role.id);
                                           
+                                          // Convert the array to a JSON string since the schema expects a string
+                                          const newValue = JSON.stringify(newArray);
+                                          
+                                          // Set the value as a string representation of the array
                                           field.onChange(newValue);
                                         }}
                                       />
