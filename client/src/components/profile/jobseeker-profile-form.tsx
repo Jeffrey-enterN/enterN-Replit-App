@@ -410,6 +410,14 @@ export default function JobseekerProfileForm() {
       }
       
       console.log('Submitting complete profile with form data and slider values');
+      console.log('Current slider values:', sliderValues);
+      console.log('Number of slider values:', Object.keys(sliderValues).length);
+      
+      // Check if all categories have slider values
+      SLIDER_CATEGORIES.forEach((category, index) => {
+        const hasValues = category.sliders.slice(0, 5).some(slider => slider.id in sliderValues);
+        console.log(`Category ${index + 1} (${category.title}): ${hasValues ? 'Has values' : 'No values'}`);
+      });
       
       // We'll keep the data as-is since our functionalPreferences is already in JSON string format
       // from our checkbox handling, which is what the schema expects
@@ -869,7 +877,7 @@ export default function JobseekerProfileForm() {
                                       field.onChange(JSON.stringify([]));
                                     } else if (field.value) {
                                       // Fallback to comma-separated string (legacy format)
-                                      valueArray = field.value.split(',').map(item => item.trim()).filter(Boolean);
+                                      valueArray = field.value.split(',').map((item: string) => item.trim()).filter(Boolean);
                                       
                                       // Normalize this format to JSON array format
                                       field.onChange(JSON.stringify(valueArray));

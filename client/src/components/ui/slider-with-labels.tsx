@@ -90,15 +90,7 @@ export function SliderWithLabels({
       
       {/* Value indicator */}
       <div className="text-center text-xs font-medium -mt-1">
-        {value < 30 && (
-          <span className="text-gray-700">Leans Left</span>
-        )}
-        {value >= 30 && value <= 70 && (
-          <span className="text-gray-700">Balanced</span>
-        )}
-        {value > 70 && (
-          <span className="text-gray-700">Leans Right</span>
-        )}
+        <span className="text-gray-700">{value}</span>
       </div>
     </div>
   );

@@ -99,6 +99,32 @@ export default function CollapsibleSliderSection({
       percentage: Math.round((completedSliders / totalSliders) * 100)
     };
   };
+  
+  // Initialize default values for missing sliders to prevent issues
+  React.useEffect(() => {
+    let newValues: Record<string, number> = {};
+    let hasNewValues = false;
+    
+    // For all sliders in all categories
+    categories.forEach(category => {
+      category.sliders.forEach(slider => {
+        // If this slider has no value yet, collect it to set later
+        if (!(slider.id in values)) {
+          newValues[slider.id] = 50;
+          hasNewValues = true;
+        }
+      });
+    });
+    
+    // Only update if we have new values to prevent infinite loop
+    if (hasNewValues) {
+      console.log('Initializing values for sliders:', Object.keys(newValues));
+      // Initialize all missing values at once
+      Object.entries(newValues).forEach(([id, value]) => {
+        onChange(id, value);
+      });
+    }
+  }, [categories, values, onChange]);
 
   // Generic tooltip descriptions for different preference types
   const getTooltipText = (slider: SliderData) => {
