@@ -194,14 +194,18 @@ export const SLIDER_CATEGORIES = [
   },
   {
     id: 'working-style',
-    title: 'Working Style',
+    title: 'Work Style Preferences',
     sliders: [
-      { id: 'schedule', left: 'Fixed Schedule', right: 'Flexible Hours' },
-      { id: 'documentation', left: 'Detailed Documentation', right: 'Minimal Paperwork' },
-      { id: 'workflow', left: 'Predictable Workflow', right: 'Varied Tasks' },
-      { id: 'communication', left: 'Constant Communication', right: 'Deep Focus' },
-      { id: 'execution', left: 'Methodical Execution', right: 'Rapid Iteration' },
-      { id: 'routine', left: 'Highly Structured Daily Routine', right: 'Flexible, Self-Paced Work Environment' }
+      { id: 'schedule', left: 'Prefers a Consistent, Fixed Work Schedule', right: 'Values Flexible, Adaptive Working Hours' },
+      { id: 'documentation', left: 'Values Comprehensive Documentation and Processes', right: 'Prefers Minimal Administrative Overhead' },
+      { id: 'workflow', left: 'Thrives on Repetitive, Predictable Tasks', right: 'Enjoys a Variety of Task Types and Challenges' },
+      { id: 'communication', left: 'Prefers Regular Team Check-Ins', right: 'Values Minimal Interruptions for Deep Work' },
+      { id: 'execution', left: 'Favors a Step-by-Step, Methodical Approach', right: 'Prefers Quick Experimentation and Iterative Processes' },
+      { id: 'routine', left: 'Highly Structured Daily Routine', right: 'Flexible, Self-Paced Work Environment' },
+      { id: 'guidance', left: 'Preference for Step-by-Step Instructions', right: 'Desire for Independent Decision-Making' },
+      { id: 'teamorientation', left: 'Collaborative, Group-Driven Work', right: 'Independent, Solo Work Preference' },
+      { id: 'plannedflow', left: 'Reliance on Detailed Planning', right: 'Adaptability to Spontaneous Tasks' },
+      { id: 'processes', left: 'Following Established Processes', right: 'Tailoring Methods to the Situation' }
     ]
   },
   {
