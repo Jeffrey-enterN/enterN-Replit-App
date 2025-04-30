@@ -259,14 +259,18 @@ export const SLIDER_CATEGORIES = [
   },
   {
     id: 'growth-motivation',
-    title: 'Growth, Motivation, & Development',
+    title: 'Growth, Intrinsic Motivation & Development Goals',
     sliders: [
       { id: 'development-path', left: 'Clear, Formal Career Development Plans', right: 'Self-Directed, Organic Growth Opportunities' },
       { id: 'motivation-source', left: 'Motivated by External Recognition and Incentives', right: 'Driven by Internal Fulfillment and Passion' },
       { id: 'training-style', left: 'Focused, Specialized Training Programs', right: 'Broad, Exploratory Learning Experiences' },
       { id: 'achievement-timeline', left: 'Focus on Long-Term Career Progression', right: 'Emphasis on Short-Term, Project-Based Success' },
       { id: 'success-metrics', left: 'Measured by Formal Performance Metrics', right: 'Success Defined by Personal Growth and Engagement' },
-      { id: 'growth-path', left: 'Values a Clear Hierarchical Career Path', right: 'Prefers Growth Based on Skills and Competence' }
+      { id: 'growth-path', left: 'Values a Clear Hierarchical Career Path', right: 'Prefers Growth Based on Skills and Competence' },
+      { id: 'achievement-learning', left: 'Driven by Achieving Targets and Recognitions', right: 'Motivated by Continuous Learning and Personal Development' },
+      { id: 'benchmarking', left: 'Measures Success Against External Standards', right: 'Values Personal Benchmarks and Self-Reflection' },
+      { id: 'learning-style', left: 'Prefers Organized Training Programs and Workshops', right: 'Favors Self-Guided, Project-Based Learning' },
+      { id: 'goal-focus', left: 'Focused on Measurable, Quantitative Targets', right: 'Driven by the Qualitative Impact and Personal Fulfillment of Work' }
     ]
   },
   {
