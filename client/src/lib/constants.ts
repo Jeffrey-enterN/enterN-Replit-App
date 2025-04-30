@@ -243,14 +243,18 @@ export const SLIDER_CATEGORIES = [
   },
   {
     id: 'collaboration-style',
-    title: 'Collaboration & Communication Style',
+    title: 'Collaboration & Communication Style Preferences',
     sliders: [
       { id: 'direct-communication', left: 'Direct, Clear-Cut Communication', right: 'Nuanced, Contextual Dialogue' },
       { id: 'meeting-style', left: 'Structured, Scheduled Meetings', right: 'Casual, Ad-Hoc Discussions' },
       { id: 'work-independence', left: 'Regular, Frequent Updates', right: 'Minimal Interruptions and Independence' },
       { id: 'communication-medium', left: 'Preference for Written Communication', right: 'Preference for Face-to-Face or Verbal Exchanges' },
       { id: 'collaboration-preference', left: 'Open, Group Collaboration', right: 'Selective, One-on-One Interactions' },
-      { id: 'communication-scheduling', left: 'Prefers Pre-Planned Communication Sessions', right: 'Values Spontaneous, Impromptu Discussions' }
+      { id: 'communication-scheduling', left: 'Prefers Pre-Planned Communication Sessions', right: 'Values Spontaneous, Impromptu Discussions' },
+      { id: 'formality', left: 'Values Formal, Documented Communication', right: 'Prefers Informal, Real-Time Messaging' },
+      { id: 'cross-functional', left: 'Enjoys Collaborating Across Different Teams', right: 'Prefers Working Within a Single Department' },
+      { id: 'consensus', left: 'Values Group Consensus and Shared Input', right: 'Favors Directives from Leadership in Communication' },
+      { id: 'feedback-channel', left: 'Prefers Organized, Scheduled Feedback Opportunities', right: 'Values an Open-Door Approach for Continuous, Informal Feedback' }
     ]
   },
   {
