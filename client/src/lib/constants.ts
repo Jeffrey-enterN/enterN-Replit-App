@@ -291,7 +291,7 @@ export const SLIDER_CATEGORIES = [
   },
   {
     id: 'adaptability',
-    title: 'Stable vs. Dynamic Environment Preference',
+    title: 'Adaptability & Resilience',
     sliders: [
       { id: 'change-response', left: 'Prefers a Predictable, Stable Environment', right: 'Thrives in Dynamic, Changing Conditions' },
       { id: 'routine-adjustment', left: 'Comfort in Following Established Routines', right: 'Quick to Adapt to New Circumstances' },
