@@ -152,6 +152,7 @@ export default function JobseekerProfileForm() {
   });
 
   const updateSliderValue = (id: string, value: number) => {
+    console.log(`Updating slider value for ${id} to ${value}`);
     setSliderValues(prev => ({
       ...prev,
       [id]: value
