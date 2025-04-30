@@ -95,7 +95,7 @@ export default function JobseekerProfileForm() {
     preferredLocations: [],
     workArrangements: [],
     industryPreferences: [],
-    functionalPreferences: '',
+    functionalPreferences: JSON.stringify([]), // Initialize as empty JSON array string
   });
   
   // Track slider section completion
@@ -249,6 +249,35 @@ export default function JobseekerProfileForm() {
       const profile = profileQuery.data;
       console.log('Loading profile data:', profile);
       
+      // Handle functional preferences conversion from various formats to JSON array string
+      let formattedFunctionalPreferences = JSON.stringify([]);
+      
+      if (profile.functionalPreferences) {
+        try {
+          if (profile.functionalPreferences === '{}') {
+            // Empty object case
+            console.log('Converting empty object to empty array for functional preferences');
+            formattedFunctionalPreferences = JSON.stringify([]);
+          } else if (profile.functionalPreferences.startsWith('[')) {
+            // Already a JSON array
+            console.log('Functional preferences are already in JSON array format');
+            // Parse and stringify to ensure proper format
+            const parsed = JSON.parse(profile.functionalPreferences);
+            formattedFunctionalPreferences = JSON.stringify(parsed);
+          } else if (profile.functionalPreferences.includes(',')) {
+            // Comma-separated string
+            console.log('Converting comma-separated string to JSON array');
+            const array = profile.functionalPreferences.split(',').map(item => item.trim()).filter(Boolean);
+            formattedFunctionalPreferences = JSON.stringify(array);
+          }
+        } catch (e) {
+          console.error('Error formatting functional preferences:', e);
+          formattedFunctionalPreferences = JSON.stringify([]);
+        }
+      }
+      
+      console.log('Formatted functional preferences:', formattedFunctionalPreferences);
+      
       // Update form data with profile values
       const profileData: Partial<FormValues> = {
         firstName: profile.firstName || user?.firstName || '',
@@ -263,7 +292,7 @@ export default function JobseekerProfileForm() {
         preferredLocations: Array.isArray(profile.preferredLocations) ? profile.preferredLocations : [],
         workArrangements: Array.isArray(profile.workArrangements) ? profile.workArrangements : [],
         industryPreferences: Array.isArray(profile.industryPreferences) ? profile.industryPreferences : [],
-        functionalPreferences: profile.functionalPreferences || '',
+        functionalPreferences: formattedFunctionalPreferences,
       };
       
       console.log('Prepared profile data for form:', profileData);
@@ -832,12 +861,18 @@ export default function JobseekerProfileForm() {
                                     // First try to parse as JSON string (new format)
                                     if (field.value.startsWith('[')) {
                                       valueArray = JSON.parse(field.value);
-                                    } else if (field.value === '{}') {
+                                    } else if (field.value === '{}' || field.value === '{' || field.value === '}') {
                                       // Empty object string from database
                                       valueArray = [];
+                                      
+                                      // Fix the value by setting it properly as an empty array
+                                      field.onChange(JSON.stringify([]));
                                     } else if (field.value) {
                                       // Fallback to comma-separated string (legacy format)
                                       valueArray = field.value.split(',').map(item => item.trim()).filter(Boolean);
+                                      
+                                      // Normalize this format to JSON array format
+                                      field.onChange(JSON.stringify(valueArray));
                                     }
                                   } catch (e) {
                                     console.error('Error parsing functional preferences:', e);
@@ -861,6 +896,8 @@ export default function JobseekerProfileForm() {
                                           
                                           // Convert the array to a JSON string since the schema expects a string
                                           const newValue = JSON.stringify(newArray);
+                                          
+                                          console.log(`Setting functionalPreferences to: ${newValue}`);
                                           
                                           // Set the value as a string representation of the array
                                           field.onChange(newValue);
