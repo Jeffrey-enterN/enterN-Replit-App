@@ -293,46 +293,81 @@ export default function JobseekerProfileForm() {
   }, [form]);
 
   const handleNextStep = async () => {
+    console.log(`Handling next step, current step: ${currentStep}`);
+    
     if (currentStep === 1) {
+      console.log("In step 1, validating fields");
       // Validate step 1 fields - only require first name, last name, and phone
       const isValid = await form.trigger([
         'firstName', 'lastName', 'phone'
       ]);
+      console.log(`Step 1 base validation result: ${isValid}`);
       
       // If student toggle is on, also validate education fields
       const isStudent = form.getValues('isStudent');
       if (isStudent) {
+        console.log("Student toggle is ON, validating education fields");
         const eduFieldsValid = await form.trigger([
           'schoolEmail', 'school', 'degreeLevel', 'major'
         ]);
-        if (!eduFieldsValid) return;
+        console.log(`Education field validation result: ${eduFieldsValid}`);
+        if (!eduFieldsValid) {
+          console.log("Education validation failed, stopping");
+          return;
+        }
       }
       
       if (isValid) {
+        console.log("Step 1 validation successful, moving to step 2");
         // Get current values
         const currentValues = form.getValues();
+        console.log("Current form values:", currentValues);
+        
         // Update form data
-        setFormData(prev => ({
-          ...prev,
-          ...currentValues
-        }));
+        setFormData(prev => {
+          console.log("Previous form data:", prev);
+          const newData = {
+            ...prev,
+            ...currentValues
+          };
+          console.log("New form data after step 1:", newData);
+          return newData;
+        });
+        
         setCurrentStep(2);
+      } else {
+        console.log("Step 1 validation failed, errors:", form.formState.errors);
       }
     } else if (currentStep === 2) {
+      console.log("In step 2, validating fields");
+      
       // Validate step 2 fields
       const isValid = await form.trigger([
         'portfolioUrl', 'preferredLocations', 'workArrangements'
       ]);
+      console.log(`Step 2 validation result: ${isValid}`);
       
       if (isValid) {
+        console.log("Step 2 validation successful, moving to step 3");
         // Get current values
         const currentValues = form.getValues();
-        // Update form data
-        setFormData(prev => ({
-          ...prev,
-          ...currentValues
-        }));
+        console.log("Current form values:", currentValues);
+        
+        // Update form data 
+        setFormData(prev => {
+          console.log("Previous form data:", prev);
+          const newData = {
+            ...prev,
+            ...currentValues
+          };
+          console.log("New form data after step 2:", newData);
+          return newData;
+        });
+        
+        console.log("Setting current step to 3");
         setCurrentStep(3);
+      } else {
+        console.log("Step 2 validation failed, errors:", form.formState.errors);
       }
     }
   };
@@ -942,7 +977,11 @@ export default function JobseekerProfileForm() {
                 {currentStep < 3 ? (
                   <Button
                     type="button"
-                    onClick={handleNextStep}
+                    onClick={(e) => {
+                      console.log("Continue button clicked in step", currentStep);
+                      e.preventDefault(); // Ensure we don't submit the form
+                      handleNextStep(); 
+                    }}
                     className="inline-flex items-center justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
                   >
                     Continue <ChevronRight className="ml-1 h-4 w-4" />
