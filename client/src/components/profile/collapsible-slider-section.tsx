@@ -121,19 +121,19 @@ export default function CollapsibleSliderSection({
             >
               <AccordionTrigger className="px-4 hover:no-underline group">
                 <div className="flex items-center justify-between w-full">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-shrink-0 min-w-[30%]">
                     {isComplete ? (
-                      <CheckCircle2 className="h-5 w-5 text-green-500" />
+                      <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0" />
                     ) : (
-                      <Circle className={`h-5 w-5 ${colorScheme.iconColor}`} />
+                      <Circle className={`h-5 w-5 ${colorScheme.iconColor} flex-shrink-0`} />
                     )}
-                    <span className="text-lg font-medium text-gray-900">{category.title}</span>
+                    <span className="text-lg font-medium text-gray-900 truncate">{category.title}</span>
                   </div>
-                  <div className="flex items-center space-x-4">
+                  <div className="flex items-center space-x-4 ml-auto">
                     <div className="hidden md:block text-sm text-gray-600">
                       {completion.completed} of {completion.total} complete
                     </div>
-                    <div className="w-20 bg-gray-200 rounded-full h-2.5">
+                    <div className="w-20 bg-gray-200 rounded-full h-2.5 flex-shrink-0">
                       <div 
                         className={`h-2.5 rounded-full ${isComplete ? 'bg-green-500' : colorScheme.progressBackground}`}
                         style={{ width: `${completion.percentage}%` }}
