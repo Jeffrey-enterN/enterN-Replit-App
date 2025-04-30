@@ -196,16 +196,16 @@ export const SLIDER_CATEGORIES = [
     id: 'working-style',
     title: 'Work Style Preferences',
     sliders: [
-      { id: 'schedule', left: 'Prefers a Consistent, Fixed Work Schedule', right: 'Values Flexible, Adaptive Working Hours' },
-      { id: 'documentation', left: 'Values Comprehensive Documentation and Processes', right: 'Prefers Minimal Administrative Overhead' },
-      { id: 'workflow', left: 'Thrives on Repetitive, Predictable Tasks', right: 'Enjoys a Variety of Task Types and Challenges' },
-      { id: 'communication', left: 'Prefers Regular Team Check-Ins', right: 'Values Minimal Interruptions for Deep Work' },
-      { id: 'execution', left: 'Favors a Step-by-Step, Methodical Approach', right: 'Prefers Quick Experimentation and Iterative Processes' },
-      { id: 'routine', left: 'Highly Structured Daily Routine', right: 'Flexible, Self-Paced Work Environment' },
-      { id: 'guidance', left: 'Preference for Step-by-Step Instructions', right: 'Desire for Independent Decision-Making' },
-      { id: 'teamorientation', left: 'Collaborative, Group-Driven Work', right: 'Independent, Solo Work Preference' },
-      { id: 'plannedflow', left: 'Reliance on Detailed Planning', right: 'Adaptability to Spontaneous Tasks' },
-      { id: 'processes', left: 'Following Established Processes', right: 'Tailoring Methods to the Situation' }
+      { id: 'working-style-schedule', left: 'Prefers a Consistent, Fixed Work Schedule', right: 'Values Flexible, Adaptive Working Hours' },
+      { id: 'working-style-documentation', left: 'Values Comprehensive Documentation and Processes', right: 'Prefers Minimal Administrative Overhead' },
+      { id: 'working-style-workflow', left: 'Thrives on Repetitive, Predictable Tasks', right: 'Enjoys a Variety of Task Types and Challenges' },
+      { id: 'working-style-communication', left: 'Prefers Regular Team Check-Ins', right: 'Values Minimal Interruptions for Deep Work' },
+      { id: 'working-style-execution', left: 'Favors a Step-by-Step, Methodical Approach', right: 'Prefers Quick Experimentation and Iterative Processes' },
+      { id: 'working-style-routine', left: 'Highly Structured Daily Routine', right: 'Flexible, Self-Paced Work Environment' },
+      { id: 'working-style-guidance', left: 'Preference for Step-by-Step Instructions', right: 'Desire for Independent Decision-Making' },
+      { id: 'working-style-teamorientation', left: 'Collaborative, Group-Driven Work', right: 'Independent, Solo Work Preference' },
+      { id: 'working-style-plannedflow', left: 'Reliance on Detailed Planning', right: 'Adaptability to Spontaneous Tasks' },
+      { id: 'working-style-processes', left: 'Following Established Processes', right: 'Tailoring Methods to the Situation' }
     ]
   },
   {
