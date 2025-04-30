@@ -227,14 +227,18 @@ export const SLIDER_CATEGORIES = [
   },
   {
     id: 'work-environment',
-    title: 'Work Environment',
+    title: 'Preferred Work Environment',
     sliders: [
       { id: 'setting', left: 'Quiet, Controlled Workspace', right: 'Dynamic, Open-Plan Environment' },
       { id: 'structure', left: 'Traditional, Hierarchical Office Setting', right: 'Casual, Flat Organizational Structure' },
       { id: 'variety', left: 'Predictable, Routine-Based Environment', right: 'Ever-Changing, Fast-Paced Atmosphere' },
+      { id: 'stability', left: 'Stable, Consistent Work Conditions', right: 'Variety and Spontaneity in Tasks' },
       { id: 'interactions', left: 'Minimal Social Interactions', right: 'Lively, Collaborative Workspaces' },
       { id: 'workspace', left: 'Prefers Private, Quiet Workspaces', right: 'Thrives in Open, Collaborative Settings' },
-      { id: 'atmosphere', left: 'Prefers a Formal, Professional Office', right: 'Values a Relaxed, Casual Work Culture' }
+      { id: 'environment-change', left: 'Values a Consistent, Unchanging Workspace', right: 'Enjoys Switching Between Different Work Settings (office, remote, co-working)' },
+      { id: 'atmosphere', left: 'Prefers a Formal, Professional Office', right: 'Values a Relaxed, Casual Work Culture' },
+      { id: 'tech-setup', left: 'Favors a Conventional Office Layout', right: 'Embraces a Modern, Innovative Workspace with the Latest Tech' },
+      { id: 'scheduling', left: 'Prefers Regular, Predictable Work Patterns', right: 'Excels in Environments Driven by Projects or Events' }
     ]
   },
   {
