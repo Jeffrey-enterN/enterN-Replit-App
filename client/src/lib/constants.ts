@@ -178,14 +178,18 @@ export const COMPANY_BENEFITS = [
 export const SLIDER_CATEGORIES = [
   {
     id: 'organizational-values',
-    title: 'Organizational Values & Mission Alignment',
+    title: 'Organizational Values & Mission',
     sliders: [
       { id: 'mission-focus', left: 'Strictly Defined Mission Statements', right: 'Adaptable, Evolving Mission Focus' },
       { id: 'traditional-values', left: 'Emphasis on Legacy & Stability', right: 'Innovative, Risk-Tolerant Values' },
       { id: 'value-communication', left: 'Explicit, Written Value Statements', right: 'Emergent, Informal Value Expression' },
       { id: 'cultural-expectations', left: 'Standardized Organizational Culture', right: 'Diverse, Personalized Cultural Expression' },
       { id: 'goals-stability', left: 'Consistent, Long-Term Goals', right: 'Fluid, Changing Strategic Directions' },
-      { id: 'innovation-stability', left: 'Values Stability and Consistency', right: 'Values Continuous Innovation and Change' }
+      { id: 'innovation-stability', left: 'Values Stability and Consistency', right: 'Values Continuous Innovation and Change' },
+      { id: 'decision-making', left: 'Prefers Top-Down Direction', right: 'Values Decentralized, Team Empowerment' },
+      { id: 'tradition-experimentation', left: 'Emphasizes Time-Honored Practices', right: 'Embraces New Ideas and Experimentation' },
+      { id: 'compliance-agility', left: 'Focuses on Adhering to Established Standards', right: 'Prioritizes Agile Adaptation over Rigidity' },
+      { id: 'community-market', left: 'Prioritizes Social Responsibility and Local Impact', right: 'Emphasizes Competitive, Market-Driven Success' }
     ]
   },
   {
