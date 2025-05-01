@@ -203,30 +203,76 @@ export class MemStorage implements IStorage {
       // Track which categories have values
       const categoriesWithValues = new Set();
       
-      // Check each slider value and categorize it based on its ID prefix
-      for (const sliderId of Object.keys(profile.sliderValues)) {
-        // Category prefixes in sliderIds
-        if (sliderId.startsWith('mission-') || sliderId.startsWith('value-') || 
-            sliderId.startsWith('goals-') || sliderId.startsWith('traditional-') || 
-            sliderId.startsWith('cultural-')) {
+      // Debug log
+      const sliderIds = Object.keys(profile.sliderValues);
+      console.log(`Profile for user ${userId} has slider values:`, sliderIds);
+      
+      // Track all slider IDs to match against categories
+      if (sliderIds.length > 0) {
+        // For organizational values
+        if (sliderIds.some(id => 
+          id === 'mission-focus' || 
+          id === 'traditional-values' || 
+          id === 'value-communication' || 
+          id === 'cultural-expectations' ||
+          id === 'goals-stability' ||
+          id === 'innovation-stability' ||
+          id === 'decision-making' ||
+          id === 'tradition-experimentation' ||
+          id === 'compliance-agility' ||
+          id === 'community-market'
+        )) {
           categoriesWithValues.add('organizational');
-        } else if (sliderId.startsWith('working-style-') || sliderId.startsWith('innovation-') ||
-                  sliderId.startsWith('decision-') || sliderId.startsWith('tradition-') ||
-                  sliderId.startsWith('compliance-') || sliderId.startsWith('community-')) {
+        }
+        
+        // For work style
+        if (sliderIds.some(id => 
+          id === 'working-style-schedule' || 
+          id === 'working-style-documentation' || 
+          id === 'working-style-workflow' || 
+          id === 'working-style-communication' ||
+          id === 'working-style-execution' ||
+          id === 'working-style-routine' ||
+          id === 'working-style-guidance' ||
+          id === 'working-style-teamorientation' ||
+          id === 'working-style-plannedflow' ||
+          id === 'working-style-processes'
+        )) {
           categoriesWithValues.add('workstyle');
-        } else if (sliderId.startsWith('leadership-style-')) {
+        }
+        
+        // For leadership style
+        if (sliderIds.some(id => id.startsWith('leadership-style-'))) {
           categoriesWithValues.add('leadership');
-        } else if (sliderId.startsWith('work-environment-')) {
+        }
+        
+        // For work environment
+        if (sliderIds.some(id => id.startsWith('work-environment-'))) {
           categoriesWithValues.add('environment');
-        } else if (sliderId.startsWith('collaboration-') || sliderId.startsWith('communication-')) {
+        }
+        
+        // For collaboration style
+        if (sliderIds.some(id => id.startsWith('collaboration-style-'))) {
           categoriesWithValues.add('collaboration');
-        } else if (sliderId.startsWith('growth-') || sliderId.startsWith('motivation-')) {
+        }
+        
+        // For growth motivation
+        if (sliderIds.some(id => id.startsWith('growth-motivation-'))) {
           categoriesWithValues.add('growth');
-        } else if (sliderId.startsWith('problem-solving-')) {
+        }
+        
+        // For problem solving
+        if (sliderIds.some(id => id.startsWith('problem-solving-'))) {
           categoriesWithValues.add('problemsolving');
-        } else if (sliderId.startsWith('adaptability-')) {
+        }
+        
+        // For adaptability
+        if (sliderIds.some(id => id.startsWith('adaptability-'))) {
           categoriesWithValues.add('adaptability');
-        } else if (sliderId.startsWith('emotional-intelligence-')) {
+        }
+        
+        // For emotional intelligence
+        if (sliderIds.some(id => id.startsWith('emotional-intelligence-'))) {
           categoriesWithValues.add('emotional');
         }
       }
@@ -710,30 +756,75 @@ export class DatabaseStorage implements IStorage {
         // Track which categories have values
         const categoriesWithValues = new Set();
         
-        // Check each slider value and categorize it based on its ID prefix
-        for (const sliderId of sliderIds) {
-          // Category prefixes in sliderIds
-          if (sliderId.startsWith('mission-') || sliderId.startsWith('value-') || 
-              sliderId.startsWith('goals-') || sliderId.startsWith('traditional-') || 
-              sliderId.startsWith('cultural-')) {
+        // Debug log
+        console.log(`Profile for user ${profile.userId} has slider values:`, sliderIds);
+        
+        // Track all slider IDs to match against categories
+        if (sliderIds.length > 0) {
+          // For organizational values
+          if (sliderIds.some(id => 
+            id === 'mission-focus' || 
+            id === 'traditional-values' || 
+            id === 'value-communication' || 
+            id === 'cultural-expectations' ||
+            id === 'goals-stability' ||
+            id === 'innovation-stability' ||
+            id === 'decision-making' ||
+            id === 'tradition-experimentation' ||
+            id === 'compliance-agility' ||
+            id === 'community-market'
+          )) {
             categoriesWithValues.add('organizational');
-          } else if (sliderId.startsWith('working-style-') || sliderId.startsWith('innovation-') ||
-                    sliderId.startsWith('decision-') || sliderId.startsWith('tradition-') ||
-                    sliderId.startsWith('compliance-') || sliderId.startsWith('community-')) {
+          }
+          
+          // For work style
+          if (sliderIds.some(id => 
+            id === 'working-style-schedule' || 
+            id === 'working-style-documentation' || 
+            id === 'working-style-workflow' || 
+            id === 'working-style-communication' ||
+            id === 'working-style-execution' ||
+            id === 'working-style-routine' ||
+            id === 'working-style-guidance' ||
+            id === 'working-style-teamorientation' ||
+            id === 'working-style-plannedflow' ||
+            id === 'working-style-processes'
+          )) {
             categoriesWithValues.add('workstyle');
-          } else if (sliderId.startsWith('leadership-style-')) {
+          }
+          
+          // For leadership style
+          if (sliderIds.some(id => id.startsWith('leadership-style-'))) {
             categoriesWithValues.add('leadership');
-          } else if (sliderId.startsWith('work-environment-')) {
+          }
+          
+          // For work environment
+          if (sliderIds.some(id => id.startsWith('work-environment-'))) {
             categoriesWithValues.add('environment');
-          } else if (sliderId.startsWith('collaboration-') || sliderId.startsWith('communication-')) {
+          }
+          
+          // For collaboration style
+          if (sliderIds.some(id => id.startsWith('collaboration-style-'))) {
             categoriesWithValues.add('collaboration');
-          } else if (sliderId.startsWith('growth-') || sliderId.startsWith('motivation-')) {
+          }
+          
+          // For growth motivation
+          if (sliderIds.some(id => id.startsWith('growth-motivation-'))) {
             categoriesWithValues.add('growth');
-          } else if (sliderId.startsWith('problem-solving-')) {
+          }
+          
+          // For problem solving
+          if (sliderIds.some(id => id.startsWith('problem-solving-'))) {
             categoriesWithValues.add('problemsolving');
-          } else if (sliderId.startsWith('adaptability-')) {
+          }
+          
+          // For adaptability
+          if (sliderIds.some(id => id.startsWith('adaptability-'))) {
             categoriesWithValues.add('adaptability');
-          } else if (sliderId.startsWith('emotional-intelligence-')) {
+          }
+          
+          // For emotional intelligence
+          if (sliderIds.some(id => id.startsWith('emotional-intelligence-'))) {
             categoriesWithValues.add('emotional');
           }
         }
