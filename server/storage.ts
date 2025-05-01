@@ -1100,7 +1100,7 @@ export class DatabaseStorage implements IStorage {
         and(
           isNotNull(jobseekerProfiles.viewedBy),
           sql`jsonb_array_length(${jobseekerProfiles.viewedBy}) > 0`,
-          sql`${userId}::text = ANY(select jsonb_array_elements_text(${jobseekerProfiles.viewedBy}))`
+          sql`EXISTS(SELECT 1 FROM jsonb_array_elements_text(${jobseekerProfiles.viewedBy}) AS elem WHERE elem = ${userId.toString()})`
         )
       );
     
@@ -1251,11 +1251,12 @@ export class DatabaseStorage implements IStorage {
 
       // Parse current viewedBy array (if it exists) or create an empty array
       const currentViewedBy = profile.viewedBy || [];
+      const viewerIdStr = viewerId.toString();
       
       // Only add the viewer if they haven't viewed this profile before
-      if (!currentViewedBy.includes(viewerId)) {
-        // Add the new viewer to the array
-        const updatedViewedBy = [...currentViewedBy, viewerId];
+      if (!currentViewedBy.includes(viewerIdStr) && !currentViewedBy.includes(viewerId)) {
+        // Add the new viewer to the array - ensure it's added as a string for consistency
+        const updatedViewedBy = [...currentViewedBy, viewerIdStr];
         
         // Update the profile with the new viewedBy array
         await db
