@@ -165,129 +165,41 @@ export class MemStorage implements IStorage {
     const profile = this.jobseekerProfiles.get(userId);
     const user = this.users.get(userId);
     
-    // Calculate profile completion percentage more accurately
-    let completionScore = 0;
-    let totalFields = 0;
+    // Calculate profile completion percentage based on completed steps
+    // Step 1 = 33%, Step 2 = 66%, Step 3 = 100%
+    let profileCompletionPercentage = 0;
     
-    // Basic user fields (firstName, lastName, email, phone)
-    if (user) {
-      totalFields += 4;
-      if (user.firstName) completionScore += 1;
-      if (user.lastName) completionScore += 1;
-      if (user.email) completionScore += 1;
-      if (user.phone) completionScore += 1;
-    }
-    
-    // Profile fields
-    if (profile) {
-      // Education fields
-      totalFields += 3;
-      if (profile.education.degree) completionScore += 1;
-      if (profile.education.school) completionScore += 1;
-      if (profile.education.major) completionScore += 1;
+    // If we have basic user info (name, email), we've at least completed step 1
+    if (user && user.firstName && user.lastName && user.email) {
+      profileCompletionPercentage = 33;
       
-      // Experience fields
-      totalFields += 3;
-      if (profile.experience.length > 0) {
-        completionScore += 3; // Full score if there's at least one experience entry
-      }
-      
-      // Skills fields
-      totalFields += 1;
-      if (profile.skills.length > 0) completionScore += 1;
-      
-      // Slider values - give more weight to sliders since they're a major part of the profile
-      const sliderCategories = 9;
-      totalFields += sliderCategories;
-      
-      // Track which categories have values
-      const categoriesWithValues = new Set();
-      
-      // Debug log
-      const sliderIds = Object.keys(profile.sliderValues);
-      console.log(`Profile for user ${userId} has slider values:`, sliderIds);
-      
-      // Track all slider IDs to match against categories
-      if (sliderIds.length > 0) {
-        // For organizational values
-        if (sliderIds.some(id => 
-          id === 'mission-focus' || 
-          id === 'traditional-values' || 
-          id === 'value-communication' || 
-          id === 'cultural-expectations' ||
-          id === 'goals-stability' ||
-          id === 'innovation-stability' ||
-          id === 'decision-making' ||
-          id === 'tradition-experimentation' ||
-          id === 'compliance-agility' ||
-          id === 'community-market'
-        )) {
-          categoriesWithValues.add('organizational');
-        }
+      // Check if we have education and portfolio info (step 2)
+      if (profile) {
+        // Education, functional preferences, industry preferences, and location preferences
+        // should be filled out for step 2
+        const hasEducation = profile.school && profile.degreeLevel;
+        const hasFunctionalPreferences = profile.functionalPreferences && 
+          (Array.isArray(profile.functionalPreferences) ? 
+            profile.functionalPreferences.length > 0 : 
+            profile.functionalPreferences !== '');
+        const hasIndustryPreferences = Array.isArray(profile.industryPreferences) && 
+          profile.industryPreferences.length > 0;
         
-        // For work style
-        if (sliderIds.some(id => 
-          id === 'working-style-schedule' || 
-          id === 'working-style-documentation' || 
-          id === 'working-style-workflow' || 
-          id === 'working-style-communication' ||
-          id === 'working-style-execution' ||
-          id === 'working-style-routine' ||
-          id === 'working-style-guidance' ||
-          id === 'working-style-teamorientation' ||
-          id === 'working-style-plannedflow' ||
-          id === 'working-style-processes'
-        )) {
-          categoriesWithValues.add('workstyle');
-        }
-        
-        // For leadership style
-        if (sliderIds.some(id => id.startsWith('leadership-style-'))) {
-          categoriesWithValues.add('leadership');
-        }
-        
-        // For work environment
-        if (sliderIds.some(id => id.startsWith('work-environment-'))) {
-          categoriesWithValues.add('environment');
-        }
-        
-        // For collaboration style
-        if (sliderIds.some(id => id.startsWith('collaboration-style-'))) {
-          categoriesWithValues.add('collaboration');
-        }
-        
-        // For growth motivation
-        if (sliderIds.some(id => id.startsWith('growth-motivation-'))) {
-          categoriesWithValues.add('growth');
-        }
-        
-        // For problem solving
-        if (sliderIds.some(id => id.startsWith('problem-solving-'))) {
-          categoriesWithValues.add('problemsolving');
-        }
-        
-        // For adaptability
-        if (sliderIds.some(id => id.startsWith('adaptability-'))) {
-          categoriesWithValues.add('adaptability');
-        }
-        
-        // For emotional intelligence
-        if (sliderIds.some(id => id.startsWith('emotional-intelligence-'))) {
-          categoriesWithValues.add('emotional');
+        if (hasEducation || hasFunctionalPreferences || hasIndustryPreferences) {
+          profileCompletionPercentage = 66;
+          
+          // Check if we have slider values (step 3)
+          const hasSliderValues = profile.sliderValues && 
+            Object.keys(profile.sliderValues).length > 0;
+          
+          if (hasSliderValues) {
+            profileCompletionPercentage = 100;
+          }
         }
       }
-      
-      // Add points based on how many categories have values
-      completionScore += categoriesWithValues.size;
-      
-      console.log(`Profile completion for ${userId}: ${categoriesWithValues.size}/${sliderCategories} slider categories completed`);
-      
-      // Location preferences
-      totalFields += 1;
-      if (profile.locationPreferences.length > 0) completionScore += 1;
     }
     
-    const profileCompletionPercentage = Math.round((completionScore / totalFields) * 100) || 0;
+    console.log(`Profile completion for ${userId}: ${profileCompletionPercentage}%`);
     const matches = this.matches.filter(match => match.jobseekerId === userId);
     
     // Get profile views count
@@ -703,151 +615,41 @@ export class DatabaseStorage implements IStorage {
       .from(users)
       .where(eq(users.id, userId));
     
-    // Calculate profile completion percentage more accurately
-    let completionScore = 0;
-    let totalFields = 0;
+    // Calculate profile completion percentage based on completed steps
+    // Step 1 = 33%, Step 2 = 66%, Step 3 = 100%
+    let profileCompletionPercentage = 0;
     
-    // Basic user fields (firstName, lastName, email, phone)
-    if (user) {
-      totalFields += 4;
-      if (user.firstName) completionScore += 1;
-      if (user.lastName) completionScore += 1;
-      if (user.email) completionScore += 1;
-      if (user.phone) completionScore += 1;
-    }
-    
-    // Profile fields
-    if (profile) {
-      // Education fields
-      if (profile.education) {
-        totalFields += 3;
-        if (profile.education.degree) completionScore += 1;
-        if (profile.education.school) completionScore += 1;
-        if (profile.education.major) completionScore += 1;
-      }
+    // If we have basic user info (name, email), we've at least completed step 1
+    if (user && user.firstName && user.lastName && user.email) {
+      profileCompletionPercentage = 33;
       
-      // Experience - check if it exists and has at least one entry
-      if (profile.experience) {
-        totalFields += 1;
-        if (Array.isArray(profile.experience) && profile.experience.length > 0) {
-          completionScore += 1;
-        }
-      }
-      
-      // Skills - check if it exists and has entries
-      if (profile.skills) {
-        totalFields += 1;
-        if (Array.isArray(profile.skills) && profile.skills.length > 0) {
-          completionScore += 1;
-        }
-      }
-      
-      // Slider values - give more weight to sliders since they're a major part of the profile
-      if (profile.sliderValues) {
-        // Count sliders by categories (9 categories in total)
-        const sliderCategories = 9;
-        totalFields += sliderCategories;
+      // Check if we have education and portfolio info (step 2)
+      if (profile) {
+        // Education, functional preferences, industry preferences, and location preferences
+        // should be filled out for step 2
+        const hasEducation = profile.school && profile.degreeLevel;
+        const hasFunctionalPreferences = profile.functionalPreferences && 
+          (Array.isArray(profile.functionalPreferences) ? 
+            profile.functionalPreferences.length > 0 : 
+            profile.functionalPreferences !== '');
+        const hasIndustryPreferences = Array.isArray(profile.industryPreferences) && 
+          profile.industryPreferences.length > 0;
         
-        // Calculate how many categories have at least one slider value
-        // We'll need to parse the slider IDs to determine which category they belong to
-        const sliderValues = profile.sliderValues;
-        const sliderIds = Object.keys(sliderValues);
-        
-        // Track which categories have values
-        const categoriesWithValues = new Set();
-        
-        // Debug log
-        console.log(`Profile for user ${profile.userId} has slider values:`, sliderIds);
-        
-        // Track all slider IDs to match against categories
-        if (sliderIds.length > 0) {
-          // For organizational values
-          if (sliderIds.some(id => 
-            id === 'mission-focus' || 
-            id === 'traditional-values' || 
-            id === 'value-communication' || 
-            id === 'cultural-expectations' ||
-            id === 'goals-stability' ||
-            id === 'innovation-stability' ||
-            id === 'decision-making' ||
-            id === 'tradition-experimentation' ||
-            id === 'compliance-agility' ||
-            id === 'community-market'
-          )) {
-            categoriesWithValues.add('organizational');
-          }
+        if (hasEducation || hasFunctionalPreferences || hasIndustryPreferences) {
+          profileCompletionPercentage = 66;
           
-          // For work style
-          if (sliderIds.some(id => 
-            id === 'working-style-schedule' || 
-            id === 'working-style-documentation' || 
-            id === 'working-style-workflow' || 
-            id === 'working-style-communication' ||
-            id === 'working-style-execution' ||
-            id === 'working-style-routine' ||
-            id === 'working-style-guidance' ||
-            id === 'working-style-teamorientation' ||
-            id === 'working-style-plannedflow' ||
-            id === 'working-style-processes'
-          )) {
-            categoriesWithValues.add('workstyle');
-          }
+          // Check if we have slider values (step 3)
+          const hasSliderValues = profile.sliderValues && 
+            Object.keys(profile.sliderValues).length > 0;
           
-          // For leadership style
-          if (sliderIds.some(id => id.startsWith('leadership-style-'))) {
-            categoriesWithValues.add('leadership');
+          if (hasSliderValues) {
+            profileCompletionPercentage = 100;
           }
-          
-          // For work environment
-          if (sliderIds.some(id => id.startsWith('work-environment-'))) {
-            categoriesWithValues.add('environment');
-          }
-          
-          // For collaboration style
-          if (sliderIds.some(id => id.startsWith('collaboration-style-'))) {
-            categoriesWithValues.add('collaboration');
-          }
-          
-          // For growth motivation
-          if (sliderIds.some(id => id.startsWith('growth-motivation-'))) {
-            categoriesWithValues.add('growth');
-          }
-          
-          // For problem solving
-          if (sliderIds.some(id => id.startsWith('problem-solving-'))) {
-            categoriesWithValues.add('problemsolving');
-          }
-          
-          // For adaptability
-          if (sliderIds.some(id => id.startsWith('adaptability-'))) {
-            categoriesWithValues.add('adaptability');
-          }
-          
-          // For emotional intelligence
-          if (sliderIds.some(id => id.startsWith('emotional-intelligence-'))) {
-            categoriesWithValues.add('emotional');
-          }
-        }
-        
-        // Add points based on how many categories have values
-        completionScore += categoriesWithValues.size;
-        
-        console.log(`Profile completion for ${profile.userId}: ${categoriesWithValues.size}/${sliderCategories} slider categories completed`);
-      }
-      
-      // Location preferences - check if they exist and have entries
-      if (profile.locationPreferences) {
-        totalFields += 1;
-        if (Array.isArray(profile.locationPreferences) && profile.locationPreferences.length > 0) {
-          completionScore += 1;
         }
       }
     }
     
-    // Calculate the percentage, default to 0 if no fields are found
-    const profileCompletionPercentage = totalFields > 0 
-      ? Math.round((completionScore / totalFields) * 100) 
-      : 0;
+    console.log(`Profile completion for ${userId}: ${profileCompletionPercentage}%`);
     
     // Count matches - these will always be actual database counts
     const matchCount = await db
