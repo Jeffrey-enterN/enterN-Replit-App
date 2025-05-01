@@ -196,9 +196,45 @@ export class MemStorage implements IStorage {
       totalFields += 1;
       if (profile.skills.length > 0) completionScore += 1;
       
-      // Sliders
-      totalFields += 1;
-      if (Object.keys(profile.sliderValues).length > 0) completionScore += 1;
+      // Slider values - give more weight to sliders since they're a major part of the profile
+      const sliderCategories = 9;
+      totalFields += sliderCategories;
+      
+      // Track which categories have values
+      const categoriesWithValues = new Set();
+      
+      // Check each slider value and categorize it based on its ID prefix
+      for (const sliderId of Object.keys(profile.sliderValues)) {
+        // Category prefixes in sliderIds
+        if (sliderId.startsWith('mission-') || sliderId.startsWith('value-') || 
+            sliderId.startsWith('goals-') || sliderId.startsWith('traditional-') || 
+            sliderId.startsWith('cultural-')) {
+          categoriesWithValues.add('organizational');
+        } else if (sliderId.startsWith('working-style-') || sliderId.startsWith('innovation-') ||
+                  sliderId.startsWith('decision-') || sliderId.startsWith('tradition-') ||
+                  sliderId.startsWith('compliance-') || sliderId.startsWith('community-')) {
+          categoriesWithValues.add('workstyle');
+        } else if (sliderId.startsWith('leadership-style-')) {
+          categoriesWithValues.add('leadership');
+        } else if (sliderId.startsWith('work-environment-')) {
+          categoriesWithValues.add('environment');
+        } else if (sliderId.startsWith('collaboration-') || sliderId.startsWith('communication-')) {
+          categoriesWithValues.add('collaboration');
+        } else if (sliderId.startsWith('growth-') || sliderId.startsWith('motivation-')) {
+          categoriesWithValues.add('growth');
+        } else if (sliderId.startsWith('problem-solving-')) {
+          categoriesWithValues.add('problemsolving');
+        } else if (sliderId.startsWith('adaptability-')) {
+          categoriesWithValues.add('adaptability');
+        } else if (sliderId.startsWith('emotional-intelligence-')) {
+          categoriesWithValues.add('emotional');
+        }
+      }
+      
+      // Add points based on how many categories have values
+      completionScore += categoriesWithValues.size;
+      
+      console.log(`Profile completion for ${userId}: ${categoriesWithValues.size}/${sliderCategories} slider categories completed`);
       
       // Location preferences
       totalFields += 1;
@@ -660,12 +696,52 @@ export class DatabaseStorage implements IStorage {
         }
       }
       
-      // Slider values - check if they exist and have entries
+      // Slider values - give more weight to sliders since they're a major part of the profile
       if (profile.sliderValues) {
-        totalFields += 1;
-        if (Object.keys(profile.sliderValues).length > 0) {
-          completionScore += 1;
+        // Count sliders by categories (9 categories in total)
+        const sliderCategories = 9;
+        totalFields += sliderCategories;
+        
+        // Calculate how many categories have at least one slider value
+        // We'll need to parse the slider IDs to determine which category they belong to
+        const sliderValues = profile.sliderValues;
+        const sliderIds = Object.keys(sliderValues);
+        
+        // Track which categories have values
+        const categoriesWithValues = new Set();
+        
+        // Check each slider value and categorize it based on its ID prefix
+        for (const sliderId of sliderIds) {
+          // Category prefixes in sliderIds
+          if (sliderId.startsWith('mission-') || sliderId.startsWith('value-') || 
+              sliderId.startsWith('goals-') || sliderId.startsWith('traditional-') || 
+              sliderId.startsWith('cultural-')) {
+            categoriesWithValues.add('organizational');
+          } else if (sliderId.startsWith('working-style-') || sliderId.startsWith('innovation-') ||
+                    sliderId.startsWith('decision-') || sliderId.startsWith('tradition-') ||
+                    sliderId.startsWith('compliance-') || sliderId.startsWith('community-')) {
+            categoriesWithValues.add('workstyle');
+          } else if (sliderId.startsWith('leadership-style-')) {
+            categoriesWithValues.add('leadership');
+          } else if (sliderId.startsWith('work-environment-')) {
+            categoriesWithValues.add('environment');
+          } else if (sliderId.startsWith('collaboration-') || sliderId.startsWith('communication-')) {
+            categoriesWithValues.add('collaboration');
+          } else if (sliderId.startsWith('growth-') || sliderId.startsWith('motivation-')) {
+            categoriesWithValues.add('growth');
+          } else if (sliderId.startsWith('problem-solving-')) {
+            categoriesWithValues.add('problemsolving');
+          } else if (sliderId.startsWith('adaptability-')) {
+            categoriesWithValues.add('adaptability');
+          } else if (sliderId.startsWith('emotional-intelligence-')) {
+            categoriesWithValues.add('emotional');
+          }
         }
+        
+        // Add points based on how many categories have values
+        completionScore += categoriesWithValues.size;
+        
+        console.log(`Profile completion for ${profile.userId}: ${categoriesWithValues.size}/${sliderCategories} slider categories completed`);
       }
       
       // Location preferences - check if they exist and have entries
