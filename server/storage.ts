@@ -165,47 +165,63 @@ export class MemStorage implements IStorage {
     const profile = this.jobseekerProfiles.get(userId);
     const user = this.users.get(userId);
     
-    // HARDCODED PROFILE COMPLETION FOR TESTING (MEM STORAGE)
-    // Force 100% completion for all users
-    let profileCompletionPercentage = 100;
-    console.log(`MEMORY: Setting profile completion for ${userId} to 100% (overridden)`);
-    
-    /* ORIGINAL CODE COMMENTED OUT
+    // Calculate profile completion percentage based on completed steps
     // Step 1 = 33%, Step 2 = 66%, Step 3 = 100%
     let profileCompletionPercentage = 0;
     
-    // If we have basic user info (name, email), we've at least completed step 1
+    console.log("MEMORY - Calculating profile completion for " + userId);
     if (user && user.firstName && user.lastName && user.email) {
       profileCompletionPercentage = 33;
+      console.log("User " + userId + " has completed Step 1 (33%)");
       
       // Check if we have education and portfolio info (step 2)
       if (profile) {
         // Education, functional preferences, industry preferences, and location preferences
         // should be filled out for step 2
         const hasEducation = profile.school && profile.degreeLevel;
-        const hasFunctionalPreferences = profile.functionalPreferences && 
-          (Array.isArray(profile.functionalPreferences) ? 
-            profile.functionalPreferences.length > 0 : 
-            profile.functionalPreferences !== '');
+        
+        // Check functional preferences in different formats
+        let hasFunctionalPreferences = false;
+        if (profile.functionalPreferences) {
+          if (Array.isArray(profile.functionalPreferences)) {
+            hasFunctionalPreferences = profile.functionalPreferences.length > 0;
+          } else if (typeof profile.functionalPreferences === 'string') {
+            // If it's a string, check if it's not empty
+            hasFunctionalPreferences = profile.functionalPreferences.trim() !== '';
+          } else if (typeof profile.functionalPreferences === 'object') {
+            // If it's an object, check if it has keys
+            hasFunctionalPreferences = Object.keys(profile.functionalPreferences).length > 0;
+          }
+        }
+        
+        // Check industry preferences
         const hasIndustryPreferences = Array.isArray(profile.industryPreferences) && 
           profile.industryPreferences.length > 0;
         
+        console.log("User " + userId + " step 2 checks:", { hasEducation, hasFunctionalPreferences, hasIndustryPreferences });
+        
         if (hasEducation || hasFunctionalPreferences || hasIndustryPreferences) {
           profileCompletionPercentage = 66;
+          console.log("User " + userId + " has completed Step 2 (66%)");
           
           // Check if we have slider values (step 3)
-          const hasSliderValues = profile.sliderValues && 
-            Object.keys(profile.sliderValues).length > 0;
+          let hasSliderValues = false;
+          
+          if (profile.sliderValues) {
+            hasSliderValues = Object.keys(profile.sliderValues).length > 0;
+          }
+          
+          console.log("User " + userId + " step 3 check - hasSliderValues:", hasSliderValues);
           
           if (hasSliderValues) {
             profileCompletionPercentage = 100;
+            console.log("User " + userId + " has completed Step 3 (100%)");
           }
         }
       }
     }
-    */
     
-    console.log(`Profile completion for ${userId}: ${profileCompletionPercentage}%`);
+    console.log("Profile completion for " + userId + ": " + profileCompletionPercentage + "%");
     const matches = this.matches.filter(match => match.jobseekerId === userId);
     
     // Get profile views count
@@ -621,44 +637,88 @@ export class DatabaseStorage implements IStorage {
       .from(users)
       .where(eq(users.id, userId));
     
-    // FORCE PROFILE COMPLETION TO 100% FOR LANIESMITH@BRADLEY.EDU
-    // Hard-coding to 100% for a complete profile experience
-    let profileCompletionPercentage = 100;
-    console.log(`Setting profile completion for ${userId} to 100% (overridden for user experience)`);
+    // Calculate profile completion percentage based on completed steps
+    // Step 1 = 33%, Step 2 = 66%, Step 3 = 100%
+    let profileCompletionPercentage = 0;
     
-    /* COMMENTED OUT - THIS IS REPLACED BY A FIXED 100% COMPLETION
+    console.log(`DEBUG - Calculating profile completion for user ${userId}:`, {
+      userExists: !!user,
+      profileExists: !!profile,
+      firstName: user?.firstName || 'N/A',
+      lastName: user?.lastName || 'N/A',
+      hasEmail: !!user?.email,
+      school: profile?.school || 'N/A',
+      degreeLevel: profile?.degreeLevel || 'N/A',
+      hasFunctionalPrefs: !!profile?.functionalPreferences,
+      hasIndustryPrefs: !!profile?.industryPreferences,
+      hasSliderValues: profile?.sliderValues ? Object.keys(profile?.sliderValues || {}).length > 0 : false
+    });
+    
     // If we have basic user info (name, email), we've at least completed step 1
     if (user && user.firstName && user.lastName && user.email) {
       profileCompletionPercentage = 33;
+      console.log("User " + userId + " has completed Step 1 (33%)");
       
       // Check if we have education and portfolio info (step 2)
       if (profile) {
         // Education, functional preferences, industry preferences, and location preferences
         // should be filled out for step 2
         const hasEducation = profile.school && profile.degreeLevel;
-        const hasFunctionalPreferences = profile.functionalPreferences && 
-          (Array.isArray(profile.functionalPreferences) ? 
-            profile.functionalPreferences.length > 0 : 
-            profile.functionalPreferences !== '');
+        
+        // Check functional preferences in different formats
+        let hasFunctionalPreferences = false;
+        if (profile.functionalPreferences) {
+          if (Array.isArray(profile.functionalPreferences)) {
+            hasFunctionalPreferences = profile.functionalPreferences.length > 0;
+          } else if (typeof profile.functionalPreferences === 'string') {
+            // If it's a string, check if it's not empty
+            hasFunctionalPreferences = profile.functionalPreferences.trim() !== '';
+          } else if (typeof profile.functionalPreferences === 'object') {
+            // If it's an object, check if it has keys
+            hasFunctionalPreferences = Object.keys(profile.functionalPreferences).length > 0;
+          }
+        }
+        
+        // Check industry preferences
         const hasIndustryPreferences = Array.isArray(profile.industryPreferences) && 
           profile.industryPreferences.length > 0;
         
+        // Log step 2 data
+        console.log("User " + userId + " step 2 checks:", { hasEducation, hasFunctionalPreferences, hasIndustryPreferences });
+        
         if (hasEducation || hasFunctionalPreferences || hasIndustryPreferences) {
           profileCompletionPercentage = 66;
+          console.log("User " + userId + " has completed Step 2 (66%)");
           
           // Check if we have slider values (step 3)
-          const hasSliderValues = profile.sliderValues && 
-            Object.keys(profile.sliderValues).length > 0;
+          let hasSliderValues = false;
+          
+          if (profile.sliderValues) {
+            if (typeof profile.sliderValues === 'object') {
+              hasSliderValues = Object.keys(profile.sliderValues).length > 0;
+            } else if (typeof profile.sliderValues === 'string' && profile.sliderValues.toString().trim() !== '') {
+              try {
+                // Try to parse it as JSON if it's a string
+                const parsed = JSON.parse(profile.sliderValues.toString());
+                hasSliderValues = Object.keys(parsed).length > 0;
+              } catch (e) {
+                // If it can't be parsed as JSON, assume it has some value
+                hasSliderValues = true;
+              }
+            }
+          }
+          
+          console.log("User " + userId + " step 3 check - hasSliderValues:", hasSliderValues);
           
           if (hasSliderValues) {
             profileCompletionPercentage = 100;
+            console.log("User " + userId + " has completed Step 3 (100%)");
           }
         }
       }
     }
-    */
     
-    console.log(`Profile completion for ${userId}: ${profileCompletionPercentage}%`);
+    console.log("Profile completion for " + userId + ": " + profileCompletionPercentage + "%");
     
     // Count matches - these will always be actual database counts
     const matchCount = await db
@@ -744,7 +804,7 @@ export class DatabaseStorage implements IStorage {
           
         if (user) {
           // Create a minimal profile to ensure the rest of the functionality works
-          console.log(`Creating minimal jobseeker profile for user ${userId}`);
+          console.log("Creating minimal jobseeker profile for user " + userId);
           try {
             await db.insert(jobseekerProfiles).values({
               userId: userId,
@@ -762,9 +822,9 @@ export class DatabaseStorage implements IStorage {
               functionalPreferences: '',
               sliderValues: {}
             });
-            console.log(`Created minimal jobseeker profile for user ${userId}`);
+            console.log("Created minimal jobseeker profile for user " + userId);
           } catch (err) {
-            console.error(`Error creating minimal profile: ${err}`);
+            console.error("Error creating minimal profile: " + err);
           }
         }
       }
