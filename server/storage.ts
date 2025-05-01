@@ -23,7 +23,7 @@ import {
   InsertSwipe
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, desc, sql } from "drizzle-orm";
+import { eq, and, desc, sql, isNotNull } from "drizzle-orm";
 import session from "express-session";
 import createMemoryStore from "memorystore";
 import connectPg from "connect-pg-simple";
@@ -1090,11 +1090,19 @@ export class DatabaseStorage implements IStorage {
     
     // Count how many jobseekers have viewed the employer's profile
     // This implementation counts views across all company job postings
-    // by counting jobseekers whose viewedBy field includes this employer ID
+    // We need to handle cases where viewedBy might be null, empty or not an array
+    
+    // First count only where viewedBy is not null and contains the userId
     const profileViewsQuery = await db
       .select({ count: sql<number>`count(*)` })
       .from(jobseekerProfiles)
-      .where(sql`${userId} = ANY(${jobseekerProfiles.viewedBy})`);
+      .where(
+        and(
+          isNotNull(jobseekerProfiles.viewedBy),
+          sql`jsonb_array_length(${jobseekerProfiles.viewedBy}) > 0`,
+          sql`${userId}::text = ANY(select jsonb_array_elements_text(${jobseekerProfiles.viewedBy}))`
+        )
+      );
     
     const profileViews = profileViewsQuery[0]?.count || 0;
       
