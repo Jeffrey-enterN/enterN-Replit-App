@@ -1123,8 +1123,6 @@ export class DatabaseStorage implements IStorage {
       .from(swipes)
       .where(eq(swipes.employerId, userId));
     
-    const jobseekerIdsSet = new Set(swipedJobseekerIds.map(s => s.jobseekerId));
-    
     // Get jobseeker profiles that haven't been swiped on
     const potentialJobseekers = await db
       .select()
@@ -1133,19 +1131,44 @@ export class DatabaseStorage implements IStorage {
         SELECT ${swipes.jobseekerId} FROM ${swipes} 
         WHERE ${swipes.employerId} = ${userId}
       )`)
-      .limit(5);
+      .limit(10);
     
-    // Format the results with actual data only
-    return potentialJobseekers.map(jobseeker => ({
-      id: jobseeker.userId.toString(),
-      education: {
-        degree: jobseeker.degreeLevel || '',
-        major: jobseeker.major || '',
-        school: jobseeker.school || ''
-      },
-      locations: jobseeker.preferredLocations || [],
-      sliderValues: jobseeker.sliderValues || {}
-    }));
+    // Filter out profiles with minimal information
+    const filteredProfiles = potentialJobseekers.filter(profile => {
+      // Check if profile has at least education or slider values
+      return (
+        (profile.degreeLevel || profile.major || profile.school) || 
+        (profile.sliderValues && Object.keys(profile.sliderValues).length > 0)
+      );
+    });
+    
+    // Format the results with anonymized but useful data
+    return filteredProfiles.map(jobseeker => {
+      // Parse JSON values if needed
+      const sliderValues = typeof jobseeker.sliderValues === 'string' 
+        ? JSON.parse(jobseeker.sliderValues) 
+        : (jobseeker.sliderValues || {});
+        
+      const preferredLocations = Array.isArray(jobseeker.preferredLocations)
+        ? jobseeker.preferredLocations
+        : (typeof jobseeker.preferredLocations === 'string'
+            ? JSON.parse(jobseeker.preferredLocations)
+            : []);
+      
+      // Return formatted data
+      return {
+        id: jobseeker.userId.toString(),
+        education: {
+          degree: jobseeker.degreeLevel || '',
+          major: jobseeker.major || '',
+          school: jobseeker.school || ''
+        },
+        locations: preferredLocations,
+        sliderValues: sliderValues,
+        workArrangements: jobseeker.workArrangements || [],
+        industryPreferences: jobseeker.industryPreferences || []
+      };
+    });
   }
 
   async handleEmployerSwipe(employerId: number, jobseekerId: string, interested: boolean): Promise<any> {

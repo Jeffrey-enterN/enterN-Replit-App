@@ -109,14 +109,15 @@ export default function MatchCard({ userType, data, onInterested, onNotIntereste
     
     // Select a few key sliders to display from different categories
     const sliderSamples = [
-      // Work Style slider
-      { id: 'schedule', left: 'Fixed Schedule', right: 'Flexible Hours' },
-      // Collaboration slider
-      { id: 'teamorientation', left: 'Collaborative', right: 'Independent' },
-      // Emotional Intelligence sliders
-      { id: 'emotional-sensitivity', left: 'Prioritizes Emotions', right: 'Focuses on Logic' },
-      { id: 'communication-style', left: 'Expressive Communication', right: 'Reserved Demeanor' },
-      { id: 'relationship-task', left: 'Relationship-Focused', right: 'Task-Focused' }
+      // Work Style Preferences
+      { id: 'work-pace', left: 'Methodical & Steady', right: 'Fast-Paced & Dynamic' },
+      { id: 'work-life-balance', left: 'Clear Work/Life Separation', right: 'Work/Life Integration' },
+      // Collaboration & Communication
+      { id: 'team-composition', left: 'Homogeneous Teams', right: 'Diverse Perspectives' },
+      // Leadership & Supervisor Styles
+      { id: 'management-style', left: 'Structured Leadership', right: 'Autonomous Leadership' },
+      // Problem-Solving & Decision-Making
+      { id: 'feedback-style', left: 'Direct Feedback', right: 'Diplomatic Feedback' }
     ];
     
     return (

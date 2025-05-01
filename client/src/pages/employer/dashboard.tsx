@@ -21,6 +21,28 @@ interface JobseekerMatch {
     school: string;
   };
   locations: string[];
+  workArrangements?: string[];
+  industryPreferences?: string[];
+}
+
+interface DashboardData {
+  stats: {
+    activeJobs: number;
+    profileViews: number;
+    matches: number;
+    interviews: number;
+  };
+  recentMatches: Match[];
+  jobs: Array<{
+    id: string;
+    title: string;
+    department: string;
+    location: string;
+    workType: string;
+    employmentType: string;
+    status: string;
+    matchCount: number;
+  }>;
 }
 
 export default function EmployerDashboard() {
@@ -36,18 +58,18 @@ export default function EmployerDashboard() {
   }, [user, navigate]);
 
   // Fetch dashboard data
-  const { data: dashboardData } = useQuery({
+  const { data: dashboardData } = useQuery<DashboardData>({
     queryKey: ['/api/employer/dashboard'],
     enabled: !!user && user.userType === USER_TYPES.EMPLOYER,
   });
 
   // Fetch potential matches
-  const { data: potentialMatches, refetch: refetchPotentialMatches } = useQuery({
+  const { data: potentialMatches, refetch: refetchPotentialMatches } = useQuery<JobseekerMatch[]>({
     queryKey: ['/api/employer/matches/potential'],
     enabled: !!user && user.userType === USER_TYPES.EMPLOYER,
   });
 
-  const currentJobseeker = potentialMatches?.[0] as JobseekerMatch | undefined;
+  const currentJobseeker = potentialMatches && potentialMatches.length > 0 ? potentialMatches[0] : undefined;
 
   // Handle interest/not interest
   const swipeMutation = useMutation({
@@ -190,20 +212,72 @@ export default function EmployerDashboard() {
       <div className="bg-white shadow-sm rounded-lg overflow-hidden mb-8">
         <div className="px-4 py-5 border-b border-gray-200 sm:px-6">
           <h3 className="text-lg leading-6 font-medium text-gray-900">Talent Match Feed</h3>
-          <p className="mt-1 text-sm text-gray-500">Find potential candidates by swiping through profiles.</p>
+          <p className="mt-1 text-sm text-gray-500">Find potential candidates by swiping through anonymous profiles.</p>
         </div>
         <div className="px-4 py-6 sm:p-6">
-          {currentJobseeker ? (
-            <MatchCard
-              userType={USER_TYPES.EMPLOYER}
-              data={currentJobseeker}
-              onInterested={handleInterested}
-              onNotInterested={handleNotInterested}
-              isPending={swipeMutation.isPending}
-            />
+          {potentialMatches?.length ? (
+            <div className="max-w-3xl mx-auto">
+              <div className="text-center mb-6">
+                <p className="text-sm text-gray-500">
+                  Showing anonymous profiles that match your company's requirements. 
+                  Swipe right on profiles you're interested in connecting with.
+                </p>
+              </div>
+              <MatchCard
+                userType={USER_TYPES.EMPLOYER}
+                data={currentJobseeker as JobseekerMatch}
+                onInterested={handleInterested}
+                onNotInterested={handleNotInterested}
+                isPending={swipeMutation.isPending}
+              />
+              <div className="text-center mt-4">
+                <p className="text-xs text-gray-500">
+                  {potentialMatches.length > 1 
+                    ? `${potentialMatches.length - 1} more profiles waiting` 
+                    : "Last profile in the queue"}
+                </p>
+              </div>
+            </div>
           ) : (
-            <div className="text-center py-12 text-gray-500">
-              No more potential candidates right now. Check back later!
+            <div className="text-center py-12">
+              <svg 
+                className="mx-auto h-12 w-12 text-gray-400" 
+                fill="none" 
+                viewBox="0 0 24 24" 
+                stroke="currentColor" 
+                aria-hidden="true"
+              >
+                <path 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round" 
+                  strokeWidth="2" 
+                  d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" 
+                />
+              </svg>
+              <h3 className="mt-2 text-sm font-medium text-gray-900">No potential candidates</h3>
+              <p className="mt-1 text-sm text-gray-500">
+                There are no more profiles to review at this time.
+              </p>
+              <div className="mt-6">
+                <Button
+                  onClick={() => refetchPotentialMatches()}
+                  className="inline-flex items-center"
+                >
+                  <svg 
+                    className="-ml-1 mr-2 h-5 w-5" 
+                    xmlns="http://www.w3.org/2000/svg" 
+                    viewBox="0 0 20 20" 
+                    fill="currentColor"
+                  >
+                    <path 
+                      fillRule="evenodd" 
+                      d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" 
+                      clipRule="evenodd" 
+                    />
+                  </svg>
+                  Refresh Candidates
+                </Button>
+              </div>
             </div>
           )}
         </div>
