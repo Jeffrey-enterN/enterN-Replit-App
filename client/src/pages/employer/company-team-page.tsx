@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useAuth } from "@/hooks/use-auth";
+import { useAuth } from "@/context/auth-context";
 import { useToast } from "@/hooks/use-toast";
 import EmployerLayout from "@/components/layouts/employer-layout";
 import CompanyTeamPanel from "@/components/company/company-team-panel";

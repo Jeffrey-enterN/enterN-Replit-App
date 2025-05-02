@@ -60,6 +60,14 @@ function Router() {
           />
         </EmployerLayout>
       </Route>
+      <Route path="/employer/company-team">
+        <EmployerLayout>
+          <ProtectedRoute 
+            path="/employer/company-team" 
+            component={CompanyTeamPage}
+          />
+        </EmployerLayout>
+      </Route>
       <Route component={NotFound} />
     </Switch>
   );
