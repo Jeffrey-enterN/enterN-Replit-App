@@ -76,11 +76,16 @@ const companyProfileSchema = z.object({
   adminPhone: z.string().optional(),
   headquarters: z.string().min(1, FORM_VALIDATION.required),
   size: z.string().min(1, FORM_VALIDATION.required),
-  yearFounded: z.string().refine(
-    (val) => !val || (/^\\d{4}$/.test(val) && parseInt(val) <= new Date().getFullYear()), 
-    { message: FORM_VALIDATION.invalidYear }
-  ),
-  careersUrl: z.string().url(FORM_VALIDATION.invalidUrl).optional().or(z.literal('')),
+  yearFounded: z.string().optional()
+    .refine(
+      (val) => !val || (/^\d{4}$/.test(val) && parseInt(val) <= new Date().getFullYear()), 
+      { message: FORM_VALIDATION.invalidYear }
+    ),
+  careersUrl: z.string().optional()
+    .refine(
+      (val) => !val || val === '' || val.startsWith('http'),
+      { message: FORM_VALIDATION.invalidUrl }
+    ),
   
   // Step 2: About the Company
   industries: z.array(z.string()).min(1, "Select at least one industry"),
@@ -448,10 +453,7 @@ export function CompanyProfileForm({ companyId }: { companyId?: number }) {
         break;
       case 3:
         fieldsToValidate = ['workArrangements', 'culture'];
-        break;
-      case 4:
-        fieldsToValidate = [];
-        // No specific validation for step 4
+        // We no longer have a step 4
         break;
     }
     
@@ -567,6 +569,208 @@ export function CompanyProfileForm({ companyId }: { companyId?: number }) {
       default:
         return null;
     }
+  };
+  
+  // New combined Step 3 function that includes both environment and development programs
+  const renderCombinedStep3 = () => {
+    return (
+      <div className="space-y-8">
+        {/* Work Environment Section */}
+        <div className="space-y-4">
+          <div>
+            <h3 className="text-lg font-medium mb-4">Work Environment</h3>
+            
+            <FormField
+              control={form.control}
+              name="workArrangements"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Work Arrangements*</FormLabel>
+                  <div className="flex flex-wrap gap-2">
+                    {WORK_ARRANGEMENTS.map((arrangement) => (
+                      <div key={arrangement} className="inline-flex items-center mr-4 mb-2">
+                        <Checkbox
+                          id={`arrangement-${arrangement}`}
+                          checked={Array.isArray(field.value) && field.value.includes(arrangement)}
+                          onCheckedChange={(checked) => {
+                            const currentValue = Array.isArray(field.value) ? field.value : [];
+                            if (checked) {
+                              field.onChange([...currentValue, arrangement]);
+                            } else {
+                              field.onChange(currentValue.filter(
+                                (value: string) => value !== arrangement
+                              ));
+                            }
+                          }}
+                          className="rounded-sm"
+                        />
+                        <label
+                          htmlFor={`arrangement-${arrangement}`}
+                          className="ml-2 text-sm font-medium leading-none cursor-pointer"
+                        >
+                          {arrangement}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="benefits"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Benefits & Perks</FormLabel>
+                  <div className="h-64 overflow-y-auto border rounded-md p-2">
+                    <div className="space-y-1">
+                      {COMPANY_BENEFITS.map((benefit) => (
+                        <div key={benefit} className="flex items-center">
+                          <Checkbox
+                            id={`benefit-${benefit}`}
+                            checked={Array.isArray(field.value) && field.value.includes(benefit)}
+                            onCheckedChange={(checked) => {
+                              const currentValue = Array.isArray(field.value) ? field.value : [];
+                              if (checked) {
+                                field.onChange([...currentValue, benefit]);
+                              } else {
+                                field.onChange(currentValue.filter(
+                                  (value: string) => value !== benefit
+                                ));
+                              }
+                            }}
+                            className="rounded-sm"
+                          />
+                          <label
+                            htmlFor={`benefit-${benefit}`}
+                            className="ml-2 text-sm font-medium leading-none cursor-pointer"
+                          >
+                            {benefit}
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <FormDescription>
+                    Select the benefits and perks your company offers.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="culture"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Company Culture*</FormLabel>
+                  <FormControl>
+                    <Textarea 
+                      placeholder="Describe your company's culture and values..." 
+                      className="min-h-24"
+                      {...field} 
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    What makes your company a unique place to work?
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        </div>
+        
+        {/* Development Programs Section */}
+        <Separator className="my-4" />
+        
+        <div className="space-y-6">
+          <h3 className="text-lg font-medium mb-4">Development Programs</h3>
+          
+          <FormField
+            control={form.control}
+            name="hasDevelopmentPrograms"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-start space-x-3 space-y-0 p-4 border rounded-md">
+                <FormControl>
+                  <Checkbox
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+                <div className="space-y-1 leading-none">
+                  <FormLabel>
+                    Our company offers development programs for early talent
+                  </FormLabel>
+                  <FormDescription>
+                    E.g., internships, apprenticeships, new graduate programs
+                  </FormDescription>
+                </div>
+              </FormItem>
+            )}
+          />
+          
+          {form.watch('hasDevelopmentPrograms') && (
+            <div className="space-y-4 p-4 border rounded-md">
+              <FormField
+                control={form.control}
+                name="developmentProgramDuration"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Program Duration (Optional)</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                      value={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select program duration" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {PROGRAM_DURATIONS.map((duration) => (
+                          <SelectItem key={duration} value={duration}>
+                            {duration}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="developmentProgramDescription"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Program Description (Optional)</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        placeholder="Describe your early talent development program..."
+                        className="min-h-24"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Include details about mentorship, training, and potential opportunities.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          )}
+        </div>
+      </div>
+    );
   };
   
   const renderStep1 = () => {
