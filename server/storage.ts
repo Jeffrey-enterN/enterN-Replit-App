@@ -868,11 +868,12 @@ export class DatabaseStorage implements IStorage {
   }
   
   // Company profile draft methods
-  async saveCompanyProfileDraft(userId: number, draftData: any, companyId?: number, step?: number): Promise<any> {
+  async saveCompanyProfileDraft(userId: number, draftData: any, companyId?: number, step?: number, draftType?: string): Promise<any> {
     try {
       const currentStep = step || 1;
+      const currentDraftType = draftType || 'create';
       
-      console.log(`DB: Saving draft for user ID ${userId}${companyId ? `, company ID ${companyId}` : ''}, step ${currentStep}`);
+      console.log(`DB: Saving draft for user ID ${userId}${companyId ? `, company ID ${companyId}` : ''}, step ${currentStep}, type: ${currentDraftType}`);
       
       // Debug to ensure we're receiving valid data
       console.log(`Draft data sample: ${JSON.stringify(draftData).substring(0, 100)}...`);
@@ -899,6 +900,7 @@ export class DatabaseStorage implements IStorage {
             .set({
               draftData,
               step: currentStep,
+              draftType: currentDraftType,
               lastActive: new Date(),
               updatedAt: new Date()
             })
@@ -916,7 +918,7 @@ export class DatabaseStorage implements IStorage {
               companyId: companyId || null, 
               draftData,
               step: currentStep,
-              draftType: 'create',
+              draftType: currentDraftType,
               lastActive: new Date()
             })
             .returning();
@@ -946,6 +948,7 @@ export class DatabaseStorage implements IStorage {
             UPDATE company_profile_drafts
             SET draft_data = ${JSON.stringify(draftData)},
                 step = ${currentStep},
+                draft_type = ${currentDraftType},
                 last_active = NOW(),
                 updated_at = NOW()
             WHERE id = ${existingDraft.id}
@@ -977,7 +980,7 @@ export class DatabaseStorage implements IStorage {
               ${companyId || null}, 
               ${JSON.stringify(draftData)}, 
               ${currentStep},
-              'create',
+              ${currentDraftType},
               NOW(),
               NOW(), 
               NOW()

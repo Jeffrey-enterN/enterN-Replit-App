@@ -22,18 +22,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Test route for company draft system
   app.get("/api/test/company-draft", async (req, res) => {
     try {
-      // Import directly from db.ts
       const { db } = await import("./db");
       
-      // Get existing drafts
+      // Query the database directly with regular SQL query (not using sql template)
       const result = await db.execute(`
-        SELECT id, user_id, company_id, step, draft_type, created_at, updated_at, last_active
+        SELECT id, user_id, company_id, step, draft_type, last_active, created_at, updated_at
         FROM company_profile_drafts
       `);
       
       res.status(200).json({
         message: "Draft system test succeeded",
-        drafts: result.rows,
+        drafts: result.rows || [],
         schema: {
           columns: [
             "id", "user_id", "company_id", "draft_data", "step", 
@@ -1055,44 +1054,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
     if (!req.isAuthenticated()) return res.status(401).json({ message: "Unauthorized" });
     if (req.user.userType !== USER_TYPES.EMPLOYER) return res.status(403).json({ message: "Forbidden" });
 
-    const { draftData, companyId, step } = req.body;
+    const { draftData, companyId, step, draftType } = req.body;
     const parsedCompanyId = companyId ? parseInt(companyId) : undefined;
+    const currentStep = step || 1;
+    const currentDraftType = draftType || 'create';
     
     try {
-      console.log(`Saving draft for user ID ${req.user.id}${parsedCompanyId ? ` and company ID ${parsedCompanyId}` : ''}, step ${step || 1}`);
+      console.log(`Saving draft for user ID ${req.user.id}${parsedCompanyId ? ` and company ID ${parsedCompanyId}` : ''}, step ${currentStep}, type: ${currentDraftType}`);
       
-      // Ensure draft data is an object, not null or undefined
+      // Enhanced validation with detailed feedback
       if (!draftData) {
         return res.status(400).json({ 
           message: "Draft data is required",
           _meta: {
             userId: req.user.id,
-            companyId: parsedCompanyId
+            companyId: parsedCompanyId,
+            timestamp: new Date().toISOString(),
+            error: "Missing draft data",
+            params: { step: currentStep, draftType: currentDraftType }
           }
         });
       }
+      
+      // Log payload size for debugging
+      console.log("Draft data size:", JSON.stringify(draftData).length, "bytes");
       
       const companyDraft = await storage.saveCompanyProfileDraft(
         req.user.id, 
         draftData, 
         parsedCompanyId, 
-        step
+        currentStep,
+        currentDraftType
       );
       
       console.log(`Draft saved successfully, ID: ${companyDraft.id}`);
       
+      // Enhanced response with more metadata
       res.status(200).json({
         ...companyDraft,
         _meta: {
           savedAt: new Date().toISOString(),
           message: "Company profile draft saved successfully",
           userId: req.user.id,
-          companyId: parsedCompanyId
+          companyId: parsedCompanyId,
+          step: currentStep,
+          draftType: currentDraftType,
+          draftId: companyDraft.id
         }
       });
     } catch (error) {
       console.error("Error saving company profile draft:", error);
-      res.status(500).json({ message: (error as Error).message });
+      res.status(500).json({ 
+        message: (error as Error).message,
+        _meta: {
+          userId: req.user?.id,
+          companyId: parsedCompanyId,
+          timestamp: new Date().toISOString(),
+          errorType: error instanceof Error ? error.name : 'Unknown'
+        }
+      });
     }
   });
   
@@ -1115,12 +1135,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
           _meta: {
             userId: req.user.id,
             companyId,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
+            path: req.path,
+            query: req.query
           }
         });
       }
       
-      console.log(`Draft found, ID: ${companyDraft.id}`);
+      console.log(`Draft found, ID: ${companyDraft.id}, step: ${companyDraft.step}, type: ${companyDraft.draftType}`);
       
       res.status(200).json({
         ...companyDraft,
@@ -1128,12 +1150,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
           fetchedAt: new Date().toISOString(),
           userId: req.user.id,
           companyId,
-          source: "draft"
+          source: "draft",
+          draftId: companyDraft.id,
+          draftType: companyDraft.draftType || 'create',
+          step: companyDraft.step || 1,
+          lastActive: companyDraft.lastActive || companyDraft.updatedAt
         }
       });
     } catch (error) {
       console.error("Error fetching company profile draft:", error);
-      res.status(500).json({ message: (error as Error).message });
+      res.status(500).json({ 
+        message: (error as Error).message,
+        _meta: {
+          userId: req.user?.id,
+          companyId,
+          timestamp: new Date().toISOString(),
+          path: req.path,
+          errorType: error instanceof Error ? error.name : 'Unknown'
+        }
+      });
     }
   });
 
