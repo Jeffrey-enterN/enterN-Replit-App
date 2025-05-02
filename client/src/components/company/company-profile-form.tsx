@@ -203,7 +203,7 @@ export function CompanyProfileForm({ companyId }: { companyId?: number }) {
     retry: false
   });
   
-  // Save draft mutation with debounce for auto-saving
+  // Save draft mutation
   const saveDraftMutation = useMutation({
     mutationFn: async (formData: CompanyProfileFormValues) => {
       const res = await apiRequest('POST', '/api/employer/company-profile/draft', {
@@ -217,27 +217,6 @@ export function CompanyProfileForm({ companyId }: { companyId?: number }) {
       }
       
       return await res.json();
-    },
-    onSuccess: (_, variables, context) => {
-      // Only invalidate query cache if this was a manual save (not auto-save)
-      if (context && (context as any).silent !== true) {
-        queryClient.invalidateQueries({ queryKey: ['/api/employer/company-profile/draft', companyId] });
-        toast({
-          title: 'Progress saved',
-          description: 'Your company profile progress has been saved.',
-        });
-      }
-    },
-    onError: (error, _, context) => {
-      // Only show error toast if this was a manual save (not auto-save)
-      if (context && (context as any).silent !== true) {
-        toast({
-          title: 'Save failed',
-          description: error.message,
-          variant: 'destructive',
-        });
-      }
-      console.error('Failed to save draft:', error);
     }
   });
   
@@ -393,28 +372,35 @@ export function CompanyProfileForm({ companyId }: { companyId?: number }) {
   
   // Save draft function (can be called manually or automatically)
   const saveDraft = async (silent: boolean = false) => {
-    const formData = form.getValues();
-    await saveDraftMutation.mutateAsync(formData, {
-      onSuccess: (data) => {
-        if (!silent) {
-          queryClient.invalidateQueries({ queryKey: ['/api/employer/company-profile/draft', companyId] });
-          toast({
-            title: 'Progress saved',
-            description: 'Your company profile progress has been saved.',
-          });
-        }
-      },
-      onError: (error) => {
-        if (!silent) {
-          toast({
-            title: 'Save failed',
-            description: error.message,
-            variant: 'destructive',
-          });
-        }
-        console.error('Failed to save draft:', error);
+    try {
+      const formData = form.getValues();
+      const result = await saveDraftMutation.mutateAsync(formData);
+      
+      if (!silent) {
+        queryClient.invalidateQueries({ queryKey: ['/api/employer/company-profile/draft', companyId] });
+        toast({
+          title: 'Progress saved',
+          description: 'Your company profile progress has been saved.',
+        });
       }
-    });
+      return result;
+    } catch (error: any) {
+      if (!silent) {
+        toast({
+          title: 'Save failed',
+          description: error.message,
+          variant: 'destructive',
+        });
+      }
+      console.error('Failed to save draft:', error);
+      throw error;
+    }
+  };
+  
+  // Wrapper for the onClick handler to handle the event properly
+  const handleSaveDraft = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    saveDraft(false);
   };
 
   // Set up debounced auto-save
@@ -1388,7 +1374,7 @@ export function CompanyProfileForm({ companyId }: { companyId?: number }) {
               <Button
                 type="button"
                 variant="outline"
-                onClick={saveDraft}
+                onClick={handleSaveDraft}
                 disabled={isLoading || saveDraftMutation.isPending}
                 className="mr-2"
               >
