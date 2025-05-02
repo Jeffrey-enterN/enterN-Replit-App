@@ -435,6 +435,373 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // === Company Management Routes ===
+  
+  // Get company profile
+  app.get("/api/employer/company", async (req, res) => {
+    if (!req.isAuthenticated()) return res.status(401).json({ message: "Unauthorized" });
+    if (req.user.userType !== USER_TYPES.EMPLOYER) return res.status(403).json({ message: "Forbidden" });
+    
+    try {
+      // If user doesn't belong to a company yet
+      if (!req.user.companyId) {
+        return res.status(404).json({ message: "Company not found" });
+      }
+      
+      const company = await storage.getCompany(req.user.companyId);
+      if (!company) {
+        return res.status(404).json({ message: "Company not found" });
+      }
+      
+      res.status(200).json(company);
+    } catch (error) {
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
+  
+  // Create/update company profile
+  app.post("/api/employer/company", async (req, res) => {
+    if (!req.isAuthenticated()) return res.status(401).json({ message: "Unauthorized" });
+    if (req.user.userType !== USER_TYPES.EMPLOYER) return res.status(403).json({ message: "Forbidden" });
+    
+    try {
+      const companyData = req.body;
+      
+      // If updating existing company, ensure user is an admin
+      if (req.user.companyId) {
+        if (req.user.companyRole !== 'admin') {
+          return res.status(403).json({ message: "Only company admins can update company profiles" });
+        }
+        
+        const updatedCompany = await storage.updateCompany(req.user.companyId, companyData);
+        return res.status(200).json(updatedCompany);
+      } 
+      
+      // Creating a new company
+      const newCompany = await storage.createCompany(companyData, req.user.id);
+      res.status(201).json(newCompany);
+    } catch (error) {
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
+  
+  // Invite team member to company
+  app.post("/api/employer/company/invite", async (req, res) => {
+    if (!req.isAuthenticated()) return res.status(401).json({ message: "Unauthorized" });
+    if (req.user.userType !== USER_TYPES.EMPLOYER) return res.status(403).json({ message: "Forbidden" });
+    
+    try {
+      if (!req.user.companyId) {
+        return res.status(403).json({ message: "You must belong to a company to invite team members" });
+      }
+      
+      if (req.user.companyRole !== 'admin') {
+        return res.status(403).json({ message: "Only company admins can invite team members" });
+      }
+      
+      const { email, role } = req.body;
+      
+      if (!email) {
+        return res.status(400).json({ message: "Email is required" });
+      }
+      
+      // Create invitation
+      const invite = await storage.createCompanyInvite({
+        companyId: req.user.companyId,
+        inviterUserId: req.user.id,
+        email,
+        role: role || 'recruiter'
+      });
+      
+      // TODO: Send email invitation (future feature)
+      
+      res.status(201).json(invite);
+    } catch (error) {
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
+  
+  // Get company team members
+  app.get("/api/employer/company/team", async (req, res) => {
+    if (!req.isAuthenticated()) return res.status(401).json({ message: "Unauthorized" });
+    if (req.user.userType !== USER_TYPES.EMPLOYER) return res.status(403).json({ message: "Forbidden" });
+    
+    try {
+      if (!req.user.companyId) {
+        return res.status(404).json({ message: "You don't belong to a company" });
+      }
+      
+      const team = await storage.getCompanyTeamMembers(req.user.companyId);
+      res.status(200).json({ team });
+    } catch (error) {
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
+  
+  // Get company invites (admin only)
+  app.get("/api/employer/company/invites", async (req, res) => {
+    if (!req.isAuthenticated()) return res.status(401).json({ message: "Unauthorized" });
+    if (req.user.userType !== USER_TYPES.EMPLOYER) return res.status(403).json({ message: "Forbidden" });
+    
+    try {
+      if (!req.user.companyId) {
+        return res.status(404).json({ message: "You don't belong to a company" });
+      }
+      
+      if (req.user.companyRole !== 'admin') {
+        return res.status(403).json({ message: "Only company admins can view invites" });
+      }
+      
+      const invites = await storage.getCompanyInvites(req.user.companyId);
+      res.status(200).json({ invites });
+    } catch (error) {
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
+  
+  // Update team member role (admin only)
+  app.put("/api/employer/company/team/:userId/role", async (req, res) => {
+    if (!req.isAuthenticated()) return res.status(401).json({ message: "Unauthorized" });
+    if (req.user.userType !== USER_TYPES.EMPLOYER) return res.status(403).json({ message: "Forbidden" });
+    
+    try {
+      if (!req.user.companyId) {
+        return res.status(403).json({ message: "You don't belong to a company" });
+      }
+      
+      if (req.user.companyRole !== 'admin') {
+        return res.status(403).json({ message: "Only company admins can update team member roles" });
+      }
+      
+      const userId = parseInt(req.params.userId);
+      const { role } = req.body;
+      
+      if (!role) {
+        return res.status(400).json({ message: "Role is required" });
+      }
+      
+      const updatedUser = await storage.updateUserCompanyRole(userId, req.user.companyId, role);
+      res.status(200).json(updatedUser);
+    } catch (error) {
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
+  
+  // Remove team member (admin only)
+  app.delete("/api/employer/company/team/:userId", async (req, res) => {
+    if (!req.isAuthenticated()) return res.status(401).json({ message: "Unauthorized" });
+    if (req.user.userType !== USER_TYPES.EMPLOYER) return res.status(403).json({ message: "Forbidden" });
+    
+    try {
+      if (!req.user.companyId) {
+        return res.status(403).json({ message: "You don't belong to a company" });
+      }
+      
+      if (req.user.companyRole !== 'admin') {
+        return res.status(403).json({ message: "Only company admins can remove team members" });
+      }
+      
+      const userId = parseInt(req.params.userId);
+      
+      // Cannot remove yourself
+      if (userId === req.user.id) {
+        return res.status(400).json({ message: "You cannot remove yourself from the company" });
+      }
+      
+      await storage.removeUserFromCompany(userId, req.user.companyId);
+      res.status(200).json({ message: "Team member removed successfully" });
+    } catch (error) {
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
+  
+  // === Job Posting Routes ===
+  
+  // Get my job postings
+  app.get("/api/employer/jobs", async (req, res) => {
+    if (!req.isAuthenticated()) return res.status(401).json({ message: "Unauthorized" });
+    if (req.user.userType !== USER_TYPES.EMPLOYER) return res.status(403).json({ message: "Forbidden" });
+    
+    try {
+      const jobs = await storage.getEmployerJobPostings(req.user.id);
+      res.status(200).json(jobs);
+    } catch (error) {
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
+  
+  // Get all company job postings (admin only)
+  app.get("/api/employer/company/jobs", async (req, res) => {
+    if (!req.isAuthenticated()) return res.status(401).json({ message: "Unauthorized" });
+    if (req.user.userType !== USER_TYPES.EMPLOYER) return res.status(403).json({ message: "Forbidden" });
+    
+    try {
+      if (!req.user.companyId) {
+        return res.status(403).json({ message: "You don't belong to a company" });
+      }
+      
+      if (req.user.companyRole !== 'admin') {
+        return res.status(403).json({ message: "Only company admins can view all company job postings" });
+      }
+      
+      const jobs = await storage.getCompanyJobPostings(req.user.companyId);
+      res.status(200).json(jobs);
+    } catch (error) {
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
+  
+  // Get specific job posting
+  app.get("/api/employer/jobs/:jobId", async (req, res) => {
+    if (!req.isAuthenticated()) return res.status(401).json({ message: "Unauthorized" });
+    if (req.user.userType !== USER_TYPES.EMPLOYER) return res.status(403).json({ message: "Forbidden" });
+    
+    try {
+      const job = await storage.getJobPosting(req.params.jobId);
+      
+      if (!job) {
+        return res.status(404).json({ message: "Job posting not found" });
+      }
+      
+      // Check if user has permission to view this job
+      if (req.user.companyRole !== 'admin' && job.employerId !== req.user.id) {
+        return res.status(403).json({ message: "You do not have permission to view this job posting" });
+      }
+      
+      res.status(200).json(job);
+    } catch (error) {
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
+  
+  // Create job posting
+  app.post("/api/employer/jobs", async (req, res) => {
+    if (!req.isAuthenticated()) return res.status(401).json({ message: "Unauthorized" });
+    if (req.user.userType !== USER_TYPES.EMPLOYER) return res.status(403).json({ message: "Forbidden" });
+    
+    try {
+      const jobData = req.body;
+      
+      // Handle assigned employee ID for admins
+      let employerId = req.user.id;
+      let companyId = req.user.companyId;
+      
+      // If an admin wants to create a job for another team member
+      if (req.user.companyRole === 'admin' && jobData.assignedEmployerId) {
+        // Verify the assigned user belongs to the same company
+        const assignedUser = await storage.getUser(jobData.assignedEmployerId);
+        
+        if (assignedUser && assignedUser.companyId === req.user.companyId) {
+          employerId = assignedUser.id;
+        }
+      }
+      
+      // Don't store assignedEmployerId in the job posting
+      delete jobData.assignedEmployerId;
+      
+      const job = await storage.createJobPosting({
+        ...jobData,
+        employerId,
+        companyId
+      });
+      
+      res.status(201).json(job);
+    } catch (error) {
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
+  
+  // Update job posting
+  app.put("/api/employer/jobs/:jobId", async (req, res) => {
+    if (!req.isAuthenticated()) return res.status(401).json({ message: "Unauthorized" });
+    if (req.user.userType !== USER_TYPES.EMPLOYER) return res.status(403).json({ message: "Forbidden" });
+    
+    try {
+      const jobId = req.params.jobId;
+      const jobData = req.body;
+      
+      // Check if job exists
+      const existingJob = await storage.getJobPosting(jobId);
+      
+      if (!existingJob) {
+        return res.status(404).json({ message: "Job posting not found" });
+      }
+      
+      // Check permissions
+      if (req.user.companyRole !== 'admin' && existingJob.employerId !== req.user.id) {
+        return res.status(403).json({ message: "You do not have permission to update this job posting" });
+      }
+      
+      // Don't allow changing the employer ID via update
+      delete jobData.employerId;
+      delete jobData.assignedEmployerId;
+      
+      const updatedJob = await storage.updateJobPosting(jobId, jobData);
+      res.status(200).json(updatedJob);
+    } catch (error) {
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
+  
+  // Update job status
+  app.patch("/api/employer/jobs/:jobId/status", async (req, res) => {
+    if (!req.isAuthenticated()) return res.status(401).json({ message: "Unauthorized" });
+    if (req.user.userType !== USER_TYPES.EMPLOYER) return res.status(403).json({ message: "Forbidden" });
+    
+    try {
+      const jobId = req.params.jobId;
+      const { status } = req.body;
+      
+      if (!status) {
+        return res.status(400).json({ message: "Status is required" });
+      }
+      
+      // Check if job exists
+      const existingJob = await storage.getJobPosting(jobId);
+      
+      if (!existingJob) {
+        return res.status(404).json({ message: "Job posting not found" });
+      }
+      
+      // Check permissions
+      if (req.user.companyRole !== 'admin' && existingJob.employerId !== req.user.id) {
+        return res.status(403).json({ message: "You do not have permission to update this job posting" });
+      }
+      
+      const updatedJob = await storage.updateJobStatus(jobId, status);
+      res.status(200).json(updatedJob);
+    } catch (error) {
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
+  
+  // Delete job posting
+  app.delete("/api/employer/jobs/:jobId", async (req, res) => {
+    if (!req.isAuthenticated()) return res.status(401).json({ message: "Unauthorized" });
+    if (req.user.userType !== USER_TYPES.EMPLOYER) return res.status(403).json({ message: "Forbidden" });
+    
+    try {
+      const jobId = req.params.jobId;
+      
+      // Check if job exists
+      const existingJob = await storage.getJobPosting(jobId);
+      
+      if (!existingJob) {
+        return res.status(404).json({ message: "Job posting not found" });
+      }
+      
+      // Check permissions
+      if (req.user.companyRole !== 'admin' && existingJob.employerId !== req.user.id) {
+        return res.status(403).json({ message: "You do not have permission to delete this job posting" });
+      }
+      
+      await storage.deleteJobPosting(jobId);
+      res.status(200).json({ message: "Job posting deleted successfully" });
+    } catch (error) {
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
+
   // Create the HTTP server
   const httpServer = createServer(app);
 

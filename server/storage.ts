@@ -20,7 +20,13 @@ import {
   InsertJobPosting,
   Swipe,
   swipes,
-  InsertSwipe
+  InsertSwipe,
+  companies,
+  Company,
+  InsertCompany,
+  companyInvites,
+  CompanyInvite,
+  InsertCompanyInvite
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, sql, isNotNull } from "drizzle-orm";
@@ -60,6 +66,25 @@ export interface IStorage {
   getEmployerPotentialMatches(userId: number): Promise<any[]>;
   handleEmployerSwipe(employerId: number, jobseekerId: string, interested: boolean): Promise<any>;
   getEmployerRecentMatches(userId: number): Promise<any[]>;
+  
+  // Company methods
+  getCompany(companyId: number): Promise<Company | undefined>;
+  createCompany(companyData: any, creatorUserId: number): Promise<Company>;
+  updateCompany(companyId: number, companyData: any): Promise<Company>;
+  getCompanyTeamMembers(companyId: number): Promise<any[]>;
+  createCompanyInvite(inviteData: any): Promise<CompanyInvite>;
+  getCompanyInvites(companyId: number): Promise<CompanyInvite[]>;
+  updateUserCompanyRole(userId: number, companyId: number, role: string): Promise<User>;
+  removeUserFromCompany(userId: number, companyId: number): Promise<void>;
+  
+  // Job posting methods
+  getJobPosting(jobId: string): Promise<JobPosting | undefined>;
+  getEmployerJobPostings(userId: number): Promise<JobPosting[]>;
+  getCompanyJobPostings(companyId: number): Promise<JobPosting[]>;
+  createJobPosting(jobData: any): Promise<JobPosting>;
+  updateJobPosting(jobId: string, jobData: any): Promise<JobPosting>;
+  updateJobStatus(jobId: string, status: string): Promise<JobPosting>;
+  deleteJobPosting(jobId: string): Promise<void>;
 
   // Session store
   sessionStore: SessionStore;
@@ -74,8 +99,11 @@ export class MemStorage implements IStorage {
   private jobPostings: Map<string, JobPosting>;
   private jobseekerProfileDrafts: Map<number, any>;
   private employerProfileDrafts: Map<number, any>;
+  private companies: Map<number, Company>;
+  private companyInvites: CompanyInvite[];
   
   currentId: number;
+  companyId: number;
   sessionStore: SessionStore;
 
   constructor() {
@@ -87,7 +115,10 @@ export class MemStorage implements IStorage {
     this.jobPostings = new Map();
     this.jobseekerProfileDrafts = new Map();
     this.employerProfileDrafts = new Map();
+    this.companies = new Map();
+    this.companyInvites = [];
     this.currentId = 1;
+    this.companyId = 1;
     this.sessionStore = new MemoryStore({
       checkPeriod: 86400000,
     });
