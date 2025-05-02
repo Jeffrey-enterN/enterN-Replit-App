@@ -8,6 +8,54 @@ import { scrapeCompanyWebsite } from "./utils/website-scraper";
 export async function registerRoutes(app: Express): Promise<Server> {
   // Set up auth routes
   setupAuth(app);
+  
+  // Test routes for system status and diagnostics
+  app.get("/api/test", (req, res) => {
+    res.status(200).json({
+      message: "API is working",
+      timestamp: new Date().toISOString(),
+      sessionID: req.sessionID,
+      isAuthenticated: req.isAuthenticated()
+    });
+  });
+  
+  // Test route for company draft system
+  app.get("/api/test/company-draft", async (req, res) => {
+    try {
+      // Import directly from db.ts
+      const { db } = await import("./db");
+      
+      // Get existing drafts
+      const result = await db.execute(`
+        SELECT id, user_id, company_id, step, draft_type, created_at, updated_at, last_active
+        FROM company_profile_drafts
+      `);
+      
+      res.status(200).json({
+        message: "Draft system test succeeded",
+        drafts: result.rows,
+        schema: {
+          columns: [
+            "id", "user_id", "company_id", "draft_data", "step", 
+            "draft_type", "last_active", "created_at", "updated_at"
+          ],
+          constraints: [
+            "company_profile_drafts_pkey (PRIMARY KEY on id)",
+            "company_profile_drafts_user_id_company_id_unique (UNIQUE on user_id, company_id)",
+            "company_profile_drafts_user_id_fkey (FOREIGN KEY from user_id to users.id)",
+            "company_profile_drafts_company_id_fkey (FOREIGN KEY from company_id to companies.id)"
+          ]
+        },
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error("Error in draft test endpoint:", error);
+      res.status(500).json({
+        message: "Error testing draft system",
+        error: (error as Error).message
+      });
+    }
+  });
 
   // === Jobseeker Routes ===
   
