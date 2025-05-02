@@ -33,6 +33,36 @@ export default function Navbar() {
     const isDark = root.classList.contains('dark');
     setCurrentTheme(isDark ? "dark" : "light");
   }, []);
+  
+  // Listen for system theme changes
+  useEffect(() => {
+    const matchMedia = window.matchMedia("(prefers-color-scheme: dark)");
+    
+    const handleChange = () => {
+      if (theme === 'system') {
+        // Only update if using system theme
+        const root = window.document.documentElement;
+        const isDark = root.classList.contains('dark');
+        setCurrentTheme(isDark ? "dark" : "light");
+      }
+    };
+    
+    // Add listener
+    matchMedia.addEventListener("change", handleChange);
+    
+    // Clean up
+    return () => {
+      matchMedia.removeEventListener("change", handleChange);
+    };
+  }, [theme]);
+  
+  // Keep currentTheme in sync with theme
+  useEffect(() => {
+    // Update icon when theme context changes
+    const root = window.document.documentElement;
+    const isDark = root.classList.contains('dark');
+    setCurrentTheme(isDark ? "dark" : "light");
+  }, [theme]);
 
   return (
     <nav className="bg-white dark:bg-gray-800 shadow-md sticky top-0 z-50">
@@ -50,13 +80,13 @@ export default function Navbar() {
           {/* Mobile menu button */}
           <div className="flex items-center md:hidden">
             <Button 
-              onClick={toggleTheme}
+              onClick={handleThemeToggle}
               variant="ghost"
               size="icon"
               className="text-gray-700 dark:text-gray-300 mr-2"
               aria-label="Toggle dark mode"
             >
-              {mounted && theme === "dark" ? (
+              {mounted && currentTheme === "dark" ? (
                 <Sun className="h-5 w-5" />
               ) : (
                 <Moon className="h-5 w-5" />
@@ -80,13 +110,13 @@ export default function Navbar() {
           {/* Desktop menu */}
           <div className="hidden md:flex items-center space-x-3">
             <Button 
-              onClick={toggleTheme}
+              onClick={handleThemeToggle}
               variant="ghost"
               size="icon"
               className="text-gray-700 dark:text-gray-300"
               aria-label="Toggle dark mode"
             >
-              {mounted && theme === "dark" ? (
+              {mounted && currentTheme === "dark" ? (
                 <Sun className="h-5 w-5" />
               ) : (
                 <Moon className="h-5 w-5" />
