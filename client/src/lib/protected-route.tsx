@@ -3,13 +3,15 @@ import { Loader2 } from "lucide-react";
 import { Redirect, Route } from "wouter";
 import { USER_TYPES } from "@/lib/constants";
 
+type ProtectedRouteProps = {
+  path: string;
+  component: React.ComponentType<any>;
+};
+
 export function ProtectedRoute({
   path,
   component: Component,
-}: {
-  path: string;
-  component: () => React.JSX.Element;
-}) {
+}: ProtectedRouteProps) {
   const { user, isLoading } = useAuth();
   const isJobseekerRoute = path.startsWith("/jobseeker");
   const isEmployerRoute = path.startsWith("/employer");

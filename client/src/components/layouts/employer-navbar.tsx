@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/auth-context';
 import { Link, useLocation } from 'wouter';
 import { useTheme } from 'next-themes';
+import enternLogo from '@/assets/entern.png';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -89,13 +90,9 @@ export default function EmployerNavbar() {
               <div className="flex flex-col gap-4 px-6 py-4">
                 <Link href="/employer/dashboard" className="flex items-center gap-2 font-semibold text-xl">
                   <img 
-                    src="/client/src/assets/entern.png" 
+                    src={enternLogo} 
                     alt="enterN" 
                     className="h-8" 
-                    onError={(e) => {
-                      // Fallback if the image fails to load
-                      e.currentTarget.style.display = 'none';
-                    }}
                   />
                   enterN
                 </Link>
@@ -154,13 +151,9 @@ export default function EmployerNavbar() {
 
           <Link href="/employer/dashboard" className="hidden lg:flex items-center gap-2 font-semibold text-xl">
             <img 
-              src="/client/src/assets/entern.png" 
+              src={enternLogo} 
               alt="enterN" 
               className="h-8" 
-              onError={(e) => {
-                // Fallback if the image fails to load
-                e.currentTarget.style.display = 'none';
-              }}
             />
             enterN
           </Link>

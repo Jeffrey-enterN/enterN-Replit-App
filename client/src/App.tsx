@@ -35,30 +35,30 @@ function Router() {
       <ProtectedRoute path="/jobseeker/profile" component={JobseekerProfilePage} />
       <ProtectedRoute path="/jobseeker/match-feed" component={JobseekerMatchFeed} />
       <ProtectedRoute path="/jobseeker/calendar" component={JobseekerCalendar} />
-      <ProtectedRoute 
-        path="/employer/dashboard" 
-        component={() => (
-          <EmployerLayout>
-            <EmployerDashboard />
-          </EmployerLayout>
-        )} 
-      />
-      <ProtectedRoute 
-        path="/employer/profile" 
-        component={() => (
-          <EmployerLayout>
-            <EmployerProfilePage />
-          </EmployerLayout>
-        )} 
-      />
-      <ProtectedRoute 
-        path="/employer/company-profile" 
-        component={() => (
-          <EmployerLayout>
-            <CompanyProfilePage />
-          </EmployerLayout>
-        )} 
-      />
+      <Route path="/employer/dashboard">
+        <EmployerLayout>
+          <ProtectedRoute 
+            path="/employer/dashboard" 
+            component={EmployerDashboard} 
+          />
+        </EmployerLayout>
+      </Route>
+      <Route path="/employer/profile">
+        <EmployerLayout>
+          <ProtectedRoute 
+            path="/employer/profile" 
+            component={EmployerProfilePage}
+          />
+        </EmployerLayout>
+      </Route>
+      <Route path="/employer/company-profile">
+        <EmployerLayout>
+          <ProtectedRoute 
+            path="/employer/company-profile" 
+            component={CompanyProfilePage}
+          />
+        </EmployerLayout>
+      </Route>
       <Route component={NotFound} />
     </Switch>
   );
