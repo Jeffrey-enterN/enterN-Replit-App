@@ -563,9 +563,7 @@ export function CompanyProfileForm({ companyId }: { companyId?: number }) {
       case 2:
         return renderStep2();
       case 3:
-        return renderStep3();
-      case 4:
-        return renderStep4();
+        return renderCombinedStep3();
       default:
         return null;
     }

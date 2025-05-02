@@ -185,13 +185,8 @@ export const COMPANY_PROFILE_STEPS = [
   },
   {
     id: 3,
-    title: 'Work Environment',
-    description: 'Share details about your company\'s work environment and benefits'
-  },
-  {
-    id: 4,
-    title: 'Development Programs',
-    description: 'Finally, let\'s cover any development programs your company offers'
+    title: 'Work Environment & Programs',
+    description: 'Share details about your company\'s work environment, benefits, and development programs'
   }
 ];
 
