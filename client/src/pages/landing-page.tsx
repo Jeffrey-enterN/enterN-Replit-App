@@ -4,6 +4,7 @@ import { Link, useLocation } from 'wouter';
 import { useAuth } from '@/context/auth-context';
 import { USER_TYPES } from '@/lib/constants';
 import enternLogo from '@/assets/entern-logo.png';
+import LukeSkywhisker from '@/components/mascot/luke-skywhisker';
 
 export default function LandingPage() {
   const { user } = useAuth();
@@ -95,6 +96,13 @@ export default function LandingPage() {
               </div>
             </main>
           </div>
+        </div>
+      </div>
+
+      {/* Luke Skywhisker Mascot Section */}
+      <div className="py-10 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <LukeSkywhisker className="max-w-3xl mx-auto" />
         </div>
       </div>
 
