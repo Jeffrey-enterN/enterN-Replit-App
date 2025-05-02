@@ -235,10 +235,7 @@ export default function EmployerNavbar() {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="rounded-full">
                 <Avatar>
-                  <AvatarImage 
-                    src={user?.companyLogo || ''} 
-                    alt={user?.companyName || user?.username || 'User'} 
-                  />
+                  {/* Will use company logo in future when available */}
                   <AvatarFallback>{getInitials()}</AvatarFallback>
                 </Avatar>
               </Button>

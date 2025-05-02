@@ -4,9 +4,10 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/context/auth-context";
-import { ThemeProvider } from "@/context/theme-context";
+import { ThemeProvider } from "@/components/ui/theme-provider";
 import { NotificationSettingsProvider } from "@/context/notification-settings-context";
 import { ProtectedRoute } from "@/lib/protected-route";
+import EmployerLayout from "@/components/layouts/employer-layout";
 
 import LandingPage from "@/pages/landing-page";
 import AuthPage from "@/pages/auth-page";
@@ -34,9 +35,30 @@ function Router() {
       <ProtectedRoute path="/jobseeker/profile" component={JobseekerProfilePage} />
       <ProtectedRoute path="/jobseeker/match-feed" component={JobseekerMatchFeed} />
       <ProtectedRoute path="/jobseeker/calendar" component={JobseekerCalendar} />
-      <ProtectedRoute path="/employer/dashboard" component={EmployerDashboard} />
-      <ProtectedRoute path="/employer/profile" component={EmployerProfilePage} />
-      <ProtectedRoute path="/employer/company-profile" component={CompanyProfilePage} />
+      <ProtectedRoute 
+        path="/employer/dashboard" 
+        component={() => (
+          <EmployerLayout>
+            <EmployerDashboard />
+          </EmployerLayout>
+        )} 
+      />
+      <ProtectedRoute 
+        path="/employer/profile" 
+        component={() => (
+          <EmployerLayout>
+            <EmployerProfilePage />
+          </EmployerLayout>
+        )} 
+      />
+      <ProtectedRoute 
+        path="/employer/company-profile" 
+        component={() => (
+          <EmployerLayout>
+            <CompanyProfilePage />
+          </EmployerLayout>
+        )} 
+      />
       <Route component={NotFound} />
     </Switch>
   );
