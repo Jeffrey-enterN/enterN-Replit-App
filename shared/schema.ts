@@ -15,18 +15,37 @@ export type UserType = (typeof USER_TYPES)[keyof typeof USER_TYPES];
 export const companies = pgTable("companies", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
+  adminName: text("admin_name"),
+  adminEmail: text("admin_email"),
+  adminPhone: text("admin_phone"),
   website: text("website"),
+  careersUrl: text("careers_url"),
   headquarters: text("headquarters"),
   yearFounded: integer("year_founded"), 
   size: text("size"),
-  industry: text("industry"),
-  about: text("about"),
+  industries: jsonb("industries").$type<string[]>(),
+  functionalAreas: jsonb("functional_areas").$type<string[]>(),
   additionalOffices: jsonb("additional_offices").$type<string[]>(),
+  workArrangements: jsonb("work_arrangements").$type<string[]>(),
+  compensationLevel: text("compensation_level"),
+  about: text("about"),
+  culture: text("culture"),
   mission: text("mission"),
   values: text("values"),
   benefits: jsonb("benefits").$type<string[]>(),
   additionalBenefits: text("additional_benefits"),
+  hasInterns: boolean("has_interns").default(false),
+  internDuration: text("intern_duration"),
+  internDescription: text("intern_description"),
+  internLeadsToFulltime: boolean("intern_leads_to_fulltime").default(false),
+  hasApprentices: boolean("has_apprentices").default(false),
+  apprenticeDuration: text("apprentice_duration"),
+  apprenticeDescription: text("apprentice_description"),
+  hasDevelopmentPrograms: boolean("has_development_programs").default(false),
+  developmentProgramDuration: text("development_program_duration"),
+  developmentProgramDescription: text("development_program_description"),
   logo: text("logo"),
+  profileCompletion: integer("profile_completion").default(0),
   isVerified: boolean("is_verified").default(false),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -47,6 +66,38 @@ export const insertCompanySchema = createInsertSchema(companies).omit({
 
 export type InsertCompany = z.infer<typeof insertCompanySchema>;
 export type Company = typeof companies.$inferSelect;
+
+// === COMPANY PROFILE DRAFTS ===
+
+export const companyProfileDrafts = pgTable("company_profile_drafts", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  companyId: integer("company_id").references(() => companies.id, { onDelete: "cascade" }),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  draftData: jsonb("draft_data").$type<any>().notNull(),
+  step: integer("step").default(1),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const companyProfileDraftsRelations = relations(companyProfileDrafts, ({ one }) => ({
+  company: one(companies, {
+    fields: [companyProfileDrafts.companyId],
+    references: [companies.id],
+  }),
+  user: one(users, {
+    fields: [companyProfileDrafts.userId],
+    references: [users.id],
+  }),
+}));
+
+export const insertCompanyProfileDraftSchema = createInsertSchema(companyProfileDrafts).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertCompanyProfileDraft = z.infer<typeof insertCompanyProfileDraftSchema>;
+export type CompanyProfileDraft = typeof companyProfileDrafts.$inferSelect;
 
 // === COMPANY INVITES ===
 

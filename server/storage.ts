@@ -76,6 +76,8 @@ export interface IStorage {
   getCompanyInvites(companyId: number): Promise<CompanyInvite[]>;
   updateUserCompanyRole(userId: number, companyId: number, role: string): Promise<User>;
   removeUserFromCompany(userId: number, companyId: number): Promise<void>;
+  saveCompanyProfileDraft(userId: number, draftData: any, companyId?: number, step?: number): Promise<any>;
+  getCompanyProfileDraft(userId: number, companyId?: number): Promise<any | undefined>;
   
   // Job posting methods
   getJobPosting(jobId: string): Promise<JobPosting | undefined>;
@@ -99,6 +101,7 @@ export class MemStorage implements IStorage {
   private jobPostings: Map<string, JobPosting>;
   private jobseekerProfileDrafts: Map<number, any>;
   private employerProfileDrafts: Map<number, any>;
+  private companyProfileDrafts: Map<string, any>;
   private companies: Map<number, Company>;
   private companyInvites: CompanyInvite[];
   
@@ -603,14 +606,102 @@ export class MemStorage implements IStorage {
       throw new Error(`Company with id ${companyId} not found`);
     }
     
+    // Calculate profile completion based on the data provided
+    let profileCompletion = 0;
+    
+    // Step 1: Essential Information (25%)
+    if (companyData.name && companyData.adminName && companyData.adminEmail &&
+        companyData.headquarters && companyData.size && companyData.yearFounded) {
+      profileCompletion = 25;
+      
+      // Step 2: About the Company (50%)
+      if ((companyData.industries && companyData.industries.length > 0) &&
+          (companyData.functionalAreas && companyData.functionalAreas.length > 0) && 
+          companyData.about && companyData.mission) {
+        profileCompletion = 50;
+        
+        // Step 3: Expectations, Compensation & Benefits (75%)
+        if ((companyData.workArrangements && companyData.workArrangements.length > 0) &&
+            companyData.compensationLevel && 
+            (companyData.benefits && companyData.benefits.length > 0)) {
+          profileCompletion = 75;
+          
+          // Step 4: Development Programs (100%)
+          // We don't require these to be filled, but the user needs to have made 
+          // a conscious decision about whether to include them
+          if (typeof companyData.hasInterns === 'boolean' && 
+              typeof companyData.hasApprentices === 'boolean' && 
+              typeof companyData.hasDevelopmentPrograms === 'boolean') {
+            profileCompletion = 100;
+          }
+        }
+      }
+    }
+    
     const updatedCompany: Company = {
       ...company,
       ...companyData,
+      profileCompletion: companyData.profileCompletion || profileCompletion,
       updatedAt: new Date()
     };
     
     this.companies.set(companyId, updatedCompany);
     return updatedCompany;
+  }
+  
+  // Company profile draft methods
+  async saveCompanyProfileDraft(userId: number, draftData: any, companyId?: number, step?: number): Promise<any> {
+    // Create a draft key that combines userId and companyId if available
+    const draftKey = companyId ? `${userId}_${companyId}` : `${userId}`;
+    const currentStep = step || 1;
+    
+    // Get existing drafts for this user/company
+    const existingDrafts = Array.from(this.companyProfileDrafts.values())
+      .filter(draft => 
+        (draft.userId === userId) && 
+        (companyId ? draft.companyId === companyId : true)
+      );
+    
+    // If there's an existing draft, update it
+    if (existingDrafts.length > 0) {
+      const existingDraft = existingDrafts[0];
+      const updatedDraft = {
+        ...existingDraft,
+        draftData,
+        step: currentStep,
+        updatedAt: new Date()
+      };
+      
+      this.companyProfileDrafts.set(existingDraft.id, updatedDraft);
+      return updatedDraft;
+    } 
+    // Otherwise create a new draft
+    else {
+      const draftId = `draft_${Date.now()}`;
+      const newDraft = {
+        id: draftId,
+        userId,
+        companyId,
+        draftData,
+        step: currentStep,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+      
+      this.companyProfileDrafts.set(draftId, newDraft);
+      return newDraft;
+    }
+  }
+  
+  async getCompanyProfileDraft(userId: number, companyId?: number): Promise<any | undefined> {
+    // Get drafts for this user and optionally for a specific company
+    const drafts = Array.from(this.companyProfileDrafts.values())
+      .filter(draft => 
+        (draft.userId === userId) && 
+        (companyId ? draft.companyId === companyId : true)
+      );
+    
+    return drafts.length > 0 ? drafts[0] : undefined;
   }
   
   async getCompanyTeamMembers(companyId: number): Promise<any[]> {
