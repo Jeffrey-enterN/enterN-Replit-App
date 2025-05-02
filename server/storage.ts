@@ -565,6 +565,196 @@ export class MemStorage implements IStorage {
         };
       });
   }
+  
+  // Company methods
+  async getCompany(companyId: number): Promise<Company | undefined> {
+    return this.companies.get(companyId);
+  }
+  
+  async createCompany(companyData: any, creatorUserId: number): Promise<Company> {
+    const id = this.companyId++;
+    
+    const company: Company = {
+      id,
+      ...companyData,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    
+    this.companies.set(id, company);
+    
+    // Update the creator user to be an admin of this company
+    const user = this.users.get(creatorUserId);
+    if (user) {
+      this.users.set(creatorUserId, {
+        ...user,
+        companyId: id,
+        companyRole: 'admin'
+      });
+    }
+    
+    return company;
+  }
+  
+  async updateCompany(companyId: number, companyData: any): Promise<Company> {
+    const company = this.companies.get(companyId);
+    
+    if (!company) {
+      throw new Error(`Company with id ${companyId} not found`);
+    }
+    
+    const updatedCompany: Company = {
+      ...company,
+      ...companyData,
+      updatedAt: new Date()
+    };
+    
+    this.companies.set(companyId, updatedCompany);
+    return updatedCompany;
+  }
+  
+  async getCompanyTeamMembers(companyId: number): Promise<any[]> {
+    return Array.from(this.users.values())
+      .filter(user => user.companyId === companyId)
+      .map(user => ({
+        id: user.id,
+        firstName: user.firstName || '',
+        lastName: user.lastName || '',
+        email: user.email || '',
+        role: user.companyRole || 'recruiter',
+        isAdmin: user.companyRole === 'admin'
+      }));
+  }
+  
+  async createCompanyInvite(inviteData: any): Promise<CompanyInvite> {
+    const invite: CompanyInvite = {
+      id: `inv_${Date.now()}`,
+      ...inviteData,
+      status: 'pending',
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    
+    this.companyInvites.push(invite);
+    return invite;
+  }
+  
+  async getCompanyInvites(companyId: number): Promise<CompanyInvite[]> {
+    return this.companyInvites.filter(invite => invite.companyId === companyId);
+  }
+  
+  async updateUserCompanyRole(userId: number, companyId: number, role: string): Promise<User> {
+    const user = this.users.get(userId);
+    
+    if (!user) {
+      throw new Error(`User with id ${userId} not found`);
+    }
+    
+    if (user.companyId !== companyId) {
+      throw new Error(`User ${userId} does not belong to company ${companyId}`);
+    }
+    
+    const updatedUser: User = {
+      ...user,
+      companyRole: role,
+      updatedAt: new Date()
+    };
+    
+    this.users.set(userId, updatedUser);
+    return updatedUser;
+  }
+  
+  async removeUserFromCompany(userId: number, companyId: number): Promise<void> {
+    const user = this.users.get(userId);
+    
+    if (!user) {
+      throw new Error(`User with id ${userId} not found`);
+    }
+    
+    if (user.companyId !== companyId) {
+      throw new Error(`User ${userId} does not belong to company ${companyId}`);
+    }
+    
+    const updatedUser: User = {
+      ...user,
+      companyId: null,
+      companyRole: null,
+      updatedAt: new Date()
+    };
+    
+    this.users.set(userId, updatedUser);
+  }
+  
+  // Job posting methods
+  async getJobPosting(jobId: string): Promise<JobPosting | undefined> {
+    return this.jobPostings.get(jobId);
+  }
+  
+  async getEmployerJobPostings(userId: number): Promise<JobPosting[]> {
+    return Array.from(this.jobPostings.values())
+      .filter(job => job.employerId === userId);
+  }
+  
+  async getCompanyJobPostings(companyId: number): Promise<JobPosting[]> {
+    return Array.from(this.jobPostings.values())
+      .filter(job => job.companyId === companyId);
+  }
+  
+  async createJobPosting(jobData: any): Promise<JobPosting> {
+    const jobId = `job_${Date.now()}`;
+    
+    const job: JobPosting = {
+      id: jobId,
+      ...jobData,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    
+    this.jobPostings.set(jobId, job);
+    return job;
+  }
+  
+  async updateJobPosting(jobId: string, jobData: any): Promise<JobPosting> {
+    const job = this.jobPostings.get(jobId);
+    
+    if (!job) {
+      throw new Error(`Job posting with id ${jobId} not found`);
+    }
+    
+    const updatedJob: JobPosting = {
+      ...job,
+      ...jobData,
+      updatedAt: new Date()
+    };
+    
+    this.jobPostings.set(jobId, updatedJob);
+    return updatedJob;
+  }
+  
+  async updateJobStatus(jobId: string, status: string): Promise<JobPosting> {
+    const job = this.jobPostings.get(jobId);
+    
+    if (!job) {
+      throw new Error(`Job posting with id ${jobId} not found`);
+    }
+    
+    const updatedJob: JobPosting = {
+      ...job,
+      status,
+      updatedAt: new Date()
+    };
+    
+    this.jobPostings.set(jobId, updatedJob);
+    return updatedJob;
+  }
+  
+  async deleteJobPosting(jobId: string): Promise<void> {
+    if (!this.jobPostings.has(jobId)) {
+      throw new Error(`Job posting with id ${jobId} not found`);
+    }
+    
+    this.jobPostings.delete(jobId);
+  }
 }
 
 export class DatabaseStorage implements IStorage {
@@ -1301,6 +1491,206 @@ export class DatabaseStorage implements IStorage {
       }
     } catch (error) {
       console.error('Error recording profile view:', error);
+    }
+  }
+  
+  // Company methods
+  async getCompany(companyId: number): Promise<Company | undefined> {
+    const [company] = await db
+      .select()
+      .from(companies)
+      .where(eq(companies.id, companyId));
+      
+    return company;
+  }
+  
+  async createCompany(companyData: any, creatorUserId: number): Promise<Company> {
+    const [company] = await db
+      .insert(companies)
+      .values(companyData)
+      .returning();
+    
+    // Update the creator user to be an admin of this company
+    await db
+      .update(users)
+      .set({
+        companyId: company.id,
+        companyRole: 'admin',
+        updatedAt: new Date()
+      })
+      .where(eq(users.id, creatorUserId));
+    
+    return company;
+  }
+  
+  async updateCompany(companyId: number, companyData: any): Promise<Company> {
+    const [updatedCompany] = await db
+      .update(companies)
+      .set({
+        ...companyData,
+        updatedAt: new Date()
+      })
+      .where(eq(companies.id, companyId))
+      .returning();
+    
+    if (!updatedCompany) {
+      throw new Error(`Company with id ${companyId} not found`);
+    }
+    
+    return updatedCompany;
+  }
+  
+  async getCompanyTeamMembers(companyId: number): Promise<any[]> {
+    const teamMembers = await db
+      .select()
+      .from(users)
+      .where(eq(users.companyId, companyId));
+    
+    return teamMembers.map(user => ({
+      id: user.id,
+      firstName: user.firstName || '',
+      lastName: user.lastName || '',
+      email: user.email || '',
+      role: user.companyRole || 'recruiter',
+      isAdmin: user.companyRole === 'admin'
+    }));
+  }
+  
+  async createCompanyInvite(inviteData: any): Promise<CompanyInvite> {
+    const [invite] = await db
+      .insert(companyInvites)
+      .values({
+        ...inviteData,
+        status: 'pending'
+      })
+      .returning();
+    
+    return invite;
+  }
+  
+  async getCompanyInvites(companyId: number): Promise<CompanyInvite[]> {
+    return db
+      .select()
+      .from(companyInvites)
+      .where(eq(companyInvites.companyId, companyId));
+  }
+  
+  async updateUserCompanyRole(userId: number, companyId: number, role: string): Promise<User> {
+    const [updatedUser] = await db
+      .update(users)
+      .set({
+        companyRole: role,
+        updatedAt: new Date()
+      })
+      .where(
+        and(
+          eq(users.id, userId),
+          eq(users.companyId, companyId)
+        )
+      )
+      .returning();
+    
+    if (!updatedUser) {
+      throw new Error(`User with id ${userId} not found or does not belong to company ${companyId}`);
+    }
+    
+    return updatedUser;
+  }
+  
+  async removeUserFromCompany(userId: number, companyId: number): Promise<void> {
+    const result = await db
+      .update(users)
+      .set({
+        companyId: null,
+        companyRole: null,
+        updatedAt: new Date()
+      })
+      .where(
+        and(
+          eq(users.id, userId),
+          eq(users.companyId, companyId)
+        )
+      );
+    
+    if (result.rowCount === 0) {
+      throw new Error(`User with id ${userId} not found or does not belong to company ${companyId}`);
+    }
+  }
+  
+  // Job posting methods
+  async getJobPosting(jobId: string): Promise<JobPosting | undefined> {
+    const [job] = await db
+      .select()
+      .from(jobPostings)
+      .where(eq(jobPostings.id, jobId));
+      
+    return job;
+  }
+  
+  async getEmployerJobPostings(userId: number): Promise<JobPosting[]> {
+    return db
+      .select()
+      .from(jobPostings)
+      .where(eq(jobPostings.employerId, userId));
+  }
+  
+  async getCompanyJobPostings(companyId: number): Promise<JobPosting[]> {
+    return db
+      .select()
+      .from(jobPostings)
+      .where(eq(jobPostings.companyId, companyId));
+  }
+  
+  async createJobPosting(jobData: any): Promise<JobPosting> {
+    const [job] = await db
+      .insert(jobPostings)
+      .values(jobData)
+      .returning();
+    
+    return job;
+  }
+  
+  async updateJobPosting(jobId: string, jobData: any): Promise<JobPosting> {
+    const [updatedJob] = await db
+      .update(jobPostings)
+      .set({
+        ...jobData,
+        updatedAt: new Date()
+      })
+      .where(eq(jobPostings.id, jobId))
+      .returning();
+    
+    if (!updatedJob) {
+      throw new Error(`Job posting with id ${jobId} not found`);
+    }
+    
+    return updatedJob;
+  }
+  
+  async updateJobStatus(jobId: string, status: string): Promise<JobPosting> {
+    const [updatedJob] = await db
+      .update(jobPostings)
+      .set({
+        status,
+        updatedAt: new Date()
+      })
+      .where(eq(jobPostings.id, jobId))
+      .returning();
+    
+    if (!updatedJob) {
+      throw new Error(`Job posting with id ${jobId} not found`);
+    }
+    
+    return updatedJob;
+  }
+  
+  async deleteJobPosting(jobId: string): Promise<void> {
+    const result = await db
+      .delete(jobPostings)
+      .where(eq(jobPostings.id, jobId));
+    
+    if (result.rowCount === 0) {
+      throw new Error(`Job posting with id ${jobId} not found`);
     }
   }
 }
