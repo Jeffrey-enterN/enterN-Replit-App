@@ -415,49 +415,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Company profile draft endpoints
-  app.get("/api/employer/company-profile/draft", async (req, res) => {
-    if (!req.isAuthenticated()) return res.status(401).json({ message: "Unauthorized" });
-    if (req.user.userType !== USER_TYPES.EMPLOYER) return res.status(403).json({ message: "Forbidden" });
-
-    try {
-      const userId = req.user.id;
-      const companyId = req.query.companyId ? Number(req.query.companyId) : undefined;
-      
-      const draft = await storage.getCompanyProfileDraft(userId, companyId);
-      
-      if (!draft) {
-        return res.status(404).json({ message: "No draft found" });
-      }
-      
-      res.status(200).json(draft);
-    } catch (error) {
-      console.error('Error getting company profile draft:', error);
-      res.status(500).json({ message: (error as Error).message });
-    }
-  });
-  
-  app.post("/api/employer/company-profile/draft", async (req, res) => {
-    if (!req.isAuthenticated()) return res.status(401).json({ message: "Unauthorized" });
-    if (req.user.userType !== USER_TYPES.EMPLOYER) return res.status(403).json({ message: "Forbidden" });
-
-    try {
-      const userId = req.user.id;
-      const { draftData, companyId, step } = req.body;
-      
-      const savedDraft = await storage.saveCompanyProfileDraft(
-        userId, 
-        draftData, 
-        companyId ? Number(companyId) : undefined, 
-        step ? Number(step) : undefined
-      );
-      
-      res.status(200).json(savedDraft);
-    } catch (error) {
-      console.error('Error saving company profile draft:', error);
-      res.status(500).json({ message: (error as Error).message });
-    }
-  });
+  // Company profile draft endpoints are defined later in this file
   
   // Company management endpoints
   app.post("/api/companies", async (req, res) => {
