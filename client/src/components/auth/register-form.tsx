@@ -84,34 +84,34 @@ export default function RegisterForm() {
           <div className="flex flex-col items-center">
             <button
               type="button"
-              className={`relative bg-white border-2 ${
+              className={`relative bg-white dark:bg-gray-800 border-2 ${
                 form.watch('userType') === USER_TYPES.JOBSEEKER 
                   ? 'border-primary' 
-                  : 'border-gray-300'
-              } rounded-lg p-4 flex flex-col items-center space-y-2 hover:bg-primary-50 focus:outline-none`}
+                  : 'border-gray-300 dark:border-gray-600'
+              } rounded-lg p-4 flex flex-col items-center space-y-2 hover:bg-primary-50 dark:hover:bg-gray-700 focus:outline-none`}
               onClick={() => form.setValue('userType', USER_TYPES.JOBSEEKER)}
             >
-              <svg className={`w-10 h-10 ${form.watch('userType') === USER_TYPES.JOBSEEKER ? 'text-primary' : 'text-gray-500'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <svg className={`w-10 h-10 ${form.watch('userType') === USER_TYPES.JOBSEEKER ? 'text-primary' : 'text-gray-500 dark:text-gray-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
               </svg>
-              <span className="font-medium text-gray-900">Jobseeker</span>
+              <span className="font-medium text-gray-900 dark:text-white">Jobseeker</span>
             </button>
           </div>
           
           <div className="flex flex-col items-center">
             <button
               type="button"
-              className={`relative bg-white border-2 ${
+              className={`relative bg-white dark:bg-gray-800 border-2 ${
                 form.watch('userType') === USER_TYPES.EMPLOYER 
                   ? 'border-primary' 
-                  : 'border-gray-300'
-              } rounded-lg p-4 flex flex-col items-center space-y-2 hover:bg-primary-50 focus:outline-none`}
+                  : 'border-gray-300 dark:border-gray-600'
+              } rounded-lg p-4 flex flex-col items-center space-y-2 hover:bg-primary-50 dark:hover:bg-gray-700 focus:outline-none`}
               onClick={() => form.setValue('userType', USER_TYPES.EMPLOYER)}
             >
-              <svg className={`w-10 h-10 ${form.watch('userType') === USER_TYPES.EMPLOYER ? 'text-primary' : 'text-gray-500'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <svg className={`w-10 h-10 ${form.watch('userType') === USER_TYPES.EMPLOYER ? 'text-primary' : 'text-gray-500 dark:text-gray-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
               </svg>
-              <span className="font-medium text-gray-900">Employer</span>
+              <span className="font-medium text-gray-900 dark:text-white">Employer</span>
             </button>
           </div>
         </div>
@@ -131,7 +131,7 @@ export default function RegisterForm() {
                     type="email" 
                     autoComplete="email" 
                     {...field} 
-                    className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
+                    className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white dark:bg-gray-800 focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
                   />
                 </FormControl>
                 <FormMessage />
@@ -152,7 +152,7 @@ export default function RegisterForm() {
                       type={showPassword ? "text" : "password"} 
                       autoComplete="new-password" 
                       {...field} 
-                      className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
+                      className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white dark:bg-gray-800 focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
                     />
                     <button 
                       type="button"
