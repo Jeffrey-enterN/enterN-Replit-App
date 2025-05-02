@@ -17,6 +17,7 @@ import JobseekerDashboard from "@/pages/jobseeker/dashboard";
 import EmployerDashboard from "@/pages/employer/dashboard";
 import JobseekerProfilePage from "@/pages/jobseeker/profile-page";
 import EmployerProfilePage from "@/pages/employer/profile-page";
+import CompanyProfilePage from "@/pages/employer/company-profile-page";
 import JobseekerMatchFeed from "@/pages/jobseeker/match-feed";
 import JobseekerCalendar from "@/pages/jobseeker/calendar";
 import NotFound from "@/pages/not-found";
@@ -35,6 +36,7 @@ function Router() {
       <ProtectedRoute path="/jobseeker/calendar" component={JobseekerCalendar} />
       <ProtectedRoute path="/employer/dashboard" component={EmployerDashboard} />
       <ProtectedRoute path="/employer/profile" component={EmployerProfilePage} />
+      <ProtectedRoute path="/employer/company-profile" component={CompanyProfilePage} />
       <Route component={NotFound} />
     </Switch>
   );

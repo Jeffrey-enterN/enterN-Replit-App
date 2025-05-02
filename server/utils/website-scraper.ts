@@ -1,412 +1,528 @@
 import fetch from 'node-fetch';
 import * as cheerio from 'cheerio';
+import { CULTURE_KEYWORDS } from '../../client/src/lib/constants';
 
-// Interface for scraped company data
-export interface ScrapedCompanyData {
+interface ScrapedCompanyData {
   about?: string;
   mission?: string;
   vision?: string;
-  values?: string | string[];
+  values?: string[];
   culture?: string;
-  benefits?: string | string[];
+  benefits?: string[];
   industryKeywords?: string[];
   locations?: string[];
   jobTypes?: string[];
-  success?: boolean;
+  success: boolean;
   error?: string;
 }
 
 /**
- * Extracts readable text from HTML, cleaning up whitespace
- */
-function extractText(html: string): string {
-  // Replace break tags with newlines
-  const withLineBreaks = html.replace(/<br\s*\/?>/gi, '\n');
-  
-  // Create a DOM parser
-  const $ = cheerio.load(withLineBreaks);
-  
-  // Remove script and style tags
-  $('script, style').remove();
-  
-  // Get text content
-  let text = $.text();
-  
-  // Clean up whitespace
-  text = text.replace(/\s+/g, ' ');
-  text = text.replace(/\n+/g, '\n');
-  text = text.trim();
-  
-  return text;
-}
-
-/**
- * Find the most relevant paragraph about the company
- */
-function findAboutSection($: cheerio.CheerioAPI): string {
-  // Look for common about us section identifiers
-  const selectors = [
-    '#about', '.about', '[id*="about"]', '[class*="about"]', 
-    'section:contains("About Us")', 'div:contains("About Us")', 
-    'section:contains("About Our Company")', 'div:contains("About Our Company")',
-    'section:contains("Who We Are")', 'div:contains("Who We Are")',
-    '[id*="who-we-are"]', '[class*="who-we-are"]'
-  ];
-  
-  let aboutText = '';
-  
-  // Try each selector
-  for (const selector of selectors) {
-    try {
-      const element = $(selector);
-      if (element.length) {
-        // Take only the text from paragraphs in this section
-        aboutText = element.find('p').text();
-        
-        // If no paragraphs, take the whole text
-        if (!aboutText) {
-          aboutText = element.text();
-        }
-        
-        // Clean up the text
-        aboutText = aboutText.replace(/\s+/g, ' ').trim();
-        
-        // If we have a decent amount of text, return it
-        if (aboutText.length > 100) {
-          return aboutText;
-        }
-      }
-    } catch (e) {
-      // Continue to next selector if one fails
-      console.error(`Error with selector ${selector}:`, e);
-    }
-  }
-  
-  // If no specific about section found, look for paragraphs that might be about the company
-  const paragraphs = $('p');
-  const candidateParagraphs: string[] = [];
-  
-  paragraphs.each((i, el) => {
-    const text = $(el).text().trim();
-    // Look for paragraphs that might be about the company (at least 100 chars and contains company-related terms)
-    if (text.length > 100 && 
-        (text.toLowerCase().includes('company') || 
-         text.toLowerCase().includes('our mission') || 
-         text.toLowerCase().includes('founded') || 
-         text.toLowerCase().includes('established'))) {
-      candidateParagraphs.push(text);
-    }
-  });
-  
-  return candidateParagraphs.length > 0 ? candidateParagraphs[0] : '';
-}
-
-/**
- * Find mission, vision, and values sections
- */
-function findMissionVisionValues($: cheerio.CheerioAPI): { mission: string, vision: string, values: string | string[] } {
-  let mission = '';
-  let vision = '';
-  let values: string | string[] = '';
-  
-  // Look for mission statement
-  const missionSelectors = [
-    '#mission', '.mission', '[id*="mission"]', '[class*="mission"]',
-    'section:contains("Our Mission")', 'div:contains("Our Mission")',
-    'h1:contains("Mission")', 'h2:contains("Mission")', 'h3:contains("Mission")',
-    'p:contains("Our mission is")', 'p:contains("The mission of")'
-  ];
-  
-  for (const selector of missionSelectors) {
-    try {
-      const element = $(selector);
-      if (element.length) {
-        // Take paragraph text or the element text
-        const text = element.find('p').text() || element.text();
-        if (text && text.length > 20) {
-          mission = text.replace(/\s+/g, ' ').trim();
-          break;
-        }
-      }
-    } catch (e) {
-      console.error(`Error with mission selector ${selector}:`, e);
-    }
-  }
-  
-  // Look for vision statement
-  const visionSelectors = [
-    '#vision', '.vision', '[id*="vision"]', '[class*="vision"]',
-    'section:contains("Our Vision")', 'div:contains("Our Vision")',
-    'h1:contains("Vision")', 'h2:contains("Vision")', 'h3:contains("Vision")',
-    'p:contains("Our vision is")', 'p:contains("The vision of")'
-  ];
-  
-  for (const selector of visionSelectors) {
-    try {
-      const element = $(selector);
-      if (element.length) {
-        // Take paragraph text or the element text
-        const text = element.find('p').text() || element.text();
-        if (text && text.length > 20) {
-          vision = text.replace(/\s+/g, ' ').trim();
-          break;
-        }
-      }
-    } catch (e) {
-      console.error(`Error with vision selector ${selector}:`, e);
-    }
-  }
-  
-  // Look for values
-  const valuesSelectors = [
-    '#values', '.values', '[id*="values"]', '[class*="values"]',
-    'section:contains("Our Values")', 'div:contains("Our Values")',
-    'h1:contains("Values")', 'h2:contains("Values")', 'h3:contains("Values")',
-    'ul:contains("Our values")', 'ol:contains("Our values")'
-  ];
-  
-  for (const selector of valuesSelectors) {
-    try {
-      const element = $(selector);
-      if (element.length) {
-        // Check if there's a list of values
-        const listItems = element.find('li');
-        if (listItems.length > 0) {
-          const valuesList: string[] = [];
-          listItems.each((i, el) => {
-            const text = $(el).text().trim();
-            if (text) {
-              valuesList.push(text);
-            }
-          });
-          if (valuesList.length > 0) {
-            values = valuesList;
-            break;
-          }
-        } else {
-          // Take paragraph text or the element text
-          const text = element.find('p').text() || element.text();
-          if (text && text.length > 20) {
-            values = text.replace(/\s+/g, ' ').trim();
-            break;
-          }
-        }
-      }
-    } catch (e) {
-      console.error(`Error with values selector ${selector}:`, e);
-    }
-  }
-  
-  return { mission, vision, values };
-}
-
-/**
- * Find culture information
- */
-function findCulture($: cheerio.CheerioAPI): string {
-  // Look for culture sections
-  const cultureSelectors = [
-    '#culture', '.culture', '[id*="culture"]', '[class*="culture"]',
-    'section:contains("Our Culture")', 'div:contains("Our Culture")',
-    'h1:contains("Culture")', 'h2:contains("Culture")', 'h3:contains("Culture")',
-    'section:contains("Work Culture")', 'div:contains("Work Culture")',
-    'section:contains("Company Culture")', 'div:contains("Company Culture")'
-  ];
-  
-  for (const selector of cultureSelectors) {
-    try {
-      const element = $(selector);
-      if (element.length) {
-        // Take paragraph text or the element text
-        const text = element.find('p').text() || element.text();
-        if (text && text.length > 50) {
-          return text.replace(/\s+/g, ' ').trim();
-        }
-      }
-    } catch (e) {
-      console.error(`Error with culture selector ${selector}:`, e);
-    }
-  }
-  
-  return '';
-}
-
-/**
- * Find benefits information
- */
-function findBenefits($: cheerio.CheerioAPI): string | string[] {
-  // Look for benefits sections
-  const benefitsSelectors = [
-    '#benefits', '.benefits', '[id*="benefits"]', '[class*="benefits"]',
-    'section:contains("Benefits")', 'div:contains("Benefits")',
-    'h1:contains("Benefits")', 'h2:contains("Benefits")', 'h3:contains("Benefits")',
-    'section:contains("Perks")', 'div:contains("Perks")',
-    'h1:contains("Perks")', 'h2:contains("Perks")', 'h3:contains("Perks")'
-  ];
-  
-  for (const selector of benefitsSelectors) {
-    try {
-      const element = $(selector);
-      if (element.length) {
-        // Check if there's a list of benefits
-        const listItems = element.find('li');
-        if (listItems.length > 0) {
-          const benefitsList: string[] = [];
-          listItems.each((i, el) => {
-            const text = $(el).text().trim();
-            if (text) {
-              benefitsList.push(text);
-            }
-          });
-          if (benefitsList.length > 0) {
-            return benefitsList;
-          }
-        } else {
-          // Take paragraph text or the element text
-          const text = element.find('p').text() || element.text();
-          if (text && text.length > 20) {
-            return text.replace(/\s+/g, ' ').trim();
-          }
-        }
-      }
-    } catch (e) {
-      console.error(`Error with benefits selector ${selector}:`, e);
-    }
-  }
-  
-  return '';
-}
-
-/**
- * Find industry keywords in the page content
- */
-function findIndustryKeywords($: cheerio.CheerioAPI): string[] {
-  const pageText = $('body').text().toLowerCase();
-  
-  // Common industry keywords to look for
-  const industries = [
-    'technology', 'healthcare', 'finance', 'banking', 'insurance', 
-    'retail', 'manufacturing', 'education', 'government', 'non-profit',
-    'logistics', 'transportation', 'food', 'agriculture', 'energy',
-    'pharmaceutical', 'biotechnology', 'telecommunications', 'media',
-    'entertainment', 'hospitality', 'construction', 'real estate',
-    'consulting', 'legal', 'automotive', 'aerospace', 'defense',
-    'consumer goods', 'e-commerce', 'software', 'hardware', 'artificial intelligence',
-    'machine learning', 'data science', 'cloud computing', 'cybersecurity',
-    'fintech', 'edtech', 'healthtech', 'biotech', 'proptech', 'insurtech'
-  ];
-  
-  const foundIndustries = industries.filter(industry => 
-    pageText.includes(industry)
-  );
-  
-  return foundIndustries;
-}
-
-/**
- * Find locations mentioned on the career page
- */
-function findLocations($: cheerio.CheerioAPI): string[] {
-  // This is simplified - a more robust implementation would use 
-  // NLP to identify locations or a location database
-  const pageText = $('body').text();
-  
-  // Common location patterns
-  const locationRegexes = [
-    /(?:headquartered|based) in ([A-Za-z ]+(?:,|\.| [A-Z]{2})?)/g,
-    /(?:offices|locations) in ([A-Za-z, ]+)/g,
-    /(?:remote|hybrid|onsite) (?:in|from) ([A-Za-z, ]+)/g
-  ];
-  
-  const locations = new Set<string>();
-  
-  locationRegexes.forEach(regex => {
-    let match;
-    while ((match = regex.exec(pageText)) !== null) {
-      if (match[1]) {
-        locations.add(match[1].trim());
-      }
-    }
-  });
-  
-  return Array.from(locations);
-}
-
-/**
- * Find job types mentioned on the career page
- */
-function findJobTypes($: cheerio.CheerioAPI): string[] {
-  const pageText = $('body').text().toLowerCase();
-  
-  // Common work arrangements to look for
-  const arrangements = [
-    'remote', 'hybrid', 'onsite', 'in-office', 'flexible', 
-    'work from home', 'telework', 'distributed'
-  ];
-  
-  const foundArrangements = arrangements.filter(arrangement => 
-    pageText.includes(arrangement)
-  );
-  
-  return foundArrangements;
-}
-
-/**
- * Scrape company information from a career website
+ * Scrapes a company website to extract relevant information
+ * @param url The URL to scrape
+ * @returns Parsed company data
  */
 export async function scrapeCompanyWebsite(url: string): Promise<ScrapedCompanyData> {
   try {
-    // If URL doesn't have a protocol, add one
-    if (!url.startsWith('http')) {
-      url = 'https://' + url;
-    }
+    // Normalize the URL
+    const normalizedUrl = normalizeUrl(url);
     
-    // Fetch the webpage
-    const response = await fetch(url, {
+    // Fetch the website content
+    const response = await fetch(normalizedUrl, {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-      }
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+      },
     });
     
     if (!response.ok) {
-      return {
-        success: false,
-        error: `Failed to fetch the website: ${response.status} ${response.statusText}`
-      };
+      throw new Error(`Failed to fetch the website: ${response.statusText}`);
     }
     
-    // Get HTML content
     const html = await response.text();
-    
-    // Load HTML into cheerio
     const $ = cheerio.load(html);
     
-    // Extract information
-    const about = findAboutSection($);
-    const { mission, vision, values } = findMissionVisionValues($);
-    const culture = findCulture($);
-    const benefits = findBenefits($);
-    const industryKeywords = findIndustryKeywords($);
-    const locations = findLocations($);
-    const jobTypes = findJobTypes($);
+    // Initialize result object
+    const result: ScrapedCompanyData = { success: true };
     
-    return {
-      about,
-      mission,
-      vision,
-      values,
-      culture,
-      benefits,
-      industryKeywords,
-      locations,
-      jobTypes,
-      success: true
-    };
+    // Extract company information
+    result.about = extractAboutUs($);
+    result.mission = extractMission($);
+    result.vision = extractVision($);
+    result.values = extractValues($);
+    result.culture = extractCulture($);
+    result.benefits = extractBenefits($);
+    result.industryKeywords = extractIndustryKeywords($);
+    result.locations = extractLocations($);
+    result.jobTypes = extractJobTypes($);
+    
+    return result;
   } catch (error) {
     console.error('Error scraping website:', error);
     return {
       success: false,
-      error: `Error scraping website: ${(error as Error).message}`
+      error: error instanceof Error ? error.message : 'Unknown error occurred while scraping the website',
     };
   }
+}
+
+/**
+ * Ensures URL has proper protocol and is well-formed
+ */
+function normalizeUrl(url: string): string {
+  if (!url.startsWith('http://') && !url.startsWith('https://')) {
+    return `https://${url}`;
+  }
+  return url;
+}
+
+/**
+ * Extracts "About Us" content from the webpage
+ */
+function extractAboutUs($: cheerio.CheerioAPI): string | undefined {
+  // Look for about us sections
+  const aboutSelectors = [
+    'section:contains("About Us")',
+    'div:contains("About Us")',
+    'section:contains("About")', 
+    'div:contains("About")',
+    'section:contains("Who We Are")',
+    'div:contains("Who We Are")',
+    '#about',
+    '.about',
+    '[data-section="about"]',
+    '[data-testid="about-section"]',
+  ];
+  
+  let aboutContent = '';
+  
+  for (const selector of aboutSelectors) {
+    const element = $(selector);
+    if (element.length) {
+      // Extract paragraphs inside the section
+      const paragraphs = element.find('p');
+      if (paragraphs.length) {
+        paragraphs.each((i, p) => {
+          const text = $(p).text().trim();
+          if (text.length > 30) { // Only take meaningful paragraphs
+            aboutContent += text + ' ';
+          }
+        });
+      } else {
+        // If no paragraphs, take the text from the section itself
+        const text = element.text().trim();
+        if (text.length > 100) { // Only take meaningful content
+          aboutContent = text;
+        }
+      }
+      
+      if (aboutContent) break;
+    }
+  }
+  
+  // If we still don't have about content, try meta descriptions
+  if (!aboutContent) {
+    const metaDescription = $('meta[name="description"]').attr('content');
+    if (metaDescription && metaDescription.length > 50) {
+      aboutContent = metaDescription;
+    }
+  }
+  
+  return aboutContent ? cleanText(aboutContent) : undefined;
+}
+
+/**
+ * Extracts mission statement from the webpage
+ */
+function extractMission($: cheerio.CheerioAPI): string | undefined {
+  const missionSelectors = [
+    'section:contains("Mission")',
+    'div:contains("Mission")',
+    'section:contains("Our Mission")',
+    'div:contains("Our Mission")',
+    'h2:contains("Mission") + p',
+    'h3:contains("Mission") + p',
+    '#mission',
+    '.mission',
+    '[data-section="mission"]',
+  ];
+  
+  let missionContent = '';
+  
+  for (const selector of missionSelectors) {
+    const element = $(selector);
+    if (element.length) {
+      const paragraphs = element.find('p');
+      if (paragraphs.length) {
+        paragraphs.each((i, p) => {
+          const text = $(p).text().trim();
+          if (text.length > 20) {
+            missionContent += text + ' ';
+          }
+        });
+      } else {
+        const text = element.text().trim();
+        if (text.length > 20) {
+          missionContent = text;
+        }
+      }
+      
+      if (missionContent) break;
+    }
+  }
+  
+  return missionContent ? cleanText(missionContent) : undefined;
+}
+
+/**
+ * Extracts vision statement from the webpage
+ */
+function extractVision($: cheerio.CheerioAPI): string | undefined {
+  const visionSelectors = [
+    'section:contains("Vision")',
+    'div:contains("Vision")',
+    'section:contains("Our Vision")',
+    'div:contains("Our Vision")',
+    'h2:contains("Vision") + p',
+    'h3:contains("Vision") + p',
+    '#vision',
+    '.vision',
+    '[data-section="vision"]',
+  ];
+  
+  let visionContent = '';
+  
+  for (const selector of visionSelectors) {
+    const element = $(selector);
+    if (element.length) {
+      const paragraphs = element.find('p');
+      if (paragraphs.length) {
+        paragraphs.each((i, p) => {
+          const text = $(p).text().trim();
+          if (text.length > 20) {
+            visionContent += text + ' ';
+          }
+        });
+      } else {
+        const text = element.text().trim();
+        if (text.length > 20) {
+          visionContent = text;
+        }
+      }
+      
+      if (visionContent) break;
+    }
+  }
+  
+  return visionContent ? cleanText(visionContent) : undefined;
+}
+
+/**
+ * Extracts company values from the webpage
+ */
+function extractValues($: cheerio.CheerioAPI): string[] | undefined {
+  const valuesSelectors = [
+    'section:contains("Values")',
+    'div:contains("Values")',
+    'section:contains("Our Values")',
+    'div:contains("Our Values")',
+    'h2:contains("Values") + ul',
+    'h3:contains("Values") + ul',
+    '#values',
+    '.values',
+    '[data-section="values"]',
+  ];
+  
+  let valuesList: string[] = [];
+  
+  // Try to find a clear list of values
+  for (const selector of valuesSelectors) {
+    const element = $(selector);
+    if (element.length) {
+      // Look for list items
+      const listItems = element.find('li');
+      if (listItems.length) {
+        listItems.each((i, li) => {
+          const text = $(li).text().trim();
+          if (text.length > 3 && text.length < 100) {
+            valuesList.push(cleanText(text));
+          }
+        });
+      }
+      
+      // Also look for bolded or emphasized values
+      const emphasisElements = element.find('strong, b, em, i, h3, h4, h5, h6');
+      if (emphasisElements.length) {
+        emphasisElements.each((i, el) => {
+          const text = $(el).text().trim();
+          if (text.length > 3 && text.length < 50 && !valuesList.includes(text)) {
+            valuesList.push(cleanText(text));
+          }
+        });
+      }
+      
+      if (valuesList.length) break;
+    }
+  }
+  
+  return valuesList.length ? valuesList : undefined;
+}
+
+/**
+ * Extracts culture information from the webpage
+ */
+function extractCulture($: cheerio.CheerioAPI): string | undefined {
+  const cultureSelectors = [
+    'section:contains("Culture")',
+    'div:contains("Culture")',
+    'section:contains("Our Culture")',
+    'div:contains("Our Culture")',
+    'section:contains("Work Culture")',
+    'div:contains("Work Culture")',
+    'h2:contains("Culture") + p',
+    'h3:contains("Culture") + p',
+    '#culture',
+    '.culture',
+    '[data-section="culture"]',
+  ];
+  
+  let cultureContent = '';
+  
+  for (const selector of cultureSelectors) {
+    const element = $(selector);
+    if (element.length) {
+      const paragraphs = element.find('p');
+      if (paragraphs.length) {
+        paragraphs.each((i, p) => {
+          const text = $(p).text().trim();
+          if (text.length > 30) {
+            cultureContent += text + ' ';
+          }
+        });
+      } else {
+        const text = element.text().trim();
+        if (text.length > 50) {
+          cultureContent = text;
+        }
+      }
+      
+      if (cultureContent) break;
+    }
+  }
+  
+  // If we don't find explicit culture sections, look for paragraphs containing culture keywords
+  if (!cultureContent) {
+    $('p').each((i, p) => {
+      if (cultureContent) return; // Already found content
+      
+      const text = $(p).text().trim();
+      if (text.length > 100) {
+        // Check if paragraph contains culture keywords
+        const containsKeywords = CULTURE_KEYWORDS.some(keyword => 
+          text.toLowerCase().includes(keyword.toLowerCase())
+        );
+        
+        if (containsKeywords) {
+          cultureContent = text;
+        }
+      }
+    });
+  }
+  
+  return cultureContent ? cleanText(cultureContent) : undefined;
+}
+
+/**
+ * Extracts benefits information from the webpage
+ */
+function extractBenefits($: cheerio.CheerioAPI): string[] | undefined {
+  const benefitSelectors = [
+    'section:contains("Benefits")',
+    'div:contains("Benefits")',
+    'section:contains("Our Benefits")',
+    'div:contains("Our Benefits")',
+    'section:contains("Perks")',
+    'div:contains("Perks")',
+    'h2:contains("Benefits") + ul',
+    'h3:contains("Benefits") + ul',
+    '#benefits',
+    '.benefits',
+    '[data-section="benefits"]',
+  ];
+  
+  let benefitsList: string[] = [];
+  
+  for (const selector of benefitSelectors) {
+    const element = $(selector);
+    if (element.length) {
+      // Look for list items
+      const listItems = element.find('li');
+      if (listItems.length) {
+        listItems.each((i, li) => {
+          const text = $(li).text().trim();
+          if (text.length > 3 && text.length < 100) {
+            benefitsList.push(cleanText(text));
+          }
+        });
+      }
+      
+      if (benefitsList.length) break;
+    }
+  }
+  
+  return benefitsList.length ? benefitsList : undefined;
+}
+
+/**
+ * Extracts industry keywords from the webpage
+ */
+function extractIndustryKeywords($: cheerio.CheerioAPI): string[] | undefined {
+  // Extract meta keywords
+  const metaKeywords = $('meta[name="keywords"]').attr('content');
+  let keywords: string[] = [];
+  
+  if (metaKeywords) {
+    keywords = metaKeywords.split(',').map(k => k.trim()).filter(k => k.length > 0);
+  }
+  
+  // Extract from content
+  const fullText = $('body').text();
+  
+  // Common industry terms to look for
+  const industryTerms = [
+    'technology', 'tech', 'software', 'hardware', 'IT', 'information technology',
+    'healthcare', 'health', 'medical', 'medicine', 'hospital',
+    'finance', 'financial', 'banking', 'investment', 'insurance',
+    'retail', 'e-commerce', 'sales',
+    'manufacturing', 'production', 'factory',
+    'education', 'school', 'university', 'teaching', 'learning',
+    'government', 'public sector',
+    'non-profit', 'charity', 'NGO',
+    'media', 'advertising', 'marketing',
+    'entertainment', 'film', 'music', 'art',
+    'legal', 'law',
+    'consulting',
+    'transportation', 'logistics', 'shipping',
+    'energy', 'oil', 'gas', 'renewable', 'sustainability',
+    'construction', 'architecture', 'engineering',
+    'hospitality', 'hotel', 'restaurant', 'tourism',
+    'telecommunications',
+    'automotive',
+    'aerospace',
+    'biotechnology', 'biotech',
+    'pharmaceutical', 'pharma',
+    'agriculture', 'farming', 'food'
+  ];
+  
+  for (const term of industryTerms) {
+    if (fullText.toLowerCase().includes(term.toLowerCase())) {
+      if (!keywords.includes(term)) {
+        keywords.push(term);
+      }
+    }
+  }
+  
+  return keywords.length ? keywords : undefined;
+}
+
+/**
+ * Extracts location information from the webpage
+ */
+function extractLocations($: cheerio.CheerioAPI): string[] | undefined {
+  let locations: string[] = [];
+  
+  // Look for address information
+  const addressSelectors = [
+    'address',
+    '.address',
+    '.location',
+    'footer address',
+    'footer .address',
+    'div:contains("Address")',
+    'div:contains("Location")',
+    'div:contains("Headquarters")',
+    '[itemprop="address"]',
+  ];
+  
+  for (const selector of addressSelectors) {
+    const elements = $(selector);
+    if (elements.length) {
+      elements.each((i, el) => {
+        const text = $(el).text().trim();
+        if (text.length > 5 && text.length < 200) {
+          locations.push(cleanText(text));
+        }
+      });
+    }
+  }
+  
+  return locations.length ? locations : undefined;
+}
+
+/**
+ * Extracts job types information from the webpage
+ */
+function extractJobTypes($: cheerio.CheerioAPI): string[] | undefined {
+  let jobTypes: string[] = [];
+  
+  // Common job type indicators to search for in the page
+  const jobTypeIndicators = [
+    'remote', 'remote work', 'work from home', 'wfh',
+    'hybrid', 'hybrid work', 'flexible',
+    'in-office', 'on-site', 'onsite', 'in office',
+    'full-time', 'fulltime', 'full time',
+    'part-time', 'part time',
+    'contract', 'contractor',
+    'temporary', 'temp',
+    'internship', 'intern',
+    'apprenticeship', 'apprentice'
+  ];
+  
+  const jobTypeSelectors = [
+    'section:contains("Careers")',
+    'div:contains("Careers")',
+    'section:contains("Jobs")',
+    'div:contains("Jobs")',
+    'section:contains("Positions")',
+    'div:contains("Positions")',
+    'section:contains("Work With Us")',
+    'div:contains("Work With Us")',
+  ];
+  
+  // First try in specific job-related sections
+  for (const selector of jobTypeSelectors) {
+    const element = $(selector);
+    if (element.length) {
+      const text = element.text().toLowerCase();
+      
+      for (const indicator of jobTypeIndicators) {
+        if (text.includes(indicator.toLowerCase()) && !jobTypes.includes(indicator)) {
+          jobTypes.push(indicator);
+        }
+      }
+    }
+  }
+  
+  // If we didn't find anything, look more broadly
+  if (!jobTypes.length) {
+    const bodyText = $('body').text().toLowerCase();
+    
+    for (const indicator of jobTypeIndicators) {
+      if (bodyText.includes(indicator.toLowerCase()) && !jobTypes.includes(indicator)) {
+        jobTypes.push(indicator);
+      }
+    }
+  }
+  
+  return jobTypes.length ? jobTypes : undefined;
+}
+
+/**
+ * Cleans and normalizes text
+ */
+function cleanText(text: string): string {
+  return text
+    .replace(/\\s+/g, ' ')             // Normalize whitespace
+    .replace(/[\\t\\n\\r]/g, ' ')      // Remove tabs and newlines
+    .replace(/\s{2,}/g, ' ')           // Remove multiple spaces
+    .replace(/[^\x20-\x7E]/g, '')      // Remove non-printable characters
+    .trim();
 }

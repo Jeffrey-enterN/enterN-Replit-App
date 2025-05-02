@@ -394,6 +394,216 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Website scraping endpoint for company profile creation
+  app.post("/api/employer/scrape-website", async (req, res) => {
+    if (!req.isAuthenticated()) return res.status(401).json({ message: "Unauthorized" });
+    if (req.user.userType !== USER_TYPES.EMPLOYER) return res.status(403).json({ message: "Forbidden" });
+
+    const { url } = req.body;
+    if (!url) return res.status(400).json({ message: "URL is required" });
+
+    try {
+      console.log(`Scraping website ${url} for employer ${req.user.id}`);
+      const scrapedData = await scrapeCompanyWebsite(url);
+      res.status(200).json(scrapedData);
+    } catch (error) {
+      console.error('Error scraping website:', error);
+      res.status(500).json({ 
+        message: "Error scraping website", 
+        error: (error as Error).message 
+      });
+    }
+  });
+
+  // Company profile draft endpoints
+  app.get("/api/employer/company-profile/draft", async (req, res) => {
+    if (!req.isAuthenticated()) return res.status(401).json({ message: "Unauthorized" });
+    if (req.user.userType !== USER_TYPES.EMPLOYER) return res.status(403).json({ message: "Forbidden" });
+
+    try {
+      const userId = req.user.id;
+      const companyId = req.query.companyId ? Number(req.query.companyId) : undefined;
+      
+      const draft = await storage.getCompanyProfileDraft(userId, companyId);
+      
+      if (!draft) {
+        return res.status(404).json({ message: "No draft found" });
+      }
+      
+      res.status(200).json(draft);
+    } catch (error) {
+      console.error('Error getting company profile draft:', error);
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
+  
+  app.post("/api/employer/company-profile/draft", async (req, res) => {
+    if (!req.isAuthenticated()) return res.status(401).json({ message: "Unauthorized" });
+    if (req.user.userType !== USER_TYPES.EMPLOYER) return res.status(403).json({ message: "Forbidden" });
+
+    try {
+      const userId = req.user.id;
+      const { draftData, companyId, step } = req.body;
+      
+      const savedDraft = await storage.saveCompanyProfileDraft(
+        userId, 
+        draftData, 
+        companyId ? Number(companyId) : undefined, 
+        step ? Number(step) : undefined
+      );
+      
+      res.status(200).json(savedDraft);
+    } catch (error) {
+      console.error('Error saving company profile draft:', error);
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
+  
+  // Company management endpoints
+  app.post("/api/companies", async (req, res) => {
+    if (!req.isAuthenticated()) return res.status(401).json({ message: "Unauthorized" });
+    if (req.user.userType !== USER_TYPES.EMPLOYER) return res.status(403).json({ message: "Forbidden" });
+
+    try {
+      const userId = req.user.id;
+      const companyData = req.body;
+      
+      const company = await storage.createCompany(companyData, userId);
+      
+      // Update the user's company association
+      await storage.updateUserCompanyRole(userId, company.id, 'admin');
+      
+      res.status(201).json(company);
+    } catch (error) {
+      console.error('Error creating company:', error);
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
+  
+  app.get("/api/companies/:id", async (req, res) => {
+    if (!req.isAuthenticated()) return res.status(401).json({ message: "Unauthorized" });
+
+    try {
+      const companyId = Number(req.params.id);
+      const company = await storage.getCompany(companyId);
+      
+      if (!company) {
+        return res.status(404).json({ message: "Company not found" });
+      }
+      
+      res.status(200).json(company);
+    } catch (error) {
+      console.error('Error getting company:', error);
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
+  
+  app.put("/api/companies/:id", async (req, res) => {
+    if (!req.isAuthenticated()) return res.status(401).json({ message: "Unauthorized" });
+    if (req.user.userType !== USER_TYPES.EMPLOYER) return res.status(403).json({ message: "Forbidden" });
+
+    try {
+      const companyId = Number(req.params.id);
+      const companyData = req.body;
+      
+      // Check if the user has permission to edit this company
+      const hasPermission = 
+        req.user.companyId === companyId && 
+        (req.user.companyRole === 'admin' || req.user.companyRole === 'owner');
+      
+      if (!hasPermission) {
+        return res.status(403).json({ message: "You don't have permission to edit this company" });
+      }
+      
+      const company = await storage.updateCompany(companyId, companyData);
+      
+      res.status(200).json(company);
+    } catch (error) {
+      console.error('Error updating company:', error);
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
+  
+  // Company team management
+  app.get("/api/companies/:id/team", async (req, res) => {
+    if (!req.isAuthenticated()) return res.status(401).json({ message: "Unauthorized" });
+
+    try {
+      const companyId = Number(req.params.id);
+      
+      // Check if user has access to this company
+      if (req.user.companyId !== companyId) {
+        return res.status(403).json({ message: "You don't have access to this company" });
+      }
+      
+      const teamMembers = await storage.getCompanyTeamMembers(companyId);
+      
+      res.status(200).json(teamMembers);
+    } catch (error) {
+      console.error('Error getting company team members:', error);
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
+  
+  app.post("/api/companies/:id/invites", async (req, res) => {
+    if (!req.isAuthenticated()) return res.status(401).json({ message: "Unauthorized" });
+    if (req.user.userType !== USER_TYPES.EMPLOYER) return res.status(403).json({ message: "Forbidden" });
+
+    try {
+      const companyId = Number(req.params.id);
+      const { email, role } = req.body;
+      
+      // Check if the user has permission to invite to this company
+      const hasPermission = 
+        req.user.companyId === companyId && 
+        (req.user.companyRole === 'admin' || req.user.companyRole === 'owner');
+      
+      if (!hasPermission) {
+        return res.status(403).json({ message: "You don't have permission to invite to this company" });
+      }
+      
+      const invite = await storage.createCompanyInvite({
+        companyId,
+        email,
+        role: role || 'member',
+        invitedBy: req.user.id,
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+      });
+      
+      // TODO: Send invitation email
+      
+      res.status(201).json(invite);
+    } catch (error) {
+      console.error('Error creating company invite:', error);
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
+  
+  app.get("/api/companies/:id/invites", async (req, res) => {
+    if (!req.isAuthenticated()) return res.status(401).json({ message: "Unauthorized" });
+    if (req.user.userType !== USER_TYPES.EMPLOYER) return res.status(403).json({ message: "Forbidden" });
+
+    try {
+      const companyId = Number(req.params.id);
+      
+      // Check if the user has permission to view invites for this company
+      const hasPermission = 
+        req.user.companyId === companyId && 
+        (req.user.companyRole === 'admin' || req.user.companyRole === 'owner');
+      
+      if (!hasPermission) {
+        return res.status(403).json({ message: "You don't have permission to view invites for this company" });
+      }
+      
+      const invites = await storage.getCompanyInvites(companyId);
+      
+      res.status(200).json(invites);
+    } catch (error) {
+      console.error('Error getting company invites:', error);
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
+
   // View Jobseeker Profile (for employers) with profile view tracking
   app.get("/api/employer/jobseeker/:jobseekerId", async (req, res) => {
     if (!req.isAuthenticated()) return res.status(401).json({ message: "Unauthorized" });
@@ -804,6 +1014,100 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Create the HTTP server
+  // Scrape company website for information
+  app.post("/api/employer/scrape-website", async (req, res) => {
+    if (!req.isAuthenticated()) return res.status(401).json({ message: "Unauthorized" });
+    if (req.user.userType !== USER_TYPES.EMPLOYER) return res.status(403).json({ message: "Forbidden" });
+
+    const { url } = req.body;
+    if (!url) return res.status(400).json({ message: "URL is required" });
+
+    try {
+      console.log(`Scraping company website: ${url} for user ${req.user.id}`);
+      const scrapedData = await scrapeCompanyWebsite(url);
+      
+      if (!scrapedData.success) {
+        return res.status(422).json({ 
+          message: scrapedData.error || "Failed to scrape website",
+          url
+        });
+      }
+      
+      console.log(`Successfully scraped company website: ${url}`);
+      res.status(200).json(scrapedData);
+    } catch (error) {
+      console.error(`Error scraping website ${url}:`, error);
+      res.status(500).json({ 
+        message: (error as Error).message,
+        url
+      });
+    }
+  });
+  
+  // Save company profile draft
+  app.post("/api/employer/company-profile/draft", async (req, res) => {
+    if (!req.isAuthenticated()) return res.status(401).json({ message: "Unauthorized" });
+    if (req.user.userType !== USER_TYPES.EMPLOYER) return res.status(403).json({ message: "Forbidden" });
+
+    const { draftData, companyId, step } = req.body;
+    
+    try {
+      const companyDraft = await storage.saveCompanyProfileDraft(
+        req.user.id, 
+        draftData, 
+        companyId, 
+        step
+      );
+      
+      res.status(200).json({
+        ...companyDraft,
+        _meta: {
+          savedAt: new Date().toISOString(),
+          message: "Company profile draft saved successfully"
+        }
+      });
+    } catch (error) {
+      console.error("Error saving company profile draft:", error);
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
+  
+  // Get company profile draft
+  app.get("/api/employer/company-profile/draft", async (req, res) => {
+    if (!req.isAuthenticated()) return res.status(401).json({ message: "Unauthorized" });
+    if (req.user.userType !== USER_TYPES.EMPLOYER) return res.status(403).json({ message: "Forbidden" });
+
+    const companyId = req.query.companyId ? parseInt(req.query.companyId as string) : undefined;
+    
+    try {
+      const companyDraft = await storage.getCompanyProfileDraft(req.user.id, companyId);
+      
+      if (!companyDraft) {
+        return res.status(404).json({
+          message: "No company profile draft found",
+          _meta: {
+            userId: req.user.id,
+            companyId,
+            timestamp: new Date().toISOString()
+          }
+        });
+      }
+      
+      res.status(200).json({
+        ...companyDraft,
+        _meta: {
+          fetchedAt: new Date().toISOString(),
+          userId: req.user.id,
+          companyId,
+          source: "draft"
+        }
+      });
+    } catch (error) {
+      console.error("Error fetching company profile draft:", error);
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
+
   const httpServer = createServer(app);
 
   return httpServer;
