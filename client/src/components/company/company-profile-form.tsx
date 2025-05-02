@@ -377,7 +377,11 @@ export function CompanyProfileForm({ companyId }: { companyId?: number }) {
   const saveDraft = async (silent: boolean = false) => {
     try {
       const formData = form.getValues();
-      const result = await saveDraftMutation.mutateAsync(formData);
+      const result = await saveDraftMutation.mutateAsync({
+        draftData: formData,
+        companyId,
+        step: currentStep,
+      });
       
       if (!silent) {
         queryClient.invalidateQueries({ queryKey: ['/api/employer/company-profile/draft', companyId] });
@@ -496,9 +500,24 @@ export function CompanyProfileForm({ companyId }: { companyId?: number }) {
   };
   
   // Move to previous step
-  const handlePrevStep = () => {
+  const handlePrevStep = async () => {
     if (currentStep > 1) {
-      setCurrentStep(prev => prev - 1);
+      const prevStep = currentStep - 1;
+      setCurrentStep(prevStep);
+      
+      // Save the draft with the previous step number
+      try {
+        const formData = form.getValues();
+        await saveDraftMutation.mutateAsync({
+          draftData: formData,
+          companyId,
+          step: prevStep,
+        });
+        
+        queryClient.invalidateQueries({ queryKey: ['/api/employer/company-profile/draft', companyId] });
+      } catch (error: any) {
+        console.error('Failed to save draft during previous step:', error);
+      }
     }
   };
   
