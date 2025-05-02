@@ -1,0 +1,89 @@
+Privacy Policy for enterN
+Effective Date: 05/01/2025
+Welcome to enterN, a hiring platform that empowers early-career jobseekers and employers to find meaningful, bias-resistant matches through anonymized, preference-based profiles. Your privacy is important to us, and this Privacy Policy explains how we collect, use, store, and share your personal information.
+
+Information We Collect
+We collect the following types of information from jobseekers, employers, and website visitors:
+a. Information You Provide Directly
+Jobseekers: Name, email address, educational background, work preferences, skills, anonymized profile responses, and feedback on job opportunities.
+Employers: Business name, recruiter contact info, job descriptions, company preferences, and hiring behavior data (e.g., match selections, response rates).
+Messages and Support Requests: Any information you voluntarily submit through messages, forms, or support interactions.
+
+
+b. Automatically Collected Data
+IP address, browser type, operating system
+Device identifiers, usage logs, referral sources
+Interactions with the site (clicks, time spent, swipe history)
+
+
+c. Third-Party Integrations
+If you connect with third-party services (e.g., a university Single Sign-On system, LinkedIn, or Google), we may receive additional information such as your profile, email, or verified educational details.
+
+How We Use Your Information
+We use your data to:
+Match jobseekers and employers based on preferences and fit
+Improve our AI recommendation systems
+Provide transparency tools like BooBase for ghosting reports
+Conduct analytics and improve product performance
+Communicate with users via email or in-platform messaging
+Ensure safety, prevent fraud, and comply with legal obligations
+
+
+We never sell your personal data. Period.
+
+Data Sharing and Disclosure
+We only share your data in the following situations:
+With Employers (Jobseeker-Specific): Only after mutual interest is expressed (e.g., both sides swipe right). Your anonymized preferences may guide matching prior to revealing your identity.
+With Jobseekers (Employer-Specific): Only after the employer expresses interest. We may share job details, hiring patterns, and employer behavior labels (e.g., Power Responder).
+With Service Providers: We work with vetted vendors who support our platform (e.g., cloud hosting, email services, analytics).
+With Consent: We’ll get your permission before sharing anything outside of expected platform use.
+For Legal Reasons: We may disclose data if legally required (e.g., subpoena, law enforcement request).
+
+
+Your Rights and Choices
+Depending on your location and applicable laws (e.g., CCPA, GDPR), you may:
+Access the personal data we hold about you
+Correct or update your information
+Delete your account and data
+Opt-out of data processing or marketing emails
+
+
+To exercise your rights, contact us at privacy@entern.co.
+
+Data Security
+We implement strong security measures to protect your data, including:
+Encryption (at rest and in transit)
+Access controls and authentication
+Regular audits and security reviews
+
+
+However, no system is 100% secure. We urge you to use strong passwords and report suspicious activity immediately.
+
+Data Retention
+We retain your information:
+As long as your account is active
+As needed to fulfill matching, legal, or operational requirements
+For analytics purposes, unless you request deletion
+
+
+You may delete your account at any time in your settings or by contacting support@entern.co.
+
+Children’s Privacy
+enterN is not intended for individuals under the age of 16. We do not knowingly collect data from children. If we learn we’ve collected data from a child without consent, we will promptly delete it.
+
+Changes to This Policy
+We may update this Privacy Policy from time to time. If significant changes are made, we’ll notify users via email or through the platform.
+
+Contact Us
+If you have questions, concerns, or would like to file a privacy-related complaint, please contact: 
+enterN, Inc.
+201 SW Adams Street
+Peoria, IL 61602
+Email: info@enter-n.com
+
+
+If you have questions, concerns, or would like to file a privacy-related complaint, please contact:
+enterN Inc.
+ [Your Company Address]
+ Email: privacy@entern.co
+

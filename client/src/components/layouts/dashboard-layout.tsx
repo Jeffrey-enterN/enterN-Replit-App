@@ -116,7 +116,7 @@ export default function DashboardLayout({ children, title, subtitle }: Dashboard
               </Link>
             </div>
             <div className="px-5 py-2">
-              <Link href="#" className="text-sm text-gray-500 hover:text-gray-900">
+              <Link href="/privacy-policy" className="text-sm text-gray-500 hover:text-gray-900">
                 Privacy
               </Link>
             </div>
@@ -127,7 +127,7 @@ export default function DashboardLayout({ children, title, subtitle }: Dashboard
             </div>
           </nav>
           <p className="mt-4 text-center text-xs text-gray-400">
-            &copy; 2023 enterN, Inc. All rights reserved.
+            &copy; 2025 enterN, Inc. All rights reserved.
           </p>
         </div>
       </footer>

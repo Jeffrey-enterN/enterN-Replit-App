@@ -173,7 +173,7 @@ export default function LandingPage() {
                 </nav>
                 
                 <nav className="flex flex-col space-y-4" aria-label="Footer Secondary">
-                  <a href="#" className="text-gray-300 hover:text-white transition-colors">Privacy Policy</a>
+                  <Link href="/privacy-policy" className="text-gray-300 hover:text-white transition-colors">Privacy Policy</Link>
                   <a href="#" className="text-gray-300 hover:text-white transition-colors">Terms of Service</a>
                   <a href="#" className="text-gray-300 hover:text-white transition-colors">Contact Us</a>
                 </nav>
