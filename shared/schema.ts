@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp, varchar, uuid, jsonb, json } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, varchar, uuid, jsonb, json, unique } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { relations } from "drizzle-orm";
 import { z } from "zod";
@@ -10,6 +10,79 @@ export const USER_TYPES = {
 
 export type UserType = (typeof USER_TYPES)[keyof typeof USER_TYPES];
 
+// === COMPANY TABLE ===
+
+export const companies = pgTable("companies", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  website: text("website"),
+  headquarters: text("headquarters"),
+  yearFounded: integer("year_founded"), 
+  size: text("size"),
+  industry: text("industry"),
+  about: text("about"),
+  additionalOffices: jsonb("additional_offices").$type<string[]>(),
+  mission: text("mission"),
+  values: text("values"),
+  benefits: jsonb("benefits").$type<string[]>(),
+  additionalBenefits: text("additional_benefits"),
+  logo: text("logo"),
+  isVerified: boolean("is_verified").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const companiesRelations = relations(companies, ({ many }) => ({
+  employees: many(users),
+  jobPostings: many(jobPostings),
+  companyInvites: many(companyInvites)
+}));
+
+export const insertCompanySchema = createInsertSchema(companies).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  isVerified: true,
+});
+
+export type InsertCompany = z.infer<typeof insertCompanySchema>;
+export type Company = typeof companies.$inferSelect;
+
+// === COMPANY INVITES ===
+
+export const companyInvites = pgTable("company_invites", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  companyId: integer("company_id").notNull().references(() => companies.id, { onDelete: "cascade" }),
+  inviterId: integer("inviter_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  email: text("email").notNull(),
+  token: text("token").notNull().unique(),
+  role: text("role").default("recruiter"),
+  status: text("status").notNull().default("pending"),
+  expiresAt: timestamp("expires_at").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const companyInvitesRelations = relations(companyInvites, ({ one }) => ({
+  company: one(companies, {
+    fields: [companyInvites.companyId],
+    references: [companies.id],
+  }),
+  inviter: one(users, {
+    fields: [companyInvites.inviterId],
+    references: [users.id],
+  }),
+}));
+
+export const insertCompanyInviteSchema = createInsertSchema(companyInvites).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertCompanyInvite = z.infer<typeof insertCompanyInviteSchema>;
+export type CompanyInvite = typeof companyInvites.$inferSelect;
+
 // === USER TABLES ===
 
 export const users = pgTable("users", {
@@ -20,6 +93,8 @@ export const users = pgTable("users", {
   firstName: text("first_name"),
   lastName: text("last_name"),
   companyName: text("company_name"),
+  companyId: integer("company_id").references(() => companies.id),
+  companyRole: text("company_role").default("recruiter"),
   email: text("email"),
   phone: text("phone"),
   createdAt: timestamp("created_at").defaultNow(),
@@ -27,6 +102,10 @@ export const users = pgTable("users", {
 });
 
 export const usersRelations = relations(users, ({ one, many }) => ({
+  company: one(companies, {
+    fields: [users.companyId],
+    references: [companies.id],
+  }),
   jobseekerProfile: one(jobseekerProfiles, {
     fields: [users.id],
     references: [jobseekerProfiles.userId],
@@ -41,7 +120,8 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   employerSwipes: many(swipes, {
     relationName: "employerSwipes",
   }),
-  jobPostings: many(jobPostings)
+  jobPostings: many(jobPostings),
+  sentInvites: many(companyInvites)
 }));
 
 export const insertUserSchema = createInsertSchema(users).pick({
@@ -192,6 +272,7 @@ export type EmployerProfileDraft = typeof employerProfileDrafts.$inferSelect;
 export const jobPostings = pgTable("job_postings", {
   id: uuid("id").defaultRandom().primaryKey(),
   employerId: integer("employer_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  companyId: integer("company_id").notNull().references(() => companies.id, { onDelete: "cascade" }),
   title: text("title").notNull(),
   description: text("description").notNull(),
   location: text("location").notNull(),
@@ -209,6 +290,10 @@ export const jobPostingsRelations = relations(jobPostings, ({ one }) => ({
   employer: one(users, {
     fields: [jobPostings.employerId],
     references: [users.id],
+  }),
+  company: one(companies, {
+    fields: [jobPostings.companyId],
+    references: [companies.id],
   }),
   employerProfile: one(employerProfiles, {
     fields: [jobPostings.employerId],
