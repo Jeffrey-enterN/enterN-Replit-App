@@ -6,15 +6,11 @@ import { Sun, Moon } from 'lucide-react';
 import enternLogo from '@/assets/entern-logo.png';
 
 export default function PrivacyPolicyPage() {
-  const { theme, setTheme } = useTheme();
+  const { theme, toggleTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   
   // After mounting, we have access to the theme
   useEffect(() => setMounted(true), []);
-  
-  const toggleTheme = () => {
-    setTheme(theme === 'dark' ? 'light' : 'dark');
-  };
   
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
