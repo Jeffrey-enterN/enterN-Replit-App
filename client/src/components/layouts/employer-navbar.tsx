@@ -31,6 +31,7 @@ import {
   LayoutDashboard,
   Users,
   Users2,
+  ThumbsUp,
 } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
@@ -71,6 +72,7 @@ export default function EmployerNavbar() {
 
   const navItems = [
     { label: 'Dashboard', href: '/employer/dashboard', icon: LayoutDashboard },
+    { label: 'Match Feed', href: '/employer/match-feed', icon: ThumbsUp },
     { label: 'Company Profile', href: '/employer/company-profile', icon: Building },
     { label: 'Team', href: '/employer/company-team', icon: Users },
     { label: 'Jobs', href: '/employer/jobs', icon: Briefcase },
@@ -241,9 +243,9 @@ export default function EmployerNavbar() {
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
-                <Link href="/employer/profile" className="flex items-center gap-2 cursor-pointer">
-                  <UserCircle className="h-4 w-4" />
-                  Your Profile
+                <Link href="/employer/match-feed" className="flex items-center gap-2 cursor-pointer">
+                  <ThumbsUp className="h-4 w-4" />
+                  Match Feed
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>

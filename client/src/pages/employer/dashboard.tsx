@@ -218,76 +218,70 @@ export default function EmployerDashboard() {
 
       {/* Match Feed */}
       <div className="bg-card shadow-sm rounded-lg overflow-hidden mb-8 border">
-        <div className="px-4 py-5 border-b border-border sm:px-6">
-          <h3 className="text-lg leading-6 font-medium text-foreground">Talent Match Feed</h3>
-          <p className="mt-1 text-sm text-muted-foreground">Find potential candidates by swiping through anonymous profiles.</p>
+        <div className="px-4 py-5 border-b border-border sm:px-6 flex justify-between items-center">
+          <div>
+            <h3 className="text-lg leading-6 font-medium text-foreground">Talent Match Feed</h3>
+            <p className="mt-1 text-sm text-muted-foreground">Find potential candidates by swiping through anonymous profiles.</p>
+          </div>
+          <Button onClick={() => navigate('/employer/match-feed')} className="ml-4">
+            Go to Match Feed
+          </Button>
         </div>
         <div className="px-4 py-6 sm:p-6">
-          {potentialMatches?.length ? (
-            <div className="max-w-3xl mx-auto">
-              <div className="text-center mb-6">
-                <p className="text-sm text-muted-foreground">
-                  Showing anonymous profiles that match your company's requirements. 
-                  Swipe right on profiles you're interested in connecting with.
-                </p>
-              </div>
-              <MatchCard
-                userType={USER_TYPES.EMPLOYER}
-                data={currentJobseeker as JobseekerMatch}
-                onInterested={handleInterested}
-                onNotInterested={handleNotInterested}
-                isPending={swipeMutation.isPending}
-              />
-              <div className="text-center mt-4">
-                <p className="text-xs text-muted-foreground">
-                  {potentialMatches.length > 1 
-                    ? `${potentialMatches.length - 1} more profiles waiting` 
-                    : "Last profile in the queue"}
-                </p>
-              </div>
-            </div>
-          ) : (
-            <div className="text-center py-12">
-              <svg 
-                className="mx-auto h-12 w-12 text-muted-foreground" 
-                fill="none" 
-                viewBox="0 0 24 24" 
-                stroke="currentColor" 
-                aria-hidden="true"
-              >
-                <path 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round" 
-                  strokeWidth="2" 
-                  d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" 
-                />
-              </svg>
-              <h3 className="mt-2 text-sm font-medium text-foreground">No potential candidates</h3>
-              <p className="mt-1 text-sm text-muted-foreground">
-                There are no more profiles to review at this time.
-              </p>
-              <div className="mt-6">
-                <Button
-                  onClick={() => refetchPotentialMatches()}
-                  className="inline-flex items-center"
+          <div className="text-center py-6">
+            {potentialMatches?.length ? (
+              <>
+                <svg 
+                  className="mx-auto h-12 w-12 text-primary" 
+                  fill="none" 
+                  viewBox="0 0 24 24" 
+                  stroke="currentColor" 
+                  aria-hidden="true"
                 >
-                  <svg 
-                    className="-ml-1 mr-2 h-5 w-5" 
-                    xmlns="http://www.w3.org/2000/svg" 
-                    viewBox="0 0 20 20" 
-                    fill="currentColor"
-                  >
-                    <path 
-                      fillRule="evenodd" 
-                      d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" 
-                      clipRule="evenodd" 
-                    />
-                  </svg>
-                  Refresh Candidates
-                </Button>
-              </div>
-            </div>
-          )}
+                  <path 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    strokeWidth="2" 
+                    d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905a3.61 3.61 0 01-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" 
+                  />
+                </svg>
+                <h3 className="mt-2 text-sm font-medium text-foreground">
+                  You have {potentialMatches.length} potential candidates waiting!
+                </h3>
+                <p className="mt-1 text-sm text-muted-foreground mb-4">
+                  Head to the match feed to review anonymous profiles that match your company's requirements.
+                </p>
+              </>
+            ) : (
+              <>
+                <svg 
+                  className="mx-auto h-12 w-12 text-muted-foreground" 
+                  fill="none" 
+                  viewBox="0 0 24 24" 
+                  stroke="currentColor" 
+                  aria-hidden="true"
+                >
+                  <path 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    strokeWidth="2" 
+                    d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" 
+                  />
+                </svg>
+                <h3 className="mt-2 text-sm font-medium text-foreground">No potential candidates</h3>
+                <p className="mt-1 text-sm text-muted-foreground mb-4">
+                  There are no more profiles to review at this time.
+                </p>
+              </>
+            )}
+            <Button
+              variant={potentialMatches?.length ? "default" : "outline"}
+              onClick={() => navigate('/employer/match-feed')}
+              className="inline-flex items-center"
+            >
+              {potentialMatches?.length ? 'Review Candidates' : 'Check Match Feed'}
+            </Button>
+          </div>
         </div>
       </div>
 
