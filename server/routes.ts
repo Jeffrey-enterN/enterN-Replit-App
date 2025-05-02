@@ -1008,20 +1008,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
     if (req.user.userType !== USER_TYPES.EMPLOYER) return res.status(403).json({ message: "Forbidden" });
 
     const { draftData, companyId, step } = req.body;
+    const parsedCompanyId = companyId ? parseInt(companyId) : undefined;
     
     try {
+      console.log(`Saving draft for user ID ${req.user.id}${parsedCompanyId ? ` and company ID ${parsedCompanyId}` : ''}, step ${step || 1}`);
+      
+      // Ensure draft data is an object, not null or undefined
+      if (!draftData) {
+        return res.status(400).json({ 
+          message: "Draft data is required",
+          _meta: {
+            userId: req.user.id,
+            companyId: parsedCompanyId
+          }
+        });
+      }
+      
       const companyDraft = await storage.saveCompanyProfileDraft(
         req.user.id, 
         draftData, 
-        companyId, 
+        parsedCompanyId, 
         step
       );
+      
+      console.log(`Draft saved successfully, ID: ${companyDraft.id}`);
       
       res.status(200).json({
         ...companyDraft,
         _meta: {
           savedAt: new Date().toISOString(),
-          message: "Company profile draft saved successfully"
+          message: "Company profile draft saved successfully",
+          userId: req.user.id,
+          companyId: parsedCompanyId
         }
       });
     } catch (error) {
@@ -1038,9 +1056,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const companyId = req.query.companyId ? parseInt(req.query.companyId as string) : undefined;
     
     try {
+      console.log(`Fetching draft for user ID ${req.user.id}${companyId ? ` and company ID ${companyId}` : ''}`);
+      
       const companyDraft = await storage.getCompanyProfileDraft(req.user.id, companyId);
       
       if (!companyDraft) {
+        console.log(`No draft found for user ID ${req.user.id}${companyId ? ` and company ID ${companyId}` : ''}`);
         return res.status(404).json({
           message: "No company profile draft found",
           _meta: {
@@ -1050,6 +1071,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
         });
       }
+      
+      console.log(`Draft found, ID: ${companyDraft.id}`);
       
       res.status(200).json({
         ...companyDraft,

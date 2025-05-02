@@ -187,11 +187,13 @@ export function CompanyProfileForm({ companyId }: { companyId?: number }) {
   const { data: draftData, isLoading: isDraftLoading } = useQuery({
     queryKey: ['/api/employer/company-profile/draft', companyId],
     queryFn: async () => {
+      // Always include the user ID (from auth) in the query to ensure we get the right draft
       const res = await apiRequest(
         'GET', 
         `/api/employer/company-profile/draft${companyId ? `?companyId=${companyId}` : ''}`
       );
       if (!res.ok) {
+        console.error('Failed to load draft:', res.status, res.statusText);
         if (res.status === 404) {
           return null;
         }
@@ -200,7 +202,8 @@ export function CompanyProfileForm({ companyId }: { companyId?: number }) {
       return await res.json();
     },
     enabled: !!user,
-    retry: false
+    retry: false,
+    staleTime: 0 // Always fetch fresh data
   });
   
   // Save draft mutation
