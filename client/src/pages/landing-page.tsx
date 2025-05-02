@@ -10,15 +10,11 @@ import enternLogo from '@/assets/entern-logo.png';
 export default function LandingPage() {
   const { user } = useAuth();
   const [, navigate] = useLocation();
-  const { theme, setTheme } = useTheme();
+  const { theme, toggleTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   
   // After mounting, we have access to the theme
   useEffect(() => setMounted(true), []);
-  
-  const toggleTheme = () => {
-    setTheme(theme === 'dark' ? 'light' : 'dark');
-  };
 
   const navigateToJobseeker = () => {
     if (user && user.userType === USER_TYPES.JOBSEEKER) {

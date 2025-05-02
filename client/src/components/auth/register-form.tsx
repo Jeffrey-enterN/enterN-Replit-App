@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuth } from '@/context/auth-context';
-import { USER_TYPES, UserType } from '@/lib/constants';
+import { USER_TYPES } from '@/lib/constants';
 import { useLocation } from 'wouter';
 
 import {
@@ -156,7 +156,7 @@ export default function RegisterForm() {
                     />
                     <button 
                       type="button"
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-500"
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-500 dark:text-gray-400 dark:hover:text-gray-300"
                       onClick={() => setShowPassword(!showPassword)}
                     >
                       <i className={`fas ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
@@ -181,7 +181,7 @@ export default function RegisterForm() {
                       type={showPassword ? "text" : "password"}
                       autoComplete="new-password" 
                       {...field} 
-                      className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
+                      className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white dark:bg-gray-800 focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
                     />
                   </div>
                 </FormControl>
@@ -206,7 +206,7 @@ export default function RegisterForm() {
                 </FormControl>
                 <label 
                   htmlFor="terms-agreement" 
-                  className="ml-2 block text-sm text-gray-900"
+                  className="ml-2 block text-sm text-gray-900 dark:text-gray-200"
                 >
                   I agree to the 
                   <a href="#" className="text-primary hover:text-primary/80"> Terms of Service </a>
