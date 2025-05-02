@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth } from "./auth";
 import { USER_TYPES } from "../shared/schema";
+import { scrapeCompanyWebsite } from "./utils/website-scraper";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Set up auth routes

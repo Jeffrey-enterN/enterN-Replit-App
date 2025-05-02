@@ -118,6 +118,7 @@ export class MemStorage implements IStorage {
     this.jobPostings = new Map();
     this.jobseekerProfileDrafts = new Map();
     this.employerProfileDrafts = new Map();
+    this.companyProfileDrafts = new Map();
     this.companies = new Map();
     this.companyInvites = [];
     this.currentId = 1;
@@ -864,6 +865,83 @@ export class DatabaseStorage implements IStorage {
         console.error('Session store error:', err);
       }
     });
+  }
+  
+  // Company profile draft methods
+  async saveCompanyProfileDraft(userId: number, draftData: any, companyId?: number, step?: number): Promise<any> {
+    try {
+      const currentStep = step || 1;
+      
+      // Check if a draft already exists for this user/company
+      const existingDraftQuery = await db.execute(sql`
+        SELECT * FROM company_profile_drafts 
+        WHERE user_id = ${userId} 
+        ${companyId ? sql`AND company_id = ${companyId}` : sql`AND company_id IS NULL`}
+        LIMIT 1
+      `);
+      
+      if (existingDraftQuery.rows.length > 0) {
+        // Update existing draft
+        const existingDraft = existingDraftQuery.rows[0];
+        const result = await db.execute(sql`
+          UPDATE company_profile_drafts
+          SET draft_data = ${JSON.stringify(draftData)},
+              step = ${currentStep},
+              updated_at = NOW()
+          WHERE id = ${existingDraft.id}
+          RETURNING *
+        `);
+        
+        return result.rows[0];
+      } else {
+        // Create new draft
+        const result = await db.execute(sql`
+          INSERT INTO company_profile_drafts (
+            user_id, 
+            company_id, 
+            draft_data, 
+            step, 
+            created_at, 
+            updated_at
+          )
+          VALUES (
+            ${userId}, 
+            ${companyId || null}, 
+            ${JSON.stringify(draftData)}, 
+            ${currentStep}, 
+            NOW(), 
+            NOW()
+          )
+          RETURNING *
+        `);
+        
+        return result.rows[0];
+      }
+    } catch (error) {
+      console.error('Error saving company profile draft:', error);
+      throw new Error(`Failed to save company profile draft: ${(error as Error).message}`);
+    }
+  }
+  
+  async getCompanyProfileDraft(userId: number, companyId?: number): Promise<any | undefined> {
+    try {
+      const result = await db.execute(sql`
+        SELECT * FROM company_profile_drafts 
+        WHERE user_id = ${userId} 
+        ${companyId ? sql`AND company_id = ${companyId}` : sql`AND company_id IS NULL`}
+        ORDER BY updated_at DESC
+        LIMIT 1
+      `);
+      
+      if (result.rows.length > 0) {
+        return result.rows[0];
+      }
+      
+      return undefined;
+    } catch (error) {
+      console.error('Error retrieving company profile draft:', error);
+      return undefined;
+    }
   }
 
   async getUser(id: number): Promise<User | undefined> {
