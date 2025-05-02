@@ -373,9 +373,12 @@ export function CompanyProfileForm({ companyId }: { companyId?: number }) {
     if (draftData?.draftData && !isDraftLoading) {
       form.reset(draftData.draftData);
       
-      // Set current step from draft if available
+      // Set current step from draft if available, ensuring it doesn't exceed our max steps
       if (draftData.step) {
-        setCurrentStep(draftData.step);
+        // If the saved step is greater than our available steps (e.g., after reducing from 4 to 3 steps),
+        // set it to the maximum valid step
+        const safeStep = Math.min(draftData.step, COMPANY_PROFILE_STEPS.length);
+        setCurrentStep(safeStep);
       }
     }
   }, [draftData, isDraftLoading, form]);
@@ -1195,9 +1198,15 @@ export function CompanyProfileForm({ companyId }: { companyId?: number }) {
         className="space-y-8">
         <Card>
           <CardHeader>
-            <CardTitle>{COMPANY_PROFILE_STEPS[currentStep - 1].title}</CardTitle>
+            <CardTitle>
+              {currentStep > 0 && currentStep <= COMPANY_PROFILE_STEPS.length 
+                ? COMPANY_PROFILE_STEPS[currentStep - 1].title 
+                : 'Company Profile'}
+            </CardTitle>
             <CardDescription>
-              {COMPANY_PROFILE_STEPS[currentStep - 1].description}
+              {currentStep > 0 && currentStep <= COMPANY_PROFILE_STEPS.length 
+                ? COMPANY_PROFILE_STEPS[currentStep - 1].description
+                : 'Fill out your company profile information'}
             </CardDescription>
           </CardHeader>
           

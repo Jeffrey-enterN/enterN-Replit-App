@@ -176,16 +176,19 @@ export const COMPANY_PROFILE_STEPS = [
   {
     id: 1,
     title: 'Company Basics',
+    shortTitle: 'Basics',
     description: 'Let\'s start with the essential information about your company'
   },
   {
     id: 2,
     title: 'About Your Company',
+    shortTitle: 'About',
     description: 'Tell us more about what your company does and its mission'
   },
   {
     id: 3,
     title: 'Work Environment & Programs',
+    shortTitle: 'Environment',
     description: 'Share details about your company\'s work environment, benefits, and development programs'
   }
 ];
