@@ -208,12 +208,12 @@ export function CompanyProfileForm({ companyId }: { companyId?: number }) {
   
   // Save draft mutation
   const saveDraftMutation = useMutation({
-    mutationFn: async (formData: CompanyProfileFormValues) => {
-      const res = await apiRequest('POST', '/api/employer/company-profile/draft', {
-        draftData: formData,
-        companyId,
-        step: currentStep,
-      });
+    mutationFn: async (payload: {
+      draftData: CompanyProfileFormValues;
+      companyId?: number;
+      step: number;
+    }) => {
+      const res = await apiRequest('POST', '/api/employer/company-profile/draft', payload);
       
       if (!res.ok) {
         throw new Error('Failed to save company profile draft');
@@ -463,12 +463,35 @@ export function CompanyProfileForm({ companyId }: { companyId?: number }) {
       return;
     }
     
-    // Save draft before proceeding
-    await saveDraft();
-    
-    // Move to next step if not on last step
-    if (currentStep < COMPANY_PROFILE_STEPS.length) {
-      setCurrentStep(prev => prev + 1);
+    // First increment the step
+    const nextStep = currentStep + 1;
+    if (nextStep <= COMPANY_PROFILE_STEPS.length) {
+      // Then update the state
+      setCurrentStep(nextStep);
+      
+      // Save the draft with the new step number
+      try {
+        const formData = form.getValues();
+        await saveDraftMutation.mutateAsync({
+          draftData: formData,
+          companyId,
+          step: nextStep, // Using the new step number
+        });
+        
+        queryClient.invalidateQueries({ queryKey: ['/api/employer/company-profile/draft', companyId] });
+        
+        toast({
+          title: 'Moving to next step',
+          description: `Step ${nextStep} of ${COMPANY_PROFILE_STEPS.length}`,
+        });
+      } catch (error: any) {
+        console.error('Failed to save draft during next step:', error);
+        toast({
+          title: 'Error saving progress',
+          description: error.message || 'An error occurred while saving your progress.',
+          variant: 'destructive',
+        });
+      }
     }
   };
   
