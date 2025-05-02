@@ -1,5 +1,122 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
+import { motion } from 'framer-motion';
+
+// Luke Skywhisker SVG Component with animations
+const LukeSkywhiskerSVG = ({ className }: { className?: string }) => {
+  return (
+    <motion.svg
+      width="120"
+      height="120"
+      viewBox="0 0 120 120"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+      initial={{ scale: 0.9 }}
+      animate={{ scale: 1 }}
+      transition={{ 
+        duration: 2,
+        repeat: Infinity,
+        repeatType: "reverse"
+      }}
+    >
+      {/* Cat face - base */}
+      <motion.circle cx="60" cy="60" r="45" fill="#FFE0B2" />
+      
+      {/* Cat ears */}
+      <motion.path
+        d="M30 30L45 45L25 15Z"
+        fill="#FFB74D"
+        animate={{ rotate: [0, 5, 0, -5, 0] }}
+        transition={{ duration: 5, repeat: Infinity }}
+      />
+      <motion.path
+        d="M90 30L75 45L95 15Z"
+        fill="#FFB74D"
+        animate={{ rotate: [0, -5, 0, 5, 0] }}
+        transition={{ duration: 5, repeat: Infinity }}
+      />
+      
+      {/* Eyes */}
+      <motion.circle 
+        cx="45" 
+        cy="55" 
+        r="5" 
+        fill="#5D4037"
+        animate={{ scaleY: [1, 0.2, 1] }}
+        transition={{ duration: 3, repeat: Infinity, repeatDelay: 5 }}
+      />
+      <motion.circle 
+        cx="75" 
+        cy="55" 
+        r="5" 
+        fill="#5D4037"
+        animate={{ scaleY: [1, 0.2, 1] }}
+        transition={{ duration: 3, repeat: Infinity, repeatDelay: 5 }}
+      />
+      
+      {/* Nose */}
+      <motion.path
+        d="M60 65L55 70H65L60 65Z"
+        fill="#FF66C4"
+      />
+      
+      {/* Mouth */}
+      <motion.path
+        d="M50 75Q60 85 70 75"
+        stroke="#5D4037"
+        strokeWidth="2"
+        fill="none"
+        animate={{ d: ["M50 75Q60 85 70 75", "M50 75Q60 80 70 75", "M50 75Q60 85 70 75"] }}
+        transition={{ duration: 3, repeat: Infinity }}
+      />
+      
+      {/* Whiskers */}
+      <motion.line
+        x1="30" y1="70" x2="45" y2="70"
+        stroke="#5D4037"
+        strokeWidth="1"
+        animate={{ x1: [30, 33, 30] }}
+        transition={{ duration: 2, repeat: Infinity }}
+      />
+      <motion.line
+        x1="30" y1="75" x2="45" y2="75"
+        stroke="#5D4037"
+        strokeWidth="1"
+        animate={{ x1: [30, 33, 30] }}
+        transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
+      />
+      <motion.line
+        x1="90" y1="70" x2="75" y2="70"
+        stroke="#5D4037"
+        strokeWidth="1"
+        animate={{ x1: [90, 87, 90] }}
+        transition={{ duration: 2, repeat: Infinity }}
+      />
+      <motion.line
+        x1="90" y1="75" x2="75" y2="75"
+        stroke="#5D4037"
+        strokeWidth="1"
+        animate={{ x1: [90, 87, 90] }}
+        transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
+      />
+      
+      {/* Light Saber */}
+      <motion.rect
+        x="95" y="90"
+        width="5" height="15"
+        fill="#5D4037"
+      />
+      <motion.rect
+        x="96" y="50"
+        width="3" height="40"
+        fill="#5CE1E6"
+        animate={{ height: [40, 45, 40], y: [50, 45, 50] }}
+        transition={{ duration: 1.5, repeat: Infinity }}
+      />
+    </motion.svg>
+  );
+};
 
 // A collection of Cat + Star Wars puns
 const CAT_STAR_WARS_PUNS = [
@@ -131,46 +248,64 @@ export default function LukeSkywhisker({ className = '' }: LukeSkywhiskerProps) 
 
   return (
     <div className={`bg-white rounded-lg shadow-lg p-6 ${className}`}>
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
         <div className="flex items-center">
-          <div className="bg-gradient-to-r from-[#FF66C4] to-[#5CE1E6] rounded-full p-1">
-            <div className="bg-white rounded-full p-1">
-              <div className="h-12 w-12 rounded-full flex items-center justify-center bg-gradient-to-r from-[#FF66C4] to-[#5CE1E6]">
-                <span className="text-white text-xl">😺</span>
-              </div>
-            </div>
+          <div className="mr-3">
+            {/* Replace emoji with our SVG component */}
+            <LukeSkywhiskerSVG className="w-20 h-20" />
           </div>
-          <div className="ml-3">
-            <h3 className="text-lg font-bold text-gray-900">Luke Skywhisker</h3>
-            <p className="text-sm text-gray-500">Career Jedi Master</p>
+          <div>
+            <h3 className="text-xl font-bold text-gray-900 font-heading">Luke Skywhisker</h3>
+            <p className="text-base text-gray-600">Career Jedi Master</p>
           </div>
         </div>
         <div>
-          <select 
-            className="text-sm border border-gray-300 rounded-md py-1 pl-2 pr-8 bg-white focus:outline-none focus:ring-2 focus:ring-[#5CE1E6]"
-            onChange={(e) => setSelectedCategory(e.target.value)}
-            value={selectedCategory}
-          >
-            {PUN_CATEGORIES.map((category) => (
-              <option key={category.id} value={category.id}>
-                {category.name}
-              </option>
-            ))}
-          </select>
+          {/* Improved font and styling for dropdown */}
+          <div className="relative">
+            <select 
+              className="w-full md:w-auto text-base border-2 border-gray-300 rounded-lg py-2 px-4 pr-10 bg-white focus:outline-none focus:ring-2 focus:ring-[#5CE1E6] focus:border-[#5CE1E6] font-medium appearance-none cursor-pointer shadow-sm"
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              value={selectedCategory}
+              aria-label="Select pun category"
+            >
+              {PUN_CATEGORIES.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-700">
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd"></path>
+              </svg>
+            </div>
+          </div>
         </div>
       </div>
       
-      <div className="bg-gray-50 rounded-lg p-4 mb-4 min-h-[80px] flex items-center">
-        <p className="text-gray-700 italic">{currentPun}</p>
-      </div>
+      <motion.div 
+        className="bg-gray-50 rounded-lg p-5 mb-5 min-h-[90px] flex items-center shadow-inner"
+        initial={{ opacity: 0, y: 5 }}
+        animate={{ opacity: 1, y: 0 }}
+        key={currentPun} // This ensures animation triggers on pun change
+        transition={{ duration: 0.3 }}
+      >
+        <p className="text-gray-800 text-lg font-medium leading-relaxed">{currentPun}</p>
+      </motion.div>
       
       <div className="flex justify-end">
-        <Button 
-          onClick={getRandomPun}
-          className="bg-gradient-to-r from-[#FF66C4] to-[#5CE1E6] text-white hover:shadow-lg transition-all"
+        <motion.div
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
         >
-          Another Pun
-        </Button>
+          <Button 
+            onClick={getRandomPun}
+            className="bg-gradient-to-r from-[#FF66C4] to-[#5CE1E6] text-white hover:shadow-lg transition-all text-base px-6 py-3 rounded-lg font-medium"
+            size="lg"
+          >
+            Another Pun
+          </Button>
+        </motion.div>
       </div>
     </div>
   );
