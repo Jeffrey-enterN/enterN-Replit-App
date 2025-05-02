@@ -738,39 +738,250 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Get company team members
-  app.get("/api/employer/company/team", async (req, res) => {
+  app.get("/api/employer/company/:id/team", async (req, res) => {
     if (!req.isAuthenticated()) return res.status(401).json({ message: "Unauthorized" });
     if (req.user.userType !== USER_TYPES.EMPLOYER) return res.status(403).json({ message: "Forbidden" });
     
     try {
-      if (!req.user.companyId) {
-        return res.status(404).json({ message: "You don't belong to a company" });
+      const companyId = Number(req.params.id);
+      
+      // Check if user has access to this company
+      if (req.user.companyId !== companyId) {
+        return res.status(403).json({ message: "You don't have access to this company" });
       }
       
-      const team = await storage.getCompanyTeamMembers(req.user.companyId);
-      res.status(200).json({ team });
+      const teamMembers = await storage.getCompanyTeamMembers(companyId);
+      
+      // Return the array directly instead of wrapping in an object
+      res.status(200).json(teamMembers);
     } catch (error) {
+      console.error('Error getting company team members:', error);
       res.status(500).json({ message: (error as Error).message });
     }
   });
   
-  // Get company invites (admin only)
-  app.get("/api/employer/company/invites", async (req, res) => {
+  // Get company invites (admin/owner only)
+  app.get("/api/employer/company/:id/invites", async (req, res) => {
     if (!req.isAuthenticated()) return res.status(401).json({ message: "Unauthorized" });
     if (req.user.userType !== USER_TYPES.EMPLOYER) return res.status(403).json({ message: "Forbidden" });
     
     try {
-      if (!req.user.companyId) {
-        return res.status(404).json({ message: "You don't belong to a company" });
+      const companyId = Number(req.params.id);
+      
+      // Check if the user has permission to view invites for this company
+      const hasPermission = 
+        req.user.companyId === companyId && 
+        (req.user.companyRole === 'admin' || req.user.companyRole === 'owner');
+      
+      if (!hasPermission) {
+        return res.status(403).json({ message: "You don't have permission to view invites for this company" });
       }
       
-      if (req.user.companyRole !== 'admin') {
-        return res.status(403).json({ message: "Only company admins can view invites" });
-      }
+      const invites = await storage.getCompanyInvites(companyId);
       
-      const invites = await storage.getCompanyInvites(req.user.companyId);
-      res.status(200).json({ invites });
+      // Return the array directly instead of wrapping in an object
+      res.status(200).json(invites);
     } catch (error) {
+      console.error('Error getting company invites:', error);
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
+  
+  // Update team member role (admin/owner only)
+  app.put("/api/employer/company/:id/team/:memberId/role", async (req, res) => {
+    if (!req.isAuthenticated()) return res.status(401).json({ message: "Unauthorized" });
+    if (req.user.userType !== USER_TYPES.EMPLOYER) return res.status(403).json({ message: "Forbidden" });
+    
+    try {
+      const companyId = Number(req.params.id);
+      const memberId = Number(req.params.memberId);
+      const { role } = req.body;
+      
+      // Validate role
+      const validRoles = ['recruiter', 'admin', 'hiring_manager'];
+      if (!validRoles.includes(role)) {
+        return res.status(400).json({ message: "Invalid role" });
+      }
+      
+      // Check if the user has permission to update roles in this company
+      const hasPermission = 
+        req.user.companyId === companyId && 
+        (req.user.companyRole === 'admin' || req.user.companyRole === 'owner');
+      
+      if (!hasPermission) {
+        return res.status(403).json({ message: "You don't have permission to update roles in this company" });
+      }
+      
+      // Don't allow changing the role of the company owner
+      const memberToUpdate = await storage.getUser(memberId);
+      if (memberToUpdate?.companyRole === 'owner') {
+        return res.status(403).json({ message: "Cannot change the role of the company owner" });
+      }
+      
+      // Update user role
+      const updatedUser = await storage.updateUserCompanyRole(memberId, companyId, role);
+      
+      res.status(200).json(updatedUser);
+    } catch (error) {
+      console.error('Error updating team member role:', error);
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
+  
+  // Remove team member from company (admin/owner only)
+  app.delete("/api/employer/company/:id/team/:memberId", async (req, res) => {
+    if (!req.isAuthenticated()) return res.status(401).json({ message: "Unauthorized" });
+    if (req.user.userType !== USER_TYPES.EMPLOYER) return res.status(403).json({ message: "Forbidden" });
+    
+    try {
+      const companyId = Number(req.params.id);
+      const memberId = Number(req.params.memberId);
+      
+      // Check if the user has permission to remove members from this company
+      const hasPermission = 
+        req.user.companyId === companyId && 
+        (req.user.companyRole === 'admin' || req.user.companyRole === 'owner');
+      
+      if (!hasPermission) {
+        return res.status(403).json({ message: "You don't have permission to remove members from this company" });
+      }
+      
+      // Don't allow removing the company owner
+      const memberToRemove = await storage.getUser(memberId);
+      if (memberToRemove?.companyRole === 'owner') {
+        return res.status(403).json({ message: "Cannot remove the company owner" });
+      }
+      
+      // Remove user from company
+      await storage.removeUserFromCompany(memberId, companyId);
+      
+      res.status(200).json({ message: "Team member removed successfully" });
+    } catch (error) {
+      console.error('Error removing team member:', error);
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
+  
+  // Create company invite (admin/owner only)
+  app.post("/api/employer/company/invite", async (req, res) => {
+    if (!req.isAuthenticated()) return res.status(401).json({ message: "Unauthorized" });
+    if (req.user.userType !== USER_TYPES.EMPLOYER) return res.status(403).json({ message: "Forbidden" });
+    
+    try {
+      const { email, role, companyId } = req.body;
+      
+      // Validate email and role
+      if (!email || !email.includes('@')) {
+        return res.status(400).json({ message: "Valid email is required" });
+      }
+      
+      const validRoles = ['recruiter', 'admin', 'hiring_manager'];
+      if (!validRoles.includes(role)) {
+        return res.status(400).json({ message: "Invalid role" });
+      }
+      
+      // Parse company ID
+      const parsedCompanyId = Number(companyId);
+      
+      // Check if the user has permission to create invites for this company
+      const hasPermission = 
+        req.user.companyId === parsedCompanyId && 
+        (req.user.companyRole === 'admin' || req.user.companyRole === 'owner');
+      
+      if (!hasPermission) {
+        return res.status(403).json({ message: "You don't have permission to invite users to this company" });
+      }
+      
+      // Create an invite
+      const invite = await storage.createCompanyInvite({
+        companyId: parsedCompanyId,
+        inviterId: req.user.id,
+        email,
+        role,
+        token: crypto.randomUUID(),
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
+      });
+      
+      // Here you would normally send an email with the invitation link
+      // For now, we'll just return the invite
+      
+      res.status(201).json(invite);
+    } catch (error) {
+      console.error('Error creating company invite:', error);
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
+  
+  // Cancel/delete a company invite (admin/owner only)
+  app.delete("/api/employer/company/invite/:id", async (req, res) => {
+    if (!req.isAuthenticated()) return res.status(401).json({ message: "Unauthorized" });
+    if (req.user.userType !== USER_TYPES.EMPLOYER) return res.status(403).json({ message: "Forbidden" });
+    
+    try {
+      const inviteId = req.params.id;
+      
+      // Get the invite to check permissions
+      const invite = await storage.getCompanyInvite(inviteId);
+      
+      if (!invite) {
+        return res.status(404).json({ message: "Invite not found" });
+      }
+      
+      // Check if the user has permission to cancel invites for this company
+      const hasPermission = 
+        req.user.companyId === invite.companyId && 
+        (req.user.companyRole === 'admin' || req.user.companyRole === 'owner');
+      
+      if (!hasPermission) {
+        return res.status(403).json({ message: "You don't have permission to cancel invites for this company" });
+      }
+      
+      // Delete the invite
+      await storage.deleteCompanyInvite(inviteId);
+      
+      res.status(200).json({ message: "Invite cancelled successfully" });
+    } catch (error) {
+      console.error('Error cancelling company invite:', error);
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
+  
+  // Resend a company invite (admin/owner only)
+  app.post("/api/employer/company/invite/:id/resend", async (req, res) => {
+    if (!req.isAuthenticated()) return res.status(401).json({ message: "Unauthorized" });
+    if (req.user.userType !== USER_TYPES.EMPLOYER) return res.status(403).json({ message: "Forbidden" });
+    
+    try {
+      const inviteId = req.params.id;
+      
+      // Get the invite to check permissions
+      const invite = await storage.getCompanyInvite(inviteId);
+      
+      if (!invite) {
+        return res.status(404).json({ message: "Invite not found" });
+      }
+      
+      // Check if the user has permission to resend invites for this company
+      const hasPermission = 
+        req.user.companyId === invite.companyId && 
+        (req.user.companyRole === 'admin' || req.user.companyRole === 'owner');
+      
+      if (!hasPermission) {
+        return res.status(403).json({ message: "You don't have permission to resend invites for this company" });
+      }
+      
+      // Update the invite with a new token and expiration date
+      const updatedInvite = await storage.updateCompanyInvite(inviteId, {
+        token: crypto.randomUUID(),
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
+        status: 'pending',
+      });
+      
+      // Here you would normally send an email with the invitation link
+      
+      res.status(200).json(updatedInvite);
+    } catch (error) {
+      console.error('Error resending company invite:', error);
       res.status(500).json({ message: (error as Error).message });
     }
   });

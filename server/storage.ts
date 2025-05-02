@@ -74,9 +74,12 @@ export interface IStorage {
   getCompanyTeamMembers(companyId: number): Promise<any[]>;
   createCompanyInvite(inviteData: any): Promise<CompanyInvite>;
   getCompanyInvites(companyId: number): Promise<CompanyInvite[]>;
+  getCompanyInvite(inviteId: string): Promise<CompanyInvite | undefined>;
+  deleteCompanyInvite(inviteId: string): Promise<void>;
+  updateCompanyInvite(inviteId: string, updateData: Partial<CompanyInvite>): Promise<CompanyInvite>;
   updateUserCompanyRole(userId: number, companyId: number, role: string): Promise<User>;
   removeUserFromCompany(userId: number, companyId: number): Promise<void>;
-  saveCompanyProfileDraft(userId: number, draftData: any, companyId?: number, step?: number): Promise<any>;
+  saveCompanyProfileDraft(userId: number, draftData: any, companyId?: number, step?: number, draftType?: string): Promise<any>;
   getCompanyProfileDraft(userId: number, companyId?: number): Promise<any | undefined>;
   
   // Job posting methods
@@ -1851,6 +1854,38 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(companyInvites)
       .where(eq(companyInvites.companyId, companyId));
+  }
+  
+  async getCompanyInvite(inviteId: string): Promise<CompanyInvite | undefined> {
+    const [invite] = await db
+      .select()
+      .from(companyInvites)
+      .where(eq(companyInvites.id, inviteId));
+      
+    return invite;
+  }
+  
+  async deleteCompanyInvite(inviteId: string): Promise<void> {
+    await db
+      .delete(companyInvites)
+      .where(eq(companyInvites.id, inviteId));
+  }
+  
+  async updateCompanyInvite(inviteId: string, updateData: Partial<CompanyInvite>): Promise<CompanyInvite> {
+    const [updatedInvite] = await db
+      .update(companyInvites)
+      .set({
+        ...updateData,
+        updatedAt: new Date()
+      })
+      .where(eq(companyInvites.id, inviteId))
+      .returning();
+      
+    if (!updatedInvite) {
+      throw new Error(`Invite with id ${inviteId} not found`);
+    }
+    
+    return updatedInvite;
   }
   
   async updateUserCompanyRole(userId: number, companyId: number, role: string): Promise<User> {
