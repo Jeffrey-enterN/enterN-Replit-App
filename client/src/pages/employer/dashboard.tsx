@@ -117,7 +117,12 @@ export default function EmployerDashboard() {
     >
       <div className="md:flex md:items-center md:justify-between mb-8">
         <div className="flex-1 min-w-0"></div>
-        <div className="mt-4 flex md:mt-0 md:ml-4">
+        <div className="mt-4 flex flex-col sm:flex-row gap-3 md:mt-0 md:ml-4">
+          <Button variant="outline" asChild>
+            <a href="/employer/company-profile">
+              {user?.companyId ? "Update Company Profile" : "Create Company Profile"}
+            </a>
+          </Button>
           <Button asChild>
             <a href="/employer/jobs/new">Post a Job</a>
           </Button>
