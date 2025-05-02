@@ -20,6 +20,7 @@ import JobseekerProfilePage from "@/pages/jobseeker/profile-page";
 // Employer profile page removed to avoid duplication
 import CompanyProfilePage from "@/pages/employer/company-profile-page";
 import CompanyTeamPage from "@/pages/employer/company-team-page";
+import EmployerMatchFeed from "@/pages/employer/match-feed";
 import JobseekerMatchFeed from "@/pages/jobseeker/match-feed";
 import JobseekerCalendar from "@/pages/jobseeker/calendar";
 import PrivacyPolicyPage from "@/pages/privacy-policy-page";
@@ -60,6 +61,14 @@ function Router() {
           <ProtectedRoute 
             path="/employer/company-team" 
             component={CompanyTeamPage}
+          />
+        </EmployerLayout>
+      </Route>
+      <Route path="/employer/match-feed">
+        <EmployerLayout>
+          <ProtectedRoute 
+            path="/employer/match-feed" 
+            component={EmployerMatchFeed}
           />
         </EmployerLayout>
       </Route>
