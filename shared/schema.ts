@@ -146,6 +146,7 @@ export const users = pgTable("users", {
   companyName: text("company_name"),
   companyId: integer("company_id").references(() => companies.id),
   companyRole: text("company_role").default("recruiter"),
+  companyLogo: text("company_logo"),
   email: text("email"),
   phone: text("phone"),
   createdAt: timestamp("created_at").defaultNow(),
