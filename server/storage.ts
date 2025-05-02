@@ -872,50 +872,125 @@ export class DatabaseStorage implements IStorage {
     try {
       const currentStep = step || 1;
       
-      // Check if a draft already exists for this user/company
-      const existingDraftQuery = await db.execute(sql`
-        SELECT * FROM company_profile_drafts 
-        WHERE user_id = ${userId} 
-        ${companyId ? sql`AND company_id = ${companyId}` : sql`AND company_id IS NULL`}
-        LIMIT 1
-      `);
+      console.log(`DB: Saving draft for user ID ${userId}${companyId ? `, company ID ${companyId}` : ''}, step ${currentStep}`);
       
-      if (existingDraftQuery.rows.length > 0) {
-        // Update existing draft
-        const existingDraft = existingDraftQuery.rows[0];
-        const result = await db.execute(sql`
-          UPDATE company_profile_drafts
-          SET draft_data = ${JSON.stringify(draftData)},
-              step = ${currentStep},
-              updated_at = NOW()
-          WHERE id = ${existingDraft.id}
-          RETURNING *
+      // Debug to ensure we're receiving valid data
+      console.log(`Draft data sample: ${JSON.stringify(draftData).substring(0, 100)}...`);
+      
+      try {
+        // First try using Drizzle ORM to insert/update the data
+        const { companyProfileDrafts } = await import('@shared/schema');
+        const { eq, and, isNull } = await import('drizzle-orm');
+        
+        // Check if a draft already exists for this user/company combination
+        const draftResults = await db.select()
+          .from(companyProfileDrafts)
+          .where(and(
+            eq(companyProfileDrafts.userId, userId),
+            companyId ? eq(companyProfileDrafts.companyId, companyId) : isNull(companyProfileDrafts.companyId)
+          ));
+          
+        if (draftResults.length > 0) {
+          // Update existing draft
+          const existingDraft = draftResults[0];
+          console.log(`Found existing draft with ID ${existingDraft.id}, updating`);
+          
+          const [updatedDraft] = await db.update(companyProfileDrafts)
+            .set({
+              draftData,
+              step: currentStep,
+              lastActive: new Date(),
+              updatedAt: new Date()
+            })
+            .where(eq(companyProfileDrafts.id, existingDraft.id))
+            .returning();
+            
+          return updatedDraft;
+        } else {
+          // Create new draft
+          console.log(`No existing draft found, creating new one for user ${userId}${companyId ? ` and company ${companyId}` : ''}`);
+          
+          const [newDraft] = await db.insert(companyProfileDrafts)
+            .values({
+              userId,
+              companyId: companyId || null, 
+              draftData,
+              step: currentStep,
+              draftType: 'create',
+              lastActive: new Date()
+            })
+            .returning();
+            
+          return newDraft;
+        }
+      } catch (ormError) {
+        console.error('Error using Drizzle ORM for draft operation:', ormError);
+        
+        // Fallback to direct SQL queries if ORM approach fails
+        console.log('Falling back to direct SQL query approach');
+        
+        // Check if a draft already exists for this user/company
+        const existingDraftQuery = await db.execute(sql`
+          SELECT * FROM company_profile_drafts 
+          WHERE user_id = ${userId} 
+          ${companyId ? sql`AND company_id = ${companyId}` : sql`AND company_id IS NULL`}
+          LIMIT 1
         `);
         
-        return result.rows[0];
-      } else {
-        // Create new draft
-        const result = await db.execute(sql`
-          INSERT INTO company_profile_drafts (
-            user_id, 
-            company_id, 
-            draft_data, 
-            step, 
-            created_at, 
-            updated_at
-          )
-          VALUES (
-            ${userId}, 
-            ${companyId || null}, 
-            ${JSON.stringify(draftData)}, 
-            ${currentStep}, 
-            NOW(), 
-            NOW()
-          )
-          RETURNING *
-        `);
-        
-        return result.rows[0];
+        if (existingDraftQuery.rows.length > 0) {
+          // Update existing draft
+          const existingDraft = existingDraftQuery.rows[0];
+          console.log(`Found existing draft with ID ${existingDraft.id} via SQL, updating`);
+          
+          const result = await db.execute(sql`
+            UPDATE company_profile_drafts
+            SET draft_data = ${JSON.stringify(draftData)},
+                step = ${currentStep},
+                last_active = NOW(),
+                updated_at = NOW()
+            WHERE id = ${existingDraft.id}
+            RETURNING *
+          `);
+          
+          if (result.rows.length === 0) {
+            throw new Error('Update operation did not return a result');
+          }
+          
+          return result.rows[0];
+        } else {
+          // Create new draft
+          console.log(`No existing draft found via SQL, creating new one for user ${userId}${companyId ? ` and company ${companyId}` : ''}`);
+          
+          const result = await db.execute(sql`
+            INSERT INTO company_profile_drafts (
+              user_id, 
+              company_id, 
+              draft_data, 
+              step,
+              draft_type,
+              last_active,
+              created_at, 
+              updated_at
+            )
+            VALUES (
+              ${userId}, 
+              ${companyId || null}, 
+              ${JSON.stringify(draftData)}, 
+              ${currentStep},
+              'create',
+              NOW(),
+              NOW(), 
+              NOW()
+            )
+            RETURNING *
+          `);
+          
+          if (result.rows.length === 0) {
+            throw new Error('Insert operation did not return a result');
+          }
+          
+          return result.rows[0];
+        }
       }
     } catch (error) {
       console.error('Error saving company profile draft:', error);
@@ -925,19 +1000,50 @@ export class DatabaseStorage implements IStorage {
   
   async getCompanyProfileDraft(userId: number, companyId?: number): Promise<any | undefined> {
     try {
-      const result = await db.execute(sql`
-        SELECT * FROM company_profile_drafts 
-        WHERE user_id = ${userId} 
-        ${companyId ? sql`AND company_id = ${companyId}` : sql`AND company_id IS NULL`}
-        ORDER BY updated_at DESC
-        LIMIT 1
-      `);
+      console.log(`DB: Retrieving draft for user ID ${userId}${companyId ? ` and company ID ${companyId}` : ''}`);
       
-      if (result.rows.length > 0) {
-        return result.rows[0];
+      try {
+        // Try using Drizzle ORM first
+        const { companyProfileDrafts } = await import('@shared/schema');
+        const { eq, and, isNull, desc } = await import('drizzle-orm');
+        
+        const draftResults = await db.select()
+          .from(companyProfileDrafts)
+          .where(and(
+            eq(companyProfileDrafts.userId, userId),
+            companyId ? eq(companyProfileDrafts.companyId, companyId) : isNull(companyProfileDrafts.companyId)
+          ))
+          .orderBy(desc(companyProfileDrafts.updatedAt))
+          .limit(1);
+          
+        if (draftResults.length > 0) {
+          console.log(`Found draft via ORM with ID ${draftResults[0].id}`);
+          return draftResults[0];
+        }
+        
+        return undefined;
+      } catch (ormError) {
+        console.error('Error using Drizzle ORM to fetch draft:', ormError);
+        
+        // Fallback to direct SQL
+        console.log('Falling back to direct SQL query to fetch draft');
+        
+        const result = await db.execute(sql`
+          SELECT * FROM company_profile_drafts 
+          WHERE user_id = ${userId} 
+          ${companyId ? sql`AND company_id = ${companyId}` : sql`AND company_id IS NULL`}
+          ORDER BY updated_at DESC
+          LIMIT 1
+        `);
+        
+        if (result.rows.length > 0) {
+          console.log(`Found draft via SQL with ID ${result.rows[0].id}`);
+          return result.rows[0];
+        }
+        
+        console.log(`No draft found for user ${userId}${companyId ? ` and company ${companyId}` : ''}`);
+        return undefined;
       }
-      
-      return undefined;
     } catch (error) {
       console.error('Error retrieving company profile draft:', error);
       return undefined;

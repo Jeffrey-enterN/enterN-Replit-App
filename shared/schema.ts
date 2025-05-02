@@ -75,8 +75,15 @@ export const companyProfileDrafts = pgTable("company_profile_drafts", {
   userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   draftData: jsonb("draft_data").$type<any>().notNull(),
   step: integer("step").default(1),
+  draftType: text("draft_type").default("create"), // 'create' or 'edit'
+  lastActive: timestamp("last_active").defaultNow(),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => {
+  return {
+    // Unique constraint: One draft per user per company
+    userCompanyUnique: unique().on(table.userId, table.companyId),
+  }
 });
 
 export const companyProfileDraftsRelations = relations(companyProfileDrafts, ({ one }) => ({
