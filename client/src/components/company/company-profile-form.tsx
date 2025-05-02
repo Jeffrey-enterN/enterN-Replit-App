@@ -95,13 +95,17 @@ const companyProfileSchema = z.object({
   vision: z.string().optional(),
   values: z.array(z.string()).optional(),
   
-  // Step 3: Work Environment & Benefits
+  // Step 3: Work Environment & Development Programs (Combined)
   workArrangements: z.array(z.string()).min(1, "Select at least one work arrangement"),
-  compensationLevel: z.string().optional(), // Made optional since we're removing the field
   benefits: z.array(z.string()).optional(),
   culture: z.string().min(1, FORM_VALIDATION.required),
   
-  // Step 4: Development Programs
+  // Development Programs
+  hasDevelopmentPrograms: z.boolean().default(false),
+  developmentProgramDuration: z.string().optional(),
+  developmentProgramDescription: z.string().optional(),
+  
+  // Legacy fields that are still in the schema
   hasInterns: z.boolean().default(false),
   internDuration: z.string().optional(),
   internDescription: z.string().optional(),
@@ -111,9 +115,7 @@ const companyProfileSchema = z.object({
   apprenticeDuration: z.string().optional(),
   apprenticeDescription: z.string().optional(),
   
-  hasDevelopmentPrograms: z.boolean().default(false),
-  developmentProgramDuration: z.string().optional(),
-  developmentProgramDescription: z.string().optional(),
+  compensationLevel: z.string().optional() // Made optional since we're removing the field
 });
 
 type CompanyProfileFormValues = z.infer<typeof companyProfileSchema>;
@@ -453,7 +455,7 @@ export function CompanyProfileForm({ companyId }: { companyId?: number }) {
         break;
       case 3:
         fieldsToValidate = ['workArrangements', 'culture'];
-        // We no longer have a step 4
+        // No longer a step 4
         break;
     }
     
@@ -528,28 +530,12 @@ export function CompanyProfileForm({ companyId }: { companyId?: number }) {
     try {
       console.log('Form submission started with values:', values);
       setIsLoading(true);
-      // Validate all fields first
-      const isValid = await form.trigger();
-      console.log('Form validation result:', isValid);
-      
-      if (!isValid) {
-        console.log('Form validation errors:', form.formState.errors);
-        toast({
-          title: 'Validation failed',
-          description: 'Please fill in all required fields correctly.',
-          variant: 'destructive',
-        });
-        return;
-      }
-      
-      console.log('Submitting company profile to server...');
       await createCompanyMutation.mutateAsync(values);
-      console.log('Company profile created successfully');
-    } catch (err: any) {
-      console.error('Error creating company profile:', err);
+    } catch (error: any) {
+      console.error('Form submission error:', error);
       toast({
-        title: 'Error creating company profile',
-        description: err.message || 'An unexpected error occurred',
+        title: 'Submission failed',
+        description: error.message || 'An unexpected error occurred.',
         variant: 'destructive',
       });
     } finally {
@@ -571,7 +557,7 @@ export function CompanyProfileForm({ companyId }: { companyId?: number }) {
     }
   };
   
-  // New combined Step 3 function that includes both environment and development programs
+  // Combined Step 3 function that includes both environment and development programs
   const renderCombinedStep3 = () => {
     return (
       <div className="space-y-8">
@@ -883,704 +869,320 @@ export function CompanyProfileForm({ companyId }: { companyId?: number }) {
             />
           </div>
           
-          <FormField
-            control={form.control}
-            name="yearFounded"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Year Founded (Optional)</FormLabel>
-                <FormControl>
-                  <Input 
-                    placeholder="Enter year founded (e.g., 2010)" 
-                    {...field} 
-                    maxLength={4}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
-          <FormField
-            control={form.control}
-            name="careersUrl"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Careers Website URL (Optional)</FormLabel>
-                <FormControl>
-                  <div className="flex items-center space-x-2">
-                    <Input 
-                      placeholder="https://careers.yourcompany.com" 
-                      {...field} 
-                      value={field.value || websiteUrl}
-                      onChange={(e) => {
-                        field.onChange(e);
-                        setWebsiteUrl(e.target.value);
-                      }}
-                    />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => setShowScraper(true)}
-                      disabled={!websiteUrl}
-                    >
-                      <Globe className="mr-2 h-4 w-4" />
-                      Import Data
-                    </Button>
-                  </div>
-                </FormControl>
-                <FormDescription>
-                  Add your careers page URL to automatically import company data
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="yearFounded"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Year Founded (Optional)</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter year founded (e.g., 2010)" {...field} />
+                  </FormControl>
+                  <FormDescription>
+                    Enter a valid 4-digit year (e.g., 2010)
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="careersUrl"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Careers Website (Optional)</FormLabel>
+                  <FormControl>
+                    <Input placeholder="https://careers.example.com" {...field} />
+                  </FormControl>
+                  <FormDescription>
+                    URL must start with http:// or https://
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
         </div>
-        
-        {/* Website Scraper Dialog */}
-        <AlertDialog open={showScraper} onOpenChange={setShowScraper}>
-          <AlertDialogContent className="max-w-xl">
-            <AlertDialogHeader>
-              <AlertDialogTitle>Import Company Information</AlertDialogTitle>
-              <AlertDialogDescription>
-                We'll scan your website to help you fill in your company profile. This will save you time and ensure your profile is accurate.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            
-            <div className="py-4">
-              <div className="flex items-center space-x-2 mb-4">
-                <Input 
-                  placeholder="https://careers.yourcompany.com" 
-                  value={websiteUrl}
-                  onChange={(e) => setWebsiteUrl(e.target.value)}
-                />
-                <Button
-                  onClick={() => scrapeWebsiteMutation.mutate(websiteUrl)}
-                  disabled={!websiteUrl || isScraping}
-                >
-                  {isScraping ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Scanning...
-                    </>
-                  ) : (
-                    <>
-                      <Globe className="mr-2 h-4 w-4" />
-                      Scan Website
-                    </>
-                  )}
-                </Button>
-              </div>
-              
-              {isScraping && (
-                <Alert className="mb-4">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  <AlertTitle>Scanning your website</AlertTitle>
-                  <AlertDescription>
-                    Please wait while we analyze your company website. This may take a moment...
-                  </AlertDescription>
-                </Alert>
-              )}
-              
-              {scrapedData && (
-                <div className="space-y-4">
-                  <Alert className="border-green-500 bg-green-50">
-                    <CheckCircle className="h-4 w-4 text-green-500" />
-                    <AlertTitle className="text-green-700">Website scanned successfully!</AlertTitle>
-                    <AlertDescription className="text-green-600">
-                      We found some information about your company. Review below and click "Use Data" to apply it to your profile.
-                    </AlertDescription>
-                  </Alert>
-                  
-                  <div className="max-h-60 overflow-y-auto border rounded-md p-4 space-y-2">
-                    {scrapedData.about && (
-                      <div>
-                        <h4 className="font-semibold text-sm">About</h4>
-                        <p className="text-sm text-gray-600 truncate">{scrapedData.about.substring(0, 100)}...</p>
-                      </div>
-                    )}
-                    
-                    {scrapedData.mission && (
-                      <div>
-                        <h4 className="font-semibold text-sm">Mission</h4>
-                        <p className="text-sm text-gray-600 truncate">{scrapedData.mission.substring(0, 100)}...</p>
-                      </div>
-                    )}
-                    
-                    {scrapedData.culture && (
-                      <div>
-                        <h4 className="font-semibold text-sm">Culture</h4>
-                        <p className="text-sm text-gray-600 truncate">{scrapedData.culture.substring(0, 100)}...</p>
-                      </div>
-                    )}
-                    
-                    {scrapedData.values && (
-                      <div>
-                        <h4 className="font-semibold text-sm">Values</h4>
-                        <div className="flex flex-wrap gap-1">
-                          {(Array.isArray(scrapedData.values) ? scrapedData.values : [scrapedData.values]).map((value, i) => (
-                            <Badge key={i} variant="outline">{value}</Badge>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                    
-                    {scrapedData.industryKeywords && scrapedData.industryKeywords.length > 0 && (
-                      <div>
-                        <h4 className="font-semibold text-sm">Industries</h4>
-                        <div className="flex flex-wrap gap-1">
-                          {scrapedData.industryKeywords.map((industry, i) => (
-                            <Badge key={i} variant="outline">{industry}</Badge>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                    
-                    {scrapedData.jobTypes && scrapedData.jobTypes.length > 0 && (
-                      <div>
-                        <h4 className="font-semibold text-sm">Work Arrangements</h4>
-                        <div className="flex flex-wrap gap-1">
-                          {scrapedData.jobTypes.map((type, i) => (
-                            <Badge key={i} variant="outline">{type}</Badge>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-            
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              {scrapedData && (
-                <AlertDialogAction onClick={applyScrapedData}>
-                  Use This Data
-                </AlertDialogAction>
-              )}
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
       </>
     );
   };
   
   const renderStep2 = () => {
     return (
-      <div className="space-y-4">
-        <FormField
-          control={form.control}
-          name="industries"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Industries*</FormLabel>
-              <div className="flex flex-wrap gap-2 border rounded-md p-3">
-                {INDUSTRIES.map((industry) => (
-                  <div key={industry} className="inline-flex">
-                    <Checkbox
-                      id={`industry-${industry}`}
-                      checked={field.value?.includes(industry)}
-                      onCheckedChange={(checked) => {
-                        if (checked) {
-                          field.onChange([...(field.value || []), industry]);
-                        } else {
-                          field.onChange(field.value?.filter((i) => i !== industry));
-                        }
-                      }}
-                    />
-                    <label
-                      htmlFor={`industry-${industry}`}
-                      className="ml-2 text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                    >
-                      {industry}
-                    </label>
-                  </div>
-                ))}
-              </div>
-              <FormDescription>
-                Select all industries that apply to your company
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        
-        <FormField
-          control={form.control}
-          name="functionalAreas"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Functional Areas*</FormLabel>
-              <div className="flex flex-wrap gap-2 border rounded-md p-3">
-                {FUNCTIONAL_AREAS.map((area) => (
-                  <div key={area} className="inline-flex">
-                    <Checkbox
-                      id={`area-${area}`}
-                      checked={field.value?.includes(area)}
-                      onCheckedChange={(checked) => {
-                        if (checked) {
-                          field.onChange([...(field.value || []), area]);
-                        } else {
-                          field.onChange(field.value?.filter((a) => a !== area));
-                        }
-                      }}
-                    />
-                    <label
-                      htmlFor={`area-${area}`}
-                      className="ml-2 text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                    >
-                      {area}
-                    </label>
-                  </div>
-                ))}
-              </div>
-              <FormDescription>
-                Select all functional areas where your company hires
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        
-        <FormField
-          control={form.control}
-          name="about"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>About the Company*</FormLabel>
-              <FormControl>
-                <Textarea 
-                  placeholder="Tell us about your company..." 
-                  className="min-h-24"
-                  {...field} 
-                />
-              </FormControl>
-              <FormDescription>
-                Provide a brief overview of what your company does
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        
-        <FormField
-          control={form.control}
-          name="mission"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Company Mission*</FormLabel>
-              <FormControl>
-                <Textarea 
-                  placeholder="What is your company's mission?" 
-                  className="min-h-20"
-                  {...field} 
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        
-        <FormField
-          control={form.control}
-          name="vision"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Company Vision (Optional)</FormLabel>
-              <FormControl>
-                <Textarea 
-                  placeholder="What is your company's vision for the future?" 
-                  className="min-h-20"
-                  {...field} 
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      </div>
-    );
-  };
-  
-  const renderStep3 = () => {
-    return (
-      <div className="space-y-4">
-        <FormField
-          control={form.control}
-          name="workArrangements"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Work Arrangements*</FormLabel>
-              <div className="flex flex-wrap gap-2">
-                {WORK_ARRANGEMENTS.map((arrangement) => (
-                  <div key={arrangement} className="inline-flex items-center mr-4 mb-2">
-                    <Checkbox
-                      id={`arrangement-${arrangement}`}
-                      checked={Array.isArray(field.value) && field.value.includes(arrangement)}
-                      onCheckedChange={(checked) => {
-                        const currentValue = Array.isArray(field.value) ? field.value : [];
-                        if (checked) {
-                          field.onChange([...currentValue, arrangement]);
-                        } else {
-                          field.onChange(currentValue.filter((a) => a !== arrangement));
-                        }
-                      }}
-                    />
-                    <label
-                      htmlFor={`arrangement-${arrangement}`}
-                      className="ml-2 text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                    >
-                      {arrangement}
-                    </label>
-                  </div>
-                ))}
-              </div>
-              <FormDescription>
-                Select all work arrangements your company offers
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        
-        <FormField
-          control={form.control}
-          name="benefits"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Benefits Offered (Optional)</FormLabel>
-              <div className="flex flex-wrap gap-2 border rounded-md p-3 max-h-60 overflow-y-auto">
-                {COMPANY_BENEFITS.map((benefit) => (
-                  <div key={benefit} className="inline-flex items-center mr-4 mb-2">
-                    <Checkbox
-                      id={`benefit-${benefit}`}
-                      checked={Array.isArray(field.value) && field.value.includes(benefit)}
-                      onCheckedChange={(checked) => {
-                        const currentValue = Array.isArray(field.value) ? field.value : [];
-                        if (checked) {
-                          field.onChange([...currentValue, benefit]);
-                        } else {
-                          field.onChange(currentValue.filter((b) => b !== benefit));
-                        }
-                      }}
-                    />
-                    <label
-                      htmlFor={`benefit-${benefit}`}
-                      className="ml-2 text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                    >
-                      {benefit}
-                    </label>
-                  </div>
-                ))}
-              </div>
-              <FormDescription>
-                Select all benefits your company offers to employees
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        
-        <FormField
-          control={form.control}
-          name="culture"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Company Culture*</FormLabel>
-              <FormControl>
-                <Textarea 
-                  placeholder="Describe your company's culture and values..." 
-                  className="min-h-24"
-                  {...field} 
-                />
-              </FormControl>
-              <FormDescription>
-                What makes your company a unique place to work?
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      </div>
-    );
-  };
-  
-  const renderStep4 = () => {
-    return (
       <div className="space-y-6">
         <div>
-          <h3 className="text-lg font-medium mb-2">Internship Program</h3>
-          
-          <div className="space-y-4 mb-4">
-            <FormField
-              control={form.control}
-              name="hasInterns"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel>
-                      Does your company offer internships?
-                    </FormLabel>
-                    <FormDescription>
-                      Check this if you offer internship opportunities
-                    </FormDescription>
-                  </div>
-                </FormItem>
-              )}
-            />
-          </div>
-          
-          {form.watch('hasInterns') && (
-            <div className="pl-6 border-l-2 border-gray-200 space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="internDuration"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Internship Duration</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                        value={field.value || ""}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select duration" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {PROGRAM_DURATIONS.map((duration) => (
-                            <SelectItem key={duration} value={duration}>
-                              {duration}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-medium">Company Information</h3>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  size="sm"
+                  className="flex items-center gap-1"
+                  onClick={() => setShowScraper(true)}
+                >
+                  <UploadCloud className="h-4 w-4" />
+                  <span>Import Data</span>
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent className="max-w-md">
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Import Company Data</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Enter your company's website URL to automatically extract information.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
                 
-                <FormField
-                  control={form.control}
-                  name="internLeadsToFulltime"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                      <FormControl>
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                      <div className="space-y-1 leading-none">
-                        <FormLabel>
-                          Can lead to full-time employment
-                        </FormLabel>
-                        <FormDescription>
-                          Check if internships can convert to full-time roles
-                        </FormDescription>
+                <div className="flex flex-col gap-4 py-4">
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <label htmlFor="website-url" className="col-span-1 text-right font-medium text-sm">
+                      Website URL
+                    </label>
+                    <div className="col-span-3 flex gap-2">
+                      <Input
+                        id="website-url"
+                        placeholder="https://example.com"
+                        value={websiteUrl}
+                        onChange={(e) => setWebsiteUrl(e.target.value)}
+                        className="flex-1"
+                      />
+                    </div>
+                  </div>
+                  
+                  {scrapedData && !scrapedData.error && (
+                    <div className="rounded-md bg-green-50 p-4">
+                      <div className="flex">
+                        <div className="flex-shrink-0">
+                          <CheckCircle className="h-5 w-5 text-green-400" aria-hidden="true" />
+                        </div>
+                        <div className="ml-3">
+                          <h3 className="text-sm font-medium text-green-800">Data Found</h3>
+                          <div className="mt-2 text-sm text-green-700">
+                            <ul className="list-disc space-y-1 pl-5">
+                              {scrapedData.about && <li>About Information</li>}
+                              {scrapedData.mission && <li>Mission Statement</li>}
+                              {scrapedData.vision && <li>Vision</li>}
+                              {scrapedData.values && <li>Values</li>}
+                              {scrapedData.culture && <li>Company Culture</li>}
+                              {scrapedData.benefits && <li>Benefits & Perks</li>}
+                              {scrapedData.industryKeywords && scrapedData.industryKeywords.length > 0 && <li>Industry Keywords</li>}
+                            </ul>
+                          </div>
+                        </div>
                       </div>
-                    </FormItem>
+                    </div>
                   )}
-                />
-              </div>
-              
-              <FormField
-                control={form.control}
-                name="internDescription"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Internship Program Description</FormLabel>
-                    <FormControl>
-                      <Textarea 
-                        placeholder="Describe your internship program..." 
-                        className="min-h-20"
-                        {...field} 
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          )}
-        </div>
-        
-        <Separator />
-        
-        <div>
-          <h3 className="text-lg font-medium mb-2">Apprenticeship Program</h3>
+                  
+                  {scrapedData?.error && (
+                    <div className="rounded-md bg-red-50 p-4">
+                      <div className="flex">
+                        <div className="flex-shrink-0">
+                          <XCircle className="h-5 w-5 text-red-400" aria-hidden="true" />
+                        </div>
+                        <div className="ml-3">
+                          <h3 className="text-sm font-medium text-red-800">Error</h3>
+                          <div className="mt-2 text-sm text-red-700">
+                            <p>{scrapedData.error}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                
+                <AlertDialogFooter>
+                  <AlertDialogCancel onClick={() => {
+                    setShowScraper(false);
+                    setScrapedData(null);
+                    setWebsiteUrl('');
+                  }}>
+                    Cancel
+                  </AlertDialogCancel>
+                  
+                  {!scrapedData || scrapedData.error ? (
+                    <Button 
+                      type="button"
+                      onClick={() => scrapeWebsiteMutation.mutate(websiteUrl)}
+                      disabled={!websiteUrl || isScraping}
+                    >
+                      {isScraping && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      {isScraping ? 'Processing...' : 'Scrape Website'}
+                    </Button>
+                  ) : (
+                    <Button 
+                      type="button"
+                      onClick={applyScrapedData}
+                    >
+                      Apply Data
+                    </Button>
+                  )}
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
           
-          <div className="space-y-4 mb-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
               control={form.control}
-              name="hasApprentices"
+              name="industries"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel>
-                      Does your company offer apprenticeships?
-                    </FormLabel>
-                    <FormDescription>
-                      Check this if you offer apprenticeship opportunities
-                    </FormDescription>
+                <FormItem>
+                  <FormLabel>Industries*</FormLabel>
+                  <div className="h-48 overflow-y-auto border rounded-md p-2">
+                    <div className="space-y-1">
+                      {INDUSTRIES.map((industry) => (
+                        <div key={industry} className="flex items-center">
+                          <Checkbox
+                            id={`industry-${industry}`}
+                            checked={field.value?.includes(industry)}
+                            onCheckedChange={(checked) => {
+                              const currentValue = field.value || [];
+                              if (checked) {
+                                field.onChange([...currentValue, industry]);
+                              } else {
+                                field.onChange(currentValue.filter(
+                                  (value: string) => value !== industry
+                                ));
+                              }
+                            }}
+                            className="rounded-sm"
+                          />
+                          <label
+                            htmlFor={`industry-${industry}`}
+                            className="ml-2 text-sm font-medium leading-none cursor-pointer"
+                          >
+                            {industry}
+                          </label>
+                        </div>
+                      ))}
+                    </div>
                   </div>
+                  <FormDescription>
+                    Select one or more industries that your company operates in.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="functionalAreas"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Functional Areas*</FormLabel>
+                  <div className="h-48 overflow-y-auto border rounded-md p-2">
+                    <div className="space-y-1">
+                      {FUNCTIONAL_AREAS.map((area) => (
+                        <div key={area} className="flex items-center">
+                          <Checkbox
+                            id={`area-${area}`}
+                            checked={field.value?.includes(area)}
+                            onCheckedChange={(checked) => {
+                              const currentValue = field.value || [];
+                              if (checked) {
+                                field.onChange([...currentValue, area]);
+                              } else {
+                                field.onChange(currentValue.filter(
+                                  (value: string) => value !== area
+                                ));
+                              }
+                            }}
+                            className="rounded-sm"
+                          />
+                          <label
+                            htmlFor={`area-${area}`}
+                            className="ml-2 text-sm font-medium leading-none cursor-pointer"
+                          >
+                            {area}
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <FormDescription>
+                    Select the functional areas where you hire.
+                  </FormDescription>
+                  <FormMessage />
                 </FormItem>
               )}
             />
           </div>
-          
-          {form.watch('hasApprentices') && (
-            <div className="pl-6 border-l-2 border-gray-200 space-y-4">
-              <FormField
-                control={form.control}
-                name="apprenticeDuration"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Apprenticeship Duration</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                      value={field.value || ""}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select duration" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {PROGRAM_DURATIONS.map((duration) => (
-                          <SelectItem key={duration} value={duration}>
-                            {duration}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="apprenticeDescription"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Apprenticeship Program Description</FormLabel>
-                    <FormControl>
-                      <Textarea 
-                        placeholder="Describe your apprenticeship program..." 
-                        className="min-h-20"
-                        {...field} 
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          )}
         </div>
         
-        <Separator />
-        
-        <div>
-          <h3 className="text-lg font-medium mb-2">Early Career Development Program</h3>
+        <div className="space-y-4">
+          <FormField
+            control={form.control}
+            name="about"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>About the Company*</FormLabel>
+                <FormControl>
+                  <Textarea 
+                    placeholder="Provide a detailed description of your company..." 
+                    className="min-h-[120px]"
+                    {...field} 
+                  />
+                </FormControl>
+                <FormDescription>
+                  Describe what your company does, its products/services, and target market.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           
-          <div className="space-y-4 mb-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
               control={form.control}
-              name="hasDevelopmentPrograms"
+              name="mission"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                <FormItem>
+                  <FormLabel>Mission Statement*</FormLabel>
                   <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
+                    <Textarea 
+                      placeholder="What is your company's mission..." 
+                      className="min-h-[120px]"
+                      {...field} 
                     />
                   </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel>
-                      Does your company offer early career development programs?
-                    </FormLabel>
-                    <FormDescription>
-                      Check this if you offer rotational programs, traineeships, or other structured development programs
-                    </FormDescription>
-                  </div>
+                  <FormDescription>
+                    Your company's core purpose and focus.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="vision"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Vision (Optional)</FormLabel>
+                  <FormControl>
+                    <Textarea 
+                      placeholder="What is your company's vision for the future..." 
+                      className="min-h-[120px]"
+                      {...field} 
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    Your company's aspirations and what it wants to achieve.
+                  </FormDescription>
+                  <FormMessage />
                 </FormItem>
               )}
             />
           </div>
-          
-          {form.watch('hasDevelopmentPrograms') && (
-            <div className="pl-6 border-l-2 border-gray-200 space-y-4">
-              <FormField
-                control={form.control}
-                name="developmentProgramDuration"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Program Duration</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                      value={field.value || ""}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select duration" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {PROGRAM_DURATIONS.map((duration) => (
-                          <SelectItem key={duration} value={duration}>
-                            {duration}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="developmentProgramDescription"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Development Program Description</FormLabel>
-                    <FormControl>
-                      <Textarea 
-                        placeholder="Describe your early career development program..." 
-                        className="min-h-20"
-                        {...field} 
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          )}
         </div>
       </div>
     );
   };
-  
+
   return (
     <Form {...form}>
       <form onSubmit={(e) => {
@@ -1623,93 +1225,68 @@ export function CompanyProfileForm({ companyId }: { companyId?: number }) {
                         step.id
                       )}
                     </div>
-                    <span className="text-xs mt-1">{step.title}</span>
+                    <span className="text-xs mt-1 text-center">{step.shortTitle}</span>
                   </div>
                 ))}
               </div>
-              <div className="w-full bg-gray-200 h-2 rounded-full overflow-hidden">
-                <div 
-                  className="bg-primary h-full rounded-full"
-                  style={{ width: `${((currentStep - 1) / (COMPANY_PROFILE_STEPS.length - 1)) * 100}%` }}
-                ></div>
+              <div className="overflow-hidden h-2 mb-4 text-xs flex rounded bg-gray-200">
+                <div
+                  className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-primary"
+                  style={{ width: `${(currentStep / COMPANY_PROFILE_STEPS.length) * 100}%` }}
+                />
               </div>
             </div>
             
+            {/* Form content based on current step */}
             {renderStepContent()}
           </CardContent>
           
           <CardFooter className="flex justify-between">
-            <Button
-              type="button"
-              onClick={handlePrevStep}
-              disabled={currentStep === 1 || isLoading}
-              variant="outline"
-            >
-              Previous
-            </Button>
-            
             <div>
+              {currentStep > 1 && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handlePrevStep}
+                >
+                  Previous
+                </Button>
+              )}
+            </div>
+            
+            <div className="flex space-x-2">
               <Button
                 type="button"
                 variant="outline"
                 onClick={handleSaveDraft}
-                disabled={isLoading || saveDraftMutation.isPending}
-                className="mr-2"
+                disabled={saveDraftMutation.isPending}
               >
-                {saveDraftMutation.isPending ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Saving...
-                  </>
-                ) : (
-                  'Save Draft'
+                {saveDraftMutation.isPending && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 )}
+                Save Draft
               </Button>
               
               {currentStep < COMPANY_PROFILE_STEPS.length ? (
                 <Button
                   type="button"
                   onClick={handleNextStep}
-                  disabled={isLoading}
                 >
                   Next
                 </Button>
               ) : (
-                <Button 
-                  type="button" // Changed from "submit" to "button"
+                <Button
+                  type="button"
                   disabled={isLoading || createCompanyMutation.isPending}
-                  onClick={async () => {
-                    console.log('Submit button clicked directly');
-                    try {
-                      // Manually trigger form validation and submission
-                      const isValid = await form.trigger();
-                      console.log('Manual form validation result:', isValid);
-                      
-                      if (isValid) {
-                        const values = form.getValues();
-                        console.log('Manually submitting with values:', values);
-                        onSubmit(values);
-                      } else {
-                        console.log('Form validation errors:', form.formState.errors);
-                        toast({
-                          title: 'Validation failed',
-                          description: 'Please fill in all required fields correctly.',
-                          variant: 'destructive',
-                        });
-                      }
-                    } catch (err) {
-                      console.error('Error in manual submit:', err);
-                    }
+                  onClick={() => {
+                    console.log('Submit button clicked');
+                    form.handleSubmit(onSubmit)();
                   }}
                 >
-                  {createCompanyMutation.isPending ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Creating...
-                    </>
-                  ) : (
-                    'Create Company Profile'
+                  {(isLoading || createCompanyMutation.isPending) && (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   )}
+                  Create Company
                 </Button>
               )}
             </div>
