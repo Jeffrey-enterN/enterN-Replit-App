@@ -12,13 +12,16 @@ export default function AuthPage() {
   const { user } = useAuth();
   const [, navigate] = useLocation();
 
-  // Check if there's a preferred role saved in localStorage
+  // Check if there's a preferred role saved in localStorage and redirect to sign-up page
   useEffect(() => {
     const preferredRole = localStorage.getItem('preferred_role');
     if (preferredRole) {
-      setIsLogin(false); // Show registration form if a role preference exists
+      navigate('/sign-up'); // Redirect to dedicated sign-up page
+    } else {
+      // Default to sign-in page if no preference is set
+      navigate('/sign-in');
     }
-  }, []);
+  }, [navigate]);
 
   // Redirect to dashboard if already logged in
   useEffect(() => {

@@ -13,8 +13,8 @@ export default function LandingPage() {
     if (user && user.userType === USER_TYPES.JOBSEEKER) {
       navigate('/jobseeker/dashboard');
     } else {
-      navigate('/auth');
-      // We can set a preference in localStorage that will be picked up by the auth page
+      navigate('/sign-up');
+      // We can set a preference in localStorage that will be picked up by the sign-up page
       localStorage.setItem('preferred_role', USER_TYPES.JOBSEEKER);
     }
   };
@@ -23,8 +23,8 @@ export default function LandingPage() {
     if (user && user.userType === USER_TYPES.EMPLOYER) {
       navigate('/employer/dashboard');
     } else {
-      navigate('/auth');
-      // We can set a preference in localStorage that will be picked up by the auth page
+      navigate('/sign-up');
+      // We can set a preference in localStorage that will be picked up by the sign-up page
       localStorage.setItem('preferred_role', USER_TYPES.EMPLOYER);
     }
   };
@@ -53,10 +53,10 @@ export default function LandingPage() {
               ) : (
                 <>
                   <Button asChild className="rounded-md px-6 py-2 text-sm font-medium border border-[#5CE1E6] bg-white text-[#FF66C4] hover:bg-gray-50">
-                    <Link href="/auth">Sign In</Link>
+                    <Link href="/sign-in">Sign In</Link>
                   </Button>
                   <Button asChild className="ml-3 btn-gradient rounded-md px-6 py-2 text-sm font-medium">
-                    <Link href="/auth">Sign Up</Link>
+                    <Link href="/sign-up">Sign Up</Link>
                   </Button>
                 </>
               )}
