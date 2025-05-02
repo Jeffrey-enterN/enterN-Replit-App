@@ -524,8 +524,32 @@ export function CompanyProfileForm({ companyId }: { companyId?: number }) {
   // Final submission
   const onSubmit = async (values: CompanyProfileFormValues) => {
     try {
+      console.log('Form submission started with values:', values);
       setIsLoading(true);
+      // Validate all fields first
+      const isValid = await form.trigger();
+      console.log('Form validation result:', isValid);
+      
+      if (!isValid) {
+        console.log('Form validation errors:', form.formState.errors);
+        toast({
+          title: 'Validation failed',
+          description: 'Please fill in all required fields correctly.',
+          variant: 'destructive',
+        });
+        return;
+      }
+      
+      console.log('Submitting company profile to server...');
       await createCompanyMutation.mutateAsync(values);
+      console.log('Company profile created successfully');
+    } catch (err: any) {
+      console.error('Error creating company profile:', err);
+      toast({
+        title: 'Error creating company profile',
+        description: err.message || 'An unexpected error occurred',
+        variant: 'destructive',
+      });
     } finally {
       setIsLoading(false);
     }
@@ -1357,7 +1381,14 @@ export function CompanyProfileForm({ companyId }: { companyId?: number }) {
   
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <form onSubmit={(e) => {
+          console.log('Form submit event triggered');
+          form.handleSubmit((values) => {
+            console.log('Form handleSubmit callback triggered');
+            onSubmit(values);
+          })(e);
+        }} 
+        className="space-y-8">
         <Card>
           <CardHeader>
             <CardTitle>{COMPANY_PROFILE_STEPS[currentStep - 1].title}</CardTitle>
@@ -1443,8 +1474,31 @@ export function CompanyProfileForm({ companyId }: { companyId?: number }) {
                 </Button>
               ) : (
                 <Button 
-                  type="submit"
+                  type="button" // Changed from "submit" to "button"
                   disabled={isLoading || createCompanyMutation.isPending}
+                  onClick={async () => {
+                    console.log('Submit button clicked directly');
+                    try {
+                      // Manually trigger form validation and submission
+                      const isValid = await form.trigger();
+                      console.log('Manual form validation result:', isValid);
+                      
+                      if (isValid) {
+                        const values = form.getValues();
+                        console.log('Manually submitting with values:', values);
+                        onSubmit(values);
+                      } else {
+                        console.log('Form validation errors:', form.formState.errors);
+                        toast({
+                          title: 'Validation failed',
+                          description: 'Please fill in all required fields correctly.',
+                          variant: 'destructive',
+                        });
+                      }
+                    } catch (err) {
+                      console.error('Error in manual submit:', err);
+                    }
+                  }}
                 >
                   {createCompanyMutation.isPending ? (
                     <>
