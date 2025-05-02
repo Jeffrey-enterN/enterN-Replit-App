@@ -19,6 +19,7 @@ import EmployerDashboard from "@/pages/employer/dashboard";
 import JobseekerProfilePage from "@/pages/jobseeker/profile-page";
 import EmployerProfilePage from "@/pages/employer/profile-page";
 import CompanyProfilePage from "@/pages/employer/company-profile-page";
+import CompanyTeamPage from "@/pages/employer/company-team-page";
 import JobseekerMatchFeed from "@/pages/jobseeker/match-feed";
 import JobseekerCalendar from "@/pages/jobseeker/calendar";
 import NotFound from "@/pages/not-found";

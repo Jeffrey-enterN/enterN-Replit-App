@@ -30,6 +30,7 @@ import {
   Briefcase,
   LayoutDashboard,
   Users,
+  Users2,
 } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
@@ -71,8 +72,9 @@ export default function EmployerNavbar() {
   const navItems = [
     { label: 'Dashboard', href: '/employer/dashboard', icon: LayoutDashboard },
     { label: 'Company Profile', href: '/employer/company-profile', icon: Building },
+    { label: 'Team', href: '/employer/company-team', icon: Users },
     { label: 'Jobs', href: '/employer/jobs', icon: Briefcase },
-    { label: 'Candidates', href: '/employer/candidates', icon: Users },
+    { label: 'Candidates', href: '/employer/candidates', icon: Users2 },
   ];
 
   return (
