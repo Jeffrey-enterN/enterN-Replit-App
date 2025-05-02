@@ -91,7 +91,7 @@ const companyProfileSchema = z.object({
   
   // Step 3: Work Environment & Benefits
   workArrangements: z.array(z.string()).min(1, "Select at least one work arrangement"),
-  compensationLevel: z.string().min(1, FORM_VALIDATION.required),
+  compensationLevel: z.string().optional(), // Made optional since we're removing the field
   benefits: z.array(z.string()).optional(),
   culture: z.string().min(1, FORM_VALIDATION.required),
   
@@ -402,7 +402,7 @@ export function CompanyProfileForm({ companyId }: { companyId?: number }) {
         fieldsToValidate = ['industries', 'functionalAreas', 'about', 'mission'];
         break;
       case 3:
-        fieldsToValidate = ['workArrangements', 'compensationLevel', 'culture'];
+        fieldsToValidate = ['workArrangements', 'culture'];
         break;
       case 4:
         fieldsToValidate = [];
@@ -905,15 +905,16 @@ export function CompanyProfileForm({ companyId }: { companyId?: number }) {
               <FormLabel>Work Arrangements*</FormLabel>
               <div className="flex flex-wrap gap-2">
                 {WORK_ARRANGEMENTS.map((arrangement) => (
-                  <div key={arrangement} className="inline-flex items-center mr-4">
+                  <div key={arrangement} className="inline-flex items-center mr-4 mb-2">
                     <Checkbox
                       id={`arrangement-${arrangement}`}
                       checked={field.value?.includes(arrangement)}
                       onCheckedChange={(checked) => {
+                        const currentValue = field.value || [];
                         if (checked) {
-                          field.onChange([...(field.value || []), arrangement]);
+                          field.onChange([...currentValue, arrangement]);
                         } else {
-                          field.onChange(field.value?.filter((a) => a !== arrangement));
+                          field.onChange(currentValue.filter((a) => a !== arrangement));
                         }
                       }}
                     />
@@ -936,53 +937,22 @@ export function CompanyProfileForm({ companyId }: { companyId?: number }) {
         
         <FormField
           control={form.control}
-          name="compensationLevel"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Compensation Level*</FormLabel>
-              <Select
-                onValueChange={field.onChange}
-                defaultValue={field.value}
-                value={field.value}
-              >
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select compensation level" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {COMPENSATION_LEVELS.map((level) => (
-                    <SelectItem key={level} value={level}>
-                      {level}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormDescription>
-                Select the general compensation level for positions at your company
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        
-        <FormField
-          control={form.control}
           name="benefits"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Benefits Offered (Optional)</FormLabel>
               <div className="flex flex-wrap gap-2 border rounded-md p-3 max-h-60 overflow-y-auto">
                 {COMPANY_BENEFITS.map((benefit) => (
-                  <div key={benefit} className="inline-flex">
+                  <div key={benefit} className="inline-flex items-center mr-4 mb-2">
                     <Checkbox
                       id={`benefit-${benefit}`}
                       checked={field.value?.includes(benefit)}
                       onCheckedChange={(checked) => {
+                        const currentValue = field.value || [];
                         if (checked) {
-                          field.onChange([...(field.value || []), benefit]);
+                          field.onChange([...currentValue, benefit]);
                         } else {
-                          field.onChange(field.value?.filter((b) => b !== benefit));
+                          field.onChange(currentValue.filter((b) => b !== benefit));
                         }
                       }}
                     />
