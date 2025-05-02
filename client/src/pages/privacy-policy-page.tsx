@@ -1,15 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Link } from 'wouter';
-import { Button } from '@/components/ui/button';
-import { useTheme } from '@/context/theme-context';
 import Navbar from '@/components/layouts/navbar';
+import enternLogo from '@/assets/entern-logo.png';
 
 export default function PrivacyPolicyPage() {
-  const { theme, toggleTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-  
-  // After mounting, we have access to the theme
-  useEffect(() => setMounted(true), []);
   
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
