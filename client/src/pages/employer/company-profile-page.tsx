@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/auth-context';
-import { useLocation } from 'wouter';
+import { useLocation, Link } from 'wouter';
 
 // UI Components
 import { Button } from '@/components/ui/button';
@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { CompanyProfileForm } from '@/components/company/company-profile-form';
-import { Loader2, Building, InfoIcon } from 'lucide-react';
+import { Loader2, Building, InfoIcon, ArrowLeft } from 'lucide-react';
 
 export default function CompanyProfilePage() {
   const { user, isLoading } = useAuth();
@@ -45,6 +45,19 @@ export default function CompanyProfilePage() {
   
   return (
     <div className="container max-w-5xl mx-auto py-8 px-4">
+      <div className="w-full flex justify-start mb-4">
+        <Button
+          variant="ghost" 
+          className="flex items-center gap-1 text-muted-foreground" 
+          asChild
+        >
+          <Link href="/employer/dashboard">
+            <ArrowLeft className="h-4 w-4" />
+            Return to Dashboard
+          </Link>
+        </Button>
+      </div>
+      
       <div className="flex flex-col items-center mb-8 text-center">
         <Building className="h-12 w-12 mb-4 text-primary" />
         <h1 className="text-3xl font-bold mb-2">Create Your Company Profile</h1>
