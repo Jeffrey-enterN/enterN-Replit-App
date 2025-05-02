@@ -15,7 +15,7 @@ interface StatCardProps {
 }
 
 const StatCard = ({ title, value, icon, color, link, subtext }: StatCardProps) => (
-  <div className="bg-white overflow-hidden shadow-sm rounded-lg">
+  <div className="bg-card overflow-hidden shadow-sm rounded-lg border">
     <div className="px-4 py-5 sm:p-6">
       <div className="flex items-center">
         <div className={`flex-shrink-0 ${color} rounded-md p-3`}>
@@ -23,10 +23,10 @@ const StatCard = ({ title, value, icon, color, link, subtext }: StatCardProps) =
         </div>
         <div className="ml-5 w-0 flex-1">
           <dl>
-            <dt className="text-sm font-medium text-gray-500 truncate">{title}</dt>
+            <dt className="text-sm font-medium text-muted-foreground truncate">{title}</dt>
             <dd>
-              <div className="text-lg font-medium text-gray-900">{value}</div>
-              {subtext && <div className="text-xs text-gray-500 mt-1">{subtext}</div>}
+              <div className="text-lg font-medium text-foreground">{value}</div>
+              {subtext && <div className="text-xs text-muted-foreground mt-1">{subtext}</div>}
             </dd>
           </dl>
         </div>
@@ -61,7 +61,7 @@ export default function OverviewStats({ userType, stats }: OverviewStatsProps) {
     <div className="space-y-8">
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {userType === USER_TYPES.JOBSEEKER && stats.profileCompletion && (
-          <div className={`bg-white overflow-hidden shadow-sm rounded-lg ${stats.profileCompletion.percentage < 100 ? 'ring-2 ring-primary' : ''}`}>
+          <div className={`bg-card overflow-hidden shadow-sm rounded-lg border ${stats.profileCompletion.percentage < 100 ? 'ring-2 ring-primary' : ''}`}>
             <div className="px-4 py-5 sm:p-6">
               <div className="flex items-center">
                 <div className="flex-shrink-0 bg-primary rounded-md p-3">
@@ -71,10 +71,10 @@ export default function OverviewStats({ userType, stats }: OverviewStatsProps) {
                 </div>
                 <div className="ml-5 w-0 flex-1">
                   <dl>
-                    <dt className="text-sm font-medium text-gray-500 truncate">Profile Completion</dt>
+                    <dt className="text-sm font-medium text-muted-foreground truncate">Profile Completion</dt>
                     <dd>
                       <div className="flex items-center">
-                        <div className="text-lg font-medium text-gray-900">{stats.profileCompletion.percentage}%</div>
+                        <div className="text-lg font-medium text-foreground">{stats.profileCompletion.percentage}%</div>
                         {stats.profileCompletion.increase && (
                           <div className="ml-2 flex items-baseline text-sm font-semibold text-green-600">
                             <svg className="self-center flex-shrink-0 h-5 w-5 text-green-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -91,7 +91,7 @@ export default function OverviewStats({ userType, stats }: OverviewStatsProps) {
               </div>
               <div className="mt-4">
                 <div className="relative pt-1">
-                  <div className="overflow-hidden h-2 text-xs flex rounded bg-primary-100">
+                  <div className="overflow-hidden h-2 text-xs flex rounded bg-muted">
                     <div 
                       style={{ width: `${stats.profileCompletion.percentage}%` }} 
                       className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-primary"
@@ -180,10 +180,10 @@ export default function OverviewStats({ userType, stats }: OverviewStatsProps) {
       {/* Divider */}
       <div className="relative">
         <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-gray-300"></div>
+          <div className="w-full border-t border-border"></div>
         </div>
         <div className="relative flex justify-center text-sm">
-          <span className="px-2 bg-white text-gray-500">
+          <span className="px-2 bg-background text-muted-foreground">
             Performance Metrics
           </span>
         </div>
@@ -191,14 +191,14 @@ export default function OverviewStats({ userType, stats }: OverviewStatsProps) {
 
       {/* Placeholder for data visualizations */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 h-64 flex items-center justify-center">
-          <p className="text-gray-400 text-center">Application Activity<br/>Coming soon</p>
+        <div className="bg-card p-6 rounded-lg shadow-sm border border-border h-64 flex items-center justify-center">
+          <p className="text-muted-foreground text-center">Application Activity<br/>Coming soon</p>
         </div>
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 h-64 flex items-center justify-center">
-          <p className="text-gray-400 text-center">Match Statistics<br/>Coming soon</p>
+        <div className="bg-card p-6 rounded-lg shadow-sm border border-border h-64 flex items-center justify-center">
+          <p className="text-muted-foreground text-center">Match Statistics<br/>Coming soon</p>
         </div>
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 h-64 flex items-center justify-center">
-          <p className="text-gray-400 text-center">Engagement Metrics<br/>Coming soon</p>
+        <div className="bg-card p-6 rounded-lg shadow-sm border border-border h-64 flex items-center justify-center">
+          <p className="text-muted-foreground text-center">Engagement Metrics<br/>Coming soon</p>
         </div>
       </div>
     </div>

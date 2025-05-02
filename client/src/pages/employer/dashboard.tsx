@@ -111,10 +111,13 @@ export default function EmployerDashboard() {
   const recentMatches = dashboardData?.recentMatches || [];
 
   return (
-    <DashboardLayout 
-      title="Company Dashboard" 
-      subtitle={user?.companyName ? `Welcome back, ${user.companyName}!` : 'Welcome back!'}
-    >
+    <div className="container py-8">
+      <div className="flex flex-col space-y-2 mb-8">
+        <h1 className="text-3xl font-bold tracking-tight">Company Dashboard</h1>
+        <p className="text-muted-foreground">
+          {user?.companyName ? `Welcome back, ${user.companyName}!` : 'Welcome back!'}
+        </p>
+      </div>
       <div className="md:flex md:items-center md:justify-between mb-8">
         <div className="flex-1 min-w-0"></div>
         <div className="mt-4 flex flex-col sm:flex-row gap-3 md:mt-0 md:ml-4">
@@ -133,15 +136,15 @@ export default function EmployerDashboard() {
       <OverviewStats userType={USER_TYPES.EMPLOYER} stats={stats} />
 
       {/* Job Postings */}
-      <div className="bg-white shadow-sm rounded-lg overflow-hidden mb-8">
-        <div className="px-4 py-5 border-b border-gray-200 sm:px-6 flex justify-between items-center">
+      <div className="bg-card shadow-sm rounded-lg overflow-hidden mb-8 border">
+        <div className="px-4 py-5 border-b border-border sm:px-6 flex justify-between items-center">
           <div>
-            <h3 className="text-lg leading-6 font-medium text-gray-900">Job Postings</h3>
-            <p className="mt-1 text-sm text-gray-500">Manage your current job openings.</p>
+            <h3 className="text-lg leading-6 font-medium text-foreground">Job Postings</h3>
+            <p className="mt-1 text-sm text-muted-foreground">Manage your current job openings.</p>
           </div>
           <Button 
             size="sm"
-            className="inline-flex items-center px-3 py-2 border border-transparent shadow-sm text-sm leading-4 font-medium rounded-md"
+            className="inline-flex items-center"
           >
             <svg className="-ml-0.5 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
@@ -150,22 +153,22 @@ export default function EmployerDashboard() {
           </Button>
         </div>
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+          <table className="min-w-full divide-y divide-border">
+            <thead className="bg-muted/50">
               <tr>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   Position
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   Location
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   Type
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   Status
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   Matches
                 </th>
                 <th scope="col" className="relative px-6 py-3">
@@ -173,27 +176,27 @@ export default function EmployerDashboard() {
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {dashboardData?.jobs?.length > 0 ? (
+            <tbody className="bg-card divide-y divide-border">
+              {dashboardData?.jobs && dashboardData.jobs.length > 0 ? (
                 dashboardData.jobs.map((job: any) => (
                   <tr key={job.id}>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">{job.title}</div>
-                      <div className="text-sm text-gray-500">{job.department}</div>
+                      <div className="text-sm font-medium text-foreground">{job.title}</div>
+                      <div className="text-sm text-muted-foreground">{job.department}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{job.location}</div>
-                      <div className="text-sm text-gray-500">{job.workType}</div>
+                      <div className="text-sm text-foreground">{job.location}</div>
+                      <div className="text-sm text-muted-foreground">{job.workType}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{job.employmentType}</div>
+                      <div className="text-sm text-foreground">{job.employmentType}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
                         {job.status}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
                       {job.matchCount}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -203,7 +206,7 @@ export default function EmployerDashboard() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={6} className="px-6 py-4 text-center text-sm text-gray-500">
+                  <td colSpan={6} className="px-6 py-4 text-center text-sm text-muted-foreground">
                     No job postings yet. Get started by adding a new job.
                   </td>
                 </tr>
@@ -214,16 +217,16 @@ export default function EmployerDashboard() {
       </div>
 
       {/* Match Feed */}
-      <div className="bg-white shadow-sm rounded-lg overflow-hidden mb-8">
-        <div className="px-4 py-5 border-b border-gray-200 sm:px-6">
-          <h3 className="text-lg leading-6 font-medium text-gray-900">Talent Match Feed</h3>
-          <p className="mt-1 text-sm text-gray-500">Find potential candidates by swiping through anonymous profiles.</p>
+      <div className="bg-card shadow-sm rounded-lg overflow-hidden mb-8 border">
+        <div className="px-4 py-5 border-b border-border sm:px-6">
+          <h3 className="text-lg leading-6 font-medium text-foreground">Talent Match Feed</h3>
+          <p className="mt-1 text-sm text-muted-foreground">Find potential candidates by swiping through anonymous profiles.</p>
         </div>
         <div className="px-4 py-6 sm:p-6">
           {potentialMatches?.length ? (
             <div className="max-w-3xl mx-auto">
               <div className="text-center mb-6">
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-muted-foreground">
                   Showing anonymous profiles that match your company's requirements. 
                   Swipe right on profiles you're interested in connecting with.
                 </p>
@@ -236,7 +239,7 @@ export default function EmployerDashboard() {
                 isPending={swipeMutation.isPending}
               />
               <div className="text-center mt-4">
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-muted-foreground">
                   {potentialMatches.length > 1 
                     ? `${potentialMatches.length - 1} more profiles waiting` 
                     : "Last profile in the queue"}
@@ -246,7 +249,7 @@ export default function EmployerDashboard() {
           ) : (
             <div className="text-center py-12">
               <svg 
-                className="mx-auto h-12 w-12 text-gray-400" 
+                className="mx-auto h-12 w-12 text-muted-foreground" 
                 fill="none" 
                 viewBox="0 0 24 24" 
                 stroke="currentColor" 
@@ -259,8 +262,8 @@ export default function EmployerDashboard() {
                   d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" 
                 />
               </svg>
-              <h3 className="mt-2 text-sm font-medium text-gray-900">No potential candidates</h3>
-              <p className="mt-1 text-sm text-gray-500">
+              <h3 className="mt-2 text-sm font-medium text-foreground">No potential candidates</h3>
+              <p className="mt-1 text-sm text-muted-foreground">
                 There are no more profiles to review at this time.
               </p>
               <div className="mt-6">
@@ -294,6 +297,6 @@ export default function EmployerDashboard() {
         emptyMessage="You haven't matched with any candidates yet. Start swiping to find matches!"
         viewAllLink="/employer/matches"
       />
-    </DashboardLayout>
+    </div>
   );
 }
