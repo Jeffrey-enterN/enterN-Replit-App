@@ -3,9 +3,9 @@ import { Button } from '@/components/ui/button';
 import { Link, useLocation } from 'wouter';
 import { useAuth } from '@/context/auth-context';
 import { useTheme } from '@/context/theme-context';
-import { Sun, Moon } from 'lucide-react';
 import { USER_TYPES } from '@/lib/constants';
 import enternLogo from '@/assets/entern-logo.png';
+import Navbar from '@/components/layouts/navbar';
 
 export default function LandingPage() {
   const { user } = useAuth();
@@ -38,53 +38,8 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Navbar */}
-      <nav className="bg-white dark:bg-gray-800 shadow-md sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-20">
-            <div className="flex">
-              <div className="flex-shrink-0 flex items-center">
-                {/* Logo */}
-                <div className="flex items-center">
-                  <img src={enternLogo} alt="enterN Logo" className="h-14" />
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center space-x-3">
-              <Button 
-                onClick={toggleTheme}
-                variant="ghost"
-                size="icon"
-                className="text-gray-700 dark:text-gray-300"
-                aria-label="Toggle dark mode"
-              >
-                {mounted && theme === "dark" ? (
-                  <Sun className="h-5 w-5" />
-                ) : (
-                  <Moon className="h-5 w-5" />
-                )}
-              </Button>
-              
-              {user ? (
-                <Button asChild className="btn-gradient rounded-md px-6 py-2 text-sm font-medium">
-                  <Link href={user.userType === USER_TYPES.JOBSEEKER ? '/jobseeker/dashboard' : '/employer/dashboard'}>
-                    Dashboard
-                  </Link>
-                </Button>
-              ) : (
-                <>
-                  <Button asChild className="rounded-md px-6 py-2 text-sm font-medium border border-[#5CE1E6] bg-white dark:bg-gray-800 text-[#FF66C4] hover:bg-gray-50 dark:hover:bg-gray-700">
-                    <Link href="/sign-in">Sign In</Link>
-                  </Button>
-                  <Button asChild className="ml-3 btn-gradient rounded-md px-6 py-2 text-sm font-medium">
-                    <Link href="/sign-up">Sign Up</Link>
-                  </Button>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-      </nav>
+      {/* Global Navbar */}
+      <Navbar />
 
       {/* Hero Section */}
       <div className="relative bg-white dark:bg-gray-900 overflow-hidden">

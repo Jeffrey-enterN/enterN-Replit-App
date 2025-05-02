@@ -2,8 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { useTheme } from '@/context/theme-context';
-import { Sun, Moon } from 'lucide-react';
-import enternLogo from '@/assets/entern-logo.png';
+import Navbar from '@/components/layouts/navbar';
 
 export default function PrivacyPolicyPage() {
   const { theme, toggleTheme } = useTheme();
@@ -14,39 +13,8 @@ export default function PrivacyPolicyPage() {
   
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
-      {/* Navbar */}
-      <nav className="bg-white dark:bg-gray-800 shadow-md sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-20">
-            <div className="flex">
-              <div className="flex-shrink-0 flex items-center">
-                {/* Logo with link to home */}
-                <Link href="/">
-                  <img src={enternLogo} alt="enterN Logo" className="h-14 cursor-pointer" />
-                </Link>
-              </div>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Button 
-                onClick={toggleTheme}
-                variant="ghost"
-                size="icon"
-                className="text-gray-700 dark:text-gray-300"
-                aria-label="Toggle dark mode"
-              >
-                {mounted && theme === "dark" ? (
-                  <Sun className="h-5 w-5" />
-                ) : (
-                  <Moon className="h-5 w-5" />
-                )}
-              </Button>
-              <Button asChild className="btn-gradient rounded-md px-6 py-2 text-sm font-medium">
-                <Link href="/">Back to Home</Link>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </nav>
+      {/* Global Navbar */}
+      <Navbar />
 
       {/* Privacy Policy Content */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 bg-white dark:bg-gray-800 my-8 rounded-lg shadow">

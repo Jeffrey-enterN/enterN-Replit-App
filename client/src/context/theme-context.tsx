@@ -62,9 +62,18 @@ export function ThemeProvider({
   }, []);
 
   const toggleTheme = () => {
-    const newTheme = theme === 'dark' ? 'light' : 'dark';
+    // Get the current actual theme (accounting for system preference)
+    const root = window.document.documentElement;
+    const isDark = root.classList.contains('dark');
+    const newTheme = isDark ? 'light' : 'dark';
+    
+    // Force the theme to explicitly be light or dark (not system)
     localStorage.setItem(storageKey, newTheme);
     setTheme(newTheme);
+    
+    // Apply the class immediately to avoid visual lag
+    root.classList.remove('light', 'dark');
+    root.classList.add(newTheme);
   };
 
   const value = {
