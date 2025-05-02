@@ -17,7 +17,7 @@ import ContactDetailsPage from "@/pages/contact-details-page";
 import JobseekerDashboard from "@/pages/jobseeker/dashboard";
 import EmployerDashboard from "@/pages/employer/dashboard";
 import JobseekerProfilePage from "@/pages/jobseeker/profile-page";
-import EmployerProfilePage from "@/pages/employer/profile-page";
+// Employer profile page removed to avoid duplication
 import CompanyProfilePage from "@/pages/employer/company-profile-page";
 import CompanyTeamPage from "@/pages/employer/company-team-page";
 import JobseekerMatchFeed from "@/pages/jobseeker/match-feed";
@@ -46,14 +46,7 @@ function Router() {
           />
         </EmployerLayout>
       </Route>
-      <Route path="/employer/profile">
-        <EmployerLayout>
-          <ProtectedRoute 
-            path="/employer/profile" 
-            component={EmployerProfilePage}
-          />
-        </EmployerLayout>
-      </Route>
+      {/* Employer profile route removed to avoid duplication */}
       <Route path="/employer/company-profile">
         <EmployerLayout>
           <ProtectedRoute 
