@@ -10,6 +10,8 @@ import { ProtectedRoute } from "@/lib/protected-route";
 
 import LandingPage from "@/pages/landing-page";
 import AuthPage from "@/pages/auth-page";
+import SignInPage from "@/pages/sign-in-page";
+import SignUpPage from "@/pages/sign-up-page";
 import ContactDetailsPage from "@/pages/contact-details-page";
 import JobseekerDashboard from "@/pages/jobseeker/dashboard";
 import EmployerDashboard from "@/pages/employer/dashboard";
@@ -24,6 +26,8 @@ function Router() {
     <Switch>
       <Route path="/" component={LandingPage} />
       <Route path="/auth" component={AuthPage} />
+      <Route path="/sign-in" component={SignInPage} />
+      <Route path="/sign-up" component={SignUpPage} />
       <ProtectedRoute path="/contact-details" component={ContactDetailsPage} />
       <ProtectedRoute path="/jobseeker/dashboard" component={JobseekerDashboard} />
       <ProtectedRoute path="/jobseeker/profile" component={JobseekerProfilePage} />
