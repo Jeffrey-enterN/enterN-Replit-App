@@ -52,7 +52,7 @@ export default function EmployerDashboard() {
 
   // Redirect if not authenticated or if user is not an employer
   useEffect(() => {
-    if (user && user.userType !== USER_TYPES.JOBSEEKER) {
+    if (user && user.userType !== USER_TYPES.EMPLOYER) {
       navigate('/jobseeker/dashboard');
     }
   }, [user, navigate]);
