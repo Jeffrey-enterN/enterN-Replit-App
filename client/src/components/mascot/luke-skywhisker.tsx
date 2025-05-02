@@ -9,7 +9,7 @@ const CAT_STAR_WARS_PUNS = [
   "Paw-dawan training begins now.",
   "Use the fur-ce, always.",
   "Job search, I must. Nap later, I will.",
-  "You were the chosen bun… for this job!",
+  "You were the chosen bun... for this job!",
   "That resume? Immeowculate.",
   "I sense a meowment of opportunity.",
   "Time to claw your way to the top, young Skywhisker."
@@ -21,12 +21,12 @@ const CAT_RESUME_PUNS = [
   "Furget the resume, let them see the real you.",
   "Your purrsonal brand is paws-itively strong.",
   "Nine lives, nine versions of your resume.",
-  "Put your best paw forward—and not in Comic Sans.",
+  "Put your best paw forward - and not in Comic Sans.",
   "Tailor that resume like you're stalking prey.",
-  "Don't be kitten around—show them your skills.",
+  "Don't be kitten around - show them your skills.",
   "This resume? Cat-chy and claw-ver.",
   "Resume ghosted? Let's haunt 'em back.",
-  "No fluff—just sharp claws and clear accomplishments."
+  "No fluff - just sharp claws and clear accomplishments."
 ];
 
 // Ghosting-related cat puns
@@ -48,7 +48,7 @@ const CAT_REPORT_PUNS = [
   "This report is pawsitively insightful.",
   "Data purr-sists, opinions don't.",
   "Let's pounce on these findings.",
-  "Numbers don't lie—but they do nap.",
+  "Numbers don't lie - but they do nap.",
   "Clawing through the data, one tab at a time.",
   "Reporting live: feline findings ahead.",
   "Charts so good, I'm feline fine.",
@@ -67,8 +67,8 @@ const CAT_JOB_SEARCH_PUNS = [
   "Networking: aka strategic social scratching.",
   "Let's swipe right on opportunity.",
   "Interview nerves? Just channel your inner lion.",
-  "Career growth? I smell it… like tuna.",
-  "Your next job is out there—lurking like a laser dot."
+  "Career growth? I smell it... like tuna.",
+  "Your next job is out there - lurking like a laser dot."
 ];
 
 // Combine all pun categories
