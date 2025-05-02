@@ -991,9 +991,9 @@ export function CompanyProfileForm({ companyId }: { companyId?: number }) {
                   <div key={arrangement} className="inline-flex items-center mr-4 mb-2">
                     <Checkbox
                       id={`arrangement-${arrangement}`}
-                      checked={field.value?.includes(arrangement)}
+                      checked={Array.isArray(field.value) && field.value.includes(arrangement)}
                       onCheckedChange={(checked) => {
-                        const currentValue = field.value || [];
+                        const currentValue = Array.isArray(field.value) ? field.value : [];
                         if (checked) {
                           field.onChange([...currentValue, arrangement]);
                         } else {
@@ -1029,9 +1029,9 @@ export function CompanyProfileForm({ companyId }: { companyId?: number }) {
                   <div key={benefit} className="inline-flex items-center mr-4 mb-2">
                     <Checkbox
                       id={`benefit-${benefit}`}
-                      checked={field.value?.includes(benefit)}
+                      checked={Array.isArray(field.value) && field.value.includes(benefit)}
                       onCheckedChange={(checked) => {
-                        const currentValue = field.value || [];
+                        const currentValue = Array.isArray(field.value) ? field.value : [];
                         if (checked) {
                           field.onChange([...currentValue, benefit]);
                         } else {
