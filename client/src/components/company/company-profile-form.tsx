@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -7,6 +7,7 @@ import { apiRequest, queryClient } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/auth-context';
 import { useLocation, useRoute } from 'wouter';
+import debounce from 'lodash/debounce';
 
 // UI Components
 import { Button } from '@/components/ui/button';
@@ -202,7 +203,7 @@ export function CompanyProfileForm({ companyId }: { companyId?: number }) {
     retry: false
   });
   
-  // Save draft mutation
+  // Save draft mutation with debounce for auto-saving
   const saveDraftMutation = useMutation({
     mutationFn: async (formData: CompanyProfileFormValues) => {
       const res = await apiRequest('POST', '/api/employer/company-profile/draft', {
@@ -217,19 +218,26 @@ export function CompanyProfileForm({ companyId }: { companyId?: number }) {
       
       return await res.json();
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/employer/company-profile/draft', companyId] });
-      toast({
-        title: 'Progress saved',
-        description: 'Your company profile progress has been saved.',
-      });
+    onSuccess: (_, variables, context) => {
+      // Only invalidate query cache if this was a manual save (not auto-save)
+      if (context && (context as any).silent !== true) {
+        queryClient.invalidateQueries({ queryKey: ['/api/employer/company-profile/draft', companyId] });
+        toast({
+          title: 'Progress saved',
+          description: 'Your company profile progress has been saved.',
+        });
+      }
     },
-    onError: (error) => {
-      toast({
-        title: 'Save failed',
-        description: error.message,
-        variant: 'destructive',
-      });
+    onError: (error, _, context) => {
+      // Only show error toast if this was a manual save (not auto-save)
+      if (context && (context as any).silent !== true) {
+        toast({
+          title: 'Save failed',
+          description: error.message,
+          variant: 'destructive',
+        });
+      }
+      console.error('Failed to save draft:', error);
     }
   });
   
@@ -383,11 +391,55 @@ export function CompanyProfileForm({ companyId }: { companyId?: number }) {
     }
   }, [draftData, isDraftLoading, form]);
   
-  // Save draft automatically when moving between steps
-  const saveDraft = async () => {
+  // Save draft function (can be called manually or automatically)
+  const saveDraft = async (silent: boolean = false) => {
     const formData = form.getValues();
-    await saveDraftMutation.mutateAsync(formData);
+    await saveDraftMutation.mutateAsync(formData, {
+      onSuccess: (data) => {
+        if (!silent) {
+          queryClient.invalidateQueries({ queryKey: ['/api/employer/company-profile/draft', companyId] });
+          toast({
+            title: 'Progress saved',
+            description: 'Your company profile progress has been saved.',
+          });
+        }
+      },
+      onError: (error) => {
+        if (!silent) {
+          toast({
+            title: 'Save failed',
+            description: error.message,
+            variant: 'destructive',
+          });
+        }
+        console.error('Failed to save draft:', error);
+      }
+    });
   };
+
+  // Set up debounced auto-save
+  const debouncedSave = useCallback(
+    debounce(() => {
+      if (form.formState.isDirty) {
+        saveDraft(true); // silent=true to avoid toast notifications on auto-save
+      }
+    }, 3000), // 3 seconds delay before auto-saving
+    [form.formState.isDirty, form]
+  );
+
+  // Watch for form changes and trigger auto-save
+  useEffect(() => {
+    const subscription = form.watch(() => {
+      debouncedSave();
+    });
+    
+    // Clean up subscription on unmount
+    return () => {
+      subscription.unsubscribe();
+      // @ts-ignore - Lodash debounce has cancel method
+      debouncedSave.cancel();
+    };
+  }, [form, debouncedSave]);
   
   // Validate current step and move to next
   const handleNextStep = async () => {
