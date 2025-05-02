@@ -1,11 +1,23 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'wouter';
 import { Button } from '@/components/ui/button';
+import { useTheme } from '@/context/theme-context';
+import { Sun, Moon } from 'lucide-react';
 import enternLogo from '@/assets/entern-logo.png';
 
 export default function PrivacyPolicyPage() {
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  
+  // After mounting, we have access to the theme
+  useEffect(() => setMounted(true), []);
+  
+  const toggleTheme = () => {
+    setTheme(theme === 'dark' ? 'light' : 'dark');
+  };
+  
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
       {/* Navbar */}
       <nav className="bg-white dark:bg-gray-800 shadow-md sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -18,7 +30,20 @@ export default function PrivacyPolicyPage() {
                 </Link>
               </div>
             </div>
-            <div className="flex items-center">
+            <div className="flex items-center space-x-4">
+              <Button 
+                onClick={toggleTheme}
+                variant="ghost"
+                size="icon"
+                className="text-gray-700 dark:text-gray-300"
+                aria-label="Toggle dark mode"
+              >
+                {mounted && theme === "dark" ? (
+                  <Sun className="h-5 w-5" />
+                ) : (
+                  <Moon className="h-5 w-5" />
+                )}
+              </Button>
               <Button asChild className="btn-gradient rounded-md px-6 py-2 text-sm font-medium">
                 <Link href="/">Back to Home</Link>
               </Button>
@@ -29,11 +54,11 @@ export default function PrivacyPolicyPage() {
 
       {/* Privacy Policy Content */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 bg-white dark:bg-gray-800 my-8 rounded-lg shadow">
-        <div className="prose prose-lg max-w-none">
+        <div className="prose prose-lg max-w-none dark:prose-invert">
           <h1 className="text-3xl font-bold mb-6 text-gradient">Privacy Policy for enterN</h1>
-          <p className="text-gray-500 mb-8">Effective Date: 05/01/2025</p>
+          <p className="text-gray-500 dark:text-gray-400 mb-8">Effective Date: 05/01/2025</p>
           
-          <p className="mb-6">
+          <p className="mb-6 text-gray-800 dark:text-gray-200">
             Welcome to enterN, a hiring platform that empowers early-career jobseekers and employers 
             to find meaningful, bias-resistant matches through anonymized, preference-based profiles. 
             Your privacy is important to us, and this Privacy Policy explains how we collect, use, 

@@ -1,13 +1,24 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Link, useLocation } from 'wouter';
 import { useAuth } from '@/context/auth-context';
+import { useTheme } from '@/context/theme-context';
+import { Sun, Moon } from 'lucide-react';
 import { USER_TYPES } from '@/lib/constants';
 import enternLogo from '@/assets/entern-logo.png';
 
 export default function LandingPage() {
   const { user } = useAuth();
   const [, navigate] = useLocation();
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  
+  // After mounting, we have access to the theme
+  useEffect(() => setMounted(true), []);
+  
+  const toggleTheme = () => {
+    setTheme(theme === 'dark' ? 'light' : 'dark');
+  };
 
   const navigateToJobseeker = () => {
     if (user && user.userType === USER_TYPES.JOBSEEKER) {
@@ -43,7 +54,21 @@ export default function LandingPage() {
                 </div>
               </div>
             </div>
-            <div className="flex items-center">
+            <div className="flex items-center space-x-3">
+              <Button 
+                onClick={toggleTheme}
+                variant="ghost"
+                size="icon"
+                className="text-gray-700 dark:text-gray-300"
+                aria-label="Toggle dark mode"
+              >
+                {mounted && theme === "dark" ? (
+                  <Sun className="h-5 w-5" />
+                ) : (
+                  <Moon className="h-5 w-5" />
+                )}
+              </Button>
+              
               {user ? (
                 <Button asChild className="btn-gradient rounded-md px-6 py-2 text-sm font-medium">
                   <Link href={user.userType === USER_TYPES.JOBSEEKER ? '/jobseeker/dashboard' : '/employer/dashboard'}>
