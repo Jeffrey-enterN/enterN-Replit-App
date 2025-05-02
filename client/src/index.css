@@ -31,26 +31,31 @@
 }
 
 .dark {
-  --background: 0 0% 0%;
-  --foreground: 0 0% 98%;
-  --muted: 240 3.7% 15.9%;
-  --muted-foreground: 240 5% 64.9%;
-  --popover: 240 10% 3.9%;
-  --popover-foreground: 0 0% 98%;
-  --card: 240 10% 3.9%;
-  --card-foreground: 0 0% 98%;
-  --border: 240 3.7% 15.9%;
-  --input: 240 3.7% 15.9%;
-  --primary: 188 100% 35%;  /* #0097B1 - brand-teal */
+  --background: 240 10% 3.9%; /* Dark background */
+  --foreground: 0 0% 98%;     /* Light text */
+  --muted: 240 3.7% 15.9%;    /* Slightly lighter dark for muted areas */
+  --muted-foreground: 240 5% 84.9%; /* Lighter text for muted areas */
+  --popover: 240 10% 3.9%;    /* Dark background for popovers */
+  --popover-foreground: 0 0% 98%; /* Light text for popovers */
+  --card: 240 10% 3.9%;       /* Dark background for cards */
+  --card-foreground: 0 0% 98%; /* Light text for cards */
+  --border: 240 3.7% 15.9%;   /* Darker border color */
+  --input: 240 3.7% 15.9%;    /* Darker input background */
+  --primary: 188 100% 35%;    /* #0097B1 - brand-teal */
   --primary-foreground: 0 0% 100%;
-  --secondary: 328 100% 70%; /* #FF66C4 - brand-pink */
+  --secondary: 328 100% 70%;  /* #FF66C4 - brand-pink */
   --secondary-foreground: 0 0% 100%;
-  --accent: 181 73% 64%;  /* #5CE1E6 - brand-cyan */
-  --accent-foreground: 0 0% 0%;
+  --accent: 181 73% 64%;      /* #5CE1E6 - brand-cyan */
+  --accent-foreground: 240 10% 3.9%; /* Dark text on accent backgrounds */
   --destructive: 0 62.8% 30.6%;
   --destructive-foreground: 0 0% 98%;
-  --ring: 188 100% 35%;  /* #0097B1 - brand-teal */
+  --ring: 188 100% 35%;       /* #0097B1 - brand-teal */
   --radius: 0.5rem;
+  --chart-1: 188 100% 35%;    /* #0097B1 - brand-teal */
+  --chart-2: 328 100% 70%;    /* #FF66C4 - brand-pink */
+  --chart-3: 181 73% 64%;     /* #5CE1E6 - brand-cyan */
+  --chart-4: 70 98% 50%;      /* #C8FD04 - brand-lime */
+  --chart-5: 240 5% 84.9%;    /* Lighter gray for dark mode */
 }
 
 @layer base {
@@ -59,7 +64,8 @@
   }
 
   body {
-    @apply font-sans antialiased bg-gray-50 text-foreground min-h-screen;
+    @apply font-sans antialiased text-foreground min-h-screen;
+    @apply bg-white dark:bg-gray-900;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -73,11 +79,13 @@
   }
 
   .slider-with-labels .slider-labels {
-    @apply flex justify-between mb-2 text-sm font-medium text-gray-700;
+    @apply flex justify-between mb-2 text-sm font-medium text-gray-700 dark:text-gray-300;
   }
 
   .social-auth-button {
-    @apply w-full py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none flex items-center justify-center;
+    @apply w-full py-2 px-4 border rounded-md shadow-sm text-sm font-medium focus:outline-none flex items-center justify-center;
+    @apply border-gray-300 bg-white text-gray-700 hover:bg-gray-50;
+    @apply dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700;
   }
   
   .text-gradient {
@@ -93,15 +101,24 @@
   }
   
   .btn-gradient-outline {
-    background: linear-gradient(white, white) padding-box,
-                linear-gradient(135deg, #FF66C4, #5CE1E6) border-box;
     border: 2px solid transparent;
     @apply text-transparent bg-clip-text transition-all duration-300 hover:shadow-lg hover:shadow-brand-cyan/20;
     background-image: linear-gradient(135deg, #FF66C4, #5CE1E6);
+    
+    /* Light mode */
+    background: linear-gradient(white, white) padding-box,
+                linear-gradient(135deg, #FF66C4, #5CE1E6) border-box;
+                
+    /* Dark mode */
+    .dark & {
+      background: linear-gradient(hsl(240, 10%, 3.9%), hsl(240, 10%, 3.9%)) padding-box,
+                  linear-gradient(135deg, #FF66C4, #5CE1E6) border-box;
+    }
   }
   
   .btn-circle {
     @apply h-40 w-40 rounded-full flex flex-col items-center justify-center gap-3 text-base font-medium;
+    @apply bg-white dark:bg-gray-800 border dark:border-gray-700;
     transition: all 0.3s ease;
   }
   

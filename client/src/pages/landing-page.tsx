@@ -32,7 +32,7 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen flex flex-col">
       {/* Navbar */}
-      <nav className="bg-white shadow-md sticky top-0 z-50">
+      <nav className="bg-white dark:bg-gray-800 shadow-md sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-20">
             <div className="flex">
@@ -52,7 +52,7 @@ export default function LandingPage() {
                 </Button>
               ) : (
                 <>
-                  <Button asChild className="rounded-md px-6 py-2 text-sm font-medium border border-[#5CE1E6] bg-white text-[#FF66C4] hover:bg-gray-50">
+                  <Button asChild className="rounded-md px-6 py-2 text-sm font-medium border border-[#5CE1E6] bg-white dark:bg-gray-800 text-[#FF66C4] hover:bg-gray-50 dark:hover:bg-gray-700">
                     <Link href="/sign-in">Sign In</Link>
                   </Button>
                   <Button asChild className="ml-3 btn-gradient rounded-md px-6 py-2 text-sm font-medium">
@@ -66,15 +66,15 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero Section */}
-      <div className="relative bg-white overflow-hidden">
+      <div className="relative bg-white dark:bg-gray-900 overflow-hidden">
         <div className="max-w-7xl mx-auto">
-          <div className="relative z-10 pb-8 bg-white sm:pb-16 md:pb-20 lg:max-w-2xl lg:w-full lg:pb-28 xl:pb-32">
+          <div className="relative z-10 pb-8 bg-white dark:bg-gray-900 sm:pb-16 md:pb-20 lg:max-w-2xl lg:w-full lg:pb-28 xl:pb-32">
             <main className="mt-12 mx-auto max-w-7xl px-4 sm:mt-16 sm:px-6 md:mt-20 lg:mt-24 lg:px-8 xl:mt-32">
               <div className="sm:text-center lg:text-left">
-                <h1 className="text-4xl tracking-tight font-bold text-gray-900 sm:text-5xl md:text-6xl font-heading py-4">
+                <h1 className="text-4xl tracking-tight font-bold text-gray-900 dark:text-white sm:text-5xl md:text-6xl font-heading py-4">
                   <span className="block text-gradient font-extrabold">enterN: Rewiring Hiring</span>
                 </h1>
-                <p className="mt-6 text-base text-gray-600 sm:mt-8 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-8 md:text-xl lg:mx-0 leading-relaxed">
+                <p className="mt-6 text-base text-gray-600 dark:text-gray-300 sm:mt-8 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-8 md:text-xl lg:mx-0 leading-relaxed">
                   enterN connects employers with early-career talent based on organizational fit and values alignment, not just resumes. Build meaningful connections that lead to lasting careers.
                 </p>
                 <div className="mt-8 sm:mt-10 sm:flex sm:justify-center lg:justify-start gap-4">
@@ -87,7 +87,7 @@ export default function LandingPage() {
                   <Button 
                     onClick={navigateToEmployer}
                     variant="outline"
-                    className="mt-4 sm:mt-0 w-full flex items-center justify-center px-8 py-4 border-2 border-[#5CE1E6] text-base font-medium rounded-lg bg-white text-[#FF66C4] hover:bg-gray-50 md:text-lg md:px-10 shadow-md hover:shadow-lg transition-all"
+                    className="mt-4 sm:mt-0 w-full flex items-center justify-center px-8 py-4 border-2 border-[#5CE1E6] text-base font-medium rounded-lg bg-white dark:bg-gray-800 text-[#FF66C4] hover:bg-gray-50 dark:hover:bg-gray-700 md:text-lg md:px-10 shadow-md hover:shadow-lg transition-all"
                   >
                     I'm an Employer
                   </Button>
@@ -99,52 +99,52 @@ export default function LandingPage() {
       </div>
 
       {/* Features Section */}
-      <div className="py-20 bg-gray-50">
+      <div className="py-20 bg-gray-50 dark:bg-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="lg:text-center mb-12">
             <h2 className="text-base text-gradient font-semibold tracking-wide uppercase font-heading">How it works</h2>
-            <p className="mt-2 text-3xl leading-8 font-bold tracking-tight text-gray-900 sm:text-4xl font-heading">
+            <p className="mt-2 text-3xl leading-8 font-bold tracking-tight text-gray-900 dark:text-white sm:text-4xl font-heading">
               A better way to <span className="text-gradient">match talent with opportunity</span>
             </p>
-            <p className="mt-6 max-w-2xl text-xl text-gray-600 lg:mx-auto leading-relaxed">
+            <p className="mt-6 max-w-2xl text-xl text-gray-600 dark:text-gray-300 lg:mx-auto leading-relaxed">
               enterN's proprietary matching algorithm connects early talent with employers based on work style compatibility and values alignment, not just skills and experience.
             </p>
           </div>
 
           <div className="mt-16">
             <dl className="space-y-12 md:space-y-0 md:grid md:grid-cols-3 md:gap-x-8 md:gap-y-12">
-              <div className="relative bg-white p-6 rounded-xl shadow-md transform transition-all hover:scale-105">
+              <div className="relative bg-white dark:bg-gray-700 p-6 rounded-xl shadow-md transform transition-all hover:scale-105">
                 <dt>
                   <div className="absolute top-6 left-6 flex items-center justify-center h-14 w-14 rounded-md btn-gradient text-white shadow-lg">
                     <i className="fas fa-user-circle text-xl"></i>
                   </div>
-                  <p className="ml-20 text-xl leading-6 font-medium text-gray-900 mb-4">Anonymized Jobseeker Profiles</p>
+                  <p className="ml-20 text-xl leading-6 font-medium text-gray-900 dark:text-white mb-4">Anonymized Jobseeker Profiles</p>
                 </dt>
-                <dd className="mt-2 ml-20 text-base text-gray-600 leading-relaxed">
+                <dd className="mt-2 ml-20 text-base text-gray-600 dark:text-gray-200 leading-relaxed">
                   We've replaced the resume with bias-resistant anonymized profiles that capture 45 points of organizational and collaborative compatibility. Now you'll know if someone is a good fit, even before your first conversation.
                 </dd>
               </div>
 
-              <div className="relative bg-white p-6 rounded-xl shadow-md transform transition-all hover:scale-105">
+              <div className="relative bg-white dark:bg-gray-700 p-6 rounded-xl shadow-md transform transition-all hover:scale-105">
                 <dt>
                   <div className="absolute top-6 left-6 flex items-center justify-center h-14 w-14 rounded-md btn-gradient text-white shadow-lg">
                     <i className="fas fa-exchange-alt text-xl"></i>
                   </div>
-                  <p className="ml-20 text-xl leading-6 font-medium text-gray-900 mb-4">Symmetrical Matching</p>
+                  <p className="ml-20 text-xl leading-6 font-medium text-gray-900 dark:text-white mb-4">Symmetrical Matching</p>
                 </dt>
-                <dd className="mt-2 ml-20 text-base text-gray-600 leading-relaxed">
+                <dd className="mt-2 ml-20 text-base text-gray-600 dark:text-gray-200 leading-relaxed">
                   Our platform uses a two-way matching algorithm where both jobseekers and employers express interest independently. Only when there's mutual interest does a match occur, leading to higher engagement and better conversion rates.
                 </dd>
               </div>
 
-              <div className="relative bg-white p-6 rounded-xl shadow-md transform transition-all hover:scale-105">
+              <div className="relative bg-white dark:bg-gray-700 p-6 rounded-xl shadow-md transform transition-all hover:scale-105">
                 <dt>
                   <div className="absolute top-6 left-6 flex items-center justify-center h-14 w-14 rounded-md btn-gradient text-white shadow-lg">
                     <i className="fas fa-handshake text-xl"></i>
                   </div>
-                  <p className="ml-20 text-xl leading-6 font-medium text-gray-900 mb-4">Organizational Alignment</p>
+                  <p className="ml-20 text-xl leading-6 font-medium text-gray-900 dark:text-white mb-4">Organizational Alignment</p>
                 </dt>
-                <dd className="mt-2 ml-20 text-base text-gray-600 leading-relaxed">
+                <dd className="mt-2 ml-20 text-base text-gray-600 dark:text-gray-200 leading-relaxed">
                   Beyond skills and experience, enterN focuses on organizational fit, supervisor compatibility, and mission alignment. Our data shows that these factors lead to higher job satisfaction, better retention, and improved productivity.
                 </dd>
               </div>

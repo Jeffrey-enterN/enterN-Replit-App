@@ -7,7 +7,7 @@ export default function PrivacyPolicyPage() {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       {/* Navbar */}
-      <nav className="bg-white shadow-md sticky top-0 z-50">
+      <nav className="bg-white dark:bg-gray-800 shadow-md sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-20">
             <div className="flex">
@@ -28,7 +28,7 @@ export default function PrivacyPolicyPage() {
       </nav>
 
       {/* Privacy Policy Content */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 bg-white my-8 rounded-lg shadow">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 bg-white dark:bg-gray-800 my-8 rounded-lg shadow">
         <div className="prose prose-lg max-w-none">
           <h1 className="text-3xl font-bold mb-6 text-gradient">Privacy Policy for enterN</h1>
           <p className="text-gray-500 mb-8">Effective Date: 05/01/2025</p>
