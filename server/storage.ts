@@ -1117,13 +1117,43 @@ export class DatabaseStorage implements IStorage {
 
   // Jobseeker profile methods
   async createJobseekerProfile(userId: number, profileData: any): Promise<JobseekerProfile> {
-    const insertData = {
-      userId,
-      ...profileData
-    };
-    
-    const [profile] = await db.insert(jobseekerProfiles).values([insertData]).returning();
-    return profile;
+    try {
+      // First check if profile already exists
+      const [existingProfile] = await db
+        .select()
+        .from(jobseekerProfiles)
+        .where(eq(jobseekerProfiles.userId, userId));
+      
+      if (existingProfile) {
+        // Profile exists, update it
+        console.log(`Updating existing profile for user ${userId}`);
+        const [updatedProfile] = await db
+          .update(jobseekerProfiles)
+          .set({
+            ...profileData,
+            updatedAt: new Date()
+          })
+          .where(eq(jobseekerProfiles.userId, userId))
+          .returning();
+        
+        console.log(`Profile updated for user ${userId}`);
+        return updatedProfile;
+      } else {
+        // Profile doesn't exist, create a new one
+        console.log(`Creating new profile for user ${userId}`);
+        const insertData = {
+          userId,
+          ...profileData
+        };
+        
+        const [newProfile] = await db.insert(jobseekerProfiles).values([insertData]).returning();
+        console.log(`New profile created for user ${userId}`);
+        return newProfile;
+      }
+    } catch (error) {
+      console.error(`Error in createJobseekerProfile for user ${userId}:`, error);
+      throw error;
+    }
   }
 
   async saveJobseekerProfileDraft(userId: number, draftData: any): Promise<any> {
