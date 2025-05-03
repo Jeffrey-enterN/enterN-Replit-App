@@ -42,10 +42,11 @@ const PostgresSessionStore = connectPg(session);
 type SessionStore = session.Store;
 
 export interface IStorage {
-  getUser(id: number): Promise<User | undefined>;
+  getUser(id: string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
-  updateUser(id: number, userData: Partial<User>): Promise<User>;
+  updateUser(id: string, userData: Partial<User>): Promise<User>;
+  upsertUser(userData: Partial<User>): Promise<User>;
   
   // Jobseeker profile methods
   createJobseekerProfile(userId: number, profileData: any): Promise<JobseekerProfile>;
@@ -1056,7 +1057,7 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  async getUser(id: number): Promise<User | undefined> {
+  async getUser(id: string): Promise<User | undefined> {
     try {
       if (!id) {
         console.warn('getUser called with invalid id:', id);
@@ -1101,7 +1102,7 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
   
-  async updateUser(id: number, userData: Partial<User>): Promise<User> {
+  async updateUser(id: string, userData: Partial<User>): Promise<User> {
     const [updatedUser] = await db
       .update(users)
       .set({ ...userData, updatedAt: new Date() })
@@ -1113,6 +1114,35 @@ export class DatabaseStorage implements IStorage {
     }
     
     return updatedUser;
+  }
+  
+  async upsertUser(userData: Partial<User>): Promise<User> {
+    try {
+      if (!userData.id) {
+        throw new Error("User ID is required for upsert operation");
+      }
+
+      const [user] = await db
+        .insert(users)
+        .values({
+          ...userData,
+          updatedAt: new Date(),
+          createdAt: new Date()
+        })
+        .onConflictDoUpdate({
+          target: users.id,
+          set: {
+            ...userData,
+            updatedAt: new Date()
+          }
+        })
+        .returning();
+        
+      return user;
+    } catch (error) {
+      console.error('Error upserting user:', error);
+      throw error;
+    }
   }
 
   // Jobseeker profile methods

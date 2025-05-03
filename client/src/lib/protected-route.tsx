@@ -1,50 +1,33 @@
-import { useAuth } from "@/context/auth-context";
+import { useAuth } from "../context/auth-context";
 import { Loader2 } from "lucide-react";
 import { Redirect, Route } from "wouter";
-import { USER_TYPES } from "@/lib/constants";
 
 type ProtectedRouteProps = {
   path: string;
-  component: React.ComponentType<any>;
+  component: React.ComponentType;
+  role?: string;
 };
 
 export function ProtectedRoute({
   path,
   component: Component,
+  role
 }: ProtectedRouteProps) {
-  const { user, isLoading } = useAuth();
-  const isJobseekerRoute = path.startsWith("/jobseeker");
-  const isEmployerRoute = path.startsWith("/employer");
+  const { user, isLoading, isAuthenticated } = useAuth();
 
-  if (isLoading) {
-    return (
-      <Route path={path}>
+  return (
+    <Route path={path}>
+      {isLoading ? (
         <div className="flex items-center justify-center min-h-screen">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
-      </Route>
-    );
-  }
-
-  if (!user) {
-    return (
-      <Route path={path}>
+      ) : !isAuthenticated ? (
         <Redirect to="/auth" />
-      </Route>
-    );
-  }
-
-  // Check if the user type matches the route
-  if (
-    (isJobseekerRoute && user.userType !== USER_TYPES.JOBSEEKER) ||
-    (isEmployerRoute && user.userType !== USER_TYPES.EMPLOYER)
-  ) {
-    return (
-      <Route path={path}>
-        <Redirect to={user.userType === USER_TYPES.JOBSEEKER ? "/jobseeker/dashboard" : "/employer/dashboard"} />
-      </Route>
-    );
-  }
-
-  return <Route path={path} component={Component} />;
+      ) : role && user?.userType !== role ? (
+        <Redirect to="/unauthorized" />
+      ) : (
+        <Component />
+      )}
+    </Route>
+  );
 }
