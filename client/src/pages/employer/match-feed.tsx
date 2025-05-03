@@ -73,14 +73,16 @@ export default function EmployerMatchFeed() {
 
   // Format jobseeker data for display
   const formatJobseekerData = (jobseeker: JobseekerMatch) => {
+    // Return the data in the format expected by the MatchCard component
     return {
       id: jobseeker.id,
-      name: `Candidate ${jobseeker.id.substring(0, 4)}`, // Anonymized name
-      location: jobseeker.locations?.join(', ') || 'Location not specified',
-      description: `${jobseeker.education?.degree || ''} in ${jobseeker.education?.major || ''} from ${jobseeker.education?.school || ''}`,
-      positions: jobseeker.workArrangements || [],
-      interests: jobseeker.industryPreferences || [],
-      values: jobseeker.sliderValues || {}
+      education: jobseeker.education || {
+        degree: '',
+        major: '',
+        school: ''
+      },
+      locations: jobseeker.locations || [],
+      sliderValues: jobseeker.sliderValues || {}
     };
   };
 
