@@ -4,6 +4,7 @@ import { storage } from "./storage";
 import { setupAuth } from "./auth";
 import { USER_TYPES } from "../shared/schema";
 import { scrapeCompanyWebsite } from "./utils/website-scraper";
+import { sql } from "drizzle-orm";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Set up auth routes
@@ -274,6 +275,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
             .where(eq(employerProfiles.userId, hrUser.id));
             
           console.log(`HR employer profiles found: ${hrProfiles.length}`);
+          
+          // Also check if they have a company
+          const { companies } = await import("../shared/schema");
+          // Check if the HR user's companyId exists and look it up
+          if (hrUser.companyId) {
+            const companyResults = await db
+              .select()
+              .from(companies)
+              .where(eq(companies.id, hrUser.companyId));
+              
+            console.log(`Company found for HR user: ${companyResults.length}`);
+            if (companyResults.length > 0) {
+              console.log('Company details:', JSON.stringify(companyResults[0]));
+              
+              // The issue might be that we have a company but not an employer profile
+              console.log('The HR user has a company but not an employer profile');
+            }
+          } else {
+            console.log('HR user does not have a companyId assigned');
+          }
+          
+          // Check company profile drafts
+          const query = await db.execute(sql`
+            SELECT * FROM company_profile_drafts 
+            WHERE user_id = ${hrUser.id}
+            ORDER BY updated_at DESC
+          `);
+          
+          console.log(`Company profile drafts found: ${query.rows.length}`);
+          if (query.rows.length > 0) {
+            console.log('Latest draft:', JSON.stringify(query.rows[0]));
+          }
+          
           if (hrProfiles.length > 0) {
             console.log('HR employer profile found:', JSON.stringify(hrProfiles[0]));
           } else {
