@@ -53,20 +53,28 @@ export default function LandingPage() {
                 <p className="mt-6 text-base text-gray-600 dark:text-gray-300 sm:mt-8 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-8 md:text-xl lg:mx-0 leading-relaxed">
                   enterN connects employers with early-career talent based on organizational fit and values alignment, not just resumes. Build meaningful connections that lead to lasting careers.
                 </p>
-                <div className="mt-8 sm:mt-10 sm:flex sm:justify-center lg:justify-start gap-4">
+                <div className="mt-8 sm:mt-10 sm:flex sm:justify-center lg:justify-start gap-4 flex-wrap">
                   <Button 
                     onClick={navigateToJobseeker}
-                    className="w-full flex items-center justify-center px-8 py-4 text-base font-medium rounded-lg text-white btn-gradient md:text-lg md:px-10 shadow-lg hover:shadow-xl transition-all"
+                    className="w-full sm:w-auto flex-grow flex items-center justify-center px-8 py-4 text-base font-medium rounded-lg text-white btn-gradient md:text-lg md:px-10 shadow-lg hover:shadow-xl transition-all"
                   >
                     I'm a Jobseeker
                   </Button>
                   <Button 
                     onClick={navigateToEmployer}
                     variant="outline"
-                    className="mt-4 sm:mt-0 w-full flex items-center justify-center px-8 py-4 border-2 border-[#5CE1E6] text-base font-medium rounded-lg bg-white dark:bg-gray-800 text-[#FF66C4] hover:bg-gray-50 dark:hover:bg-gray-700 md:text-lg md:px-10 shadow-md hover:shadow-lg transition-all"
+                    className="mt-4 sm:mt-0 w-full sm:w-auto flex-grow flex items-center justify-center px-8 py-4 border-2 border-[#5CE1E6] text-base font-medium rounded-lg bg-white dark:bg-gray-800 text-[#FF66C4] hover:bg-gray-50 dark:hover:bg-gray-700 md:text-lg md:px-10 shadow-md hover:shadow-lg transition-all"
                   >
                     I'm an Employer
                   </Button>
+                  <Link href="/support" className="w-full flex mt-4 sm:mt-6">
+                    <Button 
+                      variant="ghost"
+                      className="w-full sm:max-w-md mx-auto flex items-center justify-center px-8 py-3 text-base font-medium rounded-lg border border-gray-300 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 md:text-md"
+                    >
+                      Need Help? Visit Support
+                    </Button>
+                  </Link>
                 </div>
               </div>
             </main>
