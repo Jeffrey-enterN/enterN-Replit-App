@@ -159,6 +159,15 @@ export default function JobseekerProfileForm() {
     }));
   };
 
+  // Helper to check if a slider has been adjusted from the default 50
+  const isSliderAdjusted = (sliderId: string): boolean => {
+    // If the slider doesn't exist in values object, it hasn't been adjusted
+    if (!(sliderId in sliderValues)) return false;
+    
+    // Consider the slider adjusted only if it's not at the default value of 50
+    return sliderValues[sliderId] !== 50;
+  };
+
   // Helper to check if a slider category is completed (only considering the first 5 sliders)
   const checkCategoryCompletion = (categoryId: string) => {
     const category = SLIDER_CATEGORIES.find(cat => cat.id === categoryId);
@@ -166,7 +175,8 @@ export default function JobseekerProfileForm() {
     
     // Only check the first 5 sliders in each category
     const visibleSliders = category.sliders.slice(0, 5);
-    return visibleSliders.every(slider => slider.id in sliderValues);
+    // A category is complete only when all sliders have been manually adjusted
+    return visibleSliders.every(slider => isSliderAdjusted(slider.id));
   };
 
   // Update section completion status
@@ -183,10 +193,10 @@ export default function JobseekerProfileForm() {
     // Count only the first 5 sliders in each category
     const totalSliders = SLIDER_CATEGORIES.reduce((acc, cat) => acc + Math.min(5, cat.sliders.length), 0);
     
-    // Count how many of the visible sliders have values
+    // Count how many of the visible sliders have been adjusted from default value
     const completedSliders = SLIDER_CATEGORIES.reduce((acc, cat) => {
       const visibleSliderIds = cat.sliders.slice(0, 5).map(s => s.id);
-      const completedInCategory = visibleSliderIds.filter(id => id in sliderValues).length;
+      const completedInCategory = visibleSliderIds.filter(id => isSliderAdjusted(id)).length;
       return acc + completedInCategory;
     }, 0);
     
@@ -290,8 +300,8 @@ export default function JobseekerProfileForm() {
         major: profile.major || '',
         portfolioUrl: profile.portfolioUrl || '',
         preferredLocations: Array.isArray(profile.preferredLocations) ? profile.preferredLocations : [],
-        workArrangements: Array.isArray(profile.workArrangements) ? profile.workArrangements.filter(v => v !== null) : [],
-        industryPreferences: Array.isArray(profile.industryPreferences) ? profile.industryPreferences.filter(v => v !== null) : [],
+        workArrangements: Array.isArray(profile.workArrangements) ? profile.workArrangements.filter((v: any) => v !== null) : [],
+        industryPreferences: Array.isArray(profile.industryPreferences) ? profile.industryPreferences.filter((v: any) => v !== null) : [],
         functionalPreferences: formattedFunctionalPreferences,
       };
       
@@ -417,10 +427,10 @@ export default function JobseekerProfileForm() {
       console.log('Current slider values:', sliderValues);
       console.log('Number of slider values:', Object.keys(sliderValues).length);
       
-      // Check if all categories have slider values
+      // Check if all categories have adjusted slider values
       SLIDER_CATEGORIES.forEach((category, index) => {
-        const hasValues = category.sliders.slice(0, 5).some(slider => slider.id in sliderValues);
-        console.log(`Category ${index + 1} (${category.name}): ${hasValues ? 'Has values' : 'No values'}`);
+        const hasAdjustedValues = category.sliders.slice(0, 5).some(slider => isSliderAdjusted(slider.id));
+        console.log(`Category ${index + 1} (${category.name}): ${hasAdjustedValues ? 'Has adjusted values' : 'No adjusted values'}`);
       });
       
       // We'll keep the data as-is since our functionalPreferences is already in JSON string format
