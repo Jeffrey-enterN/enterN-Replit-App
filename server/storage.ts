@@ -1657,58 +1657,74 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getEmployerPotentialMatches(userId: number): Promise<any[]> {
-    // Get jobseekers this employer hasn't swiped on yet
-    const swipedJobseekerIds = await db
-      .select({ jobseekerId: swipes.jobseekerId })
-      .from(swipes)
-      .where(eq(swipes.employerId, userId));
+    // Debug log to trace execution
+    console.log(`Getting potential matches for employer: ${userId}`);
     
-    // Get jobseeker profiles that haven't been swiped on
-    const potentialJobseekers = await db
-      .select()
-      .from(jobseekerProfiles)
-      .where(sql`${jobseekerProfiles.userId} NOT IN (
-        SELECT ${swipes.jobseekerId} FROM ${swipes} 
-        WHERE ${swipes.employerId} = ${userId}
-      )`)
-      .limit(10);
-    
-    // Filter out profiles with minimal information
-    const filteredProfiles = potentialJobseekers.filter(profile => {
-      // Check if profile has at least education or slider values
-      return (
-        (profile.degreeLevel || profile.major || profile.school) || 
-        (profile.sliderValues && Object.keys(profile.sliderValues).length > 0)
-      );
-    });
-    
-    // Format the results with anonymized but useful data
-    return filteredProfiles.map(jobseeker => {
-      // Parse JSON values if needed
-      const sliderValues = typeof jobseeker.sliderValues === 'string' 
-        ? JSON.parse(jobseeker.sliderValues) 
-        : (jobseeker.sliderValues || {});
-        
-      const preferredLocations = Array.isArray(jobseeker.preferredLocations)
-        ? jobseeker.preferredLocations
-        : (typeof jobseeker.preferredLocations === 'string'
-            ? JSON.parse(jobseeker.preferredLocations)
-            : []);
+    try {
+      // Get jobseekers this employer hasn't swiped on yet
+      const swipedResults = await db
+        .select({ jobseekerId: swipes.jobseekerId })
+        .from(swipes)
+        .where(eq(swipes.employerId, userId));
       
-      // Return formatted data
-      return {
-        id: jobseeker.userId.toString(),
-        education: {
-          degree: jobseeker.degreeLevel || '',
-          major: jobseeker.major || '',
-          school: jobseeker.school || ''
-        },
-        locations: preferredLocations,
-        sliderValues: sliderValues,
-        workArrangements: jobseeker.workArrangements || [],
-        industryPreferences: jobseeker.industryPreferences || []
-      };
-    });
+      const swipedJobseekerIds = swipedResults.map(item => item.jobseekerId);
+      console.log(`Already swiped on ${swipedJobseekerIds.length} profiles`);
+      
+      // Get all jobseeker profiles for debugging
+      const allProfiles = await db
+        .select()
+        .from(jobseekerProfiles);
+      
+      console.log(`Total jobseeker profiles in system: ${allProfiles.length}`);
+      
+      // Get jobseeker profiles that haven't been swiped on
+      let potentialJobseekers = allProfiles;
+      
+      // If there are swiped profiles, filter them out
+      if (swipedJobseekerIds.length > 0) {
+        potentialJobseekers = allProfiles.filter(profile => 
+          !swipedJobseekerIds.includes(profile.userId)
+        );
+      }
+      
+      console.log(`Potential matches (before filtering): ${potentialJobseekers.length}`);
+      
+      // Filter out profiles with minimal information
+      const filteredProfiles = potentialJobseekers;
+      
+      console.log(`Potential matches (after filtering): ${filteredProfiles.length}`);
+      
+      // Format the results with anonymized but useful data
+      return filteredProfiles.map(jobseeker => {
+        // Parse JSON values if needed
+        const sliderValues = typeof jobseeker.sliderValues === 'string' 
+          ? JSON.parse(jobseeker.sliderValues) 
+          : (jobseeker.sliderValues || {});
+          
+        const preferredLocations = Array.isArray(jobseeker.preferredLocations)
+          ? jobseeker.preferredLocations
+          : (typeof jobseeker.preferredLocations === 'string'
+              ? JSON.parse(jobseeker.preferredLocations)
+              : []);
+        
+        // Return formatted data
+        return {
+          id: jobseeker.userId.toString(),
+          education: {
+            degree: jobseeker.degreeLevel || '',
+            major: jobseeker.major || '',
+            school: jobseeker.school || ''
+          },
+          locations: preferredLocations,
+          sliderValues: sliderValues,
+          workArrangements: jobseeker.workArrangements || [],
+          industryPreferences: jobseeker.industryPreferences || []
+        };
+      });
+    } catch (error) {
+      console.error("Error getting potential matches:", error);
+      return [];
+    }
   }
 
   async handleEmployerSwipe(employerId: number, jobseekerId: string, interested: boolean): Promise<any> {
