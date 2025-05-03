@@ -176,8 +176,8 @@ export default function CollapsibleSliderSection({
                   {category.sliders.slice(0, 5).map((slider) => (
                     <SliderWithLabels
                       key={slider.id}
-                      leftLabel={slider.left}
-                      rightLabel={slider.right}
+                      leftLabel={slider.leftLabel}
+                      rightLabel={slider.rightLabel}
                       value={values[slider.id] ?? 50}
                       onChange={(value) => onChange(slider.id, value)}
                       name={slider.id}
