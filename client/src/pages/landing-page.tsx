@@ -23,7 +23,7 @@ export default function LandingPage() {
       // With Replit Auth, we don't have a separate sign-up page
       // Instead, store preference and redirect to login which will handle signup too
       localStorage.setItem('preferred_role', USER_TYPES.JOBSEEKER);
-      window.location.href = '/api/login';
+      window.location.href = 'https://replit.com/auth_with_repl_site?domain=c6df740a-b2bb-45d5-9f6e-0a972d1353ab-00-3mankzui0cbwt.janeway.replit.dev';
     }
   };
 
@@ -34,7 +34,7 @@ export default function LandingPage() {
       // With Replit Auth, we don't have a separate sign-up page
       // Instead, store preference and redirect to login which will handle signup too
       localStorage.setItem('preferred_role', USER_TYPES.EMPLOYER);
-      window.location.href = '/api/login';
+      window.location.href = 'https://replit.com/auth_with_repl_site?domain=c6df740a-b2bb-45d5-9f6e-0a972d1353ab-00-3mankzui0cbwt.janeway.replit.dev';
     }
   };
 
@@ -77,8 +77,10 @@ export default function LandingPage() {
                   </p>
                   <div className="flex justify-center mt-2">
                     <a 
-                      href="/api/login"
+                      href="https://replit.com/auth_with_repl_site?domain=c6df740a-b2bb-45d5-9f6e-0a972d1353ab-00-3mankzui0cbwt.janeway.replit.dev"
                       className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium underline"
+                      target="_blank"
+                      rel="noopener noreferrer"
                     >
                       Login directly with Replit Auth
                     </a>

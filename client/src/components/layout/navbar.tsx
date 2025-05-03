@@ -60,7 +60,19 @@ export function Navbar() {
               <Button 
                 variant="ghost" 
                 size="icon" 
-                onClick={() => window.location.href = '/api/logout'}
+                onClick={() => {
+                  // Try the API route first, but also clear local storage to help with logout
+                  localStorage.removeItem('preferred_role');
+                  
+                  try {
+                    fetch('/api/logout').finally(() => {
+                      window.location.href = '/';
+                    });
+                  } catch (e) {
+                    console.error('Logout error:', e);
+                    window.location.href = '/';
+                  }
+                }}
               >
                 <LogOut className="h-5 w-5" />
                 <span className="sr-only">Logout</span>
@@ -70,7 +82,7 @@ export function Navbar() {
             <Button 
               variant="outline" 
               size="sm" 
-              onClick={() => window.location.href = '/api/login'}
+              onClick={() => window.location.href = 'https://replit.com/auth_with_repl_site?domain=c6df740a-b2bb-45d5-9f6e-0a972d1353ab-00-3mankzui0cbwt.janeway.replit.dev'}
             >
               <LogIn className="mr-2 h-4 w-4" />
               Sign In
