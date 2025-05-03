@@ -24,6 +24,7 @@ import EmployerMatchFeed from "@/pages/employer/match-feed";
 import JobseekerMatchFeed from "@/pages/jobseeker/match-feed";
 import JobseekerCalendar from "@/pages/jobseeker/calendar";
 import PrivacyPolicyPage from "@/pages/privacy-policy-page";
+import SupportPage from "@/pages/support-page";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -34,6 +35,7 @@ function Router() {
       <Route path="/sign-in" component={SignInPage} />
       <Route path="/sign-up" component={SignUpPage} />
       <Route path="/privacy-policy" component={PrivacyPolicyPage} />
+      <Route path="/support" component={SupportPage} />
       <ProtectedRoute path="/contact-details" component={ContactDetailsPage} />
       <ProtectedRoute path="/jobseeker/dashboard" component={JobseekerDashboard} />
       <ProtectedRoute path="/jobseeker/profile" component={JobseekerProfilePage} />
