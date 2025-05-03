@@ -86,12 +86,11 @@ export default function CollapsibleSliderSection({
   values,
   onChange
 }: CollapsibleSliderSectionProps) {
-  // Calculate completion percentage for each category - only consider the first 5 visible sliders
+  // Calculate completion percentage for each category
   const getCategoryCompletion = (category: SliderCategory) => {
-    // Only consider the first 5 sliders for completion calculation
-    const visibleSliders = category.sliders.slice(0, 5);
-    const totalSliders = visibleSliders.length;
-    const completedSliders = visibleSliders.filter(slider => 
+    // Consider all sliders for completion calculation
+    const totalSliders = category.sliders.length;
+    const completedSliders = category.sliders.filter(slider => 
       slider.id in values
     ).length;
     
@@ -172,8 +171,8 @@ export default function CollapsibleSliderSection({
               </AccordionTrigger>
               <AccordionContent className="px-4">
                 <div className="space-y-6 py-4">
-                  {/* Only show the first 5 sliders in each category */}
-                  {category.sliders.slice(0, 5).map((slider) => (
+                  {/* Show all sliders in each category */}
+                  {category.sliders.map((slider) => (
                     <SliderWithLabels
                       key={slider.id}
                       leftLabel={slider.leftLabel}
