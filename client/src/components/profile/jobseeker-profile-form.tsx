@@ -763,12 +763,13 @@ export default function JobseekerProfileForm() {
                                   >
                                     <FormControl>
                                       <Checkbox
-                                        checked={field.value?.includes(arrangement.id)}
+                                        checked={Array.isArray(field.value) && field.value.includes(arrangement.id)}
                                         onCheckedChange={(checked) => {
+                                          const currentValue = Array.isArray(field.value) ? field.value : [];
                                           return checked
-                                            ? field.onChange([...field.value, arrangement.id])
+                                            ? field.onChange([...currentValue, arrangement.id])
                                             : field.onChange(
-                                                field.value?.filter(
+                                                currentValue.filter(
                                                   (value) => value !== arrangement.id
                                                 )
                                               )
@@ -814,12 +815,13 @@ export default function JobseekerProfileForm() {
                                   >
                                     <FormControl>
                                       <Checkbox
-                                        checked={field.value?.includes(industry)}
+                                        checked={Array.isArray(field.value) && field.value.includes(industry)}
                                         onCheckedChange={(checked) => {
+                                          const currentValue = Array.isArray(field.value) ? field.value : [];
                                           return checked
-                                            ? field.onChange([...field.value || [], industry])
+                                            ? field.onChange([...currentValue, industry])
                                             : field.onChange(
-                                                field.value?.filter(
+                                                currentValue.filter(
                                                   (value) => value !== industry
                                                 )
                                               )

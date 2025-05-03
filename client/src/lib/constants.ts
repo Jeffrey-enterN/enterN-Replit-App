@@ -69,10 +69,10 @@ export const FUNCTIONAL_AREAS = [
 
 // Work Arrangements
 export const WORK_ARRANGEMENTS = [
-  'Remote',
-  'Hybrid',
-  'In-office',
-  'Flexible'
+  { id: 'remote', label: 'Remote' },
+  { id: 'hybrid', label: 'Hybrid' },
+  { id: 'in-office', label: 'In-office' },
+  { id: 'flexible', label: 'Flexible' }
 ];
 
 // Company Sizes
