@@ -1700,10 +1700,15 @@ export class DatabaseStorage implements IStorage {
       const swipedJobseekerIds = swipedResults.map(item => item.jobseekerId);
       console.log(`Already swiped on ${swipedJobseekerIds.length} profiles`);
       
-      // Get all jobseeker profiles for debugging
+      // Get all jobseeker profiles with full JOIN to users table
+      // This gives us access to more complete profile data
       const allProfiles = await db
-        .select()
-        .from(jobseekerProfiles);
+        .select({
+          profile: jobseekerProfiles,
+          user: users
+        })
+        .from(jobseekerProfiles)
+        .innerJoin(users, eq(jobseekerProfiles.userId, users.id));
       
       console.log(`Total jobseeker profiles in system: ${allProfiles.length}`);
       
@@ -1712,30 +1717,95 @@ export class DatabaseStorage implements IStorage {
       
       // If there are swiped profiles, filter them out
       if (swipedJobseekerIds.length > 0) {
-        potentialJobseekers = allProfiles.filter(profile => 
-          !swipedJobseekerIds.includes(profile.userId)
+        potentialJobseekers = allProfiles.filter(item => 
+          !swipedJobseekerIds.includes(item.profile.userId)
         );
       }
       
       console.log(`Potential matches (before filtering): ${potentialJobseekers.length}`);
       
       // Filter out profiles with minimal information
-      const filteredProfiles = potentialJobseekers;
+      // Only include profiles with at least some education or preferences data
+      const filteredProfiles = potentialJobseekers.filter(item => {
+        const profile = item.profile;
+        
+        // Check if profile has some meaningful data
+        const hasEducation = profile.school || profile.degreeLevel || profile.major;
+        const hasSliderValues = profile.sliderValues && 
+          (typeof profile.sliderValues === 'object' ? 
+            Object.keys(profile.sliderValues).length > 0 : 
+            profile.sliderValues.toString().trim() !== '');
+        const hasPreferences = 
+          (Array.isArray(profile.preferredLocations) && profile.preferredLocations.length > 0) ||
+          (Array.isArray(profile.workArrangements) && profile.workArrangements.length > 0) ||
+          (Array.isArray(profile.industryPreferences) && profile.industryPreferences.length > 0);
+        
+        // Include profile if it has at least some information
+        return hasEducation || hasSliderValues || hasPreferences;
+      });
       
       console.log(`Potential matches (after filtering): ${filteredProfiles.length}`);
       
       // Format the results with anonymized but useful data
-      return filteredProfiles.map(jobseeker => {
-        // Parse JSON values if needed
-        const sliderValues = typeof jobseeker.sliderValues === 'string' 
-          ? JSON.parse(jobseeker.sliderValues) 
-          : (jobseeker.sliderValues || {});
-          
-        const preferredLocations = Array.isArray(jobseeker.preferredLocations)
-          ? jobseeker.preferredLocations
-          : (typeof jobseeker.preferredLocations === 'string'
-              ? JSON.parse(jobseeker.preferredLocations)
-              : []);
+      return filteredProfiles.map(item => {
+        const jobseeker = item.profile;
+        const userData = item.user;
+        
+        // Safely parse JSON values if needed
+        let sliderValues = {};
+        try {
+          sliderValues = typeof jobseeker.sliderValues === 'string' 
+            ? JSON.parse(jobseeker.sliderValues) 
+            : (jobseeker.sliderValues || {});
+        } catch (e) {
+          console.error(`Error parsing slider values for user ${jobseeker.userId}:`, e);
+        }
+        
+        // Safely parse location preferences
+        let preferredLocations = [];
+        try {
+          preferredLocations = Array.isArray(jobseeker.preferredLocations)
+            ? jobseeker.preferredLocations
+            : (typeof jobseeker.preferredLocations === 'string'
+                ? JSON.parse(jobseeker.preferredLocations)
+                : []);
+        } catch (e) {
+          console.error(`Error parsing location preferences for user ${jobseeker.userId}:`, e);
+        }
+        
+        // Safely parse work arrangements
+        let workArrangements = [];
+        try {
+          workArrangements = Array.isArray(jobseeker.workArrangements)
+            ? jobseeker.workArrangements
+            : (typeof jobseeker.workArrangements === 'string'
+                ? JSON.parse(jobseeker.workArrangements)
+                : []);
+        } catch (e) {
+          console.error(`Error parsing work arrangements for user ${jobseeker.userId}:`, e);
+        }
+        
+        // Safely parse industry preferences
+        let industryPreferences = [];
+        try {
+          industryPreferences = Array.isArray(jobseeker.industryPreferences)
+            ? jobseeker.industryPreferences
+            : (typeof jobseeker.industryPreferences === 'string'
+                ? JSON.parse(jobseeker.industryPreferences)
+                : []);
+        } catch (e) {
+          console.error(`Error parsing industry preferences for user ${jobseeker.userId}:`, e);
+        }
+        
+        console.log(`Formatting profile for user ${jobseeker.userId}:`, {
+          firstName: userData.firstName,
+          lastName: userData.lastName,
+          school: jobseeker.school,
+          degree: jobseeker.degreeLevel,
+          major: jobseeker.major,
+          locationsCount: preferredLocations.length,
+          hasSliderValues: Object.keys(sliderValues).length > 0
+        });
         
         // Return formatted data
         return {
@@ -1747,8 +1817,8 @@ export class DatabaseStorage implements IStorage {
           },
           locations: preferredLocations,
           sliderValues: sliderValues,
-          workArrangements: jobseeker.workArrangements || [],
-          industryPreferences: jobseeker.industryPreferences || []
+          workArrangements: workArrangements,
+          industryPreferences: industryPreferences
         };
       });
     } catch (error) {
