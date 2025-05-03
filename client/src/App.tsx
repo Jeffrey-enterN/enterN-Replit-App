@@ -13,6 +13,7 @@ import LandingPage from "@/pages/landing-page";
 import AuthPage from "@/pages/auth-page";
 import UnauthorizedPage from "@/pages/unauthorized-page";
 import ContactDetailsPage from "@/pages/contact-details-page";
+import OnboardingPage from "@/pages/onboarding-page";
 import JobseekerDashboard from "@/pages/jobseeker/dashboard";
 import EmployerDashboard from "@/pages/employer/dashboard";
 import JobseekerProfilePage from "@/pages/jobseeker/profile-page";
@@ -31,6 +32,7 @@ function Router() {
       <Route path="/auth" component={AuthPage} />
       <Route path="/unauthorized" component={UnauthorizedPage} />
       <Route path="/privacy-policy" component={PrivacyPolicyPage} />
+      <Route path="/onboarding" component={OnboardingPage} />
       <ProtectedRoute path="/contact-details" component={ContactDetailsPage} />
       <ProtectedRoute path="/jobseeker/dashboard" component={JobseekerDashboard} role="jobseeker" />
       <ProtectedRoute path="/jobseeker/profile" component={JobseekerProfilePage} role="jobseeker" />

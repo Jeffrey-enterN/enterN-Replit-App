@@ -9,6 +9,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Set up auth routes
   setupAuth(app);
   
+  // User role selection after authentication
+  app.post("/api/user/set-role", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { userType } = req.body;
+      
+      if (!userType || ![USER_TYPES.JOBSEEKER, USER_TYPES.EMPLOYER].includes(userType)) {
+        return res.status(400).json({ message: "Invalid user type" });
+      }
+      
+      // Update the user's type in the database
+      const updatedUser = await storage.updateUser(userId, { userType });
+      
+      res.status(200).json(updatedUser);
+    } catch (error) {
+      console.error("Error setting user role:", error);
+      res.status(500).json({ message: "Failed to update user role" });
+    }
+  });
+  
   // Test routes for system status and diagnostics
   app.get("/api/test", (req, res) => {
     res.status(200).json({

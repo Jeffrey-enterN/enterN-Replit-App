@@ -20,9 +20,10 @@ export default function LandingPage() {
     if (user && user.userType === USER_TYPES.JOBSEEKER) {
       navigate('/jobseeker/dashboard');
     } else {
-      navigate('/sign-up');
-      // We can set a preference in localStorage that will be picked up by the sign-up page
+      // With Replit Auth, we don't have a separate sign-up page
+      // Instead, store preference and redirect to login which will handle signup too
       localStorage.setItem('preferred_role', USER_TYPES.JOBSEEKER);
+      window.location.href = '/api/login';
     }
   };
 
@@ -30,9 +31,10 @@ export default function LandingPage() {
     if (user && user.userType === USER_TYPES.EMPLOYER) {
       navigate('/employer/dashboard');
     } else {
-      navigate('/sign-up');
-      // We can set a preference in localStorage that will be picked up by the sign-up page
+      // With Replit Auth, we don't have a separate sign-up page
+      // Instead, store preference and redirect to login which will handle signup too
       localStorage.setItem('preferred_role', USER_TYPES.EMPLOYER);
+      window.location.href = '/api/login';
     }
   };
 
