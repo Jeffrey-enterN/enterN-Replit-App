@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp, varchar, uuid, jsonb, json, unique, index } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, varchar, uuid, jsonb, json, unique } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { relations } from "drizzle-orm";
 import { z } from "zod";
@@ -144,17 +144,16 @@ export type CompanyInvite = typeof companyInvites.$inferSelect;
 // === USER TABLES ===
 
 export const users = pgTable("users", {
-  id: varchar("id").primaryKey().notNull(),
-  username: varchar("username").unique().notNull(),
-  email: varchar("email").unique(),
-  firstName: varchar("first_name"),
-  lastName: varchar("last_name"),
-  profileImageUrl: varchar("profile_image_url"),
-  bio: text("bio"),
-  userType: text("user_type").default("jobseeker"),
+  id: serial("id").primaryKey(),
+  username: text("username").notNull().unique(),
+  password: text("password").notNull(),
+  userType: text("user_type").notNull(),
+  firstName: text("first_name"),
+  lastName: text("last_name"),
   companyName: text("company_name"),
   companyId: integer("company_id").references(() => companies.id),
   companyRole: text("company_role").default("recruiter"),
+  email: text("email"),
   phone: text("phone"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -183,7 +182,16 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   sentInvites: many(companyInvites)
 }));
 
-export const insertUserSchema = createInsertSchema(users);
+export const insertUserSchema = createInsertSchema(users).pick({
+  username: true,
+  password: true,
+  userType: true,
+  firstName: true,
+  lastName: true,
+  companyName: true,
+  email: true,
+  phone: true,
+});
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
@@ -192,7 +200,7 @@ export type User = typeof users.$inferSelect;
 
 export const jobseekerProfiles = pgTable("jobseeker_profiles", {
   id: uuid("id").defaultRandom().primaryKey(),
-  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   firstName: text("first_name"),
   lastName: text("last_name"),
   email: text("email"),
@@ -206,7 +214,7 @@ export const jobseekerProfiles = pgTable("jobseeker_profiles", {
   industryPreferences: jsonb("industry_preferences").$type<string[]>().default([]),
   functionalPreferences: text("functional_preferences").default(''),
   sliderValues: jsonb("slider_values").$type<Record<string, number>>(),
-  viewedBy: jsonb("viewed_by").$type<string[]>().default([]),
+  viewedBy: jsonb("viewed_by").$type<number[]>().default([]),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -428,15 +436,3 @@ export const insertMatchSchema = createInsertSchema(matches).omit({
 
 export type InsertMatch = z.infer<typeof insertMatchSchema>;
 export type Match = typeof matches.$inferSelect;
-
-// === SESSIONS ===
-// This table is required for Replit Auth session storage
-export const sessions = pgTable("sessions", {
-  sid: varchar("sid").primaryKey(),
-  sess: jsonb("sess").notNull(),
-  expire: timestamp("expire").notNull(),
-}, (table) => {
-  return {
-    expireIdx: index("IDX_session_expire").on(table.expire),
-  };
-});

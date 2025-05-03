@@ -5,7 +5,7 @@ import { useAuth } from '@/context/auth-context';
 import { useTheme } from '@/context/theme-context';
 import { USER_TYPES } from '@/lib/constants';
 import enternLogo from '@/assets/entern-logo.png';
-import { Navbar } from '@/components/layout/navbar';
+import Navbar from '@/components/layouts/navbar';
 
 export default function LandingPage() {
   const { user } = useAuth();
@@ -20,10 +20,9 @@ export default function LandingPage() {
     if (user && user.userType === USER_TYPES.JOBSEEKER) {
       navigate('/jobseeker/dashboard');
     } else {
-      // With Replit Auth, we don't have a separate sign-up page
-      // Instead, store preference and redirect to login which will handle signup too
+      navigate('/sign-up');
+      // We can set a preference in localStorage that will be picked up by the sign-up page
       localStorage.setItem('preferred_role', USER_TYPES.JOBSEEKER);
-      window.location.href = 'https://replit.com/auth_with_repl_site?domain=c6df740a-b2bb-45d5-9f6e-0a972d1353ab-00-3mankzui0cbwt.janeway.replit.dev';
     }
   };
 
@@ -31,10 +30,9 @@ export default function LandingPage() {
     if (user && user.userType === USER_TYPES.EMPLOYER) {
       navigate('/employer/dashboard');
     } else {
-      // With Replit Auth, we don't have a separate sign-up page
-      // Instead, store preference and redirect to login which will handle signup too
+      navigate('/sign-up');
+      // We can set a preference in localStorage that will be picked up by the sign-up page
       localStorage.setItem('preferred_role', USER_TYPES.EMPLOYER);
-      window.location.href = 'https://replit.com/auth_with_repl_site?domain=c6df740a-b2bb-45d5-9f6e-0a972d1353ab-00-3mankzui0cbwt.janeway.replit.dev';
     }
   };
 
@@ -69,22 +67,6 @@ export default function LandingPage() {
                   >
                     I'm an Employer
                   </Button>
-                </div>
-                
-                <div className="mt-8 text-center">
-                  <p className="text-gray-600 dark:text-gray-300">
-                    Having trouble logging in?
-                  </p>
-                  <div className="flex justify-center mt-2">
-                    <a 
-                      href="https://replit.com/auth_with_repl_site?domain=c6df740a-b2bb-45d5-9f6e-0a972d1353ab-00-3mankzui0cbwt.janeway.replit.dev"
-                      className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium underline"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      Login directly with Replit Auth
-                    </a>
-                  </div>
                 </div>
               </div>
             </main>
