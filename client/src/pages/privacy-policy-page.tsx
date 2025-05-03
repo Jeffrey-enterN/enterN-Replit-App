@@ -79,7 +79,7 @@ export default function PrivacyPolicyPage() {
             <li>Opt-out of data processing or marketing emails</li>
           </ul>
           
-          <p className="mb-6">To exercise your rights, contact us at privacy@entern.co.</p>
+          <p className="mb-6">To exercise your rights, contact us at info@enter-n.com.</p>
 
           <h2 className="text-2xl font-semibold mt-8 mb-4">Data Security</h2>
           <p className="mb-4">We implement strong security measures to protect your data, including:</p>
@@ -99,7 +99,7 @@ export default function PrivacyPolicyPage() {
             <li>For analytics purposes, unless you request deletion</li>
           </ul>
           
-          <p className="mb-6">You may delete your account at any time in your settings or by contacting support@entern.co.</p>
+          <p className="mb-6">You may delete your account at any time in your settings or by contacting info@enter-n.com.</p>
 
           <h2 className="text-2xl font-semibold mt-8 mb-4">Children's Privacy</h2>
           <p className="mb-6">
@@ -121,7 +121,7 @@ export default function PrivacyPolicyPage() {
             <strong>enterN, Inc.</strong><br />
             201 SW Adams Street<br />
             Peoria, IL 61602<br />
-            Email: <a href="mailto:privacy@entern.co" className="text-blue-600 hover:underline">privacy@entern.co</a>
+            Email: <a href="mailto:info@enter-n.com" className="text-blue-600 hover:underline">info@enter-n.com</a>
           </address>
         </div>
       </div>
