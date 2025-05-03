@@ -27,10 +27,12 @@ export function getSession() {
   const pgStore = connectPg(session);
   const sessionStore = new pgStore({
     conString: process.env.DATABASE_URL,
-    createTableIfMissing: false,
+    createTableIfMissing: true, // Create the session table if it doesn't exist
     ttl: sessionTtl,
     tableName: "sessions",
+    pruneSessionInterval: 60 // Prune expired sessions every 60 seconds
   });
+  
   return session({
     secret: process.env.SESSION_SECRET!,
     store: sessionStore,
@@ -38,8 +40,9 @@ export function getSession() {
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: true,
+      secure: process.env.NODE_ENV === 'production', // Only use secure cookies in production
       maxAge: sessionTtl,
+      sameSite: 'lax'
     },
   });
 }
@@ -129,10 +132,28 @@ export async function setupAuth(app: Express) {
   });
 
   // Current user API endpoint
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+  app.get('/api/auth/user', async (req: any, res) => {
+    console.log('Auth user request - isAuthenticated:', req.isAuthenticated());
+    console.log('Session data:', { 
+      id: req.sessionID, 
+      cookie: req.session?.cookie, 
+      user: req.user ? { 
+        claims: req.user.claims,
+        expires_at: req.user.expires_at
+      } : undefined 
+    });
+    
+    if (!req.isAuthenticated()) {
+      console.log("Unauthorized attempt to fetch user - session info:", 
+                { sessionID: req.sessionID, passport: req.session?.passport });
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+    
     try {
       const userId = req.user.claims.sub;
+      console.log("Fetching user data for:", userId);
       const user = await storage.getUser(userId);
+      console.log("User data found:", user ? "Yes" : "No");
       res.json(user);
     } catch (error) {
       console.error("Error fetching user:", error);
