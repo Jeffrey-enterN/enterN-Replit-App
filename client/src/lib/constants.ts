@@ -355,7 +355,14 @@ export const SLIDER_CATEGORIES = [
         name: 'Innovation vs. Tradition',
         leftLabel: 'Value innovation',
         rightLabel: 'Value tradition'
-      },
+      }
+    ]
+  },
+  {
+    id: 'work_style',
+    name: 'Work Style',
+    description: 'Your preferred working style and environment',
+    sliders: [
       {
         id: 'casual_vs_formal',
         name: 'Casual vs. Formal',
@@ -422,7 +429,14 @@ export const SLIDER_CATEGORIES = [
         name: 'Challenging vs. Supportive',
         leftLabel: 'Prefer to be challenged',
         rightLabel: 'Prefer to be supported'
-      },
+      }
+    ]
+  },
+  {
+    id: 'management_approach',
+    name: 'Management Approach',
+    description: 'How you prefer to be managed',
+    sliders: [
       {
         id: 'formal_vs_informal_leadership',
         name: 'Formal vs. Informal Leadership',
@@ -489,7 +503,14 @@ export const SLIDER_CATEGORIES = [
         name: 'Customer vs. Employee First',
         leftLabel: 'Customer-first mentality',
         rightLabel: 'Employee-first mentality'
-      },
+      }
+    ]
+  },
+  {
+    id: 'organizational_culture',
+    name: 'Organizational Culture',
+    description: 'Cultural aspects of an organization that matter to you',
+    sliders: [
       {
         id: 'data_driven_vs_intuition',
         name: 'Data-driven vs. Intuition',
@@ -519,6 +540,117 @@ export const SLIDER_CATEGORIES = [
         name: 'Company Loyalty vs. Industry Mobility',
         leftLabel: 'Value company loyalty',
         rightLabel: 'Value industry mobility'
+      }
+    ]
+  },
+  {
+    id: 'communication_style',
+    name: 'Communication Style',
+    description: 'How you prefer to communicate in the workplace',
+    sliders: [
+      {
+        id: 'direct_vs_diplomatic',
+        name: 'Direct vs. Diplomatic',
+        leftLabel: 'Prefer direct communication',
+        rightLabel: 'Prefer diplomatic communication'
+      },
+      {
+        id: 'written_vs_verbal',
+        name: 'Written vs. Verbal',
+        leftLabel: 'Prefer written communication',
+        rightLabel: 'Prefer verbal communication'
+      },
+      {
+        id: 'frequent_vs_as_needed',
+        name: 'Frequent vs. As-Needed',
+        leftLabel: 'Prefer frequent updates',
+        rightLabel: 'Prefer as-needed updates'
+      },
+      {
+        id: 'formal_vs_casual_comm',
+        name: 'Formal vs. Casual Communication',
+        leftLabel: 'Prefer formal communication',
+        rightLabel: 'Prefer casual communication'
+      },
+      {
+        id: 'detailed_vs_concise',
+        name: 'Detailed vs. Concise',
+        leftLabel: 'Prefer detailed information',
+        rightLabel: 'Prefer concise information'
+      }
+    ]
+  },
+  {
+    id: 'work_life_balance',
+    name: 'Work-Life Balance',
+    description: 'Your preferences for balancing work and personal life',
+    sliders: [
+      {
+        id: 'work_life_separation_vs_integration',
+        name: 'Separation vs. Integration',
+        leftLabel: 'Prefer clear boundaries',
+        rightLabel: 'Prefer work-life integration'
+      },
+      {
+        id: 'flexible_hours_vs_fixed',
+        name: 'Flexible Hours vs. Fixed Schedule',
+        leftLabel: 'Prefer flexible hours',
+        rightLabel: 'Prefer fixed schedule'
+      },
+      {
+        id: 'overtime_willingness',
+        name: 'Overtime Willingness',
+        leftLabel: 'Avoid overtime when possible',
+        rightLabel: 'Willing to work extra hours'
+      },
+      {
+        id: 'travel_preference',
+        name: 'Travel Preference',
+        leftLabel: 'Prefer minimal travel',
+        rightLabel: 'Open to frequent travel'
+      },
+      {
+        id: 'professional_development_time',
+        name: 'Professional Development',
+        leftLabel: 'Learning during work hours',
+        rightLabel: 'Learning on personal time'
+      }
+    ]
+  },
+  {
+    id: 'decision_making',
+    name: 'Decision Making',
+    description: 'How you approach decisions in the workplace',
+    sliders: [
+      {
+        id: 'analytical_vs_intuitive',
+        name: 'Analytical vs. Intuitive',
+        leftLabel: 'Prefer analytical approach',
+        rightLabel: 'Trust intuition'
+      },
+      {
+        id: 'quick_vs_thorough',
+        name: 'Quick vs. Thorough',
+        leftLabel: 'Decide quickly',
+        rightLabel: 'Thorough consideration'
+      },
+      {
+        id: 'group_input_vs_individual',
+        name: 'Group Input vs. Individual',
+        leftLabel: 'Gather group input',
+        rightLabel: 'Decide independently'
+      },
+      {
+        id: 'risk_averse_vs_risk_seeking',
+        name: 'Risk-Averse vs. Risk-Seeking',
+        leftLabel: 'Avoid risks when possible',
+        rightLabel: 'Willing to take calculated risks'
+      },
+      {
+        id: 'pragmatic_vs_idealistic',
+        name: 'Pragmatic vs. Idealistic',
+        leftLabel: 'Pragmatic solutions',
+        rightLabel: 'Idealistic solutions'
       }
     ]
   }
