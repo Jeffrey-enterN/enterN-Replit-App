@@ -87,11 +87,20 @@ export default function CollapsibleSliderSection({
   onChange
 }: CollapsibleSliderSectionProps) {
   // Calculate completion percentage for each category
+  // Track whether a slider has been adjusted by the user (not just set to default 50)
+  const isSliderAdjusted = (sliderId: string): boolean => {
+    // If the slider doesn't exist in values object, it hasn't been adjusted
+    if (!(sliderId in values)) return false;
+    
+    // Consider the slider adjusted only if it's not at the default value of 50
+    return values[sliderId] !== 50;
+  };
+  
   const getCategoryCompletion = (category: SliderCategory) => {
     // Consider all sliders for completion calculation
     const totalSliders = category.sliders.length;
     const completedSliders = category.sliders.filter(slider => 
-      slider.id in values
+      isSliderAdjusted(slider.id)
     ).length;
     
     return {
@@ -181,6 +190,7 @@ export default function CollapsibleSliderSection({
                       onChange={(value) => onChange(slider.id, value)}
                       name={slider.id}
                       hasValue={slider.id in values}
+                      isAdjusted={isSliderAdjusted(slider.id)}
                       tooltipContent={getTooltipText(slider)}
                       accentColor={colorScheme.progressBackground.replace('bg-', 'text-')}
                     />

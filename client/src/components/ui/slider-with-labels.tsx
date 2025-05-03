@@ -17,6 +17,7 @@ interface SliderWithLabelsProps {
   hasValue?: boolean;
   tooltipContent?: string;
   accentColor?: string;
+  isAdjusted?: boolean; // Whether the user has moved this slider from the default 50
 }
 
 export function SliderWithLabels({
@@ -27,7 +28,8 @@ export function SliderWithLabels({
   name,
   hasValue = false,
   tooltipContent,
-  accentColor = 'text-primary'
+  accentColor = 'text-primary',
+  isAdjusted = false
 }: SliderWithLabelsProps) {
   const handleValueChange = (newValue: number[]) => {
     onChange(newValue[0]);
@@ -41,7 +43,7 @@ export function SliderWithLabels({
         </div>
         
         <div className="absolute top-0 left-1/2 -translate-x-1/2 flex items-center">
-          {hasValue && (
+          {isAdjusted && (
             <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
           )}
           
@@ -82,15 +84,17 @@ export function SliderWithLabels({
           step={1}
           value={[value]}
           onValueChange={handleValueChange}
-          className={`h-3 ${hasValue ? 'bg-gray-100' : 'bg-gray-200'} rounded-lg`}
-          thumbClassName={`h-6 w-6 border-2 border-white ${accentColor.replace('text-', 'bg-')}`}
-          trackClassName={accentColor.replace('text-', 'bg-')}
+          className={`h-3 ${isAdjusted ? 'bg-gray-100' : 'bg-gray-200'} rounded-lg`}
+          thumbClassName={`h-6 w-6 border-2 border-white ${isAdjusted ? accentColor.replace('text-', 'bg-') : 'bg-gray-400'}`}
+          trackClassName={isAdjusted ? accentColor.replace('text-', 'bg-') : 'bg-gray-300'}
         />
       </div>
       
       {/* Value indicator */}
       <div className="text-center text-xs font-medium -mt-1">
-        <span className="text-gray-700">{value}</span>
+        <span className={`${isAdjusted ? 'text-primary font-bold' : 'text-gray-400'}`}>
+          {isAdjusted ? value : 'Adjust me'}
+        </span>
       </div>
     </div>
   );
