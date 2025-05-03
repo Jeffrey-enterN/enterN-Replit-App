@@ -57,20 +57,24 @@ export function Navbar() {
               <div className="text-sm hidden md:block">
                 Hello, <span className="font-medium">{user?.username || 'User'}</span>
               </div>
-              <form action="/api/logout" method="get" className="m-0">
-                <Button variant="ghost" size="icon" type="submit">
-                  <LogOut className="h-5 w-5" />
-                  <span className="sr-only">Logout</span>
-                </Button>
-              </form>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={() => window.location.href = '/api/logout'}
+              >
+                <LogOut className="h-5 w-5" />
+                <span className="sr-only">Logout</span>
+              </Button>
             </div>
           ) : (
-            <form action="/api/login" method="get" className="m-0">
-              <Button variant="outline" size="sm" type="submit">
-                <LogIn className="mr-2 h-4 w-4" />
-                Sign In
-              </Button>
-            </form>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => window.location.href = '/api/login'}
+            >
+              <LogIn className="mr-2 h-4 w-4" />
+              Sign In
+            </Button>
           )}
         </div>
       </div>

@@ -107,10 +107,30 @@ export async function setupAuth(app: Express) {
   passport.deserializeUser((user: Express.User, cb) => cb(null, user));
 
   app.get("/api/login", (req, res, next) => {
-    passport.authenticate(`replitauth:${req.hostname}`, {
-      prompt: "login consent",
-      scope: ["openid", "email", "profile", "offline_access"],
-    })(req, res, next);
+    console.log("Login attempt from:", req.hostname);
+    console.log("Headers:", {
+      host: req.headers.host,
+      origin: req.headers.origin,
+      referer: req.headers.referer,
+      'user-agent': req.headers['user-agent']
+    });
+    
+    try {
+      console.log("Authenticating with strategy:", `replitauth:${req.hostname}`);
+      
+      passport.authenticate(`replitauth:${req.hostname}`, {
+        prompt: "login consent",
+        scope: ["openid", "email", "profile", "offline_access"],
+      })(req, res, next);
+      
+      console.log("Authentication handler called successfully");
+    } catch (error) {
+      console.error("Error in /api/login route:", error);
+      // If there's an error, provide a fallback URL to Replit Auth
+      const fallbackAuthUrl = `https://replit.com/auth_with_repl_site?domain=${req.hostname}`;
+      console.log("Redirecting to fallback auth URL:", fallbackAuthUrl);
+      res.redirect(fallbackAuthUrl);
+    }
   });
 
   app.get("/api/callback", (req, res, next) => {
@@ -159,6 +179,23 @@ export async function setupAuth(app: Express) {
       console.error("Error fetching user:", error);
       res.status(500).json({ message: "Failed to fetch user" });
     }
+  });
+  
+  // Debug endpoint to check auth route status
+  app.get('/api/auth/status', (req, res) => {
+    res.status(200).json({
+      message: "Auth routes are working",
+      endpoints: [
+        "/api/login - Redirects to Replit Auth",
+        "/api/logout - Logs out and redirects to homepage",
+        "/api/callback - OAuth callback from Replit Auth",
+        "/api/auth/user - Gets the current authenticated user"
+      ],
+      auth: {
+        isAuthenticated: req.isAuthenticated(),
+        session: req.sessionID ? true : false
+      }
+    });
   });
 }
 

@@ -70,6 +70,20 @@ export default function LandingPage() {
                     I'm an Employer
                   </Button>
                 </div>
+                
+                <div className="mt-8 text-center">
+                  <p className="text-gray-600 dark:text-gray-300">
+                    Having trouble logging in?
+                  </p>
+                  <div className="flex justify-center mt-2">
+                    <a 
+                      href="/api/login"
+                      className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium underline"
+                    >
+                      Login directly with Replit Auth
+                    </a>
+                  </div>
+                </div>
               </div>
             </main>
           </div>
