@@ -267,6 +267,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const hrUser = hrUsers[0];
           console.log('HR user found:', JSON.stringify(hrUser));
           
+          // Check if the HR user has an employer profile
           const hrProfiles = await db
             .select()
             .from(employerProfiles)
@@ -275,27 +276,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
           console.log(`HR employer profiles found: ${hrProfiles.length}`);
           if (hrProfiles.length > 0) {
             console.log('HR employer profile found:', JSON.stringify(hrProfiles[0]));
-            
-            // Check if there are swipes between this jobseeker and the HR employer
-            const existingSwipes = await db
-              .select()
-              .from(swipes)
-              .where(
-                and(
-                  eq(swipes.jobseekerId, req.user.id),
-                  eq(swipes.employerId, hrUser.id)
-                )
-              );
-            
-            console.log(`Existing swipes between jobseeker ${req.user.id} and HR employer: ${existingSwipes.length}`);
-            console.log('Swipe details:', JSON.stringify(existingSwipes));
-            
-            // If there are no swipes, this profile should appear in potential matches
-            if (existingSwipes.length === 0) {
-              console.log('No swipes found - HR employer should appear in potential matches');
-            }
           } else {
             console.log('HR employer profile NOT found in the database');
+            console.log('Creating an employer profile for the HR user...');
+            
+            // Create an employer profile for the HR user
+            try {
+              const profileData = {
+                companyName: "enterN Inc.",
+                companySize: "51-200",
+                industry: "Software & Technology",
+                headquarters: "Peoria, IL",
+                companyType: "Startup",
+                founded: "2024",
+                about: "enterN helps early-career talent match with employers",
+                website: "https://www.enter-n.com",
+                aboutCompany: "enterN is changing the way companies connect with early-career talent through AI-driven matching algorithms that focus on company culture fit and values alignment rather than just resumes and keywords."
+              };
+              
+              const newProfile = await db.insert(employerProfiles).values({
+                userId: hrUser.id,
+                ...profileData
+              }).returning();
+              
+              console.log('Created employer profile for HR user:', JSON.stringify(newProfile));
+            } catch (profileError) {
+              console.error('Error creating employer profile for HR user:', profileError);
+            }
+          }
+          
+          // Check if there are swipes between this jobseeker and the HR employer
+          const existingSwipes = await db
+            .select()
+            .from(swipes)
+            .where(
+              and(
+                eq(swipes.jobseekerId, req.user.id),
+                eq(swipes.employerId, hrUser.id)
+              )
+            );
+          
+          console.log(`Existing swipes between jobseeker ${req.user.id} and HR employer: ${existingSwipes.length}`);
+          console.log('Swipe details:', JSON.stringify(existingSwipes));
+          
+          // If there are no swipes, this profile should appear in potential matches
+          if (existingSwipes.length === 0) {
+            console.log('No swipes found - HR employer should appear in potential matches');
           }
         } else {
           console.log('HR user (hr@enter-n.com) not found in the database');
