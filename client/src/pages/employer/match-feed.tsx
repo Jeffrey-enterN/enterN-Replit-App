@@ -74,15 +74,21 @@ export default function EmployerMatchFeed() {
   // Format jobseeker data for display
   const formatJobseekerData = (jobseeker: JobseekerMatch) => {
     // Return the data in the format expected by the MatchCard component
+    // Adding more console logs to debug
+    console.log("Formatting jobseeker data:", jobseeker);
+    
+    // Make sure to only use the actual data that exists
     return {
       id: jobseeker.id,
-      education: jobseeker.education || {
-        degree: '',
-        major: '',
-        school: ''
+      education: {
+        degree: jobseeker.education?.degree || '',
+        major: jobseeker.education?.major || '',
+        school: jobseeker.education?.school || ''
       },
-      locations: jobseeker.locations || [],
-      sliderValues: jobseeker.sliderValues || {}
+      locations: Array.isArray(jobseeker.locations) ? jobseeker.locations : [],
+      workArrangements: Array.isArray(jobseeker.workArrangements) ? jobseeker.workArrangements : [],
+      industryPreferences: Array.isArray(jobseeker.industryPreferences) ? jobseeker.industryPreferences : [],
+      sliderValues: jobseeker.sliderValues && typeof jobseeker.sliderValues === 'object' ? jobseeker.sliderValues : {}
     };
   };
 
