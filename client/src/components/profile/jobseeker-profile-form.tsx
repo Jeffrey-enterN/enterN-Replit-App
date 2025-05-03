@@ -290,8 +290,8 @@ export default function JobseekerProfileForm() {
         major: profile.major || '',
         portfolioUrl: profile.portfolioUrl || '',
         preferredLocations: Array.isArray(profile.preferredLocations) ? profile.preferredLocations : [],
-        workArrangements: Array.isArray(profile.workArrangements) ? profile.workArrangements : [],
-        industryPreferences: Array.isArray(profile.industryPreferences) ? profile.industryPreferences : [],
+        workArrangements: Array.isArray(profile.workArrangements) ? profile.workArrangements.filter(v => v !== null) : [],
+        industryPreferences: Array.isArray(profile.industryPreferences) ? profile.industryPreferences.filter(v => v !== null) : [],
         functionalPreferences: formattedFunctionalPreferences,
       };
       
@@ -767,9 +767,9 @@ export default function JobseekerProfileForm() {
                                   >
                                     <FormControl>
                                       <Checkbox
-                                        checked={Array.isArray(field.value) && field.value.includes(arrangement.id)}
+                                        checked={Array.isArray(field.value) && field.value.some(v => v === arrangement.id)}
                                         onCheckedChange={(checked) => {
-                                          const currentValue = Array.isArray(field.value) ? field.value : [];
+                                          const currentValue = Array.isArray(field.value) ? field.value.filter(v => v !== null) : [];
                                           return checked
                                             ? field.onChange([...currentValue, arrangement.id])
                                             : field.onChange(
@@ -819,9 +819,9 @@ export default function JobseekerProfileForm() {
                                   >
                                     <FormControl>
                                       <Checkbox
-                                        checked={Array.isArray(field.value) && field.value.includes(industry)}
+                                        checked={Array.isArray(field.value) && field.value.some(v => v === industry)}
                                         onCheckedChange={(checked) => {
-                                          const currentValue = Array.isArray(field.value) ? field.value : [];
+                                          const currentValue = Array.isArray(field.value) ? field.value.filter(v => v !== null) : [];
                                           return checked
                                             ? field.onChange([...currentValue, industry])
                                             : field.onChange(
