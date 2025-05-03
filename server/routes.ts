@@ -248,9 +248,67 @@ export async function registerRoutes(app: Express): Promise<Server> {
     if (req.user.userType !== USER_TYPES.JOBSEEKER) return res.status(403).json({ message: "Forbidden" });
 
     try {
+      console.log(`Fetching potential matches for jobseeker ${req.user.id} (${req.user.username})`);
+      
+      try {
+        // Import required components for direct DB access
+        const { db } = await import("./db");
+        const { users, employerProfiles, swipes } = await import("../shared/schema");
+        const { eq, and } = await import("drizzle-orm");
+        
+        // Special debug endpoint to check the exact issue with hr@enter-n.com not appearing
+        const hrUsers = await db
+          .select()
+          .from(users)
+          .where(eq(users.email, 'hr@enter-n.com'));
+          
+        console.log(`HR users found: ${hrUsers.length}`);
+        if (hrUsers.length > 0) {
+          const hrUser = hrUsers[0];
+          console.log('HR user found:', JSON.stringify(hrUser));
+          
+          const hrProfiles = await db
+            .select()
+            .from(employerProfiles)
+            .where(eq(employerProfiles.userId, hrUser.id));
+            
+          console.log(`HR employer profiles found: ${hrProfiles.length}`);
+          if (hrProfiles.length > 0) {
+            console.log('HR employer profile found:', JSON.stringify(hrProfiles[0]));
+            
+            // Check if there are swipes between this jobseeker and the HR employer
+            const existingSwipes = await db
+              .select()
+              .from(swipes)
+              .where(
+                and(
+                  eq(swipes.jobseekerId, req.user.id),
+                  eq(swipes.employerId, hrUser.id)
+                )
+              );
+            
+            console.log(`Existing swipes between jobseeker ${req.user.id} and HR employer: ${existingSwipes.length}`);
+            console.log('Swipe details:', JSON.stringify(existingSwipes));
+            
+            // If there are no swipes, this profile should appear in potential matches
+            if (existingSwipes.length === 0) {
+              console.log('No swipes found - HR employer should appear in potential matches');
+            }
+          } else {
+            console.log('HR employer profile NOT found in the database');
+          }
+        } else {
+          console.log('HR user (hr@enter-n.com) not found in the database');
+        }
+      } catch (debugError) {
+        console.error('Error in debug code:', debugError);
+      }
+      
       const potentialMatches = await storage.getJobseekerPotentialMatches(req.user.id);
+      console.log(`Found ${potentialMatches.length} potential matches for jobseeker ${req.user.id}`);
       res.status(200).json(potentialMatches);
     } catch (error) {
+      console.error('Error getting jobseeker potential matches:', error);
       res.status(500).json({ message: (error as Error).message });
     }
   });

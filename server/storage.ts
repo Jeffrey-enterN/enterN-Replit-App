@@ -1350,11 +1350,15 @@ export class DatabaseStorage implements IStorage {
 
   async getJobseekerPotentialMatches(userId: number): Promise<any[]> {
     try {
+      console.log(`====== Getting potential matches for jobseeker: ${userId} ======`);
+      
       // Check if jobseeker profile exists
       const [profile] = await db
         .select()
         .from(jobseekerProfiles)
         .where(eq(jobseekerProfiles.userId, userId));
+      
+      console.log(`Jobseeker profile exists: ${!!profile}`);
       
       // If no profile exists, create a basic profile draft to avoid errors
       if (!profile) {
@@ -1397,6 +1401,22 @@ export class DatabaseStorage implements IStorage {
         .from(swipes)
         .where(eq(swipes.jobseekerId, userId));
       
+      console.log(`Number of employers already swiped on: ${swipedEmployerIds.length}`);
+      
+      // Check all employer profiles to debug
+      const allEmployers = await db
+        .select({
+          userId: employerProfiles.userId,
+          companyName: employerProfiles.companyName,
+          email: users.email,
+          username: users.username
+        })
+        .from(employerProfiles)
+        .innerJoin(users, eq(employerProfiles.userId, users.id));
+      
+      console.log(`Total employer profiles in database: ${allEmployers.length}`);
+      console.log('All employer profiles:', JSON.stringify(allEmployers));
+      
       // Get employer profiles that haven't been swiped on
       const potentialEmployers = await db
         .select({
@@ -1413,6 +1433,9 @@ export class DatabaseStorage implements IStorage {
           )`
         )
         .limit(5);
+      
+      console.log(`Number of potential employer matches: ${potentialEmployers.length}`);
+      console.log('Potential employer matches:', JSON.stringify(potentialEmployers));
       
       // Format the results
       return await Promise.all(potentialEmployers.map(async (employer) => {
