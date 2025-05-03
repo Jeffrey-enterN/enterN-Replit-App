@@ -725,9 +725,9 @@ export default function JobseekerProfileForm() {
                     render={({ field }) => (
                       <FormItem>
                         <div className="mb-4">
-                          <FormLabel>Preferred Locations *</FormLabel>
+                          <FormLabel>Preferred Locations</FormLabel>
                           <FormDescription>
-                            Enter locations where you'd be interested in working (up to 10).
+                            Enter locations where you'd be interested in working (at least 1, up to 10).
                           </FormDescription>
                         </div>
                         <FormControl>
@@ -748,9 +748,9 @@ export default function JobseekerProfileForm() {
                     render={() => (
                       <FormItem>
                         <div className="mb-4">
-                          <FormLabel>Work Setting *</FormLabel>
+                          <FormLabel>Work Setting</FormLabel>
                           <FormDescription>
-                            Select all work settings you'd be open to.
+                            Select any work settings you'd be open to.
                           </FormDescription>
                         </div>
                         <div className="grid grid-cols-2 gap-2">
