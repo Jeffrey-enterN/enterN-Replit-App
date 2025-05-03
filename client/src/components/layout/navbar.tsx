@@ -11,41 +11,41 @@ export function Navbar() {
       <div className="container flex h-16 items-center justify-between">
         <div className="flex items-center gap-6 md:gap-10">
           <Link href="/">
-            <a className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 cursor-pointer">
               <span className="font-bold text-2xl">enterN</span>
-            </a>
+            </div>
           </Link>
           <div className="hidden md:flex gap-6">
             <Link href="/">
-              <a className="text-sm font-medium transition-colors hover:text-primary">
+              <span className="text-sm font-medium transition-colors hover:text-primary cursor-pointer">
                 Home
-              </a>
+              </span>
             </Link>
             {isAuthenticated && user?.userType === 'jobseeker' && (
               <>
                 <Link href="/jobseeker/dashboard">
-                  <a className="text-sm font-medium transition-colors hover:text-primary">
+                  <span className="text-sm font-medium transition-colors hover:text-primary cursor-pointer">
                     Dashboard
-                  </a>
+                  </span>
                 </Link>
                 <Link href="/jobseeker/match-feed">
-                  <a className="text-sm font-medium transition-colors hover:text-primary">
+                  <span className="text-sm font-medium transition-colors hover:text-primary cursor-pointer">
                     Matches
-                  </a>
+                  </span>
                 </Link>
               </>
             )}
             {isAuthenticated && user?.userType === 'employer' && (
               <>
                 <Link href="/employer/dashboard">
-                  <a className="text-sm font-medium transition-colors hover:text-primary">
+                  <span className="text-sm font-medium transition-colors hover:text-primary cursor-pointer">
                     Dashboard
-                  </a>
+                  </span>
                 </Link>
                 <Link href="/employer/match-feed">
-                  <a className="text-sm font-medium transition-colors hover:text-primary">
+                  <span className="text-sm font-medium transition-colors hover:text-primary cursor-pointer">
                     Matches
-                  </a>
+                  </span>
                 </Link>
               </>
             )}
@@ -57,20 +57,20 @@ export function Navbar() {
               <div className="text-sm hidden md:block">
                 Hello, <span className="font-medium">{user?.username || 'User'}</span>
               </div>
-              <Button variant="ghost" size="icon" asChild>
-                <a href="/api/logout">
+              <form action="/api/logout" method="get" className="m-0">
+                <Button variant="ghost" size="icon" type="submit">
                   <LogOut className="h-5 w-5" />
                   <span className="sr-only">Logout</span>
-                </a>
-              </Button>
+                </Button>
+              </form>
             </div>
           ) : (
-            <Button variant="outline" size="sm" asChild>
-              <a href="/api/login">
+            <form action="/api/login" method="get" className="m-0">
+              <Button variant="outline" size="sm" type="submit">
                 <LogIn className="mr-2 h-4 w-4" />
                 Sign In
-              </a>
-            </Button>
+              </Button>
+            </form>
           )}
         </div>
       </div>
