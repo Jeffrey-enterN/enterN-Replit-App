@@ -309,8 +309,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     try {
       const potentialMatches = await storage.getEmployerPotentialMatches(req.user.id);
+      console.log('Sending potential matches to client:', JSON.stringify(potentialMatches, null, 2));
       res.status(200).json(potentialMatches);
     } catch (error) {
+      console.error('Error getting potential matches:', error);
       res.status(500).json({ message: (error as Error).message });
     }
   });
