@@ -5,13 +5,13 @@ import { getInitials } from '@/lib/utils';
 
 interface JobseekerMatch {
   id: string;
-  sliderValues: Record<string, number>;
-  education: {
-    degree: string;
-    major: string;
-    school: string;
+  sliderValues?: Record<string, number>;
+  education?: {
+    degree?: string;
+    major?: string;
+    school?: string;
   };
-  locations: string[];
+  locations?: string[];
 }
 
 interface EmployerMatch {
@@ -131,7 +131,7 @@ export default function MatchCard({ userType, data, onInterested, onNotIntereste
             </div>
             <div className="ml-4">
               <h4 className="text-xl font-semibold text-gray-900">Anonymous Profile</h4>
-              <p className="text-gray-600 text-sm">{jobseeker.education.major} Student</p>
+              <p className="text-gray-600 text-sm">{jobseeker.education?.major || 'Early Career'} Student</p>
             </div>
           </div>
 
@@ -139,20 +139,26 @@ export default function MatchCard({ userType, data, onInterested, onNotIntereste
             <div>
               <h5 className="text-sm font-medium text-gray-700 mb-1">Education</h5>
               <p className="text-sm text-gray-900">
-                {jobseeker.education.degree}<br />
-                {jobseeker.education.major}<br />
-                {jobseeker.education.school}
+                {jobseeker.education?.degree || 'Degree not specified'}<br />
+                {jobseeker.education?.major || 'Major not specified'}<br />
+                {jobseeker.education?.school || 'School not specified'}
               </p>
             </div>
             <div>
               <h5 className="text-sm font-medium text-gray-700 mb-1">Location Preferences</h5>
               <p className="text-sm text-gray-900">
-                {jobseeker.locations.slice(0, 3).map((loc, i) => (
-                  <React.Fragment key={i}>
-                    {loc}<br />
-                  </React.Fragment>
-                ))}
-                {jobseeker.locations.length > 3 && '...'}
+                {jobseeker.locations && jobseeker.locations.length > 0 ? (
+                  <>
+                    {jobseeker.locations.slice(0, 3).map((loc, i) => (
+                      <React.Fragment key={i}>
+                        {loc}<br />
+                      </React.Fragment>
+                    ))}
+                    {jobseeker.locations.length > 3 && '...'}
+                  </>
+                ) : (
+                  'No locations specified'
+                )}
               </p>
             </div>
           </div>
@@ -170,7 +176,7 @@ export default function MatchCard({ userType, data, onInterested, onNotIntereste
                   <div 
                     className="h-2 bg-primary rounded" 
                     style={{ 
-                      width: `${jobseeker.sliderValues[slider.id] || 50}%` 
+                      width: `${(jobseeker.sliderValues && jobseeker.sliderValues[slider.id]) || 50}%` 
                     }}
                   ></div>
                 </div>
