@@ -65,12 +65,10 @@ function Router() {
         </EmployerLayout>
       </Route>
       <Route path="/employer/match-feed">
-        <EmployerLayout>
-          <ProtectedRoute 
-            path="/employer/match-feed" 
-            component={EmployerMatchFeed}
-          />
-        </EmployerLayout>
+        <ProtectedRoute 
+          path="/employer/match-feed" 
+          component={EmployerMatchFeed}
+        />
       </Route>
       <Route component={NotFound} />
     </Switch>

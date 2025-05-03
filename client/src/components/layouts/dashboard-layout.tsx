@@ -54,8 +54,8 @@ export default function DashboardLayout({ children, title, subtitle }: Dashboard
                       <Link href="/employer/dashboard" className={`inline-flex items-center px-1 pt-1 text-sm font-medium ${location === "/employer/dashboard" ? "border-b-2 border-primary text-gray-900" : "text-gray-500 hover:border-b-2 hover:border-gray-300 hover:text-gray-700"}`}>
                         Dashboard
                       </Link>
-                      <Link href="/employer/profile" className={`inline-flex items-center px-1 pt-1 text-sm font-medium ${location === "/employer/profile" ? "border-b-2 border-primary text-gray-900" : "text-gray-500 hover:border-b-2 hover:border-gray-300 hover:text-gray-700"}`}>
-                        Profile
+                      <Link href="/employer/match-feed" className={`inline-flex items-center px-1 pt-1 text-sm font-medium ${location === "/employer/match-feed" ? "border-b-2 border-primary text-gray-900" : "text-gray-500 hover:border-b-2 hover:border-gray-300 hover:text-gray-700"}`}>
+                        Match Feed
                       </Link>
                     </>
                   )}
