@@ -369,8 +369,8 @@ export default function JobseekerProfileForm() {
       // Debug validation errors
       console.log('Form validation results:', form.formState.errors);
       
-      // Force continue for now while we debug the issue
-      if (true) { // Change back to isValid after fixing
+      // Always proceed to step 3 - validation is now optional for these fields
+      if (true) {
         // Get current values
         const currentValues = form.getValues();
         

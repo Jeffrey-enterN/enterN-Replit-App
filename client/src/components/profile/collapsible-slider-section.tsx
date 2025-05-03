@@ -63,13 +63,15 @@ const CATEGORY_COLORS = [
 
 interface SliderData {
   id: string;
-  left: string;
-  right: string;
+  name: string;
+  leftLabel: string;
+  rightLabel: string;
 }
 
 interface SliderCategory {
   id: string;
-  title: string;
+  name: string;
+  description: string;
   sliders: SliderData[];
 }
 
@@ -128,7 +130,7 @@ export default function CollapsibleSliderSection({
 
   // Generic tooltip descriptions for different preference types
   const getTooltipText = (slider: SliderData) => {
-    return `This slider lets you indicate where you fall on the spectrum between "${slider.left}" and "${slider.right}". Move the slider to reflect your preference.`;
+    return `This slider lets you indicate where you fall on the spectrum between "${slider.leftLabel}" and "${slider.rightLabel}". Move the slider to reflect your preference.`;
   };
 
   return (
@@ -153,7 +155,7 @@ export default function CollapsibleSliderSection({
                     ) : (
                       <Circle className={`h-5 w-5 ${colorScheme.iconColor} flex-shrink-0`} />
                     )}
-                    <span className="text-lg font-medium text-gray-900 truncate">{category.title}</span>
+                    <span className="text-lg font-medium text-gray-900 truncate">{category.name}</span>
                   </div>
                   <div className="flex items-center space-x-4 ml-auto">
                     <div className="hidden md:block text-sm text-gray-600">
