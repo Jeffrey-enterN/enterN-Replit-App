@@ -5,7 +5,7 @@ import { useAuth } from '@/context/auth-context';
 import { useTheme } from '@/context/theme-context';
 import { USER_TYPES } from '@/lib/constants';
 import enternLogo from '@/assets/entern-logo.png';
-import Navbar from '@/components/layouts/navbar';
+import { Navbar } from '@/components/layout/navbar';
 
 export default function LandingPage() {
   const { user } = useAuth();
