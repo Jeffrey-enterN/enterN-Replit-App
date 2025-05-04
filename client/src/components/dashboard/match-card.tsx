@@ -373,10 +373,45 @@ export default function MatchCard({ userType, data, onInterested, onNotIntereste
       // Get all available slider keys from the jobseeker profile
       const availableSliders = jobseeker.sliderValues ? Object.keys(jobseeker.sliderValues) : [];
       
-      // Map from database field names to human-readable labels
+      console.log("Available sliders from database:", availableSliders);
+      
+      // Map directly to our current schema fields used in the database
       const sliderDefinitions: Record<string, {left: string, right: string, category: string}> = {
-        // Work Environment
+        // Current fields in our database
         'noise_vs_quiet': { left: 'Quiet Environment', right: 'Lively Environment', category: 'Work Environment' },
+        'formal_vs_casual': { left: 'Formal Style', right: 'Casual Style', category: 'Work Style' },
+        'visual_vs_verbal': { left: 'Visual Learner', right: 'Verbal Learner', category: 'Communication' },
+        'hierarchy_vs_flat': { left: 'Structured Leadership', right: 'Flexible Leadership', category: 'Leadership & Management' },
+        'risk_vs_stability': { left: 'Stability Focused', right: 'Risk Taking', category: 'Decision Making' },
+        'critique_vs_praise': { left: 'Direct Feedback', right: 'Diplomatic Feedback', category: 'Communication' },
+        'hands_on_vs_theory': { left: 'Theoretical Work', right: 'Hands-on Work', category: 'Work Style' },
+        'outcome_vs_process': { left: 'Process Oriented', right: 'Outcome Oriented', category: 'Work Style' },
+        'social_vs_reserved': { left: 'Reserved Style', right: 'Social Style', category: 'Work Style' },
+        'speed_vs_precision': { left: 'Methodical & Steady', right: 'Fast-Paced & Dynamic', category: 'Work Style' },
+        'variety_vs_routine': { left: 'Consistent Routine', right: 'Varied Tasks', category: 'Work Style' },
+        'adaptable_vs_focused': { left: 'Focused Approach', right: 'Adaptable Approach', category: 'Work Style' },
+        'reflection_vs_action': { left: 'Action Oriented', right: 'Reflection Oriented', category: 'Decision Making' },
+        'autonomous_vs_aligned': { left: 'Team Aligned', right: 'Autonomous', category: 'Work Style' },
+        'detail_vs_big_picture': { left: 'Detail Oriented', right: 'Big Picture', category: 'Work Style' },
+        'learning_vs_executing': { left: 'Execution Focused', right: 'Learning Focused', category: 'Growth & Development' },
+        'strategic_vs_tactical': { left: 'Tactical Focus', right: 'Strategic Focus', category: 'Decision Making' },
+        'competition_vs_harmony': { left: 'Team Harmony', right: 'Healthy Competition', category: 'Team Dynamics' },
+        'creative_vs_analytical': { left: 'Analytical Thinking', right: 'Creative Thinking', category: 'Problem Solving' },
+        'decisive_vs_deliberate': { left: 'Deliberate Decisions', right: 'Decisive Action', category: 'Decision Making' },
+        'experimental_vs_proven': { left: 'Proven Approaches', right: 'Experimental', category: 'Innovation' },
+        'initiative_vs_direction': { left: 'Clear Direction', right: 'Taking Initiative', category: 'Work Style' },
+        'objective_vs_subjective': { left: 'Objective Approach', right: 'Subjective Perspective', category: 'Decision Making' },
+        'schedule_vs_flexibility': { left: 'Fixed Schedule', right: 'Flexible Schedule', category: 'Work-Life Balance' },
+        'innovation_vs_convention': { left: 'Conventional Approach', right: 'Innovative Approach', category: 'Innovation' },
+        'specialist_vs_generalist': { left: 'Specialist', right: 'Generalist', category: 'Work Style' },
+        'teamwork_vs_independence': { left: 'Independent Work', right: 'Team Collaboration', category: 'Team Dynamics' },
+        'self_promotion_vs_modesty': { left: 'Modest Approach', right: 'Self-Promotion', category: 'Communication Style' },
+        'collaborative_vs_individual': { left: 'Independent Work', right: 'Collaborative Work', category: 'Team Dynamics' },
+        'work_life_integration_vs_separation': { left: 'Clear Work/Life Separation', right: 'Work/Life Integration', category: 'Work-Life Balance' },
+        
+        // Legacy mapping for completeness
+        // Work Environment - these are commented out as they're duplicates from above
+        // 'noise_vs_quiet': { left: 'Quiet Environment', right: 'Lively Environment', category: 'Work Environment' },
         'open_office_vs_private': { left: 'Private Workspace', right: 'Open Office', category: 'Work Environment' },
         'remote_vs_inoffice': { left: 'Remote Work', right: 'In-Office Work', category: 'Work Environment' },
         
