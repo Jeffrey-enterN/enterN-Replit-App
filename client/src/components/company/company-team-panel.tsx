@@ -257,8 +257,9 @@ export default function CompanyTeamPanel({ companyId, userId, isAdmin }: Company
                       </div>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <Badge className={`${getRoleBadgeColor(member.companyRole)}`}>
-                        {member.companyRole === 'hiring_manager' ? 'Hiring Manager' : 
+                      <Badge className={`${getRoleBadgeColor(member.companyRole || 'recruiter')}`}>
+                        {!member.companyRole ? 'Recruiter' :
+                         member.companyRole === 'hiring_manager' ? 'Hiring Manager' : 
                          member.companyRole.charAt(0).toUpperCase() + member.companyRole.slice(1)}
                       </Badge>
                       
@@ -270,7 +271,7 @@ export default function CompanyTeamPanel({ companyId, userId, isAdmin }: Company
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => handleRoleChange(member.id, member.companyRole)}>
+                            <DropdownMenuItem onClick={() => handleRoleChange(member.id, member.companyRole || 'recruiter')}>
                               <UserCog className="mr-2 h-4 w-4" />
                               Change Role
                             </DropdownMenuItem>
