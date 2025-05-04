@@ -1,8 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useAuth } from '@/context/auth-context';
 import { Link, useLocation } from 'wouter';
-import { useTheme } from 'next-themes';
-import enternLogo from '@/assets/entern.png';
+import enternLogo from '@/assets/entern-logo.png';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -20,8 +19,6 @@ import {
 import {
   BellRing,
   LogOut,
-  Moon,
-  Sun,
   Settings,
   Menu,
   X,
@@ -43,15 +40,8 @@ import { getInitials } from '@/lib/utils';
 export default function JobseekerNavbar() {
   const { user, logoutMutation } = useAuth();
   const [location] = useLocation();
-  const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  // Show theme only after mounting to avoid hydration mismatch
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   const handleLogout = () => {
     logoutMutation.mutate();
