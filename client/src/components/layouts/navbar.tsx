@@ -1,15 +1,38 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Sun, Moon } from 'lucide-react';
 import { useAuth } from '@/context/auth-context';
 import { USER_TYPES } from '@/lib/constants';
+import { useTheme } from '@/context/theme-context';
 import enternLogo from '@/assets/entern-logo.png';
 
 export default function Navbar() {
   const { user } = useAuth();
   const [, navigate] = useLocation();
+  const { theme, toggleTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  const [currentTheme, setCurrentTheme] = useState<"light" | "dark">("light");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  
+  // Update the theme state and icon when the theme changes
+  const handleThemeToggle = () => {
+    toggleTheme();
+    // Update local state after toggling
+    const root = window.document.documentElement;
+    const newTheme = root.classList.contains('dark') ? "dark" : "light";
+    setCurrentTheme(newTheme);
+  };
+  
+  // After mounting, we have access to the theme
+  useEffect(() => {
+    setMounted(true);
+    
+    // Ensure the correct theme icon is displayed on initial load
+    const root = window.document.documentElement;
+    const isDark = root.classList.contains('dark');
+    setCurrentTheme(isDark ? "dark" : "light");
+  }, []);
 
   return (
     <nav className="bg-white shadow-md sticky top-0 z-50">
@@ -52,7 +75,7 @@ export default function Navbar() {
               </Button>
             ) : (
               <>
-                <Button asChild className="rounded-md px-6 py-2 text-sm font-medium border border-[#5CE1E6] bg-white dark:bg-gray-800 text-[#FF66C4] hover:bg-gray-50 dark:hover:bg-gray-700">
+                <Button asChild className="rounded-md px-6 py-2 text-sm font-medium border border-[#5CE1E6] bg-white text-[#FF66C4] hover:bg-gray-50">
                   <Link href="/sign-in">Sign In</Link>
                 </Button>
                 <Button asChild className="ml-3 btn-gradient rounded-md px-6 py-2 text-sm font-medium">
@@ -67,7 +90,7 @@ export default function Navbar() {
       {/* Mobile menu, show/hide based on menu state */}
       {mobileMenuOpen && (
         <div className="md:hidden">
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white dark:bg-gray-800 shadow-lg">
+          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white shadow-lg">
             {user ? (
               <Button asChild className="btn-gradient rounded-md w-full py-2 text-sm font-medium mt-3">
                 <Link href={user.userType === USER_TYPES.JOBSEEKER ? '/jobseeker/dashboard' : '/employer/dashboard'}>
@@ -76,7 +99,7 @@ export default function Navbar() {
               </Button>
             ) : (
               <>
-                <Button asChild className="rounded-md w-full py-2 text-sm font-medium border border-[#5CE1E6] bg-white dark:bg-gray-800 text-[#FF66C4] hover:bg-gray-50 dark:hover:bg-gray-700">
+                <Button asChild className="rounded-md w-full py-2 text-sm font-medium border border-[#5CE1E6] bg-white text-[#FF66C4] hover:bg-gray-50">
                   <Link href="/sign-in">Sign In</Link>
                 </Button>
                 <Button asChild className="btn-gradient rounded-md w-full py-2 text-sm font-medium mt-3">
@@ -84,15 +107,15 @@ export default function Navbar() {
                 </Button>
               </>
             )}
-            <div className="pt-4 pb-3 border-t border-gray-200 dark:border-gray-700">
+            <div className="pt-4 pb-3 border-t border-gray-200">
               <div className="space-y-1">
-                <Link href="/privacy-policy" className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
+                <Link href="/privacy-policy" className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100">
                   Privacy Policy
                 </Link>
-                <Link href="#" className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
+                <Link href="#" className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100">
                   Terms of Service
                 </Link>
-                <Link href="/support" className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
+                <Link href="/support" className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100">
                   Help & Support
                 </Link>
               </div>
