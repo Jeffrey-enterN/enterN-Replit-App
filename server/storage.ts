@@ -1742,11 +1742,11 @@ export class DatabaseStorage implements IStorage {
       
       console.log(`Unreviewed profiles available: ${potentialJobseekers.length}`);
       
-      // If no unreviewed profiles are available, show ALL profiles instead
-      // This ensures users always see profiles, even if they've swiped on them before
+      // If no unreviewed profiles are available, return an empty array
+      // This ensures users don't see the same profiles they've already swiped on
       if (potentialJobseekers.length === 0) {
-        console.log('No unreviewed profiles available, showing all profiles instead');
-        potentialJobseekers = allProfiles;
+        console.log('No unreviewed profiles available, returning empty array');
+        return [];
       }
       
       console.log(`Potential matches (before filtering): ${potentialJobseekers.length}`);
