@@ -86,7 +86,7 @@ export default function EmployerSignUpPage() {
 
   return (
     <AuthLayout
-      title="Create Employer Account"
+      title={<>Create <span className="text-gradient font-extrabold">Employer</span> Account</>}
       subtitle={
         <>
           Already have an account?{' '}
