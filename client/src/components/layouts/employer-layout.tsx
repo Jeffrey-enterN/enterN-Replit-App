@@ -13,7 +13,7 @@ export default function EmployerLayout({ children }: EmployerLayoutProps) {
       <main className="flex-1">
         {children}
       </main>
-      
+
       {/* Beta Tester Instructions */}
       <div className="bg-blue-50 border-t border-blue-200">
         <div className="max-w-7xl mx-auto py-3 px-4 sm:px-6 lg:px-8">
