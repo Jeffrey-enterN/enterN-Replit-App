@@ -8,7 +8,7 @@ export interface Match {
   id: string;
   name: string;
   matchDate: Date | string | number | null;
-  status: 'interview-scheduled' | 'shared-jobs' | 'matched' | 'message-received';
+  status: 'interview-scheduled' | 'shared-jobs' | 'matched' | 'message-received' | 'mutual-match';
   statusText?: string;
 }
 
@@ -34,10 +34,16 @@ export default function RecentMatches({ matches, emptyMessage, viewAllLink, isEm
             Shared Jobs
           </span>
         );
+      case 'mutual-match':
+        return (
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+            Mutual Match
+          </span>
+        );
       case 'matched':
         return (
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-            Matched
+            Pending Match
           </span>
         );
       case 'message-received':
@@ -79,12 +85,16 @@ export default function RecentMatches({ matches, emptyMessage, viewAllLink, isEm
                       </div>
                     </div>
                     <div>
-                      <Button 
-                        variant="outline"
-                        className="inline-flex items-center px-3 py-1 border border-transparent text-sm leading-4 font-medium rounded-md text-primary bg-primary-100 hover:bg-primary-200 focus:outline-none"
-                      >
-                        Message
-                      </Button>
+                      {match.status === 'mutual-match' ? (
+                        <Button 
+                          variant="outline"
+                          className="inline-flex items-center px-3 py-1 border border-transparent text-sm leading-4 font-medium rounded-md text-primary bg-primary-100 hover:bg-primary-200 focus:outline-none"
+                        >
+                          Message
+                        </Button>
+                      ) : (
+                        <span className="text-sm text-muted-foreground px-2">Waiting for match</span>
+                      )}
                     </div>
                   </div>
                   <div className="mt-2">
