@@ -70,38 +70,6 @@
   --chart-5: var(--brand-darkgray);
 }
 
-.dark {
-  /* Base colors */
-  --background: 240 10% 3.9%; /* Dark background */
-  --foreground: 0 0% 98%;     /* Light text */
-  --muted: 240 3.7% 15.9%;    /* Slightly lighter dark for muted areas */
-  --muted-foreground: 240 5% 84.9%; /* Lighter text for muted areas */
-  --popover: 240 10% 3.9%;    /* Dark background for popovers */
-  --popover-foreground: 0 0% 98%; /* Light text for popovers */
-  --card: 240 10% 3.9%;       /* Dark background for cards */
-  --card-foreground: 0 0% 98%; /* Light text for cards */
-  --border: 240 3.7% 15.9%;   /* Darker border color */
-  --input: 240 3.7% 15.9%;    /* Darker input background */
-  
-  /* Brand colors remain the same in dark mode */
-  /* UI colors (mapped to brand colors) */
-  --primary: var(--brand-teal);
-  --primary-foreground: 0 0% 100%;
-  --secondary: var(--brand-pink);
-  --secondary-foreground: 0 0% 100%;
-  --accent: var(--brand-cyan);
-  --accent-foreground: 240 10% 3.9%; /* Dark text on accent backgrounds */
-  --destructive: var(--error);
-  --destructive-foreground: 0 0% 98%;
-  --ring: var(--brand-teal);
-  
-  /* Other UI variables */
-  --radius: 0.5rem;
-  
-  /* Chart colors - same except for gray which needs more contrast in dark mode */
-  --chart-5: 240 5% 84.9%;    /* Lighter gray for dark mode */
-}
-
 @layer base {
   * {
     @apply border-border;
@@ -109,7 +77,7 @@
 
   body {
     @apply font-sans antialiased text-foreground min-h-screen;
-    @apply bg-white dark:bg-gray-900;
+    @apply bg-white;
   }
 
   h1, h2, h3, h4, h5, h6 {
