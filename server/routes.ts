@@ -5,8 +5,11 @@ import { setupAuth } from "./auth";
 import { USER_TYPES } from "../shared/schema";
 import { scrapeCompanyWebsite } from "./utils/website-scraper";
 import { sql } from "drizzle-orm";
+import { initEmailService, sendEmail } from "./utils/email-service";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Initialize the email service
+  initEmailService();
   // Set up auth routes
   setupAuth(app);
   
@@ -461,6 +464,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(200).json(recentMatches);
     } catch (error) {
       res.status(500).json({ message: (error as Error).message });
+    }
+  });
+  
+  // Support message endpoint
+  app.post("/api/support/message", async (req, res) => {
+    const { name, email, subject, message } = req.body;
+    
+    // Validate required fields
+    if (!name || !email || !message) {
+      return res.status(400).json({ message: "Name, email, and message are required" });
+    }
+    
+    try {
+      const result = await sendEmail({
+        to: 'jeffrey@enter-n.com',
+        from: 'support@enter-n.com', // This must be verified in SendGrid
+        subject: `Support Request: ${subject || 'General Support'}`,
+        html: `
+          <h1>New Support Request from enterN</h1>
+          <p><strong>From:</strong> ${name} (${email})</p>
+          <p><strong>Subject:</strong> ${subject || 'General Support'}</p>
+          <hr />
+          <h2>Message:</h2>
+          <p>${message.replace(/\n/g, '<br>')}</p>
+        `,
+      });
+      
+      if (result) {
+        return res.status(200).json({ message: "Support message sent successfully" });
+      } else {
+        return res.status(500).json({ message: "Failed to send support message" });
+      }
+    } catch (error) {
+      console.error('Error sending support message:', error);
+      return res.status(500).json({ message: (error as Error).message });
     }
   });
 
