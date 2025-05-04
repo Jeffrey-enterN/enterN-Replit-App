@@ -209,9 +209,9 @@ export default function RegisterForm() {
                   className="ml-2 block text-sm text-gray-900 dark:text-gray-200"
                 >
                   I agree to the 
-                  <a href="#" className="text-primary hover:text-primary/80"> Terms of Service </a>
+                  <a href="/terms-of-service" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary/80"> Terms of Service </a>
                   and
-                  <a href="#" className="text-primary hover:text-primary/80"> Privacy Policy</a>
+                  <a href="/privacy-policy" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary/80"> Privacy Policy</a>
                 </label>
                 <FormMessage />
               </FormItem>
