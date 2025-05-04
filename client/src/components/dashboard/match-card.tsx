@@ -354,15 +354,16 @@ export default function MatchCard({ userType, data, onInterested, onNotIntereste
     
     // Select a few key sliders from the database to display
     const sliderSamples = [
-      // Work Style Preferences
-      { id: 'speed_vs_precision', left: 'Methodical & Steady', right: 'Fast-Paced & Dynamic' },
+      // Work Environment
+      { id: 'noise_vs_quiet', left: 'Quiet Environment', right: 'Lively Environment' },
+      // Work-Life Balance
       { id: 'work_life_integration_vs_separation', left: 'Clear Work/Life Separation', right: 'Work/Life Integration' },
-      // Collaboration & Communication
-      { id: 'collaborative_vs_individual', left: 'Independent Work', right: 'Collaborative Work' },
-      // Leadership Preferences
-      { id: 'hierarchy_vs_flat', left: 'Structured Leadership', right: 'Flexible Leadership' },
-      // Feedback Style
-      { id: 'critique_vs_praise', left: 'Direct Feedback', right: 'Diplomatic Feedback' }
+      // Team Dynamics
+      { id: 'teamwork_vs_independence', left: 'Independent Work', right: 'Team Collaboration' },
+      // Work Style
+      { id: 'variety_vs_routine', left: 'Consistent Routine', right: 'Varied Tasks' },
+      // Decision Making
+      { id: 'risk_vs_stability', left: 'Stability Focused', right: 'Risk Taking' }
     ];
     
     // For debugging - log all available slider values from the database
@@ -476,15 +477,24 @@ export default function MatchCard({ userType, data, onInterested, onNotIntereste
 
       // Define priority sliders for each category to ensure important ones are shown first
       const prioritySliders: Record<string, string[]> = {
-        'Work Environment': ['noise_vs_quiet', 'remote_vs_inoffice', 'open_office_vs_private'],
-        'Work Style': ['fast_paced_vs_methodical', 'structured_vs_flexible', 'multitasking_vs_focused', 'detailed_vs_concise', 'quick_vs_thorough'],
-        'Work-Life Balance': ['work_life_separation_vs_integration', 'flexible_hours_vs_fixed', 'overtime_willingness', 'travel_preference'],
-        'Communication': ['written_vs_verbal', 'formal_vs_casual_comm', 'direct_vs_diplomatic', 'frequent_vs_as_needed'],
-        'Collaboration': ['collaborative_vs_independent', 'consensus_vs_decisive', 'competitive_vs_collaborative_culture'],
-        'Management & Leadership': ['hands_on_vs_delegating', 'hierarchical_vs_flat', 'directive_vs_empowering', 'formal_vs_informal_leadership'],
-        'Decision-Making': ['analytical_vs_intuitive', 'data_driven_vs_intuition', 'risk_taking_vs_cautious', 'pragmatic_vs_idealistic'],
-        'Growth & Development': ['growth_vs_stability', 'professional_development_time', 'mentorship_vs_peer_learning', 'regular_feedback_vs_autonomy'],
-        'Values & Culture': ['profit_vs_purpose', 'innovation_vs_tradition', 'transparency_vs_privacy', 'financial_vs_social_impact', 'traditional_vs_progressive']
+        // Current database field categories
+        'Work Environment': ['noise_vs_quiet'],
+        'Work Style': ['formal_vs_casual', 'hands_on_vs_theory', 'outcome_vs_process', 'social_vs_reserved', 'speed_vs_precision', 'variety_vs_routine', 'adaptable_vs_focused', 'autonomous_vs_aligned', 'detail_vs_big_picture', 'initiative_vs_direction'],
+        'Communication': ['visual_vs_verbal', 'critique_vs_praise'],
+        'Leadership & Management': ['hierarchy_vs_flat'],
+        'Decision Making': ['risk_vs_stability', 'reflection_vs_action', 'strategic_vs_tactical', 'decisive_vs_deliberate', 'objective_vs_subjective'],
+        'Team Dynamics': ['competition_vs_harmony', 'teamwork_vs_independence', 'collaborative_vs_individual'],
+        'Problem Solving': ['creative_vs_analytical'],
+        'Innovation': ['experimental_vs_proven', 'innovation_vs_convention'],
+        'Growth & Development': ['learning_vs_executing'],
+        'Work-Life Balance': ['schedule_vs_flexibility', 'work_life_integration_vs_separation'],
+        'Communication Style': ['self_promotion_vs_modesty'],
+        
+        // Legacy categories for backward compatibility
+        'Collaboration': ['collaborative_vs_independent'],
+        'Management & Leadership': ['hierarchical_vs_flat', 'directive_vs_empowering'],
+        'Decision-Making': ['risk_taking_vs_cautious', 'data_driven_vs_intuition'],
+        'Values & Culture': ['innovation_vs_tradition']
       };
       
       // Group sliders by category
@@ -538,17 +548,24 @@ export default function MatchCard({ userType, data, onInterested, onNotIntereste
         'Work Environment',
         'Work-Life Balance',
         'Communication',
+        'Communication Style',
+        'Team Dynamics',
+        'Leadership & Management',
+        'Decision Making',
+        'Problem Solving',
+        'Innovation',
+        'Growth & Development',
+        // Legacy categories
         'Collaboration',
         'Management & Leadership',
         'Decision-Making',
-        'Growth & Development',
         'Values & Culture'
       ];
       
-      // Convert to array of categories and limit to 5 sliders per category max
+      // Convert to array of categories and limit to 10 sliders per category max
       const categoriesArray = Object.entries(categorizedSliders).map(([name, sliders]) => ({
         name,
-        sliders: sliders.slice(0, 5) // Limit to 5 sliders per category for consistency
+        sliders: sliders.slice(0, 10) // Show more sliders per category for better insight
       }));
       
       // Sort by defined order (if category exists in the order array)
