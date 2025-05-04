@@ -175,27 +175,31 @@ export default function SupportPage() {
                   <TabsContent value="updates">
                     <CardTitle className="text-2xl font-bold mb-2">Latest Updates</CardTitle>
                     <div className="space-y-4">
-                      <div className="border-l-4 border-green-500 pl-4 py-2">
+                      <div className="border-l-4 border-pink-500 pl-4 py-2">
                         <div className="flex items-center">
-                          <CheckCircle2 className="h-5 w-5 text-green-500 mr-2" />
+                          <CheckCircle2 className="h-5 w-5 text-pink-500 mr-2" />
                           <h3 className="text-lg font-medium">May 4, 2025</h3>
                         </div>
                         <ul className="mt-2 space-y-2 text-sm">
                           <li className="flex items-start">
-                            <span className="text-green-500 mr-2">✓</span>
-                            <span>Fixed issue where the match feed wasn't automatically refreshing after swiping</span>
+                            <span className="text-pink-500 mr-2">✓</span>
+                            <span>Implemented mutual match requirement - messaging is now only allowed when both parties have shown interest</span>
                           </li>
                           <li className="flex items-start">
-                            <span className="text-green-500 mr-2">✓</span>
-                            <span>Added loading states with spinners during match feed refreshes to improve user experience</span>
+                            <span className="text-pink-500 mr-2">✓</span>
+                            <span>Added visual indicators showing "Pending Match" or "Mutual Match" status in match feed</span>
                           </li>
                           <li className="flex items-start">
-                            <span className="text-green-500 mr-2">✓</span>
-                            <span>Fixed the problem where profiles kept appearing repeatedly after all available profiles were reviewed</span>
+                            <span className="text-pink-500 mr-2">✓</span>
+                            <span>Created new jobseeker layout components for consistent navigation experience</span>
                           </li>
                           <li className="flex items-start">
-                            <span className="text-green-500 mr-2">✓</span>
-                            <span>Added clear messaging when you've reviewed all available candidates with options to check for new candidates</span>
+                            <span className="text-pink-500 mr-2">✓</span>
+                            <span>Added 25 new student profiles from Bradley, Eureka, Illinois State, and Rutgers universities</span>
+                          </li>
+                          <li className="flex items-start">
+                            <span className="text-pink-500 mr-2">✓</span>
+                            <span>Updated match feed to show more relevant profiles with improved filtering</span>
                           </li>
                         </ul>
                       </div>
