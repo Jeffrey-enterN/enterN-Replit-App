@@ -16,9 +16,10 @@ interface RecentMatchesProps {
   matches: Match[];
   emptyMessage: string;
   viewAllLink: string;
+  isEmployer?: boolean;
 }
 
-export default function RecentMatches({ matches, emptyMessage, viewAllLink }: RecentMatchesProps) {
+export default function RecentMatches({ matches, emptyMessage, viewAllLink, isEmployer = false }: RecentMatchesProps) {
   const getStatusBadge = (status: string) => {
     switch(status) {
       case 'interview-scheduled':
@@ -54,7 +55,11 @@ export default function RecentMatches({ matches, emptyMessage, viewAllLink }: Re
     <div className="bg-white shadow-sm rounded-lg overflow-hidden">
       <div className="px-4 py-5 border-b border-gray-200 sm:px-6">
         <h3 className="text-lg leading-6 font-medium text-gray-900">Recent Matches</h3>
-        <p className="mt-1 text-sm text-gray-500">Companies you've matched with recently.</p>
+        <p className="mt-1 text-sm text-gray-500">
+          {isEmployer 
+            ? "Jobseekers you've matched with recently." 
+            : "Companies you've matched with recently."}
+        </p>
       </div>
       
       {matches.length > 0 ? (
