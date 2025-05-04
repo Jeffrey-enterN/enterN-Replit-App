@@ -58,9 +58,21 @@ export default function Navbar() {
                 <Button asChild className="rounded-md px-6 py-2 text-sm font-medium border border-[#5CE1E6] bg-white text-[#FF66C4] hover:bg-gray-50">
                   <Link href="/sign-in">Sign In</Link>
                 </Button>
-                <Button asChild className="ml-3 btn-gradient rounded-md px-6 py-2 text-sm font-medium">
-                  <Link href="/sign-up">Sign Up</Link>
-                </Button>
+                <div className="relative group">
+                  <Button className="ml-3 btn-gradient rounded-md px-6 py-2 text-sm font-medium">
+                    Sign Up
+                  </Button>
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                    <div className="py-1">
+                      <Link href="/sign-up/jobseeker" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        Sign up as Jobseeker
+                      </Link>
+                      <Link href="/sign-up/employer" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        Sign up as Employer
+                      </Link>
+                    </div>
+                  </div>
+                </div>
               </>
             )}
           </div>

@@ -20,9 +20,8 @@ export default function LandingPage() {
     if (user && user.userType === USER_TYPES.JOBSEEKER) {
       navigate('/jobseeker/dashboard');
     } else {
-      navigate('/sign-up');
-      // We can set a preference in localStorage that will be picked up by the sign-up page
-      localStorage.setItem('preferred_role', USER_TYPES.JOBSEEKER);
+      // Navigate directly to the jobseeker signup page
+      navigate('/sign-up/jobseeker');
     }
   };
 
@@ -30,9 +29,8 @@ export default function LandingPage() {
     if (user && user.userType === USER_TYPES.EMPLOYER) {
       navigate('/employer/dashboard');
     } else {
-      navigate('/sign-up');
-      // We can set a preference in localStorage that will be picked up by the sign-up page
-      localStorage.setItem('preferred_role', USER_TYPES.EMPLOYER);
+      // Navigate directly to the employer signup page
+      navigate('/sign-up/employer');
     }
   };
 
@@ -176,7 +174,7 @@ export default function LandingPage() {
                 
                 <nav className="flex flex-col space-y-4" aria-label="Footer Secondary">
                   <Link href="/privacy-policy" className="text-gray-300 hover:text-white transition-colors">Privacy Policy</Link>
-                  <a href="#" className="text-gray-300 hover:text-white transition-colors">Terms of Service</a>
+                  <Link href="/terms-of-service" className="text-gray-300 hover:text-white transition-colors">Terms of Service</Link>
                   <Link href="/support" className="text-gray-300 hover:text-white transition-colors">Support</Link>
                 </nav>
               </div>

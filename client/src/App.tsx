@@ -23,6 +23,8 @@ import CompanyTeamPage from "@/pages/employer/company-team-page";
 import EmployerMatchFeed from "@/pages/employer/match-feed";
 import JobseekerMatchFeed from "@/pages/jobseeker/match-feed";
 import JobseekerCalendar from "@/pages/jobseeker/calendar";
+import JobseekerSignUpPage from "@/pages/jobseeker/sign-up-page";
+import EmployerSignUpPage from "@/pages/employer/sign-up-page";
 import PrivacyPolicyPage from "@/pages/privacy-policy-page";
 import TermsOfServicePage from "@/pages/terms-of-service-page";
 import SupportPage from "@/pages/support-page";
@@ -34,6 +36,8 @@ function Router() {
       <Route path="/" component={LandingPage} />
       <Route path="/auth" component={AuthPage} />
       <Route path="/sign-in" component={SignInPage} />
+      <Route path="/sign-up/jobseeker" component={JobseekerSignUpPage} />
+      <Route path="/sign-up/employer" component={EmployerSignUpPage} />
       <Route path="/sign-up" component={SignUpPage} />
       <Route path="/privacy-policy" component={PrivacyPolicyPage} />
       <Route path="/terms-of-service" component={TermsOfServicePage} />
