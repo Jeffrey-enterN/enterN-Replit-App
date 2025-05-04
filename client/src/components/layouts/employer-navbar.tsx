@@ -189,6 +189,15 @@ export default function EmployerNavbar() {
               </DropdownMenuItem>
 
               <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link href="/support" className="flex items-center gap-2 cursor-pointer">
+                  <svg className="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Help & Support
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
               <DropdownMenuItem
                 className="flex items-center gap-2 text-destructive focus:text-destructive"
                 onClick={handleLogout}
@@ -223,6 +232,15 @@ export default function EmployerNavbar() {
                 <Link href="/employer/company-profile" className="flex items-center gap-2 cursor-pointer">
                   <Building className="h-4 w-4" />
                   Company Profile
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link href="/support" className="flex items-center gap-2 cursor-pointer">
+                  <svg className="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Help & Support
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
