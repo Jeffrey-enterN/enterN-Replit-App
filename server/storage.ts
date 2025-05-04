@@ -1437,6 +1437,12 @@ export class DatabaseStorage implements IStorage {
       console.log(`Number of potential employer matches: ${potentialEmployers.length}`);
       console.log('Potential employer matches:', JSON.stringify(potentialEmployers));
       
+      // If no potential employers are available, return an empty array
+      if (potentialEmployers.length === 0) {
+        console.log('No unreviewed employers available, returning empty array');
+        return [];
+      }
+      
       // Format the results
       return await Promise.all(potentialEmployers.map(async (employer) => {
         // Get job postings for this employer

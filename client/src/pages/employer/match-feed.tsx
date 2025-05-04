@@ -8,7 +8,7 @@ import { apiRequest, queryClient } from '@/lib/queryClient';
 import DashboardLayout from '@/components/layouts/dashboard-layout';
 import MatchCard from '@/components/dashboard/match-card';
 import { Button } from '@/components/ui/button';
-import { Loader2 } from 'lucide-react';
+import { Loader2, RefreshCw, ArrowLeft } from 'lucide-react';
 
 interface JobseekerMatch {
   id: string;
@@ -144,21 +144,33 @@ export default function EmployerMatchFeed() {
           </div>
         ) : (
           <div className="text-center py-12">
-            <h3 className="text-lg font-medium text-gray-900">No more matches to show</h3>
+            <h3 className="text-lg font-medium text-gray-900">You've reviewed all available candidates!</h3>
             <p className="mt-2 text-sm text-gray-500">
-              We're working on finding more great candidates for you. Check back soon!
+              You've reviewed all available jobseeker profiles. Check back soon as new candidates join the platform every day.
             </p>
-            <Button 
-              className="mt-4" 
-              variant="outline"
-              onClick={() => {
-                setIsProcessingSwipe(true);
-                queryClient.removeQueries({ queryKey: ['/api/employer/matches/potential'] });
-                refetchPotentialMatches().finally(() => setIsProcessingSwipe(false));
-              }}
-            >
-              Refresh
-            </Button>
+            <div className="mt-6 space-y-4">
+              <Button 
+                className="w-full max-w-xs" 
+                variant="outline"
+                onClick={() => {
+                  setIsProcessingSwipe(true);
+                  queryClient.removeQueries({ queryKey: ['/api/employer/matches/potential'] });
+                  refetchPotentialMatches().finally(() => setIsProcessingSwipe(false));
+                }}
+              >
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Check for new candidates
+              </Button>
+              
+              <Button 
+                className="w-full max-w-xs" 
+                variant="outline"
+                onClick={() => navigate('/employer/dashboard')}
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Return to dashboard
+              </Button>
+            </div>
           </div>
         )}
       </div>
