@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
-import { useTheme } from '@/context/theme-context';
-import { Sun, Moon, Menu, X } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { useAuth } from '@/context/auth-context';
 import { USER_TYPES } from '@/lib/constants';
 import enternLogo from '@/assets/entern-logo.png';
@@ -10,62 +9,10 @@ import enternLogo from '@/assets/entern-logo.png';
 export default function Navbar() {
   const { user } = useAuth();
   const [, navigate] = useLocation();
-  const { theme, toggleTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-  const [currentTheme, setCurrentTheme] = useState<"light" | "dark">("light");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  
-  // Update the theme state and icon when the theme changes
-  const handleThemeToggle = () => {
-    toggleTheme();
-    // Update local state after toggling
-    const root = window.document.documentElement;
-    const newTheme = root.classList.contains('dark') ? "dark" : "light";
-    setCurrentTheme(newTheme);
-  };
-  
-  // After mounting, we have access to the theme
-  useEffect(() => {
-    setMounted(true);
-    
-    // Ensure the correct theme icon is displayed on initial load
-    const root = window.document.documentElement;
-    const isDark = root.classList.contains('dark');
-    setCurrentTheme(isDark ? "dark" : "light");
-  }, []);
-  
-  // Listen for system theme changes
-  useEffect(() => {
-    const matchMedia = window.matchMedia("(prefers-color-scheme: dark)");
-    
-    const handleChange = () => {
-      if (theme === 'system') {
-        // Only update if using system theme
-        const root = window.document.documentElement;
-        const isDark = root.classList.contains('dark');
-        setCurrentTheme(isDark ? "dark" : "light");
-      }
-    };
-    
-    // Add listener
-    matchMedia.addEventListener("change", handleChange);
-    
-    // Clean up
-    return () => {
-      matchMedia.removeEventListener("change", handleChange);
-    };
-  }, [theme]);
-  
-  // Keep currentTheme in sync with theme
-  useEffect(() => {
-    // Update icon when theme context changes
-    const root = window.document.documentElement;
-    const isDark = root.classList.contains('dark');
-    setCurrentTheme(isDark ? "dark" : "light");
-  }, [theme]);
 
   return (
-    <nav className="bg-white dark:bg-gray-800 shadow-md sticky top-0 z-50">
+    <nav className="bg-white shadow-md sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-20">
           <div className="flex">
@@ -80,23 +27,10 @@ export default function Navbar() {
           {/* Mobile menu button */}
           <div className="flex items-center md:hidden">
             <Button 
-              onClick={handleThemeToggle}
-              variant="ghost"
-              size="icon"
-              className="text-gray-700 dark:text-gray-300 mr-2"
-              aria-label="Toggle dark mode"
-            >
-              {mounted && currentTheme === "dark" ? (
-                <Sun className="h-5 w-5" />
-              ) : (
-                <Moon className="h-5 w-5" />
-              )}
-            </Button>
-            <Button 
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               variant="ghost"
               size="icon"
-              className="text-gray-700 dark:text-gray-300"
+              className="text-gray-700"
               aria-label="Open menu"
             >
               {mobileMenuOpen ? (
@@ -109,19 +43,6 @@ export default function Navbar() {
 
           {/* Desktop menu */}
           <div className="hidden md:flex items-center space-x-3">
-            <Button 
-              onClick={handleThemeToggle}
-              variant="ghost"
-              size="icon"
-              className="text-gray-700 dark:text-gray-300"
-              aria-label="Toggle dark mode"
-            >
-              {mounted && currentTheme === "dark" ? (
-                <Sun className="h-5 w-5" />
-              ) : (
-                <Moon className="h-5 w-5" />
-              )}
-            </Button>
             
             {user ? (
               <Button asChild className="btn-gradient rounded-md px-6 py-2 text-sm font-medium">
