@@ -116,21 +116,6 @@ export default function JobseekerNavbar() {
                     onCheckedChange={handleNotificationToggle}
                   />
                 </div>
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="theme-mobile" className="flex items-center gap-2">
-                    {mounted && theme === "dark" ? (
-                      <Moon className="h-4 w-4" />
-                    ) : (
-                      <Sun className="h-4 w-4" />
-                    )}
-                    {mounted && theme === "dark" ? "Dark Mode" : "Light Mode"}
-                  </Label>
-                  <Switch
-                    id="theme-mobile"
-                    checked={mounted && theme === "dark"}
-                    onCheckedChange={() => setTheme(theme === "dark" ? "light" : "dark")}
-                  />
-                </div>
               </div>
             </SheetContent>
           </Sheet>
@@ -185,20 +170,7 @@ export default function JobseekerNavbar() {
                   onCheckedChange={handleNotificationToggle}
                 />
               </DropdownMenuItem>
-              <DropdownMenuItem className="flex items-center justify-between cursor-default">
-                <div className="flex items-center gap-2">
-                  {mounted && theme === "dark" ? (
-                    <Moon className="h-4 w-4" />
-                  ) : (
-                    <Sun className="h-4 w-4" />
-                  )}
-                  <span>Dark Mode</span>
-                </div>
-                <Switch
-                  checked={mounted && theme === "dark"}
-                  onCheckedChange={() => setTheme(theme === "dark" ? "light" : "dark")}
-                />
-              </DropdownMenuItem>
+
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 className="flex items-center gap-2 text-destructive focus:text-destructive"
