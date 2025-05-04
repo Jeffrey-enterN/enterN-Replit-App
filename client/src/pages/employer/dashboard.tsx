@@ -289,7 +289,7 @@ export default function EmployerDashboard() {
       <RecentMatches 
         matches={recentMatches} 
         emptyMessage="You haven't matched with any candidates yet. Start swiping to find matches!"
-        viewAllLink="/employer/matches"
+        viewAllLink="/employer/match-feed"
       />
     </div>
   );
