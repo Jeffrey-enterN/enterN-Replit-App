@@ -49,10 +49,21 @@ export default function EmployerMatchFeed() {
       const response = await apiRequest('POST', '/api/employer/swipe', { jobseekerId: id, interested });
       return response.json();
     },
-    onSuccess: () => {
-      refetchPotentialMatches();
+    onSuccess: async () => {
+      // After a successful swipe, automatically load the next candidate
+      await refetchPotentialMatches();
+      
+      // Also invalidate related queries
       queryClient.invalidateQueries({ queryKey: ['/api/employer/dashboard'] });
       queryClient.invalidateQueries({ queryKey: ['/api/employer/matches/recent'] });
+
+      // If there are no more matches, show a success toast
+      if (!potentialMatches || potentialMatches.length <= 1) {
+        toast({
+          title: 'Caught up!',
+          description: 'You\'ve reviewed all available candidates. Check back soon for more matches.',
+        });
+      }
     },
     onError: (error: Error) => {
       toast({
