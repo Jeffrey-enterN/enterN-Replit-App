@@ -58,7 +58,16 @@ export default function JobseekerNavbar() {
     { label: 'Profile', href: '/jobseeker/profile', icon: UserCircle },
     { label: 'Resume', href: '/jobseeker/resume', icon: FileText },
     { label: 'Applications', href: '/jobseeker/applications', icon: Clock },
-    { label: 'Education', href: '/jobseeker/education', icon: GraduationCap }
+    { label: 'Education', href: '/jobseeker/education', icon: GraduationCap },
+    { 
+      label: 'Support', 
+      href: '/support', 
+      icon: () => (
+        <svg className="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      ) 
+    }
   ];
 
   return (
@@ -172,6 +181,15 @@ export default function JobseekerNavbar() {
               </DropdownMenuItem>
 
               <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link href="/support" className="flex items-center gap-2 cursor-pointer">
+                  <svg className="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Help & Support
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
               <DropdownMenuItem
                 className="flex items-center gap-2 text-destructive focus:text-destructive"
                 onClick={handleLogout}
@@ -211,6 +229,15 @@ export default function JobseekerNavbar() {
                 <Link href="/jobseeker/match-feed" className="flex items-center gap-2 cursor-pointer">
                   <ThumbsUp className="h-4 w-4" />
                   Match Feed
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link href="/support" className="flex items-center gap-2 cursor-pointer">
+                  <svg className="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Help & Support
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
