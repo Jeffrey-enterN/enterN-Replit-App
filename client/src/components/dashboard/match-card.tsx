@@ -362,43 +362,108 @@ export default function MatchCard({ userType, data, onInterested, onNotIntereste
     // For debugging - log all available slider values from the database
     console.log('Jobseeker slider values:', jobseeker.sliderValues);
     
-    // Expanded list of slider categories for the full profile view
-    // Using the actual field names from the database
-    const allSliderCategories = [
-      {
-        name: "Work Style Preferences",
-        sliders: [
-          { id: 'fast_paced_vs_methodical', left: 'Methodical & Steady', right: 'Fast-Paced & Dynamic' },
-          { id: 'work_life_separation_vs_integration', left: 'Clear Work/Life Separation', right: 'Work/Life Integration' },
-          { id: 'noise_vs_quiet', left: 'Quiet Environment', right: 'Lively Environment' },
-          { id: 'structured_vs_flexible', left: 'Structured Work', right: 'Flexible Work' }
-        ]
-      },
-      {
-        name: "Collaboration & Communication",
-        sliders: [
-          { id: 'collaborative_vs_independent', left: 'Independent Work', right: 'Collaborative Work' },
-          { id: 'formal_vs_casual_comm', left: 'Formal Communication', right: 'Casual Communication' },
-          { id: 'written_vs_verbal', left: 'Written Communication', right: 'Verbal Communication' }
-        ]
-      },
-      {
-        name: "Leadership & Management",
-        sliders: [
-          { id: 'hands_on_vs_delegating', left: 'Hands-Off Management', right: 'Hands-On Management' },
-          { id: 'hierarchical_vs_flat', left: 'Hierarchical Structure', right: 'Flat Structure' },
-          { id: 'direct_vs_diplomatic', left: 'Direct Feedback', right: 'Diplomatic Feedback' }
-        ]
-      },
-      {
-        name: "Problem-Solving & Decision-Making",
-        sliders: [
-          { id: 'analytical_vs_intuitive', left: 'Analytical Approach', right: 'Intuitive Approach' },
-          { id: 'data_driven_vs_intuition', left: 'Data-Driven Decisions', right: 'Intuition-Based Decisions' },
-          { id: 'risk_taking_vs_cautious', left: 'Cautious Approach', right: 'Risk-Taking Approach' }
-        ]
-      }
-    ];
+    // Function to create sliders categories dynamically based on what's available in the data
+    const createSliderCategories = () => {
+      // Get all available slider keys from the jobseeker profile
+      const availableSliders = jobseeker.sliderValues ? Object.keys(jobseeker.sliderValues) : [];
+      
+      // Map from database field names to human-readable labels
+      const sliderDefinitions: Record<string, {left: string, right: string, category: string}> = {
+        // Work Environment
+        'noise_vs_quiet': { left: 'Quiet Environment', right: 'Lively Environment', category: 'Work Environment' },
+        'open_office_vs_private': { left: 'Private Workspace', right: 'Open Office', category: 'Work Environment' },
+        'remote_vs_inoffice': { left: 'Remote Work', right: 'In-Office Work', category: 'Work Environment' },
+        
+        // Work Style
+        'fast_paced_vs_methodical': { left: 'Methodical & Steady', right: 'Fast-Paced & Dynamic', category: 'Work Style' },
+        'multitasking_vs_focused': { left: 'Deep Focus', right: 'Multitasking', category: 'Work Style' },
+        'structured_vs_flexible': { left: 'Structured Work', right: 'Flexible Work', category: 'Work Style' },
+        'detailed_vs_concise': { left: 'Detail-Oriented', right: 'Big Picture', category: 'Work Style' },
+        'quick_vs_thorough': { left: 'Thorough Approach', right: 'Quick Results', category: 'Work Style' },
+        'detail_oriented_vs_big_picture': { left: 'Detail-Oriented', right: 'Big Picture', category: 'Work Style' },
+        
+        // Work-Life Balance
+        'work_life_separation_vs_integration': { left: 'Work/Life Separation', right: 'Work/Life Integration', category: 'Work-Life Balance' },
+        'flexible_hours_vs_fixed': { left: 'Fixed Schedule', right: 'Flexible Hours', category: 'Work-Life Balance' },
+        'overtime_willingness': { left: 'Standard Hours', right: 'Willing to Work Overtime', category: 'Work-Life Balance' },
+        'travel_preference': { left: 'Minimal Travel', right: 'Frequent Travel', category: 'Work-Life Balance' },
+        
+        // Communication
+        'written_vs_verbal': { left: 'Written Communication', right: 'Verbal Communication', category: 'Communication' },
+        'formal_vs_casual_comm': { left: 'Formal Communication', right: 'Casual Communication', category: 'Communication' },
+        'direct_vs_diplomatic': { left: 'Direct Communication', right: 'Diplomatic Communication', category: 'Communication' },
+        'frequent_vs_as_needed': { left: 'Communication As Needed', right: 'Frequent Check-ins', category: 'Communication' },
+        
+        // Collaboration
+        'collaborative_vs_independent': { left: 'Independent Work', right: 'Collaborative Work', category: 'Collaboration' },
+        'consensus_vs_decisive': { left: 'Decisive Action', right: 'Consensus Building', category: 'Collaboration' },
+        'group_input_vs_individual': { left: 'Individual Decision-Making', right: 'Group Input', category: 'Collaboration' },
+        'competitive_vs_collaborative_culture': { left: 'Competitive Culture', right: 'Collaborative Culture', category: 'Collaboration' },
+        
+        // Management & Leadership
+        'hands_on_vs_delegating': { left: 'Delegating Management', right: 'Hands-On Management', category: 'Management & Leadership' },
+        'hierarchical_vs_flat': { left: 'Hierarchical Structure', right: 'Flat Structure', category: 'Management & Leadership' },
+        'directive_vs_empowering': { left: 'Directive Leadership', right: 'Empowering Leadership', category: 'Management & Leadership' },
+        'formal_vs_informal_leadership': { left: 'Formal Leadership', right: 'Informal Leadership', category: 'Management & Leadership' },
+        
+        // Decision-Making
+        'analytical_vs_intuitive': { left: 'Analytical Approach', right: 'Intuitive Approach', category: 'Decision-Making' },
+        'data_driven_vs_intuition': { left: 'Data-Driven Decisions', right: 'Intuition-Based Decisions', category: 'Decision-Making' },
+        'risk_taking_vs_cautious': { left: 'Cautious Approach', right: 'Risk-Taking Approach', category: 'Decision-Making' },
+        'risk_averse_vs_risk_seeking': { left: 'Risk-Averse', right: 'Risk-Seeking', category: 'Decision-Making' },
+        'pragmatic_vs_idealistic': { left: 'Pragmatic Approach', right: 'Idealistic Approach', category: 'Decision-Making' },
+        
+        // Personal Growth & Development
+        'growth_vs_stability': { left: 'Stability', right: 'Growth & Development', category: 'Growth & Development' },
+        'professional_development_time': { left: 'Focused on Current Tasks', right: 'Professional Development Time', category: 'Growth & Development' },
+        'mentorship_vs_peer_learning': { left: 'Peer Learning', right: 'Mentorship', category: 'Growth & Development' },
+        'regular_feedback_vs_autonomy': { left: 'Autonomy', right: 'Regular Feedback', category: 'Growth & Development' },
+        
+        // Values & Culture
+        'casual_vs_formal': { left: 'Formal Environment', right: 'Casual Environment', category: 'Values & Culture' },
+        'innovation_vs_tradition': { left: 'Traditional Approach', right: 'Innovative Approach', category: 'Values & Culture' },
+        'profit_vs_purpose': { left: 'Profit-Driven', right: 'Purpose-Driven', category: 'Values & Culture' },
+        'transparency_vs_privacy': { left: 'Privacy', right: 'Transparency', category: 'Values & Culture' },
+        'company_loyalty_vs_industry_mobility': { left: 'Industry Mobility', right: 'Company Loyalty', category: 'Values & Culture' },
+        'traditional_vs_progressive': { left: 'Traditional Culture', right: 'Progressive Culture', category: 'Values & Culture' },
+        'global_vs_local': { left: 'Local Focus', right: 'Global Focus', category: 'Values & Culture' },
+        'customer_vs_employee_first': { left: 'Employee-First', right: 'Customer-First', category: 'Values & Culture' },
+        'financial_vs_social_impact': { left: 'Financial Impact', right: 'Social Impact', category: 'Values & Culture' },
+        'challenging_vs_supportive': { left: 'Supportive Environment', right: 'Challenging Environment', category: 'Values & Culture' },
+        'performance_vs_potential': { left: 'Focus on Potential', right: 'Focus on Performance', category: 'Values & Culture' },
+      };
+
+      // Group sliders by category
+      const categorizedSliders: Record<string, Array<{id: string, left: string, right: string}>> = {};
+      
+      // Filter sliders that are available in the data
+      availableSliders.forEach(sliderId => {
+        // Skip if the slider definition is not found
+        if (!sliderDefinitions[sliderId]) return;
+        
+        const def = sliderDefinitions[sliderId];
+        const category = def.category;
+        
+        if (!categorizedSliders[category]) {
+          categorizedSliders[category] = [];
+        }
+        
+        categorizedSliders[category].push({
+          id: sliderId,
+          left: def.left,
+          right: def.right
+        });
+      });
+      
+      // Convert to array of categories
+      return Object.entries(categorizedSliders).map(([name, sliders]) => ({
+        name,
+        sliders
+      })).sort((a, b) => a.name.localeCompare(b.name));
+    };
+    
+    // Create categories dynamically based on the available data
+    const allSliderCategories = createSliderCategories();
     
     return (
       <>
