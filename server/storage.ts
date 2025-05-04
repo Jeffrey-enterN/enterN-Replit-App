@@ -1748,23 +1748,29 @@ export class DatabaseStorage implements IStorage {
       console.log(`Potential matches (before filtering): ${potentialJobseekers.length}`);
       
       // Filter out profiles with minimal information
-      // Only include profiles with at least some education or preferences data
+      // Only include profiles that have a user account attached (this is already assured by the inner join)
+      // Relaxed filtering to allow more profiles to be shown
       const filteredProfiles = potentialJobseekers.filter(item => {
+        // Debug each profile to identify why it might be getting filtered out
         const profile = item.profile;
+        console.log("Examining profile:", {
+          userId: profile.userId,
+          hasEducation: !!profile.school || !!profile.degreeLevel || !!profile.major,
+          hasSliderValues: !!profile.sliderValues,
+          sliderValuesSample: profile.sliderValues ? typeof profile.sliderValues : 'null',
+          preferredLocations: profile.preferredLocations ? 
+            (Array.isArray(profile.preferredLocations) ? 
+              profile.preferredLocations.length : typeof profile.preferredLocations) : 'null',
+          workArrangements: profile.workArrangements ? 
+            (Array.isArray(profile.workArrangements) ? 
+              profile.workArrangements.length : typeof profile.workArrangements) : 'null',
+          industryPreferences: profile.industryPreferences ? 
+            (Array.isArray(profile.industryPreferences) ? 
+              profile.industryPreferences.length : typeof profile.industryPreferences) : 'null',
+        });
         
-        // Check if profile has some meaningful data
-        const hasEducation = profile.school || profile.degreeLevel || profile.major;
-        const hasSliderValues = profile.sliderValues && 
-          (typeof profile.sliderValues === 'object' ? 
-            Object.keys(profile.sliderValues).length > 0 : 
-            profile.sliderValues.toString().trim() !== '');
-        const hasPreferences = 
-          (Array.isArray(profile.preferredLocations) && profile.preferredLocations.length > 0) ||
-          (Array.isArray(profile.workArrangements) && profile.workArrangements.length > 0) ||
-          (Array.isArray(profile.industryPreferences) && profile.industryPreferences.length > 0);
-        
-        // Include profile if it has at least some information
-        return hasEducation || hasSliderValues || hasPreferences;
+        // Return all profiles for now to debug the issue
+        return true;
       });
       
       console.log(`Potential matches (after filtering): ${filteredProfiles.length}`);
