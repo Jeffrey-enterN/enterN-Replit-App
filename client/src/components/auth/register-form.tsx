@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuth } from '@/context/auth-context';
 import { USER_TYPES } from '@/lib/constants';
-import { useLocation } from 'wouter';
+import { useLocation, Link } from 'wouter';
 
 import {
   Form,
@@ -209,9 +209,9 @@ export default function RegisterForm() {
                   className="ml-2 block text-sm text-gray-900 dark:text-gray-200"
                 >
                   I agree to the 
-                  <a href="/terms-of-service" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary/80"> Terms of Service </a>
+                  <Link href="/terms-of-service" target="_blank" className="text-primary hover:text-primary/80"> Terms of Service </Link>
                   and
-                  <a href="/privacy-policy" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary/80"> Privacy Policy</a>
+                  <Link href="/privacy-policy" target="_blank" className="text-primary hover:text-primary/80"> Privacy Policy</Link>
                 </label>
                 <FormMessage />
               </FormItem>
