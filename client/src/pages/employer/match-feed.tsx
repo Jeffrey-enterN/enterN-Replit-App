@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useLocation } from 'wouter';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
@@ -27,6 +27,7 @@ export default function EmployerMatchFeed() {
   const { user } = useAuth();
   const [, navigate] = useLocation();
   const { toast } = useToast();
+  const [isProcessingSwipe, setIsProcessingSwipe] = useState(false);
 
   // Redirect if not authenticated or if user is not an employer
   useEffect(() => {
@@ -36,9 +37,15 @@ export default function EmployerMatchFeed() {
   }, [user, navigate]);
 
   // Fetch potential matches
-  const { data: potentialMatches, refetch: refetchPotentialMatches, isLoading } = useQuery<JobseekerMatch[]>({
+  const { 
+    data: potentialMatches, 
+    refetch: refetchPotentialMatches, 
+    isLoading,
+    isRefetching
+  } = useQuery<JobseekerMatch[]>({
     queryKey: ['/api/employer/matches/potential'],
     enabled: !!user && user.userType === USER_TYPES.EMPLOYER,
+    staleTime: 0, // Force refetch every time
   });
 
   const currentJobseeker = potentialMatches && potentialMatches.length > 0 ? potentialMatches[0] : undefined;
@@ -46,17 +53,25 @@ export default function EmployerMatchFeed() {
   // Handle interest/not interest
   const swipeMutation = useMutation({
     mutationFn: async ({ id, interested }: { id: string; interested: boolean }) => {
+      setIsProcessingSwipe(true);
       const response = await apiRequest('POST', '/api/employer/swipe', { jobseekerId: id, interested });
       return response.json();
     },
     onSuccess: async () => {
-      // After a successful swipe, automatically load the next candidate
-      await refetchPotentialMatches();
-      
       // Also invalidate related queries
       queryClient.invalidateQueries({ queryKey: ['/api/employer/dashboard'] });
       queryClient.invalidateQueries({ queryKey: ['/api/employer/matches/recent'] });
 
+      // Clear existing matches data from cache to force a fresh fetch
+      queryClient.removeQueries({ queryKey: ['/api/employer/matches/potential'] });
+      
+      // After a successful swipe, automatically load the next candidate
+      try {
+        await refetchPotentialMatches();
+      } catch (error) {
+        console.error('Error refetching potential matches:', error);
+      }
+      
       // If there are no more matches, show a success toast
       if (!potentialMatches || potentialMatches.length <= 1) {
         toast({
@@ -64,8 +79,12 @@ export default function EmployerMatchFeed() {
           description: 'You\'ve reviewed all available candidates. Check back soon for more matches.',
         });
       }
+      
+      // Reset processing state
+      setIsProcessingSwipe(false);
     },
     onError: (error: Error) => {
+      setIsProcessingSwipe(false);
       toast({
         title: 'Error',
         description: error.message,
@@ -103,10 +122,13 @@ export default function EmployerMatchFeed() {
     };
   };
 
+  // Determine if we should show the loading state
+  const showLoadingState = isLoading || isRefetching || isProcessingSwipe || swipeMutation.isPending;
+  
   return (
     <DashboardLayout title="Match Feed" subtitle="Discover potential candidates">
       <div className="flex flex-col items-center space-y-6">
-        {isLoading ? (
+        {showLoadingState ? (
           <div className="flex justify-center items-center h-60">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
@@ -117,7 +139,7 @@ export default function EmployerMatchFeed() {
               data={formatJobseekerData(currentJobseeker)}
               onInterested={() => handleInterested(currentJobseeker.id)}
               onNotInterested={() => handleNotInterested(currentJobseeker.id)}
-              isPending={swipeMutation.isPending}
+              isPending={false} // We're handling loading state at the page level now
             />
           </div>
         ) : (
@@ -129,7 +151,11 @@ export default function EmployerMatchFeed() {
             <Button 
               className="mt-4" 
               variant="outline"
-              onClick={() => refetchPotentialMatches()}
+              onClick={() => {
+                setIsProcessingSwipe(true);
+                queryClient.removeQueries({ queryKey: ['/api/employer/matches/potential'] });
+                refetchPotentialMatches().finally(() => setIsProcessingSwipe(false));
+              }}
             >
               Refresh
             </Button>
