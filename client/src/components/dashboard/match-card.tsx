@@ -346,52 +346,56 @@ export default function MatchCard({ userType, data, onInterested, onNotIntereste
       }
     };
     
-    // Select a few key sliders to display from different categories
+    // Select a few key sliders from the database to display
     const sliderSamples = [
       // Work Style Preferences
-      { id: 'work-pace', left: 'Methodical & Steady', right: 'Fast-Paced & Dynamic' },
-      { id: 'work-life-balance', left: 'Clear Work/Life Separation', right: 'Work/Life Integration' },
+      { id: 'fast_paced_vs_methodical', left: 'Methodical & Steady', right: 'Fast-Paced & Dynamic' },
+      { id: 'work_life_separation_vs_integration', left: 'Clear Work/Life Separation', right: 'Work/Life Integration' },
       // Collaboration & Communication
-      { id: 'team-composition', left: 'Homogeneous Teams', right: 'Diverse Perspectives' },
-      // Leadership & Supervisor Styles
-      { id: 'management-style', left: 'Structured Leadership', right: 'Autonomous Leadership' },
-      // Problem-Solving & Decision-Making
-      { id: 'feedback-style', left: 'Direct Feedback', right: 'Diplomatic Feedback' }
+      { id: 'collaborative_vs_independent', left: 'Independent Work', right: 'Collaborative Work' },
+      // Leadership Style
+      { id: 'structured_vs_flexible', left: 'Structured Leadership', right: 'Flexible Leadership' },
+      // Feedback Style
+      { id: 'direct_vs_diplomatic', left: 'Direct Feedback', right: 'Diplomatic Feedback' }
     ];
     
+    // For debugging - log all available slider values from the database
+    console.log('Jobseeker slider values:', jobseeker.sliderValues);
+    
     // Expanded list of slider categories for the full profile view
+    // Using the actual field names from the database
     const allSliderCategories = [
       {
         name: "Work Style Preferences",
         sliders: [
-          { id: 'work-pace', left: 'Methodical & Steady', right: 'Fast-Paced & Dynamic' },
-          { id: 'work-life-balance', left: 'Clear Work/Life Separation', right: 'Work/Life Integration' },
-          { id: 'work-environment', left: 'Quiet & Focused', right: 'Lively & Collaborative' },
-          { id: 'work-autonomy', left: 'Clear Directions', right: 'Self-Directed Work' }
+          { id: 'fast_paced_vs_methodical', left: 'Methodical & Steady', right: 'Fast-Paced & Dynamic' },
+          { id: 'work_life_separation_vs_integration', left: 'Clear Work/Life Separation', right: 'Work/Life Integration' },
+          { id: 'noise_vs_quiet', left: 'Quiet Environment', right: 'Lively Environment' },
+          { id: 'structured_vs_flexible', left: 'Structured Work', right: 'Flexible Work' }
         ]
       },
       {
         name: "Collaboration & Communication",
         sliders: [
-          { id: 'team-composition', left: 'Homogeneous Teams', right: 'Diverse Perspectives' },
-          { id: 'communication-style', left: 'Structured Communication', right: 'Organic Communication' },
-          { id: 'collaboration-preference', left: 'Independent Work', right: 'Collaborative Work' }
+          { id: 'collaborative_vs_independent', left: 'Independent Work', right: 'Collaborative Work' },
+          { id: 'formal_vs_casual_comm', left: 'Formal Communication', right: 'Casual Communication' },
+          { id: 'written_vs_verbal', left: 'Written Communication', right: 'Verbal Communication' }
         ]
       },
       {
-        name: "Leadership & Supervisor Styles",
+        name: "Leadership & Management",
         sliders: [
-          { id: 'management-style', left: 'Structured Leadership', right: 'Autonomous Leadership' },
-          { id: 'supervisor-availability', left: 'Hands-Off Supervision', right: 'Hands-On Supervision' },
-          { id: 'feedback-frequency', left: 'Scheduled Feedback', right: 'Continuous Feedback' }
+          { id: 'hands_on_vs_delegating', left: 'Hands-Off Management', right: 'Hands-On Management' },
+          { id: 'hierarchical_vs_flat', left: 'Hierarchical Structure', right: 'Flat Structure' },
+          { id: 'direct_vs_diplomatic', left: 'Direct Feedback', right: 'Diplomatic Feedback' }
         ]
       },
       {
         name: "Problem-Solving & Decision-Making",
         sliders: [
-          { id: 'feedback-style', left: 'Direct Feedback', right: 'Diplomatic Feedback' },
-          { id: 'decision-making', left: 'Data-Driven Decisions', right: 'Intuitive Decisions' },
-          { id: 'risk-tolerance', left: 'Risk-Averse', right: 'Risk-Taking' }
+          { id: 'analytical_vs_intuitive', left: 'Analytical Approach', right: 'Intuitive Approach' },
+          { id: 'data_driven_vs_intuition', left: 'Data-Driven Decisions', right: 'Intuition-Based Decisions' },
+          { id: 'risk_taking_vs_cautious', left: 'Cautious Approach', right: 'Risk-Taking Approach' }
         ]
       }
     ];
