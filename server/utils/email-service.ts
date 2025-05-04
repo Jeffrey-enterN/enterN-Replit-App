@@ -12,6 +12,15 @@ export interface EmailParams {
   html?: string;
 }
 
+// SendGrid specific email interface with required properties
+interface SendGridEmailParams {
+  to: string;
+  from: string;
+  subject: string;
+  text: string;
+  html: string;
+}
+
 /**
  * Initialize the SendGrid mail service with the API key
  * Should be called once when the server starts
@@ -42,14 +51,16 @@ export async function sendEmail(params: EmailParams): Promise<boolean> {
       return true;
     }
 
-    // Actually send the email
-    await mailService.send({
+    // Actually send the email with SendGrid
+    const msg: SendGridEmailParams = {
       to: params.to,
       from: params.from,
       subject: params.subject,
-      text: params.text,
-      html: params.html,
-    });
+      text: params.text || '',
+      html: params.html || '',
+    };
+    
+    await mailService.send(msg);
     
     console.log(`Email sent to ${params.to} with subject "${params.subject}"`);
     return true;

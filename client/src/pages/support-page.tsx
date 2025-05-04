@@ -45,9 +45,25 @@ export default function SupportPage() {
     }
     
     try {
-      // This would normally send to an API endpoint
-      // For demo purposes, we'll just simulate a delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Send the support message to our API endpoint
+      const response = await fetch('/api/support/message', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          subject,
+          message,
+        }),
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to send message');
+      }
       
       toast({
         title: "Message sent",
@@ -60,9 +76,10 @@ export default function SupportPage() {
       setSubject('');
       setMessage('');
     } catch (error) {
+      console.error('Error sending support message:', error);
       toast({
         title: "Error",
-        description: "There was a problem sending your message. Please try again.",
+        description: error instanceof Error ? error.message : "There was a problem sending your message. Please try again.",
         variant: "destructive",
       });
     } finally {
