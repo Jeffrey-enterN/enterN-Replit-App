@@ -355,14 +355,14 @@ export default function MatchCard({ userType, data, onInterested, onNotIntereste
     // Select a few key sliders from the database to display
     const sliderSamples = [
       // Work Style Preferences
-      { id: 'fast_paced_vs_methodical', left: 'Methodical & Steady', right: 'Fast-Paced & Dynamic' },
-      { id: 'work_life_separation_vs_integration', left: 'Clear Work/Life Separation', right: 'Work/Life Integration' },
+      { id: 'speed_vs_precision', left: 'Methodical & Steady', right: 'Fast-Paced & Dynamic' },
+      { id: 'work_life_integration_vs_separation', left: 'Clear Work/Life Separation', right: 'Work/Life Integration' },
       // Collaboration & Communication
-      { id: 'collaborative_vs_independent', left: 'Independent Work', right: 'Collaborative Work' },
-      // Leadership Style
-      { id: 'structured_vs_flexible', left: 'Structured Leadership', right: 'Flexible Leadership' },
+      { id: 'collaborative_vs_individual', left: 'Independent Work', right: 'Collaborative Work' },
+      // Leadership Preferences
+      { id: 'hierarchy_vs_flat', left: 'Structured Leadership', right: 'Flexible Leadership' },
       // Feedback Style
-      { id: 'direct_vs_diplomatic', left: 'Direct Feedback', right: 'Diplomatic Feedback' }
+      { id: 'critique_vs_praise', left: 'Direct Feedback', right: 'Diplomatic Feedback' }
     ];
     
     // For debugging - log all available slider values from the database
