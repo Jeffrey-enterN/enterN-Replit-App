@@ -61,17 +61,17 @@ async function createEmployerWithCompany(employerData: {
     .insert(companies)
     .values({
       name: employerData.companyData.name,
-      website: employerData.companyData.website,
+      website: employerData.companyData.website || null,
       headquarters: employerData.companyData.headquarters,
-      yearFounded: employerData.companyData.yearFounded,
+      yearFounded: employerData.companyData.yearFounded || null,
       size: employerData.companyData.size,
-      industries: employerData.companyData.industries,
+      industries: employerData.companyData.industries || [],
       about: employerData.companyData.about,
-      culture: employerData.companyData.culture,
-      mission: employerData.companyData.mission,
-      values: employerData.companyData.values,
-      additionalOffices: employerData.companyData.additionalOffices,
-      workArrangements: employerData.companyData.workArrangements,
+      culture: employerData.companyData.culture || null,
+      mission: employerData.companyData.mission || null,
+      values: employerData.companyData.values ? employerData.companyData.values.join(', ') : null,
+      additionalOffices: employerData.companyData.additionalOffices || [],
+      workArrangements: employerData.companyData.workArrangements || [],
       profileCompletion: 90, // Almost complete
       isVerified: true, // These are pre-verified
     })
@@ -291,17 +291,15 @@ async function main() {
   console.log('Finished adding Peoria employer profiles.');
 }
 
-// Only run the script if directly executed (not when imported)
-if (require.main === module) {
-  main()
-    .then(() => {
-      console.log('Script completed successfully');
-      process.exit(0);
-    })
-    .catch((error) => {
-      console.error('Script failed:', error);
-      process.exit(1);
-    });
-}
+// Run the main function immediately
+main()
+  .then(() => {
+    console.log('Script completed successfully');
+    process.exit(0);
+  })
+  .catch((error) => {
+    console.error('Script failed:', error);
+    process.exit(1);
+  });
 
 export { createEmployerWithCompany };

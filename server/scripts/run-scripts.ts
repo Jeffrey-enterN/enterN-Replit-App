@@ -1,5 +1,3 @@
-import { createEmployerWithCompany } from './add-peoria-employers';
-
 // Add script imports here
 
 async function main() {
@@ -14,7 +12,7 @@ async function main() {
   
   switch (scriptName) {
     case 'add-peoria-employers':
-      const { default: addPeoriaEmployers } = await import('./add-peoria-employers');
+      await import('./add-peoria-employers');
       break;
     
     // Add other scripts here
