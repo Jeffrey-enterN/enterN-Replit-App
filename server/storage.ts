@@ -1714,7 +1714,7 @@ export class DatabaseStorage implements IStorage {
     console.log(`Getting potential matches for employer: ${userId}`);
     
     try {
-      // Get jobseekers this employer hasn't swiped on yet
+      // Get jobseekers this employer has swiped on
       const swipedResults = await db
         .select({ jobseekerId: swipes.jobseekerId })
         .from(swipes)
@@ -1735,14 +1735,18 @@ export class DatabaseStorage implements IStorage {
       
       console.log(`Total jobseeker profiles in system: ${allProfiles.length}`);
       
-      // Get jobseeker profiles that haven't been swiped on
-      let potentialJobseekers = allProfiles;
+      // First try to get profiles that haven't been swiped on yet
+      let potentialJobseekers = allProfiles.filter(item => 
+        !swipedJobseekerIds.includes(item.profile.userId)
+      );
       
-      // If there are swiped profiles, filter them out
-      if (swipedJobseekerIds.length > 0) {
-        potentialJobseekers = allProfiles.filter(item => 
-          !swipedJobseekerIds.includes(item.profile.userId)
-        );
+      console.log(`Unreviewed profiles available: ${potentialJobseekers.length}`);
+      
+      // If no unreviewed profiles are available, show ALL profiles instead
+      // This ensures users always see profiles, even if they've swiped on them before
+      if (potentialJobseekers.length === 0) {
+        console.log('No unreviewed profiles available, showing all profiles instead');
+        potentialJobseekers = allProfiles;
       }
       
       console.log(`Potential matches (before filtering): ${potentialJobseekers.length}`);
