@@ -1496,11 +1496,11 @@ export class DatabaseStorage implements IStorage {
         );
       
       if (employerSwipe) {
-        // Create a match
+        // Create a match - this is a mutual match since both swiped right
         const matchData = {
           jobseekerId,
           employerId: employerIdNum,
-          status: 'new'
+          status: 'mutual-match'
         };
         
         const [match] = await db.insert(matches).values([matchData]).returning();
@@ -1540,8 +1540,12 @@ export class DatabaseStorage implements IStorage {
           id: match.id,
           name: employerProfile?.companyName || employer?.companyName || 'Unknown Company',
           matchDate: match.matchedAt,
-          status: match.status === 'interview_scheduled' ? 'interview-scheduled' : 'matched',
-          statusText: match.status === 'interview_scheduled' ? 'Interview scheduled' : 'New match'
+          status: match.status === 'interview_scheduled' 
+            ? 'interview-scheduled' 
+            : (match.status === 'mutual-match' ? 'mutual-match' : 'matched'),
+          statusText: match.status === 'interview_scheduled' 
+            ? 'Interview scheduled' 
+            : (match.status === 'mutual-match' ? 'Mutual match' : 'New match')
         };
       })
     );
@@ -1709,8 +1713,12 @@ export class DatabaseStorage implements IStorage {
         id: match.id,
         name: 'Anonymous Profile', // Jobseeker profiles are anonymous until a certain point
         matchDate: match.matchedAt,
-        status: match.status === 'interview_scheduled' ? 'interview-scheduled' : 'matched',
-        statusText: match.status === 'interview_scheduled' ? 'Interview scheduled' : 'New match'
+        status: match.status === 'interview_scheduled' 
+          ? 'interview-scheduled' 
+          : (match.status === 'mutual-match' ? 'mutual-match' : 'matched'),
+        statusText: match.status === 'interview_scheduled' 
+          ? 'Interview scheduled' 
+          : (match.status === 'mutual-match' ? 'Mutual match' : 'New match')
       }))
     };
   }
@@ -1867,11 +1875,11 @@ export class DatabaseStorage implements IStorage {
         );
       
       if (jobseekerSwipe) {
-        // Create a match
+        // Create a match - this is a mutual match since both swiped right
         const matchData = {
           jobseekerId: jobseekerIdNum,
           employerId,
-          status: 'new'
+          status: 'mutual-match'
         };
         
         const [match] = await db.insert(matches).values([matchData]).returning();
@@ -1894,8 +1902,12 @@ export class DatabaseStorage implements IStorage {
       id: match.id,
       name: 'Anonymous Profile', // Jobseeker profiles are anonymous until a certain point
       matchDate: match.matchedAt,
-      status: match.status === 'interview_scheduled' ? 'interview-scheduled' : 'matched',
-      statusText: match.status === 'interview_scheduled' ? 'Interview scheduled' : 'New match'
+      status: match.status === 'interview_scheduled' 
+        ? 'interview-scheduled' 
+        : (match.status === 'mutual-match' ? 'mutual-match' : 'matched'),
+      statusText: match.status === 'interview_scheduled' 
+        ? 'Interview scheduled' 
+        : (match.status === 'mutual-match' ? 'Mutual match' : 'New match')
     }));
   }
 
