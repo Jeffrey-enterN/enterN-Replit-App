@@ -1,38 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
-import { Menu, X, Sun, Moon } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { useAuth } from '@/context/auth-context';
 import { USER_TYPES } from '@/lib/constants';
-import { useTheme } from '@/context/theme-context';
 import enternLogo from '@/assets/entern-logo.png';
 
 export default function Navbar() {
   const { user } = useAuth();
   const [, navigate] = useLocation();
-  const { theme, toggleTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-  const [currentTheme, setCurrentTheme] = useState<"light" | "dark">("light");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  
-  // Update the theme state and icon when the theme changes
-  const handleThemeToggle = () => {
-    toggleTheme();
-    // Update local state after toggling
-    const root = window.document.documentElement;
-    const newTheme = root.classList.contains('dark') ? "dark" : "light";
-    setCurrentTheme(newTheme);
-  };
-  
-  // After mounting, we have access to the theme
-  useEffect(() => {
-    setMounted(true);
-    
-    // Ensure the correct theme icon is displayed on initial load
-    const root = window.document.documentElement;
-    const isDark = root.classList.contains('dark');
-    setCurrentTheme(isDark ? "dark" : "light");
-  }, []);
 
   return (
     <nav className="bg-white shadow-md sticky top-0 z-50">
