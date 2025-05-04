@@ -32,12 +32,19 @@ export default function JobseekerMatchFeed() {
   }, [user, navigate]);
 
   // Fetch potential matches
-  const { data: potentialMatches, refetch: refetchPotentialMatches, isLoading } = useQuery({
+  const { 
+    data: potentialMatches, 
+    refetch: refetchPotentialMatches, 
+    isLoading,
+    isFetching 
+  } = useQuery({
     queryKey: ['/api/jobseeker/matches/potential'],
     enabled: !!user && user.userType === USER_TYPES.JOBSEEKER,
   });
 
-  const currentEmployer = potentialMatches?.[0] as EmployerMatch | undefined;
+  const currentEmployer = Array.isArray(potentialMatches) && potentialMatches.length > 0 
+    ? potentialMatches[0] as EmployerMatch 
+    : undefined;
 
   // Handle interest/not interest
   const swipeMutation = useMutation({
@@ -70,7 +77,7 @@ export default function JobseekerMatchFeed() {
   return (
     <DashboardLayout title="Match Feed" subtitle="Discover new opportunities">
       <div className="flex flex-col items-center space-y-6">
-        {isLoading ? (
+        {isLoading || isFetching || swipeMutation.isPending ? (
           <div className="flex justify-center items-center h-60">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
@@ -81,7 +88,7 @@ export default function JobseekerMatchFeed() {
               data={currentEmployer}
               onInterested={handleInterested}
               onNotInterested={handleNotInterested}
-              isPending={swipeMutation.isPending}
+              isPending={false}
             />
           </div>
         ) : (

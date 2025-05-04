@@ -37,6 +37,7 @@ interface MatchCardProps {
 export default function MatchCard({ userType, data, onInterested, onNotInterested, isPending = false }: MatchCardProps) {
   if (userType === USER_TYPES.JOBSEEKER) {
     const employer = data as EmployerMatch;
+    const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false);
     
     // Swipe functionality
     const controls = useAnimation();
@@ -82,109 +83,220 @@ export default function MatchCard({ userType, data, onInterested, onNotIntereste
     };
     
     return (
-      <div className="relative mx-auto max-w-md overflow-hidden select-none touchAction-none">
-        {/* Card container */}
-        <motion.div
-          ref={cardRef}
-          drag="x"
-          dragConstraints={{ left: 0, right: 0 }}
-          style={{ x, rotate }}
-          animate={controls}
-          onDragEnd={handleDragEnd}
-          whileTap={{ cursor: 'grabbing' }}
-          className="relative bg-white shadow-md rounded-lg overflow-hidden touch-none"
-        >
-          {/* Swipe indicators */}
-          <motion.div 
-            className="absolute top-4 left-4 z-10 bg-red-500 text-white p-2 rounded-full shadow-lg"
-            style={{ opacity: leftIndicatorOpacity }}
+      <>
+        <div className="relative mx-auto max-w-md overflow-hidden select-none touchAction-none">
+          {/* Card container */}
+          <motion.div
+            ref={cardRef}
+            drag="x"
+            dragConstraints={{ left: 0, right: 0 }}
+            style={{ x, rotate }}
+            animate={controls}
+            onDragEnd={handleDragEnd}
+            whileTap={{ cursor: 'grabbing' }}
+            className="relative bg-white shadow-md rounded-lg overflow-hidden touch-none"
           >
-            <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
-            </svg>
+            {/* Swipe indicators */}
+            <motion.div 
+              className="absolute top-4 left-4 z-10 bg-red-500 text-white p-2 rounded-full shadow-lg"
+              style={{ opacity: leftIndicatorOpacity }}
+            >
+              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </motion.div>
+            
+            <motion.div 
+              className="absolute top-4 right-4 z-10 bg-green-500 text-white p-2 rounded-full shadow-lg"
+              style={{ opacity: rightIndicatorOpacity }}
+            >
+              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+              </svg>
+            </motion.div>
+            
+            <img 
+              className="h-48 w-full object-cover" 
+              src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80" 
+              alt="Company building"
+            />
+            
+            <div className="p-5">
+              <div className="flex items-center mb-4">
+                <div className="w-12 h-12 bg-gray-200 rounded-full flex-shrink-0 flex items-center justify-center">
+                  {employer.logo ? (
+                    <img src={employer.logo} alt={`${employer.name} logo`} className="h-8 w-8" />
+                  ) : (
+                    <span className="text-lg font-bold text-gray-700">{getInitials(employer.name)}</span>
+                  )}
+                </div>
+                <div className="ml-4">
+                  <h4 className="text-xl font-semibold text-gray-900">{employer.name}</h4>
+                  <p className="text-gray-600 text-sm">{employer.location}</p>
+                </div>
+              </div>
+              
+              <div className="mb-4">
+                <p className="text-gray-700">
+                  {employer.description}
+                </p>
+              </div>
+              
+              <div className="mb-4">
+                <h5 className="text-sm font-medium text-gray-700 mb-2">Hiring for</h5>
+                <div className="flex flex-wrap gap-2">
+                  {employer.positions.map((position, index) => (
+                    <span 
+                      key={index} 
+                      className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800"
+                    >
+                      {position}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              
+              <div className="text-center mb-2">
+                <Button
+                  onClick={() => setIsProfileDialogOpen(true)}
+                  variant="ghost"
+                  className="text-primary hover:text-primary/90"
+                >
+                  View Full Profile
+                </Button>
+              </div>
+              
+              <div className="mt-4 flex justify-between">
+                <Button
+                  onClick={() => onNotInterested(employer.id)}
+                  disabled={isPending}
+                  variant="outline"
+                  className="flex-1 mr-2 border border-gray-300 rounded-md py-2 px-3 flex items-center justify-center text-sm font-medium text-gray-700 hover:bg-gray-50"
+                >
+                  <svg className="h-5 w-5 text-gray-500 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                  </svg>
+                  Not Interested
+                </Button>
+                <Button
+                  onClick={() => onInterested(employer.id)}
+                  disabled={isPending}
+                  className="flex-1 ml-2 bg-primary border border-transparent rounded-md py-2 px-3 flex items-center justify-center text-sm font-medium text-white hover:bg-primary-600"
+                >
+                  <svg className="h-5 w-5 text-white mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                  </svg>
+                  Interested
+                </Button>
+              </div>
+            </div>
           </motion.div>
           
-          <motion.div 
-            className="absolute top-4 right-4 z-10 bg-green-500 text-white p-2 rounded-full shadow-lg"
-            style={{ opacity: rightIndicatorOpacity }}
-          >
-            <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
-            </svg>
-          </motion.div>
-          
-          <img 
-            className="h-48 w-full object-cover" 
-            src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80" 
-            alt="Company building"
-          />
-          
-          <div className="p-5">
-            <div className="flex items-center mb-4">
-              <div className="w-12 h-12 bg-gray-200 rounded-full flex-shrink-0 flex items-center justify-center">
-                {employer.logo ? (
-                  <img src={employer.logo} alt={`${employer.name} logo`} className="h-8 w-8" />
-                ) : (
-                  <span className="text-lg font-bold text-gray-700">{getInitials(employer.name)}</span>
-                )}
-              </div>
-              <div className="ml-4">
-                <h4 className="text-xl font-semibold text-gray-900">{employer.name}</h4>
-                <p className="text-gray-600 text-sm">{employer.location}</p>
-              </div>
-            </div>
-            
-            <div className="mb-4">
-              <p className="text-gray-700">
-                {employer.description}
-              </p>
-            </div>
-            
-            <div className="mb-4">
-              <h5 className="text-sm font-medium text-gray-700 mb-2">Hiring for</h5>
-              <div className="flex flex-wrap gap-2">
-                {employer.positions.map((position, index) => (
-                  <span 
-                    key={index} 
-                    className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800"
-                  >
-                    {position}
-                  </span>
-                ))}
-              </div>
-            </div>
-            
-            <div className="mt-6 flex justify-between">
-              <Button
-                onClick={() => onNotInterested(employer.id)}
-                disabled={isPending}
-                variant="outline"
-                className="flex-1 mr-2 border border-gray-300 rounded-md py-2 px-3 flex items-center justify-center text-sm font-medium text-gray-700 hover:bg-gray-50"
-              >
-                <svg className="h-5 w-5 text-gray-500 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-                Not Interested
-              </Button>
-              <Button
-                onClick={() => onInterested(employer.id)}
-                disabled={isPending}
-                className="flex-1 ml-2 bg-primary border border-transparent rounded-md py-2 px-3 flex items-center justify-center text-sm font-medium text-white hover:bg-primary-600"
-              >
-                <svg className="h-5 w-5 text-white mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
-                </svg>
-                Interested
-              </Button>
-            </div>
+          {/* Swipe instructions hint */}
+          <div className="text-center mt-3 text-sm text-gray-500">
+            Swipe right to show interest, left to pass
           </div>
-        </motion.div>
-        
-        {/* Swipe instructions hint */}
-        <div className="text-center mt-3 text-sm text-gray-500">
-          Swipe right to show interest, left to pass
         </div>
-      </div>
+
+        {/* Full Employer Profile Dialog */}
+        <Dialog open={isProfileDialogOpen} onOpenChange={setIsProfileDialogOpen}>
+          <DialogContent className="sm:max-w-[600px] max-h-[85vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>{employer.name}</DialogTitle>
+              <DialogDescription>
+                Complete company profile and details
+              </DialogDescription>
+            </DialogHeader>
+            
+            <ScrollArea className="pr-4">
+              <div className="space-y-6">
+                {/* Company details */}
+                <div>
+                  <div className="flex items-center mb-4">
+                    <div className="w-16 h-16 bg-gray-200 rounded-full flex-shrink-0 flex items-center justify-center">
+                      {employer.logo ? (
+                        <img src={employer.logo} alt={`${employer.name} logo`} className="h-10 w-10" />
+                      ) : (
+                        <span className="text-xl font-bold text-gray-700">{getInitials(employer.name)}</span>
+                      )}
+                    </div>
+                    <div className="ml-4">
+                      <h4 className="text-2xl font-semibold text-gray-900">{employer.name}</h4>
+                      <p className="text-gray-600">{employer.location}</p>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Company description */}
+                <div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">About the Company</h3>
+                  <p className="text-gray-700">
+                    {employer.description}
+                  </p>
+                </div>
+                
+                {/* Open positions */}
+                <div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">Open Positions</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {employer.positions.map((position, index) => (
+                      <span 
+                        key={index} 
+                        className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary-100 text-primary-800"
+                      >
+                        {position}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                
+                {/* Benefits section (hardcoded for now) */}
+                <div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">Benefits</h3>
+                  <ul className="list-disc pl-5 space-y-2 text-gray-700">
+                    <li>Competitive salary and benefits package</li>
+                    <li>Professional development opportunities</li>
+                    <li>Collaborative and inclusive work environment</li>
+                    <li>Work-life balance</li>
+                  </ul>
+                </div>
+                
+                {/* Company culture section */}
+                <div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">Company Culture</h3>
+                  <p className="text-gray-700">
+                    We're looking for talented individuals who thrive in a collaborative environment 
+                    and are passionate about making a difference. Our culture values innovation, 
+                    inclusivity, and continuous learning.
+                  </p>
+                </div>
+                
+                <div className="pt-4 flex justify-between">
+                  <Button
+                    onClick={() => {
+                      setIsProfileDialogOpen(false);
+                      onNotInterested(employer.id);
+                    }}
+                    variant="outline"
+                    className="flex-1 mr-2"
+                  >
+                    Not Interested
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setIsProfileDialogOpen(false);
+                      onInterested(employer.id);
+                    }}
+                    className="flex-1 ml-2"
+                  >
+                    Interested
+                  </Button>
+                </div>
+              </div>
+            </ScrollArea>
+          </DialogContent>
+        </Dialog>
+      </>
     );
   } else {
     // Employer viewing jobseeker
