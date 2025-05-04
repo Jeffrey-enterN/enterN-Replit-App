@@ -67,31 +67,21 @@ export default function CompanyTeamPage() {
         </div>
         
         <div className="grid gap-6">
-          {/* Team overview card */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Team Management</CardTitle>
-              <CardDescription>
-                {isAdmin 
-                  ? "As an admin, you can invite new team members and manage roles"
-                  : "View your company team members"}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {user.companyId ? (
-                <CompanyTeamPanel 
-                  companyId={user.companyId} 
-                  userId={user.id} 
-                  isAdmin={isAdmin}
-                />
-              ) : (
-                <div className="py-8 text-center">
-                  <Loader2 className="h-8 w-8 animate-spin mx-auto" />
-                  <p className="mt-2 text-muted-foreground">Loading team data...</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+          {/* Team management section */}
+          {user.companyId ? (
+            <CompanyTeamPanel 
+              companyId={user.companyId} 
+              userId={user.id} 
+              isAdmin={isAdmin}
+            />
+          ) : (
+            <Card>
+              <CardContent className="py-8 text-center">
+                <Loader2 className="h-8 w-8 animate-spin mx-auto" />
+                <p className="mt-2 text-muted-foreground">Loading team data...</p>
+              </CardContent>
+            </Card>
+          )}
           
           {/* Role information card */}
           <Card>

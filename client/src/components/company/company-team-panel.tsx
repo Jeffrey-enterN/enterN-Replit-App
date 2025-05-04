@@ -223,9 +223,11 @@ export default function CompanyTeamPanel({ companyId, userId, isAdmin }: Company
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle>Company Team</CardTitle>
+        <CardTitle>Team Management</CardTitle>
         <CardDescription>
-          Manage your company team members and invitations
+          {isAdmin 
+            ? "As an admin, you can invite new team members and manage roles"
+            : "View your company team members"}
         </CardDescription>
       </CardHeader>
       <CardContent>
