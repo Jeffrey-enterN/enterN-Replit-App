@@ -132,7 +132,7 @@ export default function LoginForm() {
             <Button 
               type="submit" 
               disabled={loginMutation.isPending}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-base font-medium rounded-lg text-white btn-gradient shadow-md hover:shadow-lg transition-all"
             >
               {loginMutation.isPending ? 'Signing in...' : 'Sign in'}
             </Button>

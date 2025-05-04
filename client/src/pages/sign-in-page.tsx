@@ -23,7 +23,7 @@ export default function SignInPage() {
 
   return (
     <AuthLayout
-      title="Sign in to your account"
+      title={<>Sign in to your <span className="text-gradient font-extrabold">account</span></>}
       subtitle={
         <>
           Don't have an account?{' '}

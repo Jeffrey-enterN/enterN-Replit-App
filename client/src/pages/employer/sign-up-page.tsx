@@ -211,7 +211,7 @@ export default function EmployerSignUpPage() {
           <Button 
             type="submit" 
             disabled={registerMutation.isPending}
-            className="w-full"
+            className="w-full btn-gradient rounded-lg text-base font-medium py-3 shadow-md hover:shadow-lg transition-all"
           >
             {registerMutation.isPending ? 'Creating account...' : 'Create account'}
           </Button>

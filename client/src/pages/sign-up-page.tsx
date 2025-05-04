@@ -35,7 +35,7 @@ export default function SignUpPage() {
 
   return (
     <AuthLayout
-      title="Create your account"
+      title={<>Create your <span className="text-gradient font-extrabold">account</span></>}
       subtitle={
         <>
           Already have an account?{' '}
@@ -66,7 +66,7 @@ export default function SignUpPage() {
             </p>
             <Button 
               onClick={() => navigate('/sign-up/jobseeker')}
-              className="w-full"
+              className="w-full btn-gradient rounded-lg text-base font-medium py-3 shadow-md hover:shadow-lg transition-all"
             >
               Sign up as Jobseeker
             </Button>
@@ -85,7 +85,7 @@ export default function SignUpPage() {
             <Button 
               onClick={() => navigate('/sign-up/employer')}
               variant="outline"
-              className="w-full"
+              className="w-full border-primary text-primary hover:bg-primary/5 rounded-lg text-base font-medium py-3 shadow-sm hover:shadow-md transition-all"
             >
               Sign up as Employer
             </Button>

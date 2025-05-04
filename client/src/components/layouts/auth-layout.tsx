@@ -6,7 +6,7 @@ import Navbar from '@/components/layouts/navbar';
 
 interface AuthLayoutProps {
   children: ReactNode;
-  title: string;
+  title: ReactNode;
   subtitle: ReactNode;
 }
 
