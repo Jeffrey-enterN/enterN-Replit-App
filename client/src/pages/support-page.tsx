@@ -29,68 +29,13 @@ import enternLogo from '@/assets/entern-logo.png';
 import { Loader2, AlertCircle, CheckCircle2, Clock } from 'lucide-react';
 
 export default function SupportPage() {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [subject, setSubject] = useState('');
-  const [message, setMessage] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    
-    // Simple validation
-    if (!name || !email || !message) {
-      toast({
-        title: "Missing information",
-        description: "Please fill out all required fields.",
-        variant: "destructive",
-      });
-      setIsSubmitting(false);
-      return;
-    }
-    
-    try {
-      // Send the support message to our API endpoint
-      const response = await fetch('/api/support/message', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name,
-          email,
-          subject,
-          message,
-        }),
-      });
-      
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to send message');
-      }
-      
-      toast({
-        title: "Message sent",
-        description: "We've received your message and will get back to you shortly.",
-      });
-      
-      // Reset form
-      setName('');
-      setEmail('');
-      setSubject('');
-      setMessage('');
-    } catch (error) {
-      console.error('Error sending support message:', error);
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "There was a problem sending your message. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
+  // Function to copy email to clipboard with toast notification
+  const copyEmailToClipboard = () => {
+    navigator.clipboard.writeText('info@enter-n.com');
+    toast({
+      title: "Email copied to clipboard",
+      description: "You can now paste it into your email client.",
+    });
   };
 
   return (
@@ -101,92 +46,58 @@ export default function SupportPage() {
       {/* Support Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 w-full">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          {/* Left Column - Support Form */}
+          {/* Left Column - Support Information */}
           <div className="lg:col-span-7">
             <Card className="shadow-lg bg-white dark:bg-gray-800">
               <CardHeader>
                 <CardTitle className="text-3xl font-bold text-gradient">Contact Support</CardTitle>
                 <CardDescription className="text-gray-600 dark:text-gray-300 mt-2">
-                  Have a question or need help? We're here for you. Fill out the form below and our team will get back to you as soon as possible.
+                  Have a question or need help? We're here for you.
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <form onSubmit={handleSubmit}>
-                  <div className="space-y-4">
-                    <div>
-                      <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Name *
-                      </label>
-                      <Input
-                        id="name"
-                        type="text"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        required
-                        placeholder="Your name"
-                        className="w-full"
-                      />
-                    </div>
-                    
-                    <div>
-                      <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Email *
-                      </label>
-                      <Input
-                        id="email"
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                        placeholder="Your email address"
-                        className="w-full"
-                      />
-                    </div>
-                    
-                    <div>
-                      <label htmlFor="subject" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Subject
-                      </label>
-                      <Input
-                        id="subject"
-                        type="text"
-                        value={subject}
-                        onChange={(e) => setSubject(e.target.value)}
-                        placeholder="What's this about?"
-                        className="w-full"
-                      />
-                    </div>
-                    
-                    <div>
-                      <label htmlFor="message" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Message *
-                      </label>
-                      <Textarea
-                        id="message"
-                        value={message}
-                        onChange={(e) => setMessage(e.target.value)}
-                        required
-                        placeholder="How can we help you?"
-                        className="min-h-32 w-full"
-                      />
+                <div className="space-y-6">
+                  <div className="bg-blue-50 dark:bg-gray-700 p-6 rounded-lg border border-blue-100 dark:border-gray-600">
+                    <h3 className="text-xl font-semibold text-blue-800 dark:text-blue-300 flex items-center mb-3">
+                      <AlertCircle className="h-5 w-5 mr-2" />
+                      Report an Issue
+                    </h3>
+                    <p className="text-gray-700 dark:text-gray-300 mb-4">
+                      If you encounter any bugs, technical issues, or have suggestions for improving the platform, please email us directly at:
+                    </p>
+                    <div className="bg-white dark:bg-gray-800 p-3 rounded-md border border-gray-200 dark:border-gray-600 flex items-center justify-between">
+                      <p className="font-medium text-blue-600 dark:text-blue-400">info@enter-n.com</p>
+                      <Button 
+                        variant="outline" 
+                        onClick={copyEmailToClipboard}
+                        className="text-sm"
+                      >
+                        Copy Email
+                      </Button>
                     </div>
                   </div>
                   
-                  <Button 
-                    type="submit" 
-                    className="mt-6 w-full btn-gradient"
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Sending...
-                      </>
-                    ) : (
-                      "Send Message"
-                    )}
-                  </Button>
-                </form>
+                  <div className="space-y-4">
+                    <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200">When contacting support, please include:</h3>
+                    <ul className="space-y-3 list-disc list-inside text-gray-700 dark:text-gray-300">
+                      <li>A detailed description of the issue or suggestion</li>
+                      <li>Steps to reproduce the problem (if applicable)</li>
+                      <li>What browser and device you're using</li>
+                      <li>Screenshots or screen recordings (if possible)</li>
+                      <li>Your account information (username/email)</li>
+                    </ul>
+                  </div>
+                  
+                  <div className="bg-gray-50 dark:bg-gray-700 p-6 rounded-lg border border-gray-200 dark:border-gray-600">
+                    <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200 flex items-center mb-3">
+                      <Clock className="h-5 w-5 mr-2" />
+                      Response Time
+                    </h3>
+                    <p className="text-gray-700 dark:text-gray-300">
+                      Our team typically responds to all inquiries within 24-48 hours during business days. For urgent matters, please indicate this in your email subject line.
+                    </p>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </div>
@@ -253,7 +164,7 @@ export default function SupportPage() {
                           I'm experiencing a technical issue. What should I do?
                         </AccordionTrigger>
                         <AccordionContent>
-                          Please use the form on this page to report any technical issues. Include as much detail as possible, 
+                          Please email info@enter-n.com to report any technical issues. Include as much detail as possible, 
                           including what device and browser you're using, and steps to reproduce the problem. Our technical team 
                           will investigate promptly.
                         </AccordionContent>
