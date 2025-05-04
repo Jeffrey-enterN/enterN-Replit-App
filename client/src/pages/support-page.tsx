@@ -18,9 +18,15 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
 import { toast } from '@/hooks/use-toast';
 import enternLogo from '@/assets/entern-logo.png';
-import { Loader2 } from 'lucide-react';
+import { Loader2, AlertCircle, CheckCircle2, Clock } from 'lucide-react';
 
 export default function SupportPage() {
   const [name, setName] = useState('');
@@ -185,70 +191,149 @@ export default function SupportPage() {
             </Card>
           </div>
           
-          {/* Right Column - FAQs and Support Info */}
+          {/* Right Column - FAQs, Update Log, and Support Info */}
           <div className="lg:col-span-5">
             <Card className="shadow-lg bg-white dark:bg-gray-800 mb-8">
-              <CardHeader>
-                <CardTitle className="text-2xl font-bold">Frequently Asked Questions</CardTitle>
+              <CardHeader className="pb-2">
+                <Tabs defaultValue="faq" className="w-full">
+                  <TabsList className="w-full mb-2">
+                    <TabsTrigger value="faq" className="flex-1">FAQ</TabsTrigger>
+                    <TabsTrigger value="updates" className="flex-1">Update Log</TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="faq">
+                    <CardTitle className="text-2xl font-bold mb-2">Frequently Asked Questions</CardTitle>
+                    <Accordion type="single" collapsible className="w-full">
+                      <AccordionItem value="item-1">
+                        <AccordionTrigger>
+                          What is enterN?
+                        </AccordionTrigger>
+                        <AccordionContent>
+                          enterN is a sophisticated AI-powered talent matching platform that revolutionizes professional 
+                          networking through intelligent, multi-dimensional profiling and engaging user experiences. We focus 
+                          on matching early-career professionals with employers based on organizational fit, work preferences, 
+                          and values, not just skills and experience.
+                        </AccordionContent>
+                      </AccordionItem>
+                      
+                      <AccordionItem value="item-2">
+                        <AccordionTrigger>
+                          How does the matching system work?
+                        </AccordionTrigger>
+                        <AccordionContent>
+                          Our platform uses a two-way matching algorithm where both jobseekers and employers express interest 
+                          independently. Only when there's mutual interest does a match occur. This is powered by our 
+                          proprietary slider system that captures 45 data points across 9 categories to evaluate organizational fit.
+                        </AccordionContent>
+                      </AccordionItem>
+                      
+                      <AccordionItem value="item-3">
+                        <AccordionTrigger>
+                          Is my data safe and secure?
+                        </AccordionTrigger>
+                        <AccordionContent>
+                          Yes! We take data security very seriously. All data is encrypted both in transit and at rest. 
+                          We never sell your personal information, and we're transparent about how your data is used. 
+                          For more details, please review our <Link href="/privacy-policy" className="text-blue-600 hover:underline">Privacy Policy</Link>.
+                        </AccordionContent>
+                      </AccordionItem>
+                      
+                      <AccordionItem value="item-4">
+                        <AccordionTrigger>
+                          How do I delete my account?
+                        </AccordionTrigger>
+                        <AccordionContent>
+                          You can delete your account at any time through your profile settings. Alternatively, 
+                          you can email us at info@enter-n.com with a deletion request, and we'll process it promptly.
+                        </AccordionContent>
+                      </AccordionItem>
+                      
+                      <AccordionItem value="item-5">
+                        <AccordionTrigger>
+                          I'm experiencing a technical issue. What should I do?
+                        </AccordionTrigger>
+                        <AccordionContent>
+                          Please use the form on this page to report any technical issues. Include as much detail as possible, 
+                          including what device and browser you're using, and steps to reproduce the problem. Our technical team 
+                          will investigate promptly.
+                        </AccordionContent>
+                      </AccordionItem>
+                    </Accordion>
+                  </TabsContent>
+                  
+                  <TabsContent value="updates">
+                    <CardTitle className="text-2xl font-bold mb-2">Latest Updates</CardTitle>
+                    <div className="space-y-4">
+                      <div className="border-l-4 border-green-500 pl-4 py-2">
+                        <div className="flex items-center">
+                          <CheckCircle2 className="h-5 w-5 text-green-500 mr-2" />
+                          <h3 className="text-lg font-medium">May 4, 2025</h3>
+                        </div>
+                        <ul className="mt-2 space-y-2 text-sm">
+                          <li className="flex items-start">
+                            <span className="text-green-500 mr-2">✓</span>
+                            <span>Fixed issue where the match feed wasn't automatically refreshing after swiping</span>
+                          </li>
+                          <li className="flex items-start">
+                            <span className="text-green-500 mr-2">✓</span>
+                            <span>Added loading states with spinners during match feed refreshes to improve user experience</span>
+                          </li>
+                          <li className="flex items-start">
+                            <span className="text-green-500 mr-2">✓</span>
+                            <span>Fixed the problem where profiles kept appearing repeatedly after all available profiles were reviewed</span>
+                          </li>
+                          <li className="flex items-start">
+                            <span className="text-green-500 mr-2">✓</span>
+                            <span>Added clear messaging when you've reviewed all available candidates with options to check for new candidates</span>
+                          </li>
+                        </ul>
+                      </div>
+                      
+                      <div className="border-l-4 border-blue-500 pl-4 py-2">
+                        <div className="flex items-center">
+                          <CheckCircle2 className="h-5 w-5 text-blue-500 mr-2" />
+                          <h3 className="text-lg font-medium">May 2, 2025</h3>
+                        </div>
+                        <ul className="mt-2 space-y-2 text-sm">
+                          <li className="flex items-start">
+                            <span className="text-blue-500 mr-2">✓</span>
+                            <span>Improved profile matching algorithm to show more relevant matches</span>
+                          </li>
+                          <li className="flex items-start">
+                            <span className="text-blue-500 mr-2">✓</span>
+                            <span>Enhanced company profile form with better validation</span>
+                          </li>
+                          <li className="flex items-start">
+                            <span className="text-blue-500 mr-2">✓</span>
+                            <span>Fixed slider categories to limit to 5 values per category for better organization</span>
+                          </li>
+                        </ul>
+                      </div>
+                      
+                      <div className="border-l-4 border-purple-500 pl-4 py-2">
+                        <div className="flex items-center">
+                          <CheckCircle2 className="h-5 w-5 text-purple-500 mr-2" />
+                          <h3 className="text-lg font-medium">April 30, 2025</h3>
+                        </div>
+                        <ul className="mt-2 space-y-2 text-sm">
+                          <li className="flex items-start">
+                            <span className="text-purple-500 mr-2">✓</span>
+                            <span>Launched beta version of enterN platform</span>
+                          </li>
+                          <li className="flex items-start">
+                            <span className="text-purple-500 mr-2">✓</span>
+                            <span>Implemented multi-recruiter structure for companies</span>
+                          </li>
+                          <li className="flex items-start">
+                            <span className="text-purple-500 mr-2">✓</span>
+                            <span>Added slider system with 9 categories and 45 total sliders for comprehensive matching</span>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                  </TabsContent>
+                </Tabs>
               </CardHeader>
-              <CardContent>
-                <Accordion type="single" collapsible className="w-full">
-                  <AccordionItem value="item-1">
-                    <AccordionTrigger>
-                      What is enterN?
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      enterN is a sophisticated AI-powered talent matching platform that revolutionizes professional 
-                      networking through intelligent, multi-dimensional profiling and engaging user experiences. We focus 
-                      on matching early-career professionals with employers based on organizational fit, work preferences, 
-                      and values, not just skills and experience.
-                    </AccordionContent>
-                  </AccordionItem>
-                  
-                  <AccordionItem value="item-2">
-                    <AccordionTrigger>
-                      How does the matching system work?
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      Our platform uses a two-way matching algorithm where both jobseekers and employers express interest 
-                      independently. Only when there's mutual interest does a match occur. This is powered by our 
-                      proprietary slider system that captures 45 data points across 9 categories to evaluate organizational fit.
-                    </AccordionContent>
-                  </AccordionItem>
-                  
-                  <AccordionItem value="item-3">
-                    <AccordionTrigger>
-                      Is my data safe and secure?
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      Yes! We take data security very seriously. All data is encrypted both in transit and at rest. 
-                      We never sell your personal information, and we're transparent about how your data is used. 
-                      For more details, please review our <Link href="/privacy-policy" className="text-blue-600 hover:underline">Privacy Policy</Link>.
-                    </AccordionContent>
-                  </AccordionItem>
-                  
-                  <AccordionItem value="item-4">
-                    <AccordionTrigger>
-                      How do I delete my account?
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      You can delete your account at any time through your profile settings. Alternatively, 
-                      you can email us at info@enter-n.com with a deletion request, and we'll process it promptly.
-                    </AccordionContent>
-                  </AccordionItem>
-                  
-                  <AccordionItem value="item-5">
-                    <AccordionTrigger>
-                      I'm experiencing a technical issue. What should I do?
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      Please use the form on this page to report any technical issues. Include as much detail as possible, 
-                      including what device and browser you're using, and steps to reproduce the problem. Our technical team 
-                      will investigate promptly.
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
-              </CardContent>
             </Card>
             
             <Card className="shadow-lg bg-white dark:bg-gray-800">
