@@ -6,9 +6,8 @@ import { useLocation } from 'wouter';
 import { useToast } from '@/hooks/use-toast';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { apiRequest, queryClient } from '@/lib/queryClient';
-import { DEGREE_LEVELS, WORK_ARRANGEMENTS, SLIDER_CATEGORIES, INDUSTRIES, LOCATIONS, FUNCTIONAL_ROLES } from '@/lib/constants';
+import { DEGREE_LEVELS, WORK_ARRANGEMENTS, SLIDER_CATEGORIES } from '@/lib/constants';
 import CollapsibleSliderSection from './collapsible-slider-section';
-import { LocationInput } from '@/components/ui/location-input';
 import { Check, ChevronRight } from 'lucide-react';
 import { useAuth } from '@/context/auth-context';
 import {
@@ -252,35 +251,7 @@ export default function JobseekerProfileForm() {
     if (profileQuery.data) {
       const profile = profileQuery.data;
       console.log('Loading profile data:', profile);
-      
-      // Handle functional preferences conversion from various formats to JSON array string
-      let formattedFunctionalPreferences = JSON.stringify([]);
-      
-      if (profile.functionalPreferences) {
-        try {
-          if (profile.functionalPreferences === '{}') {
-            // Empty object case
-            console.log('Converting empty object to empty array for functional preferences');
-            formattedFunctionalPreferences = JSON.stringify([]);
-          } else if (profile.functionalPreferences.startsWith('[')) {
-            // Already a JSON array
-            console.log('Functional preferences are already in JSON array format');
-            // Parse and stringify to ensure proper format
-            const parsed = JSON.parse(profile.functionalPreferences);
-            formattedFunctionalPreferences = JSON.stringify(parsed);
-          } else if (profile.functionalPreferences.includes(',')) {
-            // Comma-separated string
-            console.log('Converting comma-separated string to JSON array');
-            const array = profile.functionalPreferences.split(',').map((item: string) => item.trim()).filter(Boolean);
-            formattedFunctionalPreferences = JSON.stringify(array);
-          }
-        } catch (e) {
-          console.error('Error formatting functional preferences:', e);
-          formattedFunctionalPreferences = JSON.stringify([]);
-        }
-      }
-      
-      console.log('Formatted functional preferences:', formattedFunctionalPreferences);
+      // Removed functional preferences conversion code
       
       // Update form data with profile values
       const profileData: Partial<FormValues> = {
@@ -424,8 +395,7 @@ export default function JobseekerProfileForm() {
         console.log(`Category ${index + 1} (${category.name}): ${hasAdjustedValues ? 'Has adjusted values' : 'No adjusted values'}`);
       });
       
-      // We'll keep the data as-is since our functionalPreferences is already in JSON string format
-      // from our checkbox handling, which is what the schema expects
+      // Create a copy of the form data
       const preparedData = { ...data };
       
       // Proceed with profile creation
@@ -694,7 +664,7 @@ export default function JobseekerProfileForm() {
             {/* Step 2: Portfolio and Preferences */}
             {currentStep === 2 && (
               <div>
-                <h2 className="text-xl font-semibold text-gray-900 font-heading mb-6">Step 2: Portfolio & Location Preferences</h2>
+                <h2 className="text-xl font-semibold text-gray-900 font-heading mb-6">Step 2: Portfolio & Work Setting</h2>
                 
                 <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
                   <FormField
@@ -720,29 +690,6 @@ export default function JobseekerProfileForm() {
                 </div>
                 
                 <div className="space-y-6 mt-6">
-                  <FormField
-                    control={form.control}
-                    name="preferredLocations"
-                    render={({ field }) => (
-                      <FormItem>
-                        <div className="mb-4">
-                          <FormLabel>Preferred Locations</FormLabel>
-                          <FormDescription>
-                            Enter locations where you'd be interested in working (at least 1, up to 10).
-                          </FormDescription>
-                        </div>
-                        <FormControl>
-                          <LocationInput
-                            value={field.value}
-                            onChange={field.onChange}
-                            maxLocations={10}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
                   <FormField
                     control={form.control}
                     name="workArrangements"
@@ -783,144 +730,6 @@ export default function JobseekerProfileForm() {
                                     </FormControl>
                                     <FormLabel className="font-normal">
                                       {arrangement.label}
-                                    </FormLabel>
-                                  </FormItem>
-                                )
-                              }}
-                            />
-                          ))}
-                        </div>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="industryPreferences"
-                    render={() => (
-                      <FormItem>
-                        <div className="mb-4">
-                          <FormLabel>Industry Preferences</FormLabel>
-                          <FormDescription>
-                            Select industries you're interested in working in.
-                          </FormDescription>
-                        </div>
-                        <div className="grid grid-cols-2 gap-2">
-                          {INDUSTRIES.map((industry) => (
-                            <FormField
-                              key={industry}
-                              control={form.control}
-                              name="industryPreferences"
-                              render={({ field }) => {
-                                return (
-                                  <FormItem
-                                    key={industry}
-                                    className="flex flex-row items-start space-x-3 space-y-0"
-                                  >
-                                    <FormControl>
-                                      <Checkbox
-                                        checked={Array.isArray(field.value) && field.value.some(v => v === industry)}
-                                        onCheckedChange={(checked) => {
-                                          const currentValue = Array.isArray(field.value) ? field.value.filter(v => v !== null) : [];
-                                          return checked
-                                            ? field.onChange([...currentValue, industry])
-                                            : field.onChange(
-                                                currentValue.filter(
-                                                  (value) => value !== industry
-                                                )
-                                              )
-                                        }}
-                                      />
-                                    </FormControl>
-                                    <FormLabel className="font-normal">
-                                      {industry}
-                                    </FormLabel>
-                                  </FormItem>
-                                )
-                              }}
-                            />
-                          ))}
-                        </div>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="functionalPreferences"
-                    render={() => (
-                      <FormItem>
-                        <div className="mb-4">
-                          <FormLabel>Functional Preferences</FormLabel>
-                          <FormDescription>
-                            Select functional roles you're interested in.
-                          </FormDescription>
-                        </div>
-                        <div className="grid grid-cols-2 gap-2">
-                          {FUNCTIONAL_ROLES.map((role) => (
-                            <FormField
-                              key={role.id}
-                              control={form.control}
-                              name="functionalPreferences"
-                              render={({ field }) => {
-                                // Parse the value which could be JSON string, comma-separated string, or array
-                                let valueArray: string[] = [];
-                                
-                                if (Array.isArray(field.value)) {
-                                  // Direct array (shouldn't normally happen based on schema)
-                                  valueArray = field.value;
-                                } else if (typeof field.value === 'string') {
-                                  try {
-                                    // First try to parse as JSON string (new format)
-                                    if (field.value.startsWith('[')) {
-                                      valueArray = JSON.parse(field.value);
-                                    } else if (field.value === '{}' || field.value === '{' || field.value === '}') {
-                                      // Empty object string from database
-                                      valueArray = [];
-                                      
-                                      // Fix the value by setting it properly as an empty array
-                                      field.onChange(JSON.stringify([]));
-                                    } else if (field.value) {
-                                      // Fallback to comma-separated string (legacy format)
-                                      valueArray = field.value.split(',').map((item: string) => item.trim()).filter(Boolean);
-                                      
-                                      // Normalize this format to JSON array format
-                                      field.onChange(JSON.stringify(valueArray));
-                                    }
-                                  } catch (e) {
-                                    console.error('Error parsing functional preferences:', e);
-                                    valueArray = [];
-                                  }
-                                }
-                                
-                                return (
-                                  <FormItem
-                                    key={role.id}
-                                    className="flex flex-row items-start space-x-3 space-y-0"
-                                  >
-                                    <FormControl>
-                                      <Checkbox
-                                        checked={valueArray.includes(role.id)}
-                                        onCheckedChange={(checked) => {
-                                          // Update the array of selected roles
-                                          const newArray = checked
-                                            ? [...valueArray, role.id]
-                                            : valueArray.filter(v => v !== role.id);
-                                          
-                                          // Convert the array to a JSON string since the schema expects a string
-                                          const newValue = JSON.stringify(newArray);
-                                          
-                                          console.log(`Setting functionalPreferences to: ${newValue}`);
-                                          
-                                          // Set the value as a string representation of the array
-                                          field.onChange(newValue);
-                                        }}
-                                      />
-                                    </FormControl>
-                                    <FormLabel className="font-normal">
-                                      {role.label}
                                     </FormLabel>
                                   </FormItem>
                                 )
