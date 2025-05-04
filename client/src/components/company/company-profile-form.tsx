@@ -98,7 +98,7 @@ const companyProfileSchema = z.object({
   // Step 3: Work Environment & Development Programs (Combined)
   workArrangements: z.array(z.string()).min(1, "Select at least one work arrangement"),
   benefits: z.array(z.string()).optional(),
-  culture: z.string().min(1, FORM_VALIDATION.required),
+  culture: z.string().optional(), // Made optional since we've removed it
   
   // Development Programs
   hasDevelopmentPrograms: z.boolean().default(false),
@@ -461,8 +461,8 @@ export function CompanyProfileForm({ companyId }: { companyId?: number }) {
         fieldsToValidate = ['about']; // Only validate about field, industries, functionalAreas and mission are now optional
         break;
       case 3:
-        fieldsToValidate = ['workArrangements', 'culture'];
-        // No longer a step 4
+        fieldsToValidate = ['workArrangements'];
+        // No longer require culture field
         break;
     }
     
@@ -612,7 +612,7 @@ export function CompanyProfileForm({ companyId }: { companyId?: number }) {
             />
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4">
             <FormField
               control={form.control}
               name="benefits"
@@ -655,113 +655,9 @@ export function CompanyProfileForm({ companyId }: { companyId?: number }) {
                 </FormItem>
               )}
             />
-            
-            <FormField
-              control={form.control}
-              name="culture"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Company Culture*</FormLabel>
-                  <FormControl>
-                    <Textarea 
-                      placeholder="Describe your company's culture and values..." 
-                      className="min-h-24"
-                      {...field} 
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    What makes your company a unique place to work?
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
           </div>
         </div>
         
-        {/* Development Programs Section */}
-        <Separator className="my-4" />
-        
-        <div className="space-y-6">
-          <h3 className="text-lg font-medium mb-4">Development Programs</h3>
-          
-          <FormField
-            control={form.control}
-            name="hasDevelopmentPrograms"
-            render={({ field }) => (
-              <FormItem className="flex flex-row items-start space-x-3 space-y-0 p-4 border rounded-md">
-                <FormControl>
-                  <Checkbox
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-                <div className="space-y-1 leading-none">
-                  <FormLabel>
-                    Our company offers development programs for early talent
-                  </FormLabel>
-                  <FormDescription>
-                    E.g., internships, apprenticeships, new graduate programs
-                  </FormDescription>
-                </div>
-              </FormItem>
-            )}
-          />
-          
-          {form.watch('hasDevelopmentPrograms') && (
-            <div className="space-y-4 p-4 border rounded-md">
-              <FormField
-                control={form.control}
-                name="developmentProgramDuration"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Program Duration (Optional)</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                      value={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select program duration" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {PROGRAM_DURATIONS.map((duration) => (
-                          <SelectItem key={duration} value={duration}>
-                            {duration}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="developmentProgramDescription"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Program Description (Optional)</FormLabel>
-                    <FormControl>
-                      <Textarea 
-                        placeholder="Describe your early talent development program..."
-                        className="min-h-24"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Include details about mentorship, training, and potential opportunities.
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          )}
-        </div>
       </div>
     );
   };
@@ -1031,93 +927,7 @@ export function CompanyProfileForm({ companyId }: { companyId?: number }) {
             </AlertDialog>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormField
-              control={form.control}
-              name="industries"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Industries (Optional)</FormLabel>
-                  <div className="h-48 overflow-y-auto border rounded-md p-2">
-                    <div className="space-y-1">
-                      {INDUSTRIES.map((industry) => (
-                        <div key={industry} className="flex items-center">
-                          <Checkbox
-                            id={`industry-${industry}`}
-                            checked={field.value?.includes(industry)}
-                            onCheckedChange={(checked) => {
-                              const currentValue = field.value || [];
-                              if (checked) {
-                                field.onChange([...currentValue, industry]);
-                              } else {
-                                field.onChange(currentValue.filter(
-                                  (value: string) => value !== industry
-                                ));
-                              }
-                            }}
-                            className="rounded-sm"
-                          />
-                          <label
-                            htmlFor={`industry-${industry}`}
-                            className="ml-2 text-sm font-medium leading-none cursor-pointer"
-                          >
-                            {industry}
-                          </label>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  <FormDescription>
-                    Select one or more industries that your company operates in.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
-            <FormField
-              control={form.control}
-              name="functionalAreas"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Functional Areas (Optional)</FormLabel>
-                  <div className="h-48 overflow-y-auto border rounded-md p-2">
-                    <div className="space-y-1">
-                      {FUNCTIONAL_AREAS.map((area) => (
-                        <div key={area} className="flex items-center">
-                          <Checkbox
-                            id={`area-${area}`}
-                            checked={field.value?.includes(area)}
-                            onCheckedChange={(checked) => {
-                              const currentValue = field.value || [];
-                              if (checked) {
-                                field.onChange([...currentValue, area]);
-                              } else {
-                                field.onChange(currentValue.filter(
-                                  (value: string) => value !== area
-                                ));
-                              }
-                            }}
-                            className="rounded-sm"
-                          />
-                          <label
-                            htmlFor={`area-${area}`}
-                            className="ml-2 text-sm font-medium leading-none cursor-pointer"
-                          >
-                            {area}
-                          </label>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  <FormDescription>
-                    Select the functional areas where you hire.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
+          {/* Industries and Functional Areas sections removed */}
         </div>
         
         <div className="space-y-4">
