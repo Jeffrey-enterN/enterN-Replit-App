@@ -1791,25 +1791,38 @@ export class DatabaseStorage implements IStorage {
         const jobseeker = item.profile;
         const userData = item.user;
         
-        // Create a simple jobseeker profile even with minimal data
-        // This is for debug purposes to ensure there's something to show in the UI
-        return {
+        // Create a profile with ACTUAL user data
+        const formattedProfile = {
           id: jobseeker.userId.toString(),
           education: {
             degree: jobseeker.degreeLevel || 'Unspecified',
             major: jobseeker.major || 'Unspecified',
             school: jobseeker.school || 'Unspecified'
           },
-          // Provide default values to ensure the profile is displayed
-          locations: ['Remote'],
-          sliderValues: {
+          // Use the actual user data if available, otherwise provide sensible defaults
+          locations: Array.isArray(jobseeker.preferredLocations) 
+            ? jobseeker.preferredLocations 
+            : (jobseeker.preferredLocations ? [jobseeker.preferredLocations] : ['Remote']),
+          
+          // This is the critical part: use the actual slider values from the database
+          sliderValues: jobseeker.sliderValues || {
             'schedule': 50,
             'collaboration-preference': 50,
             'execution': 50
           },
-          workArrangements: ['remote'],
-          industryPreferences: ['Technology']
+          
+          workArrangements: Array.isArray(jobseeker.workArrangements) 
+            ? jobseeker.workArrangements 
+            : (jobseeker.workArrangements ? [jobseeker.workArrangements] : ['remote']),
+          
+          industryPreferences: Array.isArray(jobseeker.industryPreferences) 
+            ? jobseeker.industryPreferences 
+            : (jobseeker.industryPreferences ? [jobseeker.industryPreferences] : ['Technology'])
         };
+        
+        console.log(`Formatted profile ${jobseeker.userId} with sliderValues:`, formattedProfile.sliderValues);
+        
+        return formattedProfile;
       });
       
       console.log(`Returning ${formattedProfiles.length} formatted profiles to client:`, 
