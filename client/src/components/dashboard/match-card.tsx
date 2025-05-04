@@ -439,10 +439,42 @@ export default function MatchCard({ userType, data, onInterested, onNotIntereste
         'performance_vs_potential': { left: 'Focus on Potential', right: 'Focus on Performance', category: 'Values & Culture' },
       };
 
+      // Define priority sliders for each category to ensure important ones are shown first
+      const prioritySliders: Record<string, string[]> = {
+        'Work Environment': ['noise_vs_quiet', 'remote_vs_inoffice', 'open_office_vs_private'],
+        'Work Style': ['fast_paced_vs_methodical', 'structured_vs_flexible', 'multitasking_vs_focused', 'detailed_vs_concise', 'quick_vs_thorough'],
+        'Work-Life Balance': ['work_life_separation_vs_integration', 'flexible_hours_vs_fixed', 'overtime_willingness', 'travel_preference'],
+        'Communication': ['written_vs_verbal', 'formal_vs_casual_comm', 'direct_vs_diplomatic', 'frequent_vs_as_needed'],
+        'Collaboration': ['collaborative_vs_independent', 'consensus_vs_decisive', 'competitive_vs_collaborative_culture'],
+        'Management & Leadership': ['hands_on_vs_delegating', 'hierarchical_vs_flat', 'directive_vs_empowering', 'formal_vs_informal_leadership'],
+        'Decision-Making': ['analytical_vs_intuitive', 'data_driven_vs_intuition', 'risk_taking_vs_cautious', 'pragmatic_vs_idealistic'],
+        'Growth & Development': ['growth_vs_stability', 'professional_development_time', 'mentorship_vs_peer_learning', 'regular_feedback_vs_autonomy'],
+        'Values & Culture': ['profit_vs_purpose', 'innovation_vs_tradition', 'transparency_vs_privacy', 'financial_vs_social_impact', 'traditional_vs_progressive']
+      };
+      
       // Group sliders by category
       const categorizedSliders: Record<string, Array<{id: string, left: string, right: string}>> = {};
       
-      // Filter sliders that are available in the data
+      // First process sliders based on priority
+      Object.entries(prioritySliders).forEach(([category, priorityList]) => {
+        if (!categorizedSliders[category]) {
+          categorizedSliders[category] = [];
+        }
+        
+        // Add priority sliders that exist in the data
+        priorityList.forEach(sliderId => {
+          if (availableSliders.includes(sliderId) && sliderDefinitions[sliderId]) {
+            const def = sliderDefinitions[sliderId];
+            categorizedSliders[category].push({
+              id: sliderId,
+              left: def.left,
+              right: def.right
+            });
+          }
+        });
+      });
+      
+      // Then add any remaining sliders
       availableSliders.forEach(sliderId => {
         // Skip if the slider definition is not found
         if (!sliderDefinitions[sliderId]) return;
@@ -454,18 +486,53 @@ export default function MatchCard({ userType, data, onInterested, onNotIntereste
           categorizedSliders[category] = [];
         }
         
-        categorizedSliders[category].push({
-          id: sliderId,
-          left: def.left,
-          right: def.right
-        });
+        // Check if this slider is already added (from priority list)
+        const alreadyAdded = categorizedSliders[category].some(slider => slider.id === sliderId);
+        if (!alreadyAdded) {
+          categorizedSliders[category].push({
+            id: sliderId,
+            left: def.left,
+            right: def.right
+          });
+        }
       });
       
-      // Convert to array of categories
-      return Object.entries(categorizedSliders).map(([name, sliders]) => ({
+      // Define category order for consistent presentation
+      const categoryOrder = [
+        'Work Style',
+        'Work Environment',
+        'Work-Life Balance',
+        'Communication',
+        'Collaboration',
+        'Management & Leadership',
+        'Decision-Making',
+        'Growth & Development',
+        'Values & Culture'
+      ];
+      
+      // Convert to array of categories and limit to 5 sliders per category max
+      const categoriesArray = Object.entries(categorizedSliders).map(([name, sliders]) => ({
         name,
-        sliders
-      })).sort((a, b) => a.name.localeCompare(b.name));
+        sliders: sliders.slice(0, 5) // Limit to 5 sliders per category for consistency
+      }));
+      
+      // Sort by defined order (if category exists in the order array)
+      return categoriesArray.sort((a, b) => {
+        const indexA = categoryOrder.indexOf(a.name);
+        const indexB = categoryOrder.indexOf(b.name);
+        
+        // If both categories are in our defined order, sort by that order
+        if (indexA !== -1 && indexB !== -1) {
+          return indexA - indexB;
+        }
+        
+        // If only one is in the defined order, prioritize that one
+        if (indexA !== -1) return -1;
+        if (indexB !== -1) return 1;
+        
+        // If neither is in our defined order, sort alphabetically
+        return a.name.localeCompare(b.name);
+      });
     };
     
     // Create categories dynamically based on the available data
