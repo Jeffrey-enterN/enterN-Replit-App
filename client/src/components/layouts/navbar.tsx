@@ -94,9 +94,18 @@ export default function Navbar() {
                 <Button asChild className="rounded-md w-full py-2 text-sm font-medium border border-[#5CE1E6] bg-white text-[#FF66C4] hover:bg-gray-50">
                   <Link href="/sign-in">Sign In</Link>
                 </Button>
-                <Button asChild className="btn-gradient rounded-md w-full py-2 text-sm font-medium mt-3">
-                  <Link href="/sign-up">Sign Up</Link>
-                </Button>
+                <div className="space-y-2 mt-3">
+                  <Link href="/sign-up/jobseeker" className="block">
+                    <Button className="btn-gradient rounded-md w-full py-2 text-sm font-medium">
+                      Sign Up as Jobseeker
+                    </Button>
+                  </Link>
+                  <Link href="/sign-up/employer" className="block">
+                    <Button className="btn-gradient rounded-md w-full py-2 text-sm font-medium" variant="secondary">
+                      Sign Up as Employer
+                    </Button>
+                  </Link>
+                </div>
               </>
             )}
             <div className="pt-4 pb-3 border-t border-gray-200">
@@ -104,7 +113,7 @@ export default function Navbar() {
                 <Link href="/privacy-policy" className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100">
                   Privacy Policy
                 </Link>
-                <Link href="#" className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100">
+                <Link href="/terms-of-service" className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100">
                   Terms of Service
                 </Link>
                 <Link href="/support" className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100">
