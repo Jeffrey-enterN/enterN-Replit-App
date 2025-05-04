@@ -24,63 +24,39 @@ const ThemeProviderContext = createContext<ThemeProviderState>(initialState);
 
 export function ThemeProvider({
   children,
-  defaultTheme = "system",
+  defaultTheme = "light",
   storageKey = "entern-ui-theme",
   ...props
 }: ThemeProviderProps) {
-  const [theme, setTheme] = useState<Theme>(
-    () => (localStorage.getItem(storageKey) as Theme) || defaultTheme
-  );
+  // Force light theme
+  const [theme, setTheme] = useState<Theme>("light");
 
   useEffect(() => {
+    // Force light mode by removing dark class and adding light class
     const root = window.document.documentElement;
+    root.classList.remove("dark");
+    root.classList.add("light");
     
-    root.classList.remove("light", "dark");
-    
-    if (theme === "system") {
-      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
-        .matches
-        ? "dark"
-        : "light";
-      
-      root.classList.add(systemTheme);
-      return;
-    }
-    
-    root.classList.add(theme);
-  }, [theme]);
-
-  // Make sure the initial theme gets applied
-  useEffect(() => {
-    const root = window.document.documentElement;
-    const initialTheme = localStorage.getItem(storageKey) as Theme || defaultTheme;
-    
-    // On initial load, make sure the theme is applied
-    if (initialTheme === 'dark' || (initialTheme === 'system' && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
-      root.classList.add('dark');
-    }
+    // Save to localStorage
+    localStorage.setItem(storageKey, "light");
   }, []);
 
   const toggleTheme = () => {
-    // Get the current actual theme (accounting for system preference)
-    const root = window.document.documentElement;
-    const isDark = root.classList.contains('dark');
-    const newTheme = isDark ? 'light' : 'dark';
-    
-    // Force the theme to explicitly be light or dark (not system)
-    localStorage.setItem(storageKey, newTheme);
-    setTheme(newTheme);
-    
-    // Apply the class immediately to avoid visual lag
-    root.classList.remove('light', 'dark');
-    root.classList.add(newTheme);
+    // Force light theme - do nothing when toggle is called
+    return;
   };
 
   const value = {
-    theme,
+    theme: "light" as Theme,
     setTheme: (theme: Theme) => {
-      localStorage.setItem(storageKey, theme);
-      setTheme(theme);
+      // Force light theme regardless of what is passed
+      localStorage.setItem(storageKey, "light");
+      setTheme("light");
+      
+      // Always make sure we're in light mode
+      const root = window.document.documentElement;
+      root.classList.remove("dark");
+      root.classList.add("light");
     },
     toggleTheme,
   };
