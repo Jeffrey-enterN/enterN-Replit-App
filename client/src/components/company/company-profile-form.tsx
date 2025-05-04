@@ -349,15 +349,19 @@ export function CompanyProfileForm({ companyId }: { companyId?: number }) {
     }
     
     if (scrapedData.jobTypes && scrapedData.jobTypes.length > 0) {
-      // Match job types with our work arrangements
-      const matchedArrangements = WORK_ARRANGEMENTS.filter(arrangement => 
-        scrapedData.jobTypes?.some(type => 
-          arrangement.label.toLowerCase().includes(type.toLowerCase())
-        )
-      );
-      
-      if (matchedArrangements.length > 0) {
-        formValues.workArrangements = matchedArrangements.map(arr => arr.id);
+      try {
+        // Match job types with our work arrangements
+        const matchedArrangements = WORK_ARRANGEMENTS.filter(arrangement => 
+          scrapedData.jobTypes?.some(type => 
+            arrangement.label.toLowerCase().includes(type.toLowerCase())
+          )
+        );
+        
+        if (matchedArrangements.length > 0) {
+          formValues.workArrangements = matchedArrangements.map(arr => arr.id);
+        }
+      } catch (error) {
+        console.error('Error matching job types to work arrangements:', error);
       }
     }
     
@@ -1033,7 +1037,7 @@ export function CompanyProfileForm({ companyId }: { companyId?: number }) {
               name="industries"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Industries*</FormLabel>
+                  <FormLabel>Industries (Optional)</FormLabel>
                   <div className="h-48 overflow-y-auto border rounded-md p-2">
                     <div className="space-y-1">
                       {INDUSTRIES.map((industry) => (
@@ -1076,7 +1080,7 @@ export function CompanyProfileForm({ companyId }: { companyId?: number }) {
               name="functionalAreas"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Functional Areas*</FormLabel>
+                  <FormLabel>Functional Areas (Optional)</FormLabel>
                   <div className="h-48 overflow-y-auto border rounded-md p-2">
                     <div className="space-y-1">
                       {FUNCTIONAL_AREAS.map((area) => (
