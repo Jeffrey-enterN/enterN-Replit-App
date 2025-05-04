@@ -145,6 +145,7 @@ export default function EmployerDashboard() {
           <Button 
             size="sm"
             className="inline-flex items-center"
+            onClick={() => navigate('/employer/jobs/new')}
           >
             <svg className="-ml-0.5 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
@@ -200,7 +201,7 @@ export default function EmployerDashboard() {
                       {job.matchCount}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <a href={`/employer/jobs/${job.id}`} className="text-primary hover:text-primary/80">Edit</a>
+                      <Link href={`/employer/jobs/new`} className="text-primary hover:text-primary/80">Edit</Link>
                     </td>
                   </tr>
                 ))
