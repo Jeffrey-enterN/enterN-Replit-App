@@ -60,8 +60,8 @@ export default function OverviewStats({ userType, stats }: OverviewStatsProps) {
   return (
     <div className="space-y-8">
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {userType === USER_TYPES.JOBSEEKER && stats.profileCompletion && (
-          <div className={`bg-card overflow-hidden shadow-sm rounded-lg border ${stats.profileCompletion.percentage < 100 ? 'ring-2 ring-primary' : ''}`}>
+        {userType === USER_TYPES.JOBSEEKER && (
+          <div className="bg-card overflow-hidden shadow-sm rounded-lg border ring-2 ring-primary">
             <div className="px-4 py-5 sm:p-6">
               <div className="flex items-center">
                 <div className="flex-shrink-0 bg-primary rounded-md p-3">
@@ -71,38 +71,19 @@ export default function OverviewStats({ userType, stats }: OverviewStatsProps) {
                 </div>
                 <div className="ml-5 w-0 flex-1">
                   <dl>
-                    <dt className="text-sm font-medium text-muted-foreground truncate">Profile Completion</dt>
+                    <dt className="text-sm font-medium text-muted-foreground truncate">Your Match Profile</dt>
                     <dd>
                       <div className="flex items-center">
-                        <div className="text-lg font-medium text-foreground">{stats.profileCompletion.percentage}%</div>
-                        {stats.profileCompletion.increase && (
-                          <div className="ml-2 flex items-baseline text-sm font-semibold text-green-600">
-                            <svg className="self-center flex-shrink-0 h-5 w-5 text-green-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                              <path fillRule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                            </svg>
-                            <span className="sr-only">Increased by</span>
-                            {stats.profileCompletion.increase}%
-                          </div>
-                        )}
+                        <div className="text-lg font-medium text-foreground">Keep Updated</div>
                       </div>
                     </dd>
                   </dl>
                 </div>
               </div>
-              <div className="mt-4">
-                <div className="relative pt-1">
-                  <div className="overflow-hidden h-2 text-xs flex rounded bg-muted">
-                    <div 
-                      style={{ width: `${stats.profileCompletion.percentage}%` }} 
-                      className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-primary"
-                    ></div>
-                  </div>
-                </div>
-                <div className="mt-3">
-                  <Link href="/jobseeker/profile" className="text-sm font-medium text-primary hover:text-primary/80">
-                    {stats.profileCompletion.percentage >= 100 ? "Update your profile" : "Complete your profile"} <span aria-hidden="true">&rarr;</span>
-                  </Link>
-                </div>
+              <div className="mt-5">
+                <Link href="/jobseeker/profile" className="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                  Update Your Match Profile
+                </Link>
               </div>
             </div>
           </div>
