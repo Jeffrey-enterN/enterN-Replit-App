@@ -368,9 +368,12 @@ export class MemStorage implements IStorage {
           id: match.id,
           name: employer?.companyName || 'Unknown Company',
           matchDate: match.matchedAt,
-          status: match.status === 'interview_scheduled' ? 'interview-scheduled' : 'matched',
-          statusText: match.status === 'interview_scheduled' ? 
-            'Interview scheduled' : 'New match'
+          status: match.status === 'interview_scheduled' 
+            ? 'interview-scheduled' 
+            : (match.status === 'mutual-match' ? 'mutual-match' : 'matched'),
+          statusText: match.status === 'interview_scheduled' 
+            ? 'Interview scheduled' 
+            : (match.status === 'mutual-match' ? 'Mutual match' : 'New match')
         };
       });
   }
@@ -566,9 +569,12 @@ export class MemStorage implements IStorage {
           id: match.id,
           name: 'Anonymous Profile', // Jobseeker profiles are anonymous until a certain point
           matchDate: match.matchedAt,
-          status: match.status === 'interview_scheduled' ? 'interview-scheduled' : 'matched',
-          statusText: match.status === 'interview_scheduled' ? 
-            'Interview scheduled' : 'New match'
+          status: match.status === 'interview_scheduled' 
+            ? 'interview-scheduled' 
+            : (match.status === 'mutual-match' ? 'mutual-match' : 'matched'),
+          statusText: match.status === 'interview_scheduled' 
+            ? 'Interview scheduled' 
+            : (match.status === 'mutual-match' ? 'Mutual match' : 'New match')
         };
       });
   }
