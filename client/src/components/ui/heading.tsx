@@ -63,21 +63,29 @@ export interface HeadingProps
  */
 export const Heading = forwardRef<HTMLHeadingElement, HeadingProps>(
   ({ children, level = "h2", weight, align, transform, gradient, className, ...props }, ref) => {
-    // Dynamic tag based on the heading level
-    const Component = level as keyof JSX.IntrinsicElements;
-    
-    return (
-      <Component
-        ref={ref}
-        className={cn(
-          headingVariants({ level, weight, align, transform, gradient }),
-          className
-        )}
-        {...props}
-      >
-        {children}
-      </Component>
+    // Get the correct heading variant classes
+    const headingClasses = cn(
+      headingVariants({ level, weight, align, transform, gradient }),
+      className
     );
+    
+    // Render the appropriate heading element based on level
+    switch (level) {
+      case "h1":
+        return <h1 ref={ref} className={headingClasses} {...props}>{children}</h1>;
+      case "h2":
+        return <h2 ref={ref} className={headingClasses} {...props}>{children}</h2>;
+      case "h3":
+        return <h3 ref={ref} className={headingClasses} {...props}>{children}</h3>;
+      case "h4":
+        return <h4 ref={ref} className={headingClasses} {...props}>{children}</h4>;
+      case "h5":
+        return <h5 ref={ref} className={headingClasses} {...props}>{children}</h5>;
+      case "h6":
+        return <h6 ref={ref} className={headingClasses} {...props}>{children}</h6>;
+      default:
+        return <h2 ref={ref} className={headingClasses} {...props}>{children}</h2>;
+    }
   }
 );
 

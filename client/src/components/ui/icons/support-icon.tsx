@@ -5,23 +5,24 @@ interface SupportIconProps {
 }
 
 /**
- * Support/Help icon component to be used consistently across the application
+ * Support Icon component
+ * A custom icon for support/help functionality
  */
-export const SupportIcon: React.FC<SupportIconProps> = ({ className = "h-4 w-4" }) => {
+const SupportIcon: React.FC<SupportIconProps> = ({ className = "h-4 w-4" }) => {
   return (
     <svg 
-      className={className} 
       xmlns="http://www.w3.org/2000/svg" 
-      fill="none" 
       viewBox="0 0 24 24" 
-      stroke="currentColor"
+      fill="none" 
+      stroke="currentColor" 
+      strokeWidth="2" 
+      strokeLinecap="round" 
+      strokeLinejoin="round" 
+      className={className}
     >
-      <path 
-        strokeLinecap="round" 
-        strokeLinejoin="round" 
-        strokeWidth={2} 
-        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" 
-      />
+      <circle cx="12" cy="12" r="10" />
+      <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+      <line x1="12" y1="17" x2="12.01" y2="17" />
     </svg>
   );
 };

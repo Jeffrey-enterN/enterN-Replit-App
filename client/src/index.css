@@ -2,7 +2,24 @@
 @tailwind components;
 @tailwind utilities;
 
+/**
+ * enterN Theme Variables
+ * 
+ * Color definitions used in our design system
+ * Brand colors:
+ * - Teal: #0097B1 (RGB: 0, 151, 177) - HSL: 188, 100%, 35%
+ * - Pink: #FF66C4 (RGB: 255, 102, 196) - HSL: 328, 100%, 70%
+ * - Cyan: #5CE1E6 (RGB: 92, 225, 230) - HSL: 181, 73%, 64%
+ * - Lime: #C8FD04 (RGB: 200, 253, 4) - HSL: 70, 98%, 50%
+ * - Black: #000000
+ * - Dark Gray: #767979 - HSL: 180, 1%, 47%
+ * - Gray: #B6B6B6 - HSL: 0, 0%, 71%
+ * - Light Gray: #F1F1F1 - HSL: 0, 0%, 95%
+ * - White: #FFFFFF
+ */
+
 :root {
+  /* Base colors */
   --background: 0 0% 100%;
   --foreground: 20 14.3% 4.1%;
   --muted: 60 4.8% 95.9%;
@@ -13,24 +30,48 @@
   --card-foreground: 20 14.3% 4.1%;
   --border: 20 5.9% 90%;
   --input: 20 5.9% 90%;
-  --primary: 188 100% 35%;  /* #0097B1 - brand-teal */
+  
+  /* Brand colors */
+  --brand-teal: 188 100% 35%;  /* #0097B1 */
+  --brand-pink: 328 100% 70%;  /* #FF66C4 */
+  --brand-cyan: 181 73% 64%;   /* #5CE1E6 */
+  --brand-lime: 70 98% 50%;    /* #C8FD04 */
+  --brand-black: 0 0% 0%;      /* #000000 */
+  --brand-darkgray: 180 1% 47%; /* #767979 */
+  --brand-gray: 0 0% 71%;      /* #B6B6B6 */
+  --brand-lightgray: 0 0% 95%; /* #F1F1F1 */
+  --brand-white: 0 0% 100%;    /* #FFFFFF */
+  
+  /* Semantic colors */
+  --success: 158 64% 40%;      /* #10B981 */
+  --warning: 38 92% 50%;       /* #FBBF24 */
+  --error: 0 84% 60%;          /* #EF4444 */
+  --info: 217 91% 60%;         /* #3B82F6 */
+  
+  /* UI colors (mapped to brand colors) */
+  --primary: var(--brand-teal);
   --primary-foreground: 0 0% 100%;
-  --secondary: 328 100% 70%; /* #FF66C4 - brand-pink */
+  --secondary: var(--brand-pink);
   --secondary-foreground: 0 0% 100%;
-  --accent: 181 73% 64%;  /* #5CE1E6 - brand-cyan */
+  --accent: var(--brand-cyan);
   --accent-foreground: 0 0% 0%;
-  --destructive: 0 84.2% 60.2%;
+  --destructive: var(--error);
   --destructive-foreground: 60 9.1% 97.8%;
-  --ring: 188 100% 35%;  /* #0097B1 - brand-teal */
+  --ring: var(--brand-teal);
+  
+  /* Other UI variables */
   --radius: 0.5rem;
-  --chart-1: 188 100% 35%;  /* #0097B1 - brand-teal */
-  --chart-2: 328 100% 70%; /* #FF66C4 - brand-pink */
-  --chart-3: 181 73% 64%;  /* #5CE1E6 - brand-cyan */
-  --chart-4: 70 98% 50%;   /* #C8FD04 - brand-lime */
-  --chart-5: 0 0% 46%;     /* #767979 - brand-darkgray */
+  
+  /* Chart colors */
+  --chart-1: var(--brand-teal);
+  --chart-2: var(--brand-pink);
+  --chart-3: var(--brand-cyan);
+  --chart-4: var(--brand-lime);
+  --chart-5: var(--brand-darkgray);
 }
 
 .dark {
+  /* Base colors */
   --background: 240 10% 3.9%; /* Dark background */
   --foreground: 0 0% 98%;     /* Light text */
   --muted: 240 3.7% 15.9%;    /* Slightly lighter dark for muted areas */
@@ -41,20 +82,23 @@
   --card-foreground: 0 0% 98%; /* Light text for cards */
   --border: 240 3.7% 15.9%;   /* Darker border color */
   --input: 240 3.7% 15.9%;    /* Darker input background */
-  --primary: 188 100% 35%;    /* #0097B1 - brand-teal */
+  
+  /* Brand colors remain the same in dark mode */
+  /* UI colors (mapped to brand colors) */
+  --primary: var(--brand-teal);
   --primary-foreground: 0 0% 100%;
-  --secondary: 328 100% 70%;  /* #FF66C4 - brand-pink */
+  --secondary: var(--brand-pink);
   --secondary-foreground: 0 0% 100%;
-  --accent: 181 73% 64%;      /* #5CE1E6 - brand-cyan */
+  --accent: var(--brand-cyan);
   --accent-foreground: 240 10% 3.9%; /* Dark text on accent backgrounds */
-  --destructive: 0 62.8% 30.6%;
+  --destructive: var(--error);
   --destructive-foreground: 0 0% 98%;
-  --ring: 188 100% 35%;       /* #0097B1 - brand-teal */
+  --ring: var(--brand-teal);
+  
+  /* Other UI variables */
   --radius: 0.5rem;
-  --chart-1: 188 100% 35%;    /* #0097B1 - brand-teal */
-  --chart-2: 328 100% 70%;    /* #FF66C4 - brand-pink */
-  --chart-3: 181 73% 64%;     /* #5CE1E6 - brand-cyan */
-  --chart-4: 70 98% 50%;      /* #C8FD04 - brand-lime */
+  
+  /* Chart colors - same except for gray which needs more contrast in dark mode */
   --chart-5: 240 5% 84.9%;    /* Lighter gray for dark mode */
 }
 
