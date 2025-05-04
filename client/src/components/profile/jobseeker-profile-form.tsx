@@ -58,10 +58,7 @@ const step1Schema = z.object({
 // Define the schema for step 2
 const step2Schema = z.object({
   portfolioUrl: z.string().url({ message: 'Please enter a valid URL' }).optional().or(z.literal('')),
-  preferredLocations: z.array(z.string()).optional().default([]),
   workArrangements: z.array(z.string()).optional().default([]),
-  industryPreferences: z.array(z.string()).optional(),
-  functionalPreferences: z.string().optional(),
 });
 
 // Combine schemas for the final form validation
@@ -92,10 +89,7 @@ export default function JobseekerProfileForm() {
     degreeLevel: '',
     major: '',
     portfolioUrl: '',
-    preferredLocations: [],
     workArrangements: [],
-    industryPreferences: [],
-    functionalPreferences: JSON.stringify([]), // Initialize as empty JSON array string
   });
   
   // Track slider section completion
@@ -299,10 +293,7 @@ export default function JobseekerProfileForm() {
         degreeLevel: profile.degreeLevel || '',
         major: profile.major || '',
         portfolioUrl: profile.portfolioUrl || '',
-        preferredLocations: Array.isArray(profile.preferredLocations) ? profile.preferredLocations : [],
         workArrangements: Array.isArray(profile.workArrangements) ? profile.workArrangements.filter((v: any) => v !== null) : [],
-        industryPreferences: Array.isArray(profile.industryPreferences) ? profile.industryPreferences.filter((v: any) => v !== null) : [],
-        functionalPreferences: formattedFunctionalPreferences,
       };
       
       console.log('Prepared profile data for form:', profileData);
@@ -373,7 +364,7 @@ export default function JobseekerProfileForm() {
     } else if (currentStep === 2) {
       // Validate step 2 fields
       const isValid = await form.trigger([
-        'portfolioUrl', 'preferredLocations', 'workArrangements'
+        'portfolioUrl', 'workArrangements'
       ]);
       
       // Debug validation errors
