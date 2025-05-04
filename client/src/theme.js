@@ -6,6 +6,11 @@
  * 
  * Usage:
  * import { colors, spacing, typography, etc. } from '@/theme'
+ * 
+ * @typedef {Object} Colors
+ * @typedef {Object} Typography
+ * @typedef {Object} Spacing
+ * @typedef {Object} Theme
  */
 
 // Brand Colors - Main palette 
