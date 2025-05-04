@@ -90,10 +90,10 @@ export function SliderWithLabels({
         />
       </div>
       
-      {/* Value indicator */}
+      {/* Value indicator - Shows "Adjusted" instead of numeric value for more intuitive experience */}
       <div className="text-center text-xs font-medium -mt-1">
         <span className={`${isAdjusted ? 'text-primary font-bold' : 'text-gray-400'}`}>
-          {isAdjusted ? value : 'Adjust me'}
+          {isAdjusted ? 'Adjusted' : 'Adjust me'}
         </span>
       </div>
     </div>
