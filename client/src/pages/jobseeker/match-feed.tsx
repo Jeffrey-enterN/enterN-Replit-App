@@ -5,7 +5,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/auth-context';
 import { USER_TYPES } from '@/lib/constants';
 import { apiRequest, queryClient } from '@/lib/queryClient';
-import DashboardLayout from '@/components/layouts/dashboard-layout';
+import JobseekerLayout from '@/components/layouts/jobseeker-layout';
 import MatchCard from '@/components/dashboard/match-card';
 import { Button } from '@/components/ui/button';
 import { Loader2, RefreshCw, ArrowLeft } from 'lucide-react';
@@ -103,7 +103,7 @@ export default function JobseekerMatchFeed() {
   const showLoadingState = isLoading || isRefetching || isProcessingSwipe || swipeMutation.isPending;
   
   return (
-    <DashboardLayout title="Match Feed" subtitle="Discover new opportunities">
+    <JobseekerLayout>
       <div className="flex flex-col items-center space-y-6">
         {showLoadingState ? (
           <div className="flex justify-center items-center h-60">
@@ -151,6 +151,6 @@ export default function JobseekerMatchFeed() {
           </div>
         )}
       </div>
-    </DashboardLayout>
+    </JobseekerLayout>
   );
 }

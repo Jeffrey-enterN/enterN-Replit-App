@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useLocation } from 'wouter';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
-import DashboardLayout from '@/components/layouts/dashboard-layout';
+import JobseekerLayout from '@/components/layouts/jobseeker-layout';
 import OverviewStats from '@/components/dashboard/overview-stats';
 import MatchCard from '@/components/dashboard/match-card';
 import RecentMatches, { Match } from '@/components/dashboard/recent-matches';
@@ -85,10 +85,7 @@ export default function JobseekerDashboard() {
   const recentMatches = dashboardData?.recentMatches || [];
 
   return (
-    <DashboardLayout 
-      title="Dashboard" 
-      subtitle={user?.firstName ? `Welcome back, ${user.firstName}!` : 'Welcome back!'}
-    >
+    <JobseekerLayout>
       {/* Overview Stats */}
       <OverviewStats userType={USER_TYPES.JOBSEEKER} stats={stats} />
 
@@ -121,6 +118,6 @@ export default function JobseekerDashboard() {
         emptyMessage="You haven't matched with any employers yet. Start swiping to find matches!"
         viewAllLink="/jobseeker/matches"
       />
-    </DashboardLayout>
+    </JobseekerLayout>
   );
 }
