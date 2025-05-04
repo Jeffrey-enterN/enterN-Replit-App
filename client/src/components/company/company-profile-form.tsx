@@ -88,10 +88,10 @@ const companyProfileSchema = z.object({
     ),
   
   // Step 2: About the Company
-  industries: z.array(z.string()).min(1, "Select at least one industry"),
-  functionalAreas: z.array(z.string()).min(1, "Select at least one functional area"),
+  industries: z.array(z.string()).optional(), // Made optional
+  functionalAreas: z.array(z.string()).optional(), // Made optional
   about: z.string().min(1, FORM_VALIDATION.required),
-  mission: z.string().min(1, FORM_VALIDATION.required),
+  mission: z.string().optional(), // Made optional
   vision: z.string().optional(),
   values: z.array(z.string()).optional(),
   
@@ -352,12 +352,12 @@ export function CompanyProfileForm({ companyId }: { companyId?: number }) {
       // Match job types with our work arrangements
       const matchedArrangements = WORK_ARRANGEMENTS.filter(arrangement => 
         scrapedData.jobTypes?.some(type => 
-          arrangement.toLowerCase().includes(type.toLowerCase())
+          arrangement.label.toLowerCase().includes(type.toLowerCase())
         )
       );
       
       if (matchedArrangements.length > 0) {
-        formValues.workArrangements = matchedArrangements;
+        formValues.workArrangements = matchedArrangements.map(arr => arr.id);
       }
     }
     
@@ -454,7 +454,7 @@ export function CompanyProfileForm({ companyId }: { companyId?: number }) {
         fieldsToValidate = ['name', 'adminName', 'adminEmail', 'headquarters', 'size'];
         break;
       case 2:
-        fieldsToValidate = ['industries', 'functionalAreas', 'about', 'mission'];
+        fieldsToValidate = ['about']; // Only validate about field, industries, functionalAreas and mission are now optional
         break;
       case 3:
         fieldsToValidate = ['workArrangements', 'culture'];
@@ -577,27 +577,27 @@ export function CompanyProfileForm({ companyId }: { companyId?: number }) {
                   <FormLabel>Work Arrangements*</FormLabel>
                   <div className="flex flex-wrap gap-2">
                     {WORK_ARRANGEMENTS.map((arrangement) => (
-                      <div key={arrangement} className="inline-flex items-center mr-4 mb-2">
+                      <div key={arrangement.id} className="inline-flex items-center mr-4 mb-2">
                         <Checkbox
-                          id={`arrangement-${arrangement}`}
-                          checked={Array.isArray(field.value) && field.value.includes(arrangement)}
+                          id={`arrangement-${arrangement.id}`}
+                          checked={Array.isArray(field.value) && field.value.includes(arrangement.id)}
                           onCheckedChange={(checked) => {
                             const currentValue = Array.isArray(field.value) ? field.value : [];
                             if (checked) {
-                              field.onChange([...currentValue, arrangement]);
+                              field.onChange([...currentValue, arrangement.id]);
                             } else {
                               field.onChange(currentValue.filter(
-                                (value: string) => value !== arrangement
+                                (value: string) => value !== arrangement.id
                               ));
                             }
                           }}
                           className="rounded-sm"
                         />
                         <label
-                          htmlFor={`arrangement-${arrangement}`}
+                          htmlFor={`arrangement-${arrangement.id}`}
                           className="ml-2 text-sm font-medium leading-none cursor-pointer"
                         >
-                          {arrangement}
+                          {arrangement.label}
                         </label>
                       </div>
                     ))}
@@ -1144,7 +1144,7 @@ export function CompanyProfileForm({ companyId }: { companyId?: number }) {
               name="mission"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Mission Statement*</FormLabel>
+                  <FormLabel>Mission Statement (Optional)</FormLabel>
                   <FormControl>
                     <Textarea 
                       placeholder="What is your company's mission..." 
