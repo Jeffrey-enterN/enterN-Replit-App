@@ -5,6 +5,12 @@ import { getInitials } from '@/lib/utils';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { motion, PanInfo, useAnimation, useMotionValue, useTransform } from 'framer-motion';
+import { 
+  Accordion, 
+  AccordionContent, 
+  AccordionItem, 
+  AccordionTrigger 
+} from "@/components/ui/accordion";
 
 interface JobseekerMatch {
   id: string;
@@ -651,29 +657,36 @@ export default function MatchCard({ userType, data, onInterested, onNotIntereste
                 
                 <div>
                   <h3 className="text-lg font-medium">Work & Compatibility Profile</h3>
-                  <div className="mt-4 space-y-6">
-                    {allSliderCategories.map((category, categoryIndex) => (
-                      <div key={categoryIndex} className="space-y-3">
-                        <h4 className="font-medium text-md">{category.name}</h4>
-                        
-                        {category.sliders.map((slider, sliderIndex) => (
-                          <div key={sliderIndex} className="mb-3">
-                            <div className="flex justify-between text-xs text-gray-500 mb-1">
-                              <span>{slider.left}</span>
-                              <span>{slider.right}</span>
+                  <div className="mt-4">
+                    <Accordion type="multiple" defaultValue={['item-0']} className="w-full">
+                      {allSliderCategories.map((category, categoryIndex) => (
+                        <AccordionItem key={categoryIndex} value={`item-${categoryIndex}`}>
+                          <AccordionTrigger className="font-medium text-md">
+                            {category.name}
+                          </AccordionTrigger>
+                          <AccordionContent>
+                            <div className="space-y-3 pt-2">
+                              {category.sliders.map((slider, sliderIndex) => (
+                                <div key={sliderIndex} className="mb-3">
+                                  <div className="flex justify-between text-xs text-gray-500 mb-1">
+                                    <span>{slider.left}</span>
+                                    <span>{slider.right}</span>
+                                  </div>
+                                  <div className="h-2 bg-gray-200 rounded">
+                                    <div 
+                                      className="h-2 bg-primary rounded" 
+                                      style={{ 
+                                        width: `${(jobseeker.sliderValues && jobseeker.sliderValues[slider.id]) || 50}%` 
+                                      }}
+                                    ></div>
+                                  </div>
+                                </div>
+                              ))}
                             </div>
-                            <div className="h-2 bg-gray-200 rounded">
-                              <div 
-                                className="h-2 bg-primary rounded" 
-                                style={{ 
-                                  width: `${(jobseeker.sliderValues && jobseeker.sliderValues[slider.id]) || 50}%` 
-                                }}
-                              ></div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    ))}
+                          </AccordionContent>
+                        </AccordionItem>
+                      ))}
+                    </Accordion>
                   </div>
                 </div>
                 
