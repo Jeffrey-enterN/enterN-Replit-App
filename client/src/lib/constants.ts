@@ -489,39 +489,45 @@ export const SLIDER_CATEGORIES = [
     ]
   },
   {
-    id: 'company_values',
-    name: 'Company Values',
-    description: 'What matters to you in an organization',
+    id: 'collaboration_communication_style',
+    name: 'Collaboration & Communication Style Preferences',
+    description: 'Use these sliders to indicate how you best interact with peers, customers, and leadership.',
     sliders: [
       {
-        id: 'profit_vs_purpose',
-        name: 'Profit vs. Purpose',
-        leftLabel: 'Value profitability',
-        rightLabel: 'Value purpose/mission'
+        id: 'direct_vs_nuanced',
+        name: 'Direct vs. Nuanced Communication',
+        leftLabel: 'Direct, Clear-Cut Communication',
+        rightLabel: 'Nuanced, Contextual Dialogue'
       },
       {
-        id: 'growth_vs_stability',
-        name: 'Growth vs. Stability',
-        leftLabel: 'Value rapid growth',
-        rightLabel: 'Value stability'
+        id: 'formal_vs_informal_meetings',
+        name: 'Formal Meetings vs. Informal Chats',
+        leftLabel: 'Structured, Scheduled Meetings',
+        rightLabel: 'Casual, Ad-Hoc Discussions'
       },
       {
-        id: 'global_vs_local',
-        name: 'Global vs. Local',
-        leftLabel: 'Value global reach',
-        rightLabel: 'Value local focus'
+        id: 'written_vs_verbal_preference',
+        name: 'Written vs. Verbal Communication',
+        leftLabel: 'Preference for Written Communication',
+        rightLabel: 'Preference for Face-to-Face or Verbal Exchanges'
       },
       {
-        id: 'competitive_vs_collaborative_culture',
-        name: 'Competitive vs. Collaborative Culture',
-        leftLabel: 'Value competitive culture',
-        rightLabel: 'Value collaborative culture'
+        id: 'scheduled_vs_spontaneous',
+        name: 'Scheduled Communication vs. Spontaneous Interaction',
+        leftLabel: 'Prefers Pre-Planned Communication Sessions',
+        rightLabel: 'Values Spontaneous, Impromptu Discussions'
       },
       {
-        id: 'customer_vs_employee_first',
-        name: 'Customer vs. Employee First',
-        leftLabel: 'Customer-first mentality',
-        rightLabel: 'Employee-first mentality'
+        id: 'cross_functional_vs_department',
+        name: 'Cross-Functional Collaboration vs. Department Focus',
+        leftLabel: 'Enjoys Collaborating Across Different Teams',
+        rightLabel: 'Prefers Working Within a Single Department'
+      },
+      {
+        id: 'structured_vs_open_feedback',
+        name: 'Structured Feedback Channels vs. Open-Door Policies',
+        leftLabel: 'Prefers Organized, Scheduled Feedback Opportunities',
+        rightLabel: 'Values an Open-Door Approach for Continuous, Informal Feedback'
       }
     ]
   },
