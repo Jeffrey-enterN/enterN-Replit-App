@@ -463,7 +463,7 @@ export default function MatchCard({ userType, data, onInterested, onNotIntereste
                   variant="ghost"
                   className="text-primary hover:text-primary/90"
                 >
-                  View Compatibility Profile
+                  View Complete Profile
                 </Button>
               </div>
               
