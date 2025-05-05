@@ -322,6 +322,43 @@ export const FUNCTIONAL_ROLES = [
 // Slider Categories for Values Assessment
 export const SLIDER_CATEGORIES = [
   {
+    id: 'organizational_values_mission',
+    name: 'Organizational Values & Mission Alignment',
+    description: 'Adjust the following sliders to indicate where in each statement you feel best reflects your preferences for the kind of organization you want to be a part of.',
+    sliders: [
+      {
+        id: 'mission_clarity',
+        name: 'Clear, Unyielding Mission',
+        leftLabel: 'Strictly Defined Mission Statements',
+        rightLabel: 'Adaptable, Evolving Mission Focus'
+      },
+      {
+        id: 'traditional_values',
+        name: 'Traditional Values',
+        leftLabel: 'Emphasis on Legacy & Stability',
+        rightLabel: 'Innovative, Risk-Tolerant Values'
+      },
+      {
+        id: 'cultural_expectations',
+        name: 'Uniform Cultural Expectations',
+        leftLabel: 'Standardized Organizational Culture',
+        rightLabel: 'Diverse, Personalized Cultural Expression'
+      },
+      {
+        id: 'stability_vs_innovation',
+        name: 'Long-Term Stability vs. Short-Term Innovation',
+        leftLabel: 'Values Stability and Consistency',
+        rightLabel: 'Values Continuous Innovation and Change'
+      },
+      {
+        id: 'community_vs_market',
+        name: 'Community Engagement vs. Market Leadership',
+        leftLabel: 'Prioritizes Social Responsibility and Local Impact',
+        rightLabel: 'Emphasizes Competitive, Market-Driven Success'
+      }
+    ]
+  },
+  {
     id: 'work_environment',
     name: 'Work Environment',
     description: 'How you prefer to work day-to-day',
