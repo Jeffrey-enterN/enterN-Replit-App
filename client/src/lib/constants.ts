@@ -446,39 +446,45 @@ export const SLIDER_CATEGORIES = [
     ]
   },
   {
-    id: 'management_approach',
-    name: 'Management Approach',
-    description: 'How you prefer to be managed',
+    id: 'preferred_work_environment',
+    name: 'Preferred Work Environment',
+    description: 'Use these sliders to indicate the physical work environment in which you\'ll thrive.',
     sliders: [
       {
-        id: 'formal_vs_informal_leadership',
-        name: 'Formal vs. Informal Leadership',
-        leftLabel: 'Prefer formal leadership',
-        rightLabel: 'Prefer informal leadership'
+        id: 'controlled_vs_dynamic',
+        name: 'Controlled vs. Dynamic Settings',
+        leftLabel: 'Quiet, Controlled Workspace',
+        rightLabel: 'Dynamic, Open-Plan Environment'
       },
       {
-        id: 'consensus_vs_decisive',
-        name: 'Consensus vs. Decisive',
-        leftLabel: 'Value consensus',
-        rightLabel: 'Value decisive leadership'
+        id: 'routine_vs_variety',
+        name: 'Routine vs. Variety',
+        leftLabel: 'Predictable, Routine-Based Environment',
+        rightLabel: 'Ever-Changing, Fast-Paced Atmosphere'
       },
       {
-        id: 'hierarchical_vs_flat',
-        name: 'Hierarchical vs. Flat',
-        leftLabel: 'Prefer clear hierarchy',
-        rightLabel: 'Prefer flat structure'
+        id: 'quiet_vs_collaborative',
+        name: 'Quiet Individual Spaces vs. Open Collaborative Areas',
+        leftLabel: 'Prefers Private, Quiet Workspaces',
+        rightLabel: 'Thrives in Open, Collaborative Settings'
       },
       {
-        id: 'mentorship_vs_peer_learning',
-        name: 'Mentorship vs. Peer Learning',
-        leftLabel: 'Value mentorship',
-        rightLabel: 'Value peer learning'
+        id: 'consistent_vs_varied',
+        name: 'Consistent Environment vs. Varied Work Settings',
+        leftLabel: 'Values a Consistent, Unchanging Workspace',
+        rightLabel: 'Enjoys Switching Between Different Work Settings (office, remote, co-working)'
       },
       {
-        id: 'performance_vs_potential',
-        name: 'Performance vs. Potential',
-        leftLabel: 'Value current performance',
-        rightLabel: 'Value long-term potential'
+        id: 'formal_vs_casual_atmosphere',
+        name: 'Formal Atmosphere vs. Casual Culture',
+        leftLabel: 'Prefers a Formal, Professional Office',
+        rightLabel: 'Values a Relaxed, Casual Work Culture'
+      },
+      {
+        id: 'traditional_vs_modern',
+        name: 'Traditional Setup vs. Modern Tech-Driven Space',
+        leftLabel: 'Favors a Conventional Office Layout',
+        rightLabel: 'Embraces a Modern, Innovative Workspace with the Latest Tech'
       }
     ]
   },
