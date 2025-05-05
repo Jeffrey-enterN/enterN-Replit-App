@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { USER_TYPES } from '@/lib/constants';
+import { USER_TYPES, SLIDER_CATEGORIES } from '@/lib/constants';
 import { getInitials } from '@/lib/utils';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -352,19 +352,15 @@ export default function MatchCard({ userType, data, onInterested, onNotIntereste
       }
     };
     
-    // Select a few key sliders from the database to display
-    const sliderSamples = [
-      // Work Environment
-      { id: 'noise_vs_quiet', left: 'Quiet Environment', right: 'Lively Environment' },
-      // Work-Life Balance
-      { id: 'work_life_integration_vs_separation', left: 'Clear Work/Life Separation', right: 'Work/Life Integration' },
-      // Team Dynamics
-      { id: 'teamwork_vs_independence', left: 'Independent Work', right: 'Team Collaboration' },
-      // Work Style
-      { id: 'variety_vs_routine', left: 'Consistent Routine', right: 'Varied Tasks' },
-      // Decision Making
-      { id: 'risk_vs_stability', left: 'Stability Focused', right: 'Risk Taking' }
-    ];
+    // Create a flat map of all sliders from our SLIDER_CATEGORIES constant
+    const allSliders = SLIDER_CATEGORIES.flatMap(category => 
+      category.sliders.map(slider => ({
+        id: slider.id,
+        left: slider.leftLabel,
+        right: slider.rightLabel,
+        category: category.name
+      }))
+    );
     
     // For debugging - log all available slider values from the database
     console.log('Jobseeker slider values:', jobseeker.sliderValues);
@@ -376,104 +372,37 @@ export default function MatchCard({ userType, data, onInterested, onNotIntereste
       
       console.log("Available sliders from database:", availableSliders);
       
-      // Map directly to our current schema fields used in the database
-      const sliderDefinitions: Record<string, {left: string, right: string, category: string}> = {
-        // Current fields in our database
+      // Create a map of slider definitions from our categories
+      const sliderDefinitions: Record<string, {left: string, right: string, category: string}> = {};
+      
+      // Populate sliderDefinitions from the SLIDER_CATEGORIES
+      for (const slider of allSliders) {
+        sliderDefinitions[slider.id] = {
+          left: slider.left,
+          right: slider.right,
+          category: slider.category
+        };
+      }
+      
+      // Legacy mapping for backward compatibility (in case we have any older sliders in the database)
+      // These are only used as fallbacks if a slider ID isn't in our current SLIDER_CATEGORIES
+      const legacySliderMappings: Record<string, {left: string, right: string, category: string}> = {
         'noise_vs_quiet': { left: 'Quiet Environment', right: 'Lively Environment', category: 'Work Environment' },
         'formal_vs_casual': { left: 'Formal Style', right: 'Casual Style', category: 'Work Style' },
-        'visual_vs_verbal': { left: 'Visual Learner', right: 'Verbal Learner', category: 'Communication' },
-        'hierarchy_vs_flat': { left: 'Structured Leadership', right: 'Flexible Leadership', category: 'Leadership & Management' },
-        'risk_vs_stability': { left: 'Stability Focused', right: 'Risk Taking', category: 'Decision Making' },
-        'critique_vs_praise': { left: 'Direct Feedback', right: 'Diplomatic Feedback', category: 'Communication' },
-        'hands_on_vs_theory': { left: 'Theoretical Work', right: 'Hands-on Work', category: 'Work Style' },
-        'outcome_vs_process': { left: 'Process Oriented', right: 'Outcome Oriented', category: 'Work Style' },
-        'social_vs_reserved': { left: 'Reserved Style', right: 'Social Style', category: 'Work Style' },
-        'speed_vs_precision': { left: 'Methodical & Steady', right: 'Fast-Paced & Dynamic', category: 'Work Style' },
-        'variety_vs_routine': { left: 'Consistent Routine', right: 'Varied Tasks', category: 'Work Style' },
-        'adaptable_vs_focused': { left: 'Focused Approach', right: 'Adaptable Approach', category: 'Work Style' },
-        'reflection_vs_action': { left: 'Action Oriented', right: 'Reflection Oriented', category: 'Decision Making' },
-        'autonomous_vs_aligned': { left: 'Team Aligned', right: 'Autonomous', category: 'Work Style' },
-        'detail_vs_big_picture': { left: 'Detail Oriented', right: 'Big Picture', category: 'Work Style' },
-        'learning_vs_executing': { left: 'Execution Focused', right: 'Learning Focused', category: 'Growth & Development' },
-        'strategic_vs_tactical': { left: 'Tactical Focus', right: 'Strategic Focus', category: 'Decision Making' },
-        'competition_vs_harmony': { left: 'Team Harmony', right: 'Healthy Competition', category: 'Team Dynamics' },
-        'creative_vs_analytical': { left: 'Analytical Thinking', right: 'Creative Thinking', category: 'Problem Solving' },
-        'decisive_vs_deliberate': { left: 'Deliberate Decisions', right: 'Decisive Action', category: 'Decision Making' },
-        'experimental_vs_proven': { left: 'Proven Approaches', right: 'Experimental', category: 'Innovation' },
-        'initiative_vs_direction': { left: 'Clear Direction', right: 'Taking Initiative', category: 'Work Style' },
-        'objective_vs_subjective': { left: 'Objective Approach', right: 'Subjective Perspective', category: 'Decision Making' },
-        'schedule_vs_flexibility': { left: 'Fixed Schedule', right: 'Flexible Schedule', category: 'Work-Life Balance' },
-        'innovation_vs_convention': { left: 'Conventional Approach', right: 'Innovative Approach', category: 'Innovation' },
-        'specialist_vs_generalist': { left: 'Specialist', right: 'Generalist', category: 'Work Style' },
-        'teamwork_vs_independence': { left: 'Independent Work', right: 'Team Collaboration', category: 'Team Dynamics' },
-        'self_promotion_vs_modesty': { left: 'Modest Approach', right: 'Self-Promotion', category: 'Communication Style' },
-        'collaborative_vs_individual': { left: 'Independent Work', right: 'Collaborative Work', category: 'Team Dynamics' },
-        'work_life_integration_vs_separation': { left: 'Clear Work/Life Separation', right: 'Work/Life Integration', category: 'Work-Life Balance' },
-        
-        // Legacy mapping for completeness
-        // Work Environment - these are commented out as they're duplicates from above
-        // 'noise_vs_quiet': { left: 'Quiet Environment', right: 'Lively Environment', category: 'Work Environment' },
         'open_office_vs_private': { left: 'Private Workspace', right: 'Open Office', category: 'Work Environment' },
         'remote_vs_inoffice': { left: 'Remote Work', right: 'In-Office Work', category: 'Work Environment' },
-        
-        // Work Style
-        'fast_paced_vs_methodical': { left: 'Methodical & Steady', right: 'Fast-Paced & Dynamic', category: 'Work Style' },
-        'multitasking_vs_focused': { left: 'Deep Focus', right: 'Multitasking', category: 'Work Style' },
-        'structured_vs_flexible': { left: 'Structured Work', right: 'Flexible Work', category: 'Work Style' },
-        'detailed_vs_concise': { left: 'Detail-Oriented', right: 'Big Picture', category: 'Work Style' },
-        'quick_vs_thorough': { left: 'Thorough Approach', right: 'Quick Results', category: 'Work Style' },
-        'detail_oriented_vs_big_picture': { left: 'Detail-Oriented', right: 'Big Picture', category: 'Work Style' },
-        
-        // Work-Life Balance
-        'work_life_separation_vs_integration': { left: 'Work/Life Separation', right: 'Work/Life Integration', category: 'Work-Life Balance' },
-        'flexible_hours_vs_fixed': { left: 'Fixed Schedule', right: 'Flexible Hours', category: 'Work-Life Balance' },
-        'overtime_willingness': { left: 'Standard Hours', right: 'Willing to Work Overtime', category: 'Work-Life Balance' },
-        'travel_preference': { left: 'Minimal Travel', right: 'Frequent Travel', category: 'Work-Life Balance' },
-        
-        // Communication
-        'written_vs_verbal': { left: 'Written Communication', right: 'Verbal Communication', category: 'Communication' },
-        'formal_vs_casual_comm': { left: 'Formal Communication', right: 'Casual Communication', category: 'Communication' },
-        'direct_vs_diplomatic': { left: 'Direct Communication', right: 'Diplomatic Communication', category: 'Communication' },
-        'frequent_vs_as_needed': { left: 'Communication As Needed', right: 'Frequent Check-ins', category: 'Communication' },
-        
-        // Collaboration
-        'collaborative_vs_independent': { left: 'Independent Work', right: 'Collaborative Work', category: 'Collaboration' },
-        'consensus_vs_decisive': { left: 'Decisive Action', right: 'Consensus Building', category: 'Collaboration' },
-        'group_input_vs_individual': { left: 'Individual Decision-Making', right: 'Group Input', category: 'Collaboration' },
-        'competitive_vs_collaborative_culture': { left: 'Competitive Culture', right: 'Collaborative Culture', category: 'Collaboration' },
-        
-        // Management & Leadership
-        'hands_on_vs_delegating': { left: 'Delegating Management', right: 'Hands-On Management', category: 'Management & Leadership' },
-        'hierarchical_vs_flat': { left: 'Hierarchical Structure', right: 'Flat Structure', category: 'Management & Leadership' },
-        'directive_vs_empowering': { left: 'Directive Leadership', right: 'Empowering Leadership', category: 'Management & Leadership' },
-        'formal_vs_informal_leadership': { left: 'Formal Leadership', right: 'Informal Leadership', category: 'Management & Leadership' },
-        
-        // Decision-Making
-        'analytical_vs_intuitive': { left: 'Analytical Approach', right: 'Intuitive Approach', category: 'Decision-Making' },
-        'data_driven_vs_intuition': { left: 'Data-Driven Decisions', right: 'Intuition-Based Decisions', category: 'Decision-Making' },
-        'risk_taking_vs_cautious': { left: 'Cautious Approach', right: 'Risk-Taking Approach', category: 'Decision-Making' },
-        'risk_averse_vs_risk_seeking': { left: 'Risk-Averse', right: 'Risk-Seeking', category: 'Decision-Making' },
-        'pragmatic_vs_idealistic': { left: 'Pragmatic Approach', right: 'Idealistic Approach', category: 'Decision-Making' },
-        
-        // Personal Growth & Development
-        'growth_vs_stability': { left: 'Stability', right: 'Growth & Development', category: 'Growth & Development' },
-        'professional_development_time': { left: 'Focused on Current Tasks', right: 'Professional Development Time', category: 'Growth & Development' },
-        'mentorship_vs_peer_learning': { left: 'Peer Learning', right: 'Mentorship', category: 'Growth & Development' },
-        'regular_feedback_vs_autonomy': { left: 'Autonomy', right: 'Regular Feedback', category: 'Growth & Development' },
-        
-        // Values & Culture
-        'casual_vs_formal': { left: 'Formal Environment', right: 'Casual Environment', category: 'Values & Culture' },
-        'innovation_vs_tradition': { left: 'Traditional Approach', right: 'Innovative Approach', category: 'Values & Culture' },
-        'profit_vs_purpose': { left: 'Profit-Driven', right: 'Purpose-Driven', category: 'Values & Culture' },
-        'transparency_vs_privacy': { left: 'Privacy', right: 'Transparency', category: 'Values & Culture' },
-        'company_loyalty_vs_industry_mobility': { left: 'Industry Mobility', right: 'Company Loyalty', category: 'Values & Culture' },
-        'traditional_vs_progressive': { left: 'Traditional Culture', right: 'Progressive Culture', category: 'Values & Culture' },
-        'global_vs_local': { left: 'Local Focus', right: 'Global Focus', category: 'Values & Culture' },
-        'customer_vs_employee_first': { left: 'Employee-First', right: 'Customer-First', category: 'Values & Culture' },
-        'financial_vs_social_impact': { left: 'Financial Impact', right: 'Social Impact', category: 'Values & Culture' },
-        'challenging_vs_supportive': { left: 'Supportive Environment', right: 'Challenging Environment', category: 'Values & Culture' },
-        'performance_vs_potential': { left: 'Focus on Potential', right: 'Focus on Performance', category: 'Values & Culture' },
+        'work_life_integration_vs_separation': { left: 'Clear Work/Life Separation', right: 'Work/Life Integration', category: 'Work-Life Balance' },
+        'teamwork_vs_independence': { left: 'Independent Work', right: 'Team Collaboration', category: 'Team Dynamics' },
+        'variety_vs_routine': { left: 'Consistent Routine', right: 'Varied Tasks', category: 'Work Style' },
+        'risk_vs_stability': { left: 'Stability Focused', right: 'Risk Taking', category: 'Decision Making' }
       };
+      
+      // Add any legacy mappings that aren't already defined
+      for (const [id, definition] of Object.entries(legacySliderMappings)) {
+        if (!sliderDefinitions[id]) {
+          sliderDefinitions[id] = definition;
+        }
+      }
 
       // Define priority sliders for each category to ensure important ones are shown first
       const prioritySliders: Record<string, string[]> = {
@@ -667,7 +596,8 @@ export default function MatchCard({ userType, data, onInterested, onNotIntereste
               <div className="mb-4">
                 <h5 className="text-sm font-medium text-gray-700 mb-2">Work & Interpersonal Style</h5>
                 
-                {sliderSamples.map((slider) => (
+                {/* Show a sample of sliders (up to 5) from different categories */}
+                {allSliders.slice(0, 5).map((slider) => (
                   <div key={slider.id} className="mb-3">
                     <div className="flex justify-between text-xs text-gray-500 mb-1">
                       <span>{slider.left}</span>
