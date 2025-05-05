@@ -8,7 +8,8 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { apiRequest, queryClient } from '@/lib/queryClient';
 import { DEGREE_LEVELS, WORK_ARRANGEMENTS, SLIDER_CATEGORIES } from '@/lib/constants';
 import CollapsibleSliderSection from './collapsible-slider-section';
-import { Check, ChevronRight } from 'lucide-react';
+import ProfilePreview from './profile-preview';
+import { Check, ChevronRight, EyeIcon } from 'lucide-react';
 import { useAuth } from '@/context/auth-context';
 import {
   AlertDialog,
@@ -790,6 +791,38 @@ export default function JobseekerProfileForm() {
                       ? "Almost there! Just a few more sliders to adjust."
                       : "Perfect! Your profile is fully optimized for matching."}
                   </p>
+                </div>
+                
+                {/* Profile Preview Card */}
+                <div className="mb-8">
+                  <div className="bg-gray-50 border border-gray-200 p-5 rounded-lg">
+                    <div className="flex items-center mb-4">
+                      <EyeIcon className="h-5 w-5 text-primary mr-2" />
+                      <h3 className="font-medium text-gray-800">Preview Your Profile</h3>
+                    </div>
+                    <p className="text-sm text-gray-600 mb-4">
+                      See exactly how your profile appears to employers in the matching process.
+                      This preview shows the anonymized version of your profile that employers will see.
+                    </p>
+                    
+                    <ProfilePreview 
+                      profile={{
+                        education: {
+                          degree: form.getValues('degreeLevel'),
+                          major: form.getValues('major'),
+                          school: form.getValues('school'),
+                        },
+                        locations: form.getValues('workArrangements') || [],
+                        sliderValues: sliderValues
+                      }}
+                      trigger={
+                        <Button variant="outline" className="w-full">
+                          <EyeIcon className="h-4 w-4 mr-2" />
+                          Preview Your Profile
+                        </Button>
+                      }
+                    />
+                  </div>
                 </div>
                 
                 <CollapsibleSliderSection
