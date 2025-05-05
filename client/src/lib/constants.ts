@@ -396,39 +396,39 @@ export const SLIDER_CATEGORIES = [
     ]
   },
   {
-    id: 'work_style',
-    name: 'Work Style',
-    description: 'Your preferred working style and environment',
+    id: 'work_style_preferences',
+    name: 'Work Style Preferences',
+    description: 'Use these sliders to indicate the preferred style you wish to work in order to thrive and be at your most productive.',
     sliders: [
       {
-        id: 'casual_vs_formal',
-        name: 'Casual vs. Formal',
-        leftLabel: 'Prefer casual environment',
-        rightLabel: 'Prefer formal environment'
+        id: 'fixed_vs_flexible',
+        name: 'Fixed Schedule vs. Flexible Hours',
+        leftLabel: 'Prefers a Consistent, Fixed Work Schedule',
+        rightLabel: 'Values Flexible, Adaptive Working Hours'
       },
       {
-        id: 'open_office_vs_private',
-        name: 'Open Office vs. Private',
-        leftLabel: 'Prefer open workspace',
-        rightLabel: 'Prefer private workspace'
+        id: 'documentation_vs_minimal',
+        name: 'Detailed Documentation vs. Minimal Paperwork',
+        leftLabel: 'Values Comprehensive Documentation and Processes',
+        rightLabel: 'Prefers Minimal Administrative Overhead'
       },
       {
-        id: 'remote_vs_inoffice',
-        name: 'Remote vs. In-office',
-        leftLabel: 'Prefer remote work',
-        rightLabel: 'Prefer in-office work'
+        id: 'predictable_vs_varied',
+        name: 'Predictable Workflow vs. Varied Tasks',
+        leftLabel: 'Thrives on Repetitive, Predictable Tasks',
+        rightLabel: 'Enjoys a Variety of Task Types and Challenges'
       },
       {
-        id: 'multitasking_vs_focused',
-        name: 'Multitasking vs. Focused',
-        leftLabel: 'Prefer multitasking',
-        rightLabel: 'Prefer focused work'
+        id: 'team_vs_individual',
+        name: 'Team Orientation vs. Individual Focus',
+        leftLabel: 'Collaborative, Group-Driven Work',
+        rightLabel: 'Independent, Solo Work Preference'
       },
       {
-        id: 'noise_vs_quiet',
-        name: 'Noisy vs. Quiet',
-        leftLabel: 'Work well with background noise',
-        rightLabel: 'Prefer quiet environment'
+        id: 'planned_vs_spontaneous',
+        name: 'Planned vs. Spontaneous Workflow',
+        leftLabel: 'Reliance on Detailed Planning',
+        rightLabel: 'Adaptability to Spontaneous Tasks'
       }
     ]
   },
