@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -35,19 +35,28 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Plus, Trash2 } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Loader2, Plus, Trash2, Link as LinkIcon } from 'lucide-react';
 import EmployerLayout from '@/components/layouts/employer-layout';
 
 // Job posting form schema
 const jobPostingSchema = z.object({
   title: z.string().min(5, "Job title must be at least 5 characters"),
-  location: z.string().min(2, "Location is required"),
-  department: z.string().optional(),
-  employmentType: z.enum(['Full-time', 'Part-time', 'Contract', 'Internship']),
+  zipCode: z.string().min(5, "Zip code is required").max(10, "Invalid zip code format"),
+  isRemote: z.boolean().default(false),
+  location: z.string().optional(),
+  functionalArea: z.string().optional(),
+  employmentType: z.enum([
+    'Part-time internship', 
+    'Full-time internship', 
+    'Part-time perm role', 
+    'Full-time perm role',
+    'Contract'
+  ]),
   workType: z.enum(['Remote', 'In-office', 'Hybrid']),
   description: z.string().min(50, "Job description must be at least 50 characters"),
-  requirements: z.array(z.string()).min(1, "At least one requirement is needed"),
-  responsibilities: z.array(z.string()).min(1, "At least one responsibility is needed"),
+  descriptionUrl: z.string().url().optional().or(z.literal('')),
+  preferredMajors: z.array(z.string()).optional(),
 });
 
 type JobPostingFormValues = z.infer<typeof jobPostingSchema>;
@@ -56,22 +65,116 @@ export default function NewJobPage() {
   const { user } = useAuth();
   const { toast } = useToast();
   const [_, navigate] = useLocation();
-  const [newRequirement, setNewRequirement] = useState('');
-  const [newResponsibility, setNewResponsibility] = useState('');
+  const [cityState, setCityState] = useState('');
+  const [newMajor, setNewMajor] = useState('');
+  const [isScraping, setIsScraping] = useState(false);
 
   const form = useForm<JobPostingFormValues>({
     resolver: zodResolver(jobPostingSchema),
     defaultValues: {
       title: '',
+      zipCode: '',
+      isRemote: false,
       location: '',
-      department: '',
-      employmentType: 'Full-time',
+      functionalArea: '',
+      employmentType: 'Full-time perm role',
       workType: 'In-office',
       description: '',
-      requirements: [],
-      responsibilities: [],
+      descriptionUrl: '',
+      preferredMajors: [],
     },
   });
+
+  // Watch for zip code changes to update city/state
+  const zipCode = form.watch('zipCode');
+  const isRemote = form.watch('isRemote');
+  const descriptionUrl = form.watch('descriptionUrl');
+
+  // Fetch city/state from zip code
+  useEffect(() => {
+    if (zipCode && zipCode.length >= 5) {
+      // In a real implementation, we would call a zip code API
+      // For demo purposes, we'll simulate it
+      const fetchCityState = async () => {
+        try {
+          // This would be a real API call in production
+          // For demo, we'll use a timeout and hardcoded values
+          setTimeout(() => {
+            if (zipCode === '60601') {
+              setCityState('Chicago, IL');
+              form.setValue('location', 'Chicago, IL');
+            } else if (zipCode === '10001') {
+              setCityState('New York, NY');
+              form.setValue('location', 'New York, NY');
+            } else if (zipCode === '94103') {
+              setCityState('San Francisco, CA');
+              form.setValue('location', 'San Francisco, CA');
+            } else {
+              setCityState('Location not found');
+              form.setValue('location', '');
+            }
+          }, 500);
+        } catch (error) {
+          console.error('Error fetching location:', error);
+          setCityState('Error fetching location');
+          form.setValue('location', '');
+        }
+      };
+
+      fetchCityState();
+    } else {
+      setCityState('');
+      form.setValue('location', '');
+    }
+  }, [zipCode, form]);
+
+  // Handle job description URL scraping
+  const scrapeJobDescription = async () => {
+    if (!descriptionUrl) return;
+
+    setIsScraping(true);
+    try {
+      // In a real implementation, this would call a backend API to scrape the job description
+      // For demo purposes, we'll simulate it
+      toast({
+        title: 'Scraping Job Description',
+        description: 'Fetching content from the provided URL...',
+      });
+
+      // Simulate API call delay
+      setTimeout(() => {
+        // Sample job description
+        const scrapedDescription = `This is a simulated job description that would be scraped from ${descriptionUrl}. 
+        
+We are looking for a talented individual to join our team. The ideal candidate will have strong communication skills, experience in the field, and a passion for excellence.
+
+Responsibilities:
+- Work collaboratively with cross-functional teams
+- Implement best practices and standards
+- Create and maintain documentation
+
+Requirements:
+- Bachelor's degree in related field
+- 2+ years of experience
+- Strong problem-solving abilities`;
+
+        form.setValue('description', scrapedDescription);
+        setIsScraping(false);
+        toast({
+          title: 'Job Description Scraped',
+          description: 'Successfully retrieved content from the URL',
+        });
+      }, 1500);
+
+    } catch (error) {
+      setIsScraping(false);
+      toast({
+        title: 'Error',
+        description: 'Failed to scrape job description from the provided URL',
+        variant: 'destructive',
+      });
+    }
+  };
 
   const createJobMutation = useMutation({
     mutationFn: async (data: JobPostingFormValues) => {
@@ -103,28 +206,16 @@ export default function NewJobPage() {
     createJobMutation.mutate(data);
   };
 
-  const addRequirement = () => {
-    if (newRequirement.trim() === '') return;
-    const currentRequirements = form.getValues('requirements') || [];
-    form.setValue('requirements', [...currentRequirements, newRequirement]);
-    setNewRequirement('');
+  const addMajor = () => {
+    if (newMajor.trim() === '') return;
+    const currentMajors = form.getValues('preferredMajors') || [];
+    form.setValue('preferredMajors', [...currentMajors, newMajor]);
+    setNewMajor('');
   };
 
-  const removeRequirement = (index: number) => {
-    const currentRequirements = form.getValues('requirements') || [];
-    form.setValue('requirements', currentRequirements.filter((_, i) => i !== index));
-  };
-
-  const addResponsibility = () => {
-    if (newResponsibility.trim() === '') return;
-    const currentResponsibilities = form.getValues('responsibilities') || [];
-    form.setValue('responsibilities', [...currentResponsibilities, newResponsibility]);
-    setNewResponsibility('');
-  };
-
-  const removeResponsibility = (index: number) => {
-    const currentResponsibilities = form.getValues('responsibilities') || [];
-    form.setValue('responsibilities', currentResponsibilities.filter((_, i) => i !== index));
+  const removeMajor = (index: number) => {
+    const currentMajors = form.getValues('preferredMajors') || [];
+    form.setValue('preferredMajors', currentMajors.filter((_, i) => i !== index));
   };
 
   return (
@@ -164,28 +255,72 @@ export default function NewJobPage() {
                 />
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <FormField
-                    control={form.control}
-                    name="location"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Location*</FormLabel>
-                        <FormControl>
-                          <Input placeholder="e.g. New York, NY" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  {/* Zip Code with City, State output */}
+                  <div>
+                    <FormField
+                      control={form.control}
+                      name="zipCode"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Zip Code*</FormLabel>
+                          <FormControl>
+                            <Input 
+                              placeholder="Enter zip code" 
+                              {...field} 
+                              disabled={isRemote}
+                            />
+                          </FormControl>
+                          {cityState && !isRemote && (
+                            <p className="text-sm text-muted-foreground mt-2">
+                              Location: {cityState}
+                            </p>
+                          )}
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    {/* Remote checkbox */}
+                    <FormField
+                      control={form.control}
+                      name="isRemote"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-start space-x-3 space-y-0 mt-2">
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value}
+                              onCheckedChange={(checked) => {
+                                field.onChange(checked);
+                                if (checked) {
+                                  form.setValue('location', 'Remote');
+                                } else {
+                                  const zip = form.getValues('zipCode');
+                                  if (zip) {
+                                    form.setValue('location', cityState || '');
+                                  } else {
+                                    form.setValue('location', '');
+                                  }
+                                }
+                              }}
+                            />
+                          </FormControl>
+                          <div className="space-y-1 leading-none">
+                            <FormLabel>This position is fully remote</FormLabel>
+                          </div>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
 
+                  {/* Functional Area (formerly Department) */}
                   <FormField
                     control={form.control}
-                    name="department"
+                    name="functionalArea"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Department</FormLabel>
+                        <FormLabel>Functional Area</FormLabel>
                         <FormControl>
-                          <Input placeholder="e.g. Engineering" {...field} />
+                          <Input placeholder="e.g. Engineering, Marketing, Sales" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -194,6 +329,7 @@ export default function NewJobPage() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Updated Employment Type options */}
                   <FormField
                     control={form.control}
                     name="employmentType"
@@ -210,10 +346,11 @@ export default function NewJobPage() {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="Full-time">Full-time</SelectItem>
-                            <SelectItem value="Part-time">Part-time</SelectItem>
+                            <SelectItem value="Part-time internship">Part-time internship</SelectItem>
+                            <SelectItem value="Full-time internship">Full-time internship</SelectItem>
+                            <SelectItem value="Part-time perm role">Part-time perm role</SelectItem>
+                            <SelectItem value="Full-time perm role">Full-time perm role</SelectItem>
                             <SelectItem value="Contract">Contract</SelectItem>
-                            <SelectItem value="Internship">Internship</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -230,6 +367,7 @@ export default function NewJobPage() {
                         <Select 
                           onValueChange={field.onChange} 
                           defaultValue={field.value}
+                          disabled={isRemote}
                         >
                           <FormControl>
                             <SelectTrigger>
@@ -242,112 +380,108 @@ export default function NewJobPage() {
                             <SelectItem value="Hybrid">Hybrid</SelectItem>
                           </SelectContent>
                         </Select>
+                        {isRemote && (
+                          <p className="text-sm text-muted-foreground mt-1">
+                            Work type set to Remote for remote positions
+                          </p>
+                        )}
                         <FormMessage />
                       </FormItem>
                     )}
                   />
                 </div>
 
-                <FormField
-                  control={form.control}
-                  name="description"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Job Description*</FormLabel>
-                      <FormControl>
-                        <Textarea 
-                          placeholder="Describe the role, company culture, and what makes this position exciting"
-                          className="min-h-[120px]"
-                          {...field} 
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
+                {/* Job Description with URL scraping option */}
                 <div>
                   <FormField
                     control={form.control}
-                    name="requirements"
-                    render={() => (
+                    name="descriptionUrl"
+                    render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Requirements*</FormLabel>
-                        <div className="flex space-x-2 mb-2">
-                          <Input 
-                            placeholder="e.g. 3+ years of experience with React"
-                            value={newRequirement}
-                            onChange={(e) => setNewRequirement(e.target.value)}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter') {
-                                e.preventDefault();
-                                addRequirement();
-                              }
-                            }}
-                          />
+                        <FormLabel>Job Description URL (Optional)</FormLabel>
+                        <div className="flex space-x-2">
+                          <FormControl>
+                            <Input 
+                              placeholder="https://example.com/job-description" 
+                              {...field} 
+                            />
+                          </FormControl>
                           <Button 
                             type="button" 
-                            onClick={addRequirement}
+                            onClick={scrapeJobDescription}
+                            disabled={!descriptionUrl || isScraping}
                           >
-                            Add
+                            {isScraping ? (
+                              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                            ) : (
+                              <LinkIcon className="h-4 w-4 mr-2" />
+                            )}
+                            {isScraping ? 'Scraping...' : 'Scrape'}
                           </Button>
                         </div>
-                        <div className="space-y-2">
-                          {form.watch('requirements')?.map((requirement, index) => (
-                            <div key={index} className="flex items-center justify-between bg-muted rounded p-2">
-                              <span>{requirement}</span>
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => removeRequirement(index)}
-                              >
-                                <Trash2 className="h-4 w-4 text-red-500" />
-                              </Button>
-                            </div>
-                          ))}
-                        </div>
+                        <FormDescription>
+                          Enter a URL to scrape an existing job description, or manually enter it below
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="description"
+                    render={({ field }) => (
+                      <FormItem className="mt-4">
+                        <FormLabel>Job Description*</FormLabel>
+                        <FormControl>
+                          <Textarea 
+                            placeholder="Describe the role, company culture, and what makes this position exciting"
+                            className="min-h-[180px]"
+                            {...field} 
+                          />
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
                 </div>
 
+                {/* Preferred Majors (optional) */}
                 <div>
                   <FormField
                     control={form.control}
-                    name="responsibilities"
+                    name="preferredMajors"
                     render={() => (
                       <FormItem>
-                        <FormLabel>Responsibilities*</FormLabel>
+                        <FormLabel>Preferred Majors (Optional)</FormLabel>
                         <div className="flex space-x-2 mb-2">
                           <Input 
-                            placeholder="e.g. Develop new features for our flagship product"
-                            value={newResponsibility}
-                            onChange={(e) => setNewResponsibility(e.target.value)}
+                            placeholder="e.g. Computer Science, Business Administration"
+                            value={newMajor}
+                            onChange={(e) => setNewMajor(e.target.value)}
                             onKeyDown={(e) => {
                               if (e.key === 'Enter') {
                                 e.preventDefault();
-                                addResponsibility();
+                                addMajor();
                               }
                             }}
                           />
                           <Button 
                             type="button" 
-                            onClick={addResponsibility}
+                            onClick={addMajor}
                           >
                             Add
                           </Button>
                         </div>
-                        <div className="space-y-2">
-                          {form.watch('responsibilities')?.map((responsibility, index) => (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                          {form.watch('preferredMajors')?.map((major, index) => (
                             <div key={index} className="flex items-center justify-between bg-muted rounded p-2">
-                              <span>{responsibility}</span>
+                              <span>{major}</span>
                               <Button
                                 type="button"
                                 variant="ghost"
                                 size="icon"
-                                onClick={() => removeResponsibility(index)}
+                                onClick={() => removeMajor(index)}
                               >
                                 <Trash2 className="h-4 w-4 text-red-500" />
                               </Button>
