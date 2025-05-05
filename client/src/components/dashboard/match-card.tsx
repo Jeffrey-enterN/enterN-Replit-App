@@ -11,6 +11,7 @@ import {
   AccordionItem, 
   AccordionTrigger 
 } from "@/components/ui/accordion";
+import enternLogo from '@assets/entern.png';
 
 interface JobseekerMatch {
   id: string;
@@ -209,7 +210,10 @@ export default function MatchCard({ userType, data, onInterested, onNotIntereste
         <Dialog open={isProfileDialogOpen} onOpenChange={setIsProfileDialogOpen}>
           <DialogContent className="sm:max-w-[600px] max-h-[85vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>{employer.name}</DialogTitle>
+              <div className="flex items-center justify-between">
+                <DialogTitle>{employer.name}</DialogTitle>
+                <img src={enternLogo} alt="enterN logo" className="h-8" />
+              </div>
               <DialogDescription>
                 Complete company profile and details
               </DialogDescription>
@@ -499,7 +503,10 @@ export default function MatchCard({ userType, data, onInterested, onNotIntereste
         <Dialog open={isProfileDialogOpen} onOpenChange={setIsProfileDialogOpen}>
           <DialogContent className="sm:max-w-[600px] max-h-[85vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Complete Candidate Profile</DialogTitle>
+              <div className="flex items-center justify-between">
+                <DialogTitle>Complete Candidate Profile</DialogTitle>
+                <img src={enternLogo} alt="enterN logo" className="h-8" />
+              </div>
               <DialogDescription>
                 This is an anonymized profile showing the candidate's preferences and compatibility metrics.
               </DialogDescription>
@@ -556,8 +563,12 @@ export default function MatchCard({ userType, data, onInterested, onNotIntereste
                               {category.sliders.map((slider) => (
                                 <div key={slider.id} className="mb-3">
                                   <div className="flex justify-between text-xs text-gray-500 mb-1">
-                                    <span>{slider.leftLabel}</span>
-                                    <span>{slider.rightLabel}</span>
+                                    <span className="text-left pr-2 max-w-[45%] whitespace-pre-wrap">
+                                      {slider.leftLabel}
+                                    </span>
+                                    <span className="text-right pl-2 max-w-[45%] whitespace-pre-wrap">
+                                      {slider.rightLabel}
+                                    </span>
                                   </div>
                                   <div className="h-2 bg-gray-200 rounded">
                                     <div 
