@@ -447,10 +447,31 @@ export default function CompanyProfilePage() {
                       )}
                     />
                   </CardContent>
-                  <CardFooter>
+                  <CardFooter className="flex justify-between">
+                    <Button 
+                      type="button" 
+                      variant="outline"
+                      onClick={() => {
+                        // Only enable preview if form is valid
+                        if (Object.keys(form.formState.errors).length === 0) {
+                          // Store form data in sessionStorage for preview
+                          const formData = form.getValues();
+                          sessionStorage.setItem('company_profile_preview', JSON.stringify(formData));
+                          // Open preview in new tab
+                          window.open('/employer/company-profile/preview', '_blank');
+                        } else {
+                          toast({
+                            title: "Form has errors",
+                            description: "Please correct all errors before previewing.",
+                            variant: "destructive",
+                          });
+                        }
+                      }}
+                    >
+                      Preview in Match Feed
+                    </Button>
                     <Button 
                       type="submit" 
-                      className="ml-auto" 
                       disabled={isSubmitting}
                     >
                       {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

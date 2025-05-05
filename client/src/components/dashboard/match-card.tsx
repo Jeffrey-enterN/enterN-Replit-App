@@ -559,8 +559,17 @@ export default function MatchCard({ userType, data, onInterested, onNotIntereste
                   </svg>
                 </div>
                 <div className="ml-4">
-                  <h4 className="text-xl font-semibold text-gray-900">Anonymous Profile</h4>
-                  <p className="text-gray-600 text-sm">{jobseeker.education?.major || 'Early Career'} Student</p>
+                  {/* Dynamic title based on education information */}
+                  <h4 className="text-xl font-semibold text-gray-900">
+                    {jobseeker.education?.major && jobseeker.education.major !== 'Unspecified' 
+                      ? `${jobseeker.education.major} Student` 
+                      : 'Entry-Level Jobseeker'}
+                  </h4>
+                  <p className="text-gray-600 text-sm">
+                    {jobseeker.education?.school && jobseeker.education.school !== 'Unspecified' 
+                      ? jobseeker.education.school 
+                      : 'Location based on preferences'}
+                  </p>
                 </div>
               </div>
 
