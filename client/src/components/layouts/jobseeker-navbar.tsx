@@ -57,9 +57,12 @@ export default function JobseekerNavbar() {
     { label: 'Dashboard', href: '/jobseeker/dashboard', icon: LayoutDashboard },
     { label: 'Match Feed', href: '/jobseeker/match-feed', icon: ThumbsUp },
     { label: 'Profile', href: '/jobseeker/profile', icon: UserCircle },
-    { label: 'Resume', href: '/jobseeker/resume', icon: FileText },
-    { label: 'Applications', href: '/jobseeker/applications', icon: Clock },
-    { label: 'Education', href: '/jobseeker/education', icon: GraduationCap },
+    { 
+      label: 'BooBase', 
+      href: 'https://boobase-by-entern.replit.app/', 
+      icon: ExternalLink,
+      isExternal: true
+    },
     { 
       label: 'Support', 
       href: '/support', 
@@ -105,10 +108,17 @@ export default function JobseekerNavbar() {
                       asChild
                       onClick={() => setMobileMenuOpen(false)}
                     >
-                      <Link href={item.href}>
-                        <Icon className="mr-2 h-4 w-4" />
-                        {item.label}
-                      </Link>
+                      {item.isExternal ? (
+                        <a href={item.href} target="_blank" rel="noopener noreferrer">
+                          <Icon className="mr-2 h-4 w-4" />
+                          {item.label}
+                        </a>
+                      ) : (
+                        <Link href={item.href}>
+                          <Icon className="mr-2 h-4 w-4" />
+                          {item.label}
+                        </Link>
+                      )}
                     </Button>
                   );
                 })}
@@ -150,10 +160,17 @@ export default function JobseekerNavbar() {
                   size="sm"
                   asChild
                 >
-                  <Link href={item.href} className="flex items-center gap-1">
-                    <Icon className="h-4 w-4" />
-                    {item.label}
-                  </Link>
+                  {item.isExternal ? (
+                    <a href={item.href} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1">
+                      <Icon className="h-4 w-4" />
+                      {item.label}
+                    </a>
+                  ) : (
+                    <Link href={item.href} className="flex items-center gap-1">
+                      <Icon className="h-4 w-4" />
+                      {item.label}
+                    </Link>
+                  )}
                 </Button>
               );
             })}
@@ -231,6 +248,12 @@ export default function JobseekerNavbar() {
                   <ThumbsUp className="h-4 w-4" />
                   Match Feed
                 </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <a href="https://boobase-by-entern.replit.app/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 cursor-pointer">
+                  <ExternalLink className="h-4 w-4" />
+                  BooBase
+                </a>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
