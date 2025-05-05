@@ -661,39 +661,45 @@ export const SLIDER_CATEGORIES = [
     ]
   },
   {
-    id: 'decision_making',
-    name: 'Decision Making',
-    description: 'How you approach decisions in the workplace',
+    id: 'emotional_intelligence_interpersonal',
+    name: 'Emotional Intelligence & Interpersonal Effectiveness',
+    description: 'Use these sliders to indicate your preferences for solving challenges when working with others, as well as how you approach building & fostering relationships.',
     sliders: [
       {
-        id: 'analytical_vs_intuitive',
-        name: 'Analytical vs. Intuitive',
-        leftLabel: 'Prefer analytical approach',
-        rightLabel: 'Trust intuition'
+        id: 'emotional_vs_logical',
+        name: 'Emotional Sensitivity vs. Logical Focus',
+        leftLabel: 'Prioritizes Understanding Others\' Emotions',
+        rightLabel: 'Focuses More on Facts and Logic in Interactions'
       },
       {
-        id: 'quick_vs_thorough',
-        name: 'Quick vs. Thorough',
-        leftLabel: 'Decide quickly',
-        rightLabel: 'Thorough consideration'
+        id: 'empathetic_vs_task_focused',
+        name: 'Empathetic Listening vs. Task-Focused Communication',
+        leftLabel: 'Values Empathetic, Supportive Listening',
+        rightLabel: 'Leans Toward Solution-Oriented, Task-Focused Dialogue'
       },
       {
-        id: 'group_input_vs_individual',
-        name: 'Group Input vs. Individual',
-        leftLabel: 'Gather group input',
-        rightLabel: 'Decide independently'
+        id: 'collaborative_vs_assertive',
+        name: 'Collaborative Conflict Resolution vs. Assertive Confrontation',
+        leftLabel: 'Seeks Collaborative, Mediated Solutions',
+        rightLabel: 'Favors Direct, Assertive Resolution Approaches'
       },
       {
-        id: 'risk_averse_vs_risk_seeking',
-        name: 'Risk-Averse vs. Risk-Seeking',
-        leftLabel: 'Avoid risks when possible',
-        rightLabel: 'Willing to take calculated risks'
+        id: 'harmony_vs_accountability',
+        name: 'Group Harmony vs. Individual Accountability',
+        leftLabel: 'Emphasizes Maintaining Group Harmony',
+        rightLabel: 'Prioritizes Individual Accountability and Direct Feedback'
       },
       {
-        id: 'pragmatic_vs_idealistic',
-        name: 'Pragmatic vs. Idealistic',
-        leftLabel: 'Pragmatic solutions',
-        rightLabel: 'Idealistic solutions'
+        id: 'empathetic_vs_objective',
+        name: 'Empathetic Engagement vs. Objective Interaction',
+        leftLabel: 'Prioritizes Deep Emotional Engagement',
+        rightLabel: 'Maintains an Objective, Fact-Focused Interaction'
+      },
+      {
+        id: 'collaborative_vs_independent_resolution',
+        name: 'Collaborative Resolution vs. Independent Problem-Solving',
+        leftLabel: 'Prefers Resolving Interpersonal Issues Through Group Discussion',
+        rightLabel: 'Tends to Resolve Issues Independently and Privately'
       }
     ]
   }
