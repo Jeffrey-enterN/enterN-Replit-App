@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Slider } from "@/components/ui/slider";
 import { CheckCircle, HelpCircle } from 'lucide-react';
 import {
@@ -31,15 +31,36 @@ export function SliderWithLabels({
   accentColor = 'text-primary',
   isAdjusted = false
 }: SliderWithLabelsProps) {
+  const [isMobile, setIsMobile] = useState(false);
+  
+  useEffect(() => {
+    // Set initial value
+    setIsMobile(window.innerWidth < 640);
+    
+    // Add window resize listener
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
+    
+    window.addEventListener('resize', handleResize);
+    
+    // Cleanup
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+  
   const handleValueChange = (newValue: number[]) => {
     onChange(newValue[0]);
   };
 
   return (
     <div className="slider-with-labels space-y-2 mb-2 pb-0">
-      {/* Compact mobile-first label display */}
-      <div className="flex justify-between items-start relative px-0">
-        <div className="w-[45%] text-left text-xs sm:text-sm font-medium text-gray-700 leading-tight transition-colors duration-300">
+      {/* Mobile: Stacked labels (top/bottom) | Desktop: Side-by-side labels (left/right) */}
+      
+      {/* LEFT LABEL - Only visible on desktop */}
+      <div className="hidden sm:flex justify-between items-start relative px-0">
+        <div className="w-[45%] text-left text-sm font-medium text-gray-700 leading-tight transition-colors duration-300">
           {leftLabel}
         </div>
         
@@ -59,13 +80,13 @@ export function SliderWithLabels({
                     className="inline-flex items-center justify-center ml-1 focus:outline-none"
                     aria-label="Help"
                   >
-                    <HelpCircle className={`h-4 w-4 sm:h-5 sm:w-5 ${accentColor} hover:opacity-80 transition-opacity`} />
+                    <HelpCircle className="h-5 w-5 hover:opacity-80 transition-opacity" />
                   </button>
                 </TooltipTrigger>
                 <TooltipContent 
                   side="top" 
                   align="center" 
-                  className="max-w-[90vw] sm:max-w-sm bg-white text-gray-800 p-3 shadow-lg border border-gray-100 text-sm rounded-md"
+                  className="max-w-sm bg-white text-gray-800 p-3 shadow-lg border border-gray-100 text-sm rounded-md"
                 >
                   <p>{tooltipContent}</p>
                 </TooltipContent>
@@ -74,9 +95,39 @@ export function SliderWithLabels({
           )}
         </div>
         
-        <div className="w-[45%] text-right text-xs sm:text-sm font-medium text-gray-700 leading-tight transition-colors duration-300">
+        <div className="w-[45%] text-right text-sm font-medium text-gray-700 leading-tight transition-colors duration-300">
           {rightLabel}
         </div>
+      </div>
+      
+      {/* Mobile-only stacked view: Top label */}
+      <div className="sm:hidden flex items-center justify-between mb-1">
+        <div className="text-left text-xs font-medium text-gray-700 leading-tight pr-1">
+          {leftLabel}
+        </div>
+        
+        {tooltipContent && (
+          <TooltipProvider delayDuration={300}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button 
+                  type="button" 
+                  className="inline-flex items-center justify-center focus:outline-none flex-shrink-0"
+                  aria-label="Help"
+                >
+                  <HelpCircle className={`h-4 w-4 ${accentColor} hover:opacity-80 transition-opacity`} />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent 
+                side="top" 
+                align="center" 
+                className="max-w-[90vw] bg-white text-gray-800 p-2 shadow-lg border border-gray-100 text-xs rounded-md"
+              >
+                <p>{tooltipContent}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )}
       </div>
       
       <div className="px-0">
@@ -97,15 +148,22 @@ export function SliderWithLabels({
         />
       </div>
       
+      {/* Mobile-only stacked view: Bottom label */}
+      <div className="sm:hidden text-right text-xs font-medium text-gray-700 leading-tight mt-1">
+        {rightLabel}
+      </div>
+      
       {/* Value indicator - Shows "Adjusted" instead of numeric value for more intuitive experience */}
       <div className="text-center text-xs font-medium -mt-1 h-4">
         {isAdjusted ? (
-          <span className="text-primary font-bold flex items-center justify-center gap-1">
-            <CheckCircle className="h-3 w-3" /> Adjusted
+          <span className="text-primary font-bold flex items-center justify-center gap-0.5">
+            <CheckCircle className="h-3 w-3 sm:block hidden" /> 
+            <span className="sm:inline hidden">Adjusted</span>
+            <span className="sm:hidden inline">✓</span>
           </span>
         ) : (
-          <span className="text-gray-400 animate-pulse hover:text-primary transition-colors duration-300">
-            Adjust me
+          <span className="text-gray-400 animate-pulse hover:text-primary transition-colors duration-300 text-[10px] sm:text-xs">
+            {isMobile ? 'Tap to adjust' : 'Adjust me'}
           </span>
         )}
       </div>

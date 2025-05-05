@@ -202,17 +202,17 @@ export default function CollapsibleSliderSection({
                     </div>
                   )}
                   
-                  <div className="space-y-2 py-2">
+                  <div className="space-y-0 py-1">
                     {/* Show all sliders in each category */}
                     {category.sliders.map((slider, index) => (
                       <div 
                         key={slider.id} 
                         className={`${
-                          index < category.sliders.length - 1 ? 'border-b border-gray-50 pb-3' : ''
+                          index < category.sliders.length - 1 ? 'border-b border-gray-50 pb-2 mb-1' : ''
                         }`}
                       >
-                        <div className="mb-1">
-                          <h4 className="font-medium text-gray-800 text-sm sm:text-base">{slider.name}</h4>
+                        <div className="mb-0.5">
+                          <h4 className="font-medium text-gray-800 text-xs sm:text-base">{slider.name}</h4>
                         </div>
                         <SliderWithLabels
                           leftLabel={slider.leftLabel}
