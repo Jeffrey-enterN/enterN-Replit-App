@@ -397,39 +397,51 @@ export const SLIDER_CATEGORIES = [
     ]
   },
   {
-    id: 'leadership_style',
-    name: 'Leadership Style',
-    description: 'Your preferences for leadership and management',
+    id: 'preferred_leadership_supervisor',
+    name: 'Preferred Leadership & Supervisor Styles',
+    description: 'Use these sliders to indicate the type of manager/supervisor you would feel most comfortable working with.',
     sliders: [
       {
-        id: 'directive_vs_empowering',
-        name: 'Directive vs. Empowering',
-        leftLabel: 'Prefer clear direction',
-        rightLabel: 'Prefer empowerment'
+        id: 'policy_vs_situation',
+        name: 'Policy Rigor vs. Situational Adaptability',
+        leftLabel: 'Strict Adherence to Policies',
+        rightLabel: 'Adaptable to Situations'
       },
       {
-        id: 'hands_on_vs_delegating',
-        name: 'Hands-on vs. Delegating',
-        leftLabel: 'Prefer hands-on leadership',
-        rightLabel: 'Prefer delegation'
+        id: 'directive_vs_handsoff',
+        name: 'Directive vs. Hands-Off Approach',
+        leftLabel: 'Taskmaster & Transparent Guidance',
+        rightLabel: 'Hands-Off & Ambiguous Support'
       },
       {
-        id: 'detail_oriented_vs_big_picture',
-        name: 'Detail-oriented vs. Big Picture',
-        leftLabel: 'Focus on details',
-        rightLabel: 'Focus on big picture'
+        id: 'competitive_vs_collaborative',
+        name: 'Competitive vs. Collaborative Environment',
+        leftLabel: 'Encourages Competition Among Team Members',
+        rightLabel: 'Fosters a Collaborative Team Spirit'
       },
       {
-        id: 'regular_feedback_vs_autonomy',
-        name: 'Regular Feedback vs. Autonomy',
-        leftLabel: 'Value regular feedback',
-        rightLabel: 'Value autonomy'
+        id: 'boundaries_vs_availability',
+        name: 'Clear Boundaries vs. High Availability',
+        leftLabel: 'Sets Firm Boundaries',
+        rightLabel: 'Always Accessible for Support'
       },
       {
-        id: 'challenging_vs_supportive',
-        name: 'Challenging vs. Supportive',
-        leftLabel: 'Prefer to be challenged',
-        rightLabel: 'Prefer to be supported'
+        id: 'formal_vs_casual_feedback',
+        name: 'Formal Feedback Sessions vs. Casual Check-Ins',
+        leftLabel: 'Expects Scheduled, Formalized Feedback',
+        rightLabel: 'Values Informal, Spontaneous Feedback'
+      },
+      {
+        id: 'clear_roles_vs_fluid',
+        name: 'Clear Role Definitions vs. Fluid Responsibilities',
+        leftLabel: 'Prefers Clearly Defined Roles and Responsibilities',
+        rightLabel: 'Comfortable with Evolving Role Expectations'
+      },
+      {
+        id: 'process_vs_outcome',
+        name: 'Process Emphasis vs. Outcome Focus',
+        leftLabel: 'Values Leaders Who Emphasize Process and Procedure',
+        rightLabel: 'Favors Leaders Focused on Results and Outcomes'
       }
     ]
   },
