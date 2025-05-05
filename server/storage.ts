@@ -1771,30 +1771,56 @@ export class DatabaseStorage implements IStorage {
       
       console.log(`Potential matches (before filtering): ${potentialJobseekers.length}`);
       
-      // Filter out profiles with minimal information
-      // Only include profiles that have a user account attached (this is already assured by the inner join)
-      // Relaxed filtering to allow more profiles to be shown
+      // Filter profiles based on completion requirements:
+      // 1. Section 1 (Education) MUST be completed
+      // 2. Section 2 (Locations/Work Preferences) MUST be completed 
+      // 3. At least three (3) sections of sliders MUST be completed
       const filteredProfiles = potentialJobseekers.filter(item => {
-        // Debug each profile to identify why it might be getting filtered out
         const profile = item.profile;
+        
+        // Debug each profile to identify completion status
         console.log("Examining profile:", {
           userId: profile.userId,
           hasEducation: !!profile.school || !!profile.degreeLevel || !!profile.major,
           hasSliderValues: !!profile.sliderValues,
           sliderValuesSample: profile.sliderValues ? typeof profile.sliderValues : 'null',
+          sliderValuesCount: profile.sliderValues ? Object.keys(profile.sliderValues).length : 0,
           preferredLocations: profile.preferredLocations ? 
             (Array.isArray(profile.preferredLocations) ? 
               profile.preferredLocations.length : typeof profile.preferredLocations) : 'null',
           workArrangements: profile.workArrangements ? 
             (Array.isArray(profile.workArrangements) ? 
               profile.workArrangements.length : typeof profile.workArrangements) : 'null',
-          industryPreferences: profile.industryPreferences ? 
-            (Array.isArray(profile.industryPreferences) ? 
-              profile.industryPreferences.length : typeof profile.industryPreferences) : 'null',
         });
         
-        // Return all profiles for now to debug the issue
-        return true;
+        // Section 1: Education MUST be completed (at least one of these fields must be filled)
+        const educationCompleted = !!(profile.school || profile.degreeLevel || profile.major);
+        
+        // Section 2: Locations/Work Preferences MUST be completed
+        const hasLocations = Array.isArray(profile.preferredLocations) && profile.preferredLocations.length > 0;
+        const hasWorkArrangements = Array.isArray(profile.workArrangements) && profile.workArrangements.length > 0;
+        const locationsCompleted = hasLocations || hasWorkArrangements;
+        
+        // Section 3: At least three (3) sections of sliders MUST be completed
+        // Count how many slider values are filled to estimate completed sections
+        // Each slider category has approximately 6 sliders on average
+        let slidersCompleted = false;
+        if (profile.sliderValues && typeof profile.sliderValues === 'object') {
+          const sliderCount = Object.keys(profile.sliderValues).length;
+          // Require at least 15 sliders (approximately 3 categories with ~5 sliders each)
+          slidersCompleted = sliderCount >= 15;
+        }
+        
+        // Log the completion status
+        console.log(`Profile ${profile.userId} completion status:`, {
+          educationCompleted,
+          locationsCompleted,
+          slidersCompleted,
+          verdict: educationCompleted && locationsCompleted && slidersCompleted ? 'PASS' : 'FAIL'
+        });
+        
+        // Only return profiles that meet all requirements
+        return educationCompleted && locationsCompleted && slidersCompleted;
       });
       
       console.log(`Potential matches (after filtering): ${filteredProfiles.length}`);
