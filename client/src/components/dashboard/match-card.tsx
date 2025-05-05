@@ -121,11 +121,10 @@ export default function MatchCard({ userType, data, onInterested, onNotIntereste
               </svg>
             </motion.div>
             
-            <img 
-              className="h-48 w-full object-cover" 
-              src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80" 
-              alt="Company building"
-            />
+            {/* Company header banner instead of photo */}
+            <div className="h-32 w-full bg-gradient-to-r from-primary/20 to-primary/40 flex items-center justify-center p-6">
+              <h3 className="text-2xl font-bold text-center text-primary-foreground">{employer.name}</h3>
+            </div>
             
             <div className="p-5">
               <div className="flex items-center mb-4">
