@@ -38,13 +38,15 @@ export function SliderWithLabels({
   return (
     <div className="slider-with-labels space-y-5 mb-8 pb-2">
       <div className="flex justify-between items-start relative">
-        <div className="w-[47%] text-left text-sm text-gray-600 leading-tight">
+        <div className="w-[47%] text-left text-sm font-medium text-gray-700 leading-tight transition-colors duration-300">
           {leftLabel}
         </div>
         
         <div className="absolute top-0 left-1/2 -translate-x-1/2 flex items-center">
           {isAdjusted && (
-            <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+            <div className="bg-green-50 p-1 rounded-full flex-shrink-0 border border-green-100">
+              <CheckCircle className="h-3 w-3 text-green-500" />
+            </div>
           )}
           
           {tooltipContent && (
@@ -62,7 +64,7 @@ export function SliderWithLabels({
                 <TooltipContent 
                   side="top" 
                   align="center" 
-                  className="max-w-sm bg-white text-gray-800 p-3 shadow-lg border-gray-200 text-sm"
+                  className="max-w-sm bg-white text-gray-800 p-3 shadow-lg border border-gray-100 text-sm rounded-md"
                 >
                   <p>{tooltipContent}</p>
                 </TooltipContent>
@@ -71,7 +73,7 @@ export function SliderWithLabels({
           )}
         </div>
         
-        <div className="w-[47%] text-right text-sm text-gray-600 leading-tight">
+        <div className="w-[47%] text-right text-sm font-medium text-gray-700 leading-tight transition-colors duration-300">
           {rightLabel}
         </div>
       </div>
@@ -84,17 +86,27 @@ export function SliderWithLabels({
           step={1}
           value={[value]}
           onValueChange={handleValueChange}
-          className={`h-3 ${isAdjusted ? 'bg-gray-100' : 'bg-gray-200'} rounded-lg`}
-          thumbClassName={`h-6 w-6 border-2 border-white ${isAdjusted ? accentColor.replace('text-', 'bg-') : 'bg-gray-400'}`}
-          trackClassName={isAdjusted ? accentColor.replace('text-', 'bg-') : 'bg-gray-300'}
+          className={`h-3 ${isAdjusted ? 'bg-gray-100' : 'bg-gray-200'} rounded-lg shadow-inner`}
+          thumbClassName={`h-7 w-7 border-2 border-white ${isAdjusted 
+            ? accentColor.replace('text-', 'bg-') 
+            : 'bg-gray-400'} shadow-md hover:scale-110 transition-transform`}
+          trackClassName={isAdjusted 
+            ? `bg-gradient-to-r from-primary to-[#5CE1E6]` 
+            : 'bg-gray-300'}
         />
       </div>
       
       {/* Value indicator - Shows "Adjusted" instead of numeric value for more intuitive experience */}
       <div className="text-center text-xs font-medium -mt-1">
-        <span className={`${isAdjusted ? 'text-primary font-bold' : 'text-gray-400'}`}>
-          {isAdjusted ? 'Adjusted' : 'Adjust me'}
-        </span>
+        {isAdjusted ? (
+          <span className="text-primary font-bold flex items-center justify-center gap-1">
+            <CheckCircle className="h-3 w-3" /> Adjusted
+          </span>
+        ) : (
+          <span className="text-gray-400 animate-pulse hover:text-primary transition-colors duration-300">
+            Adjust me
+          </span>
+        )}
       </div>
     </div>
   );

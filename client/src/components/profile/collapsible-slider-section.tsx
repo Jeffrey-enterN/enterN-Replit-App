@@ -157,21 +157,37 @@ export default function CollapsibleSliderSection({
             >
               <AccordionTrigger className="px-4 hover:no-underline group">
                 <div className="flex items-center justify-between w-full">
-                  <div className="flex items-center gap-2 flex-shrink-0 min-w-[30%]">
+                  <div className="flex items-center gap-3 flex-shrink-0 min-w-[30%]">
                     {isComplete ? (
-                      <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0" />
+                      <div className="bg-green-100 p-1.5 rounded-full">
+                        <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0" />
+                      </div>
                     ) : (
-                      <Circle className={`h-5 w-5 ${colorScheme.iconColor} flex-shrink-0`} />
+                      <div className={`p-1.5 rounded-full ${colorScheme.background}`}>
+                        <Circle className={`h-5 w-5 ${colorScheme.iconColor} flex-shrink-0`} />
+                      </div>
                     )}
-                    <span className="text-lg font-medium text-gray-900 truncate">{category.name}</span>
+                    <span className="text-lg font-semibold text-gray-900 truncate">{category.name}</span>
+                    {isComplete && (
+                      <span className="px-2 py-0.5 text-xs font-medium bg-green-100 text-green-800 rounded-full">
+                        Complete
+                      </span>
+                    )}
                   </div>
                   <div className="flex items-center space-x-4 ml-auto">
-                    <div className="hidden md:block text-sm text-gray-600">
-                      {completion.completed} of {completion.total} complete
+                    <div className="hidden md:flex items-center gap-2 text-sm">
+                      <span className={`font-medium ${isComplete ? 'text-green-600' : colorScheme.iconColor}`}>
+                        {completion.completed}/{completion.total}
+                      </span>
+                      <span className="text-gray-500">sliders adjusted</span>
                     </div>
-                    <div className="w-20 bg-gray-200 rounded-full h-2.5 flex-shrink-0">
+                    <div className="w-24 bg-gray-200 rounded-full h-3 flex-shrink-0 shadow-inner">
                       <div 
-                        className={`h-2.5 rounded-full ${isComplete ? 'bg-green-500' : colorScheme.progressBackground}`}
+                        className={`h-3 rounded-full transition-all duration-300 ease-in-out ${
+                          isComplete 
+                            ? 'bg-gradient-to-r from-green-400 to-green-500' 
+                            : `bg-gradient-to-r ${colorScheme.progressBackground.replace('bg-', 'from-')}-400 to-${colorScheme.progressBackground.replace('bg-', '')}-500`
+                        }`}
                         style={{ width: `${completion.percentage}%` }}
                       ></div>
                     </div>
@@ -179,22 +195,39 @@ export default function CollapsibleSliderSection({
                 </div>
               </AccordionTrigger>
               <AccordionContent className="px-4">
-                <div className="space-y-6 py-4">
-                  {/* Show all sliders in each category */}
-                  {category.sliders.map((slider) => (
-                    <SliderWithLabels
-                      key={slider.id}
-                      leftLabel={slider.leftLabel}
-                      rightLabel={slider.rightLabel}
-                      value={values[slider.id] ?? 50}
-                      onChange={(value) => onChange(slider.id, value)}
-                      name={slider.id}
-                      hasValue={slider.id in values}
-                      isAdjusted={isSliderAdjusted(slider.id)}
-                      tooltipContent={getTooltipText(slider)}
-                      accentColor={colorScheme.progressBackground.replace('bg-', 'text-')}
-                    />
-                  ))}
+                <div className="py-4">
+                  {category.description && (
+                    <div className="mb-6 bg-white bg-opacity-70 p-4 rounded-lg border border-gray-100 shadow-sm">
+                      <p className="text-sm text-gray-600">{category.description}</p>
+                    </div>
+                  )}
+                  
+                  <div className="space-y-8 py-2">
+                    {/* Show all sliders in each category */}
+                    {category.sliders.map((slider, index) => (
+                      <div 
+                        key={slider.id} 
+                        className={`${
+                          index < category.sliders.length - 1 ? 'border-b border-gray-100 pb-8' : ''
+                        }`}
+                      >
+                        <div className="mb-2">
+                          <h4 className="font-medium text-gray-800">{slider.name}</h4>
+                        </div>
+                        <SliderWithLabels
+                          leftLabel={slider.leftLabel}
+                          rightLabel={slider.rightLabel}
+                          value={values[slider.id] ?? 50}
+                          onChange={(value) => onChange(slider.id, value)}
+                          name={slider.id}
+                          hasValue={slider.id in values}
+                          isAdjusted={isSliderAdjusted(slider.id)}
+                          tooltipContent={getTooltipText(slider)}
+                          accentColor={colorScheme.progressBackground.replace('bg-', 'text-')}
+                        />
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </AccordionContent>
             </AccordionItem>

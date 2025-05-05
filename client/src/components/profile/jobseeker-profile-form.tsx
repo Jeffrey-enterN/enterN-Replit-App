@@ -748,25 +748,48 @@ export default function JobseekerProfileForm() {
             {/* Step 3: Organization Fit Sliders */}
             {currentStep === 3 && (
               <div>
-                <h2 className="text-xl font-semibold text-gray-900 font-heading mb-4">
-                  Step 3: Preference-Based Profile
+                <h2 className="text-2xl font-bold text-gray-900 font-heading mb-4">
+                  <span className="text-gradient">Step 3:</span> Preference-Based Profile
                 </h2>
-                <p className="text-sm text-gray-600 mb-6">
-                  These sliders help employers understand your preferences and work style, 
-                  leading to better matches. Complete as many sections as possible for the 
-                  most accurate matches.
-                </p>
+                <div className="bg-gradient-to-r from-blue-50 to-cyan-50 p-6 rounded-lg border border-cyan-100 mb-8">
+                  <div className="flex gap-4 items-start">
+                    <div className="bg-white p-2 rounded-full shadow-sm">
+                      <Check className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="font-medium text-gray-800 mb-1">Why This Matters</h3>
+                      <p className="text-sm text-gray-600">
+                        These sliders help employers understand your preferences and work style,
+                        leading to better matches. The more sliders you adjust, the more accurate
+                        your matches will be. Each category reveals different aspects of your ideal
+                        workplace environment.
+                      </p>
+                    </div>
+                  </div>
+                </div>
                 
                 <div className="mb-8">
                   <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm font-medium">Slider completion: {calculateSliderCompletionPercentage()}%</span>
+                    <span className="font-medium text-gray-800">Completion Progress</span>
+                    <span className="font-semibold text-primary">{calculateSliderCompletionPercentage()}%</span>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2.5">
+                  <div className="w-full bg-gray-100 rounded-full h-3 shadow-inner">
                     <div 
-                      className="bg-primary h-2.5 rounded-full" 
+                      className="bg-gradient-to-r from-primary to-[#5CE1E6] h-3 rounded-full shadow-sm transition-all duration-300 ease-in-out" 
                       style={{ width: `${calculateSliderCompletionPercentage()}%` }}
                     ></div>
                   </div>
+                  <p className="text-xs text-gray-500 mt-2">
+                    {calculateSliderCompletionPercentage() < 25 
+                      ? "Just getting started! Adjust more sliders to improve your profile." 
+                      : calculateSliderCompletionPercentage() < 50
+                      ? "Good progress! Keep going to improve your matches."
+                      : calculateSliderCompletionPercentage() < 75
+                      ? "You're doing great! Your profile is becoming more defined."
+                      : calculateSliderCompletionPercentage() < 100
+                      ? "Almost there! Just a few more sliders to adjust."
+                      : "Perfect! Your profile is fully optimized for matching."}
+                  </p>
                 </div>
                 
                 <CollapsibleSliderSection
