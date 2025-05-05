@@ -358,43 +358,7 @@ export const SLIDER_CATEGORIES = [
       }
     ]
   },
-  {
-    id: 'work_environment',
-    name: 'Work Environment',
-    description: 'How you prefer to work day-to-day',
-    sliders: [
-      {
-        id: 'structured_vs_flexible',
-        name: 'Structured vs. Flexible',
-        leftLabel: 'Prefer clear structure',
-        rightLabel: 'Prefer flexibility'
-      },
-      {
-        id: 'collaborative_vs_independent',
-        name: 'Collaborative vs. Independent',
-        leftLabel: 'Prefer collaboration',
-        rightLabel: 'Prefer independence'
-      },
-      {
-        id: 'fast_paced_vs_methodical',
-        name: 'Fast-paced vs. Methodical',
-        leftLabel: 'Prefer fast pace',
-        rightLabel: 'Prefer methodical pace'
-      },
-      {
-        id: 'risk_taking_vs_cautious',
-        name: 'Risk-taking vs. Cautious',
-        leftLabel: 'Comfortable with risk',
-        rightLabel: 'Prefer caution'
-      },
-      {
-        id: 'innovation_vs_tradition',
-        name: 'Innovation vs. Tradition',
-        leftLabel: 'Value innovation',
-        rightLabel: 'Value tradition'
-      }
-    ]
-  },
+
   {
     id: 'work_style_preferences',
     name: 'Work Style Preferences',
