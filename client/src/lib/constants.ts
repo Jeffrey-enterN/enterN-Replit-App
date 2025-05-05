@@ -618,39 +618,45 @@ export const SLIDER_CATEGORIES = [
     ]
   },
   {
-    id: 'work_life_balance',
-    name: 'Work-Life Balance',
-    description: 'Your preferences for balancing work and personal life',
+    id: 'adaptability_resilience',
+    name: 'Adaptability & Resilience',
+    description: 'Use these sliders to indicate how you prefer to encounter change, and how you adopt to changing environments.',
     sliders: [
       {
-        id: 'work_life_separation_vs_integration',
-        name: 'Separation vs. Integration',
-        leftLabel: 'Prefer clear boundaries',
-        rightLabel: 'Prefer work-life integration'
+        id: 'stable_vs_dynamic',
+        name: 'Stable vs. Dynamic Environment Preference',
+        leftLabel: 'Prefers a Predictable, Stable Environment',
+        rightLabel: 'Thrives in Dynamic, Changing Conditions'
       },
       {
-        id: 'flexible_hours_vs_fixed',
-        name: 'Flexible Hours vs. Fixed Schedule',
-        leftLabel: 'Prefer flexible hours',
-        rightLabel: 'Prefer fixed schedule'
+        id: 'recovery_speed',
+        name: 'Recovery Speed',
+        leftLabel: 'Takes Time to Recover from Setbacks',
+        rightLabel: 'Bounces Back Quickly from Challenges'
       },
       {
-        id: 'overtime_willingness',
-        name: 'Overtime Willingness',
-        leftLabel: 'Avoid overtime when possible',
-        rightLabel: 'Willing to work extra hours'
+        id: 'proactive_vs_reactive',
+        name: 'Proactive Change vs. Reactive Adaptation',
+        leftLabel: 'Prefers to Maintain Current Methods',
+        rightLabel: 'Proactively Seeks Change and Innovation'
       },
       {
-        id: 'travel_preference',
-        name: 'Travel Preference',
-        leftLabel: 'Prefer minimal travel',
-        rightLabel: 'Open to frequent travel'
+        id: 'ambiguity_vs_clarity',
+        name: 'Comfort with Ambiguity vs. Need for Clarity',
+        leftLabel: 'Requires Clear Guidelines',
+        rightLabel: 'Comfortable Navigating Ambiguity'
       },
       {
-        id: 'professional_development_time',
-        name: 'Professional Development',
-        leftLabel: 'Learning during work hours',
-        rightLabel: 'Learning on personal time'
+        id: 'planned_vs_impromptu',
+        name: 'Planned Contingencies vs. Impromptu Responses',
+        leftLabel: 'Prefers Detailed Contingency Plans for Change',
+        rightLabel: 'Comfortable Making Impromptu Adjustments'
+      },
+      {
+        id: 'routine_vs_change',
+        name: 'Reliance on Routine vs. Active Change-Seeking',
+        leftLabel: 'Finds Comfort in Established Routines Even When Things Shift',
+        rightLabel: 'Actively Seeks New Challenges and Change'
       }
     ]
   },
