@@ -532,39 +532,45 @@ export const SLIDER_CATEGORIES = [
     ]
   },
   {
-    id: 'organizational_culture',
-    name: 'Organizational Culture',
-    description: 'Cultural aspects of an organization that matter to you',
+    id: 'growth_motivation_development',
+    name: 'Growth, Intrinsic Motivation & Development Goals',
+    description: 'Use these sliders to indicate how you prefer to learn, grow, and advance your professional knowledge.',
     sliders: [
       {
-        id: 'data_driven_vs_intuition',
-        name: 'Data-driven vs. Intuition',
-        leftLabel: 'Value data-driven decisions',
-        rightLabel: 'Value intuition and experience'
+        id: 'structured_vs_self_directed',
+        name: 'Structured Development vs. Self-Directed Growth',
+        leftLabel: 'Clear, Formal Career Development Plans',
+        rightLabel: 'Self-Directed, Organic Growth Opportunities'
       },
       {
-        id: 'transparency_vs_privacy',
-        name: 'Transparency vs. Privacy',
-        leftLabel: 'Value transparency',
-        rightLabel: 'Value privacy'
+        id: 'specific_vs_exploratory',
+        name: 'Skill-Specific Training vs. Exploratory Learning',
+        leftLabel: 'Focused, Specialized Training Programs',
+        rightLabel: 'Broad, Exploratory Learning Experiences'
       },
       {
-        id: 'traditional_vs_progressive',
-        name: 'Traditional vs. Progressive',
-        leftLabel: 'Value traditional approach',
-        rightLabel: 'Value progressive approach'
+        id: 'longterm_vs_shortterm',
+        name: 'Long-Term Advancement vs. Short-Term Achievements',
+        leftLabel: 'Focus on Long-Term Career Progression',
+        rightLabel: 'Emphasis on Short-Term, Project-Based Success'
       },
       {
-        id: 'financial_vs_social_impact',
-        name: 'Financial vs. Social Impact',
-        leftLabel: 'Prioritize financial metrics',
-        rightLabel: 'Prioritize social impact'
+        id: 'achievement_vs_learning',
+        name: 'Achievement-Oriented vs. Learning-Oriented',
+        leftLabel: 'Driven by Achieving Targets and Recognitions',
+        rightLabel: 'Motivated by Continuous Learning and Personal Development'
       },
       {
-        id: 'company_loyalty_vs_industry_mobility',
-        name: 'Company Loyalty vs. Industry Mobility',
-        leftLabel: 'Value company loyalty',
-        rightLabel: 'Value industry mobility'
+        id: 'external_vs_self_reflection',
+        name: 'External Benchmarking vs. Self-Reflection',
+        leftLabel: 'Measures Success Against External Standards',
+        rightLabel: 'Values Personal Benchmarks and Self-Reflection'
+      },
+      {
+        id: 'quantitative_vs_qualitative',
+        name: 'Quantitative Goals vs. Qualitative Impact',
+        leftLabel: 'Focused on Measurable, Quantitative Targets',
+        rightLabel: 'Driven by the Qualitative Impact and Personal Fulfillment of Work'
       }
     ]
   },
