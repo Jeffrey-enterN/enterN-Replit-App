@@ -29,6 +29,8 @@ import CompanyProfilePreview from "@/pages/employer/company-profile-preview";
 import PrivacyPolicyPage from "@/pages/privacy-policy-page";
 import TermsOfServicePage from "@/pages/terms-of-service-page";
 import SupportPage from "@/pages/support-page";
+import JobsPage from "@/pages/employer/jobs";
+import NewJobPage from "@/pages/employer/jobs/new";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -84,6 +86,22 @@ function Router() {
           path="/employer/company-profile/preview" 
           component={CompanyProfilePreview}
         />
+      </Route>
+      <Route path="/employer/jobs">
+        <EmployerLayout>
+          <ProtectedRoute 
+            path="/employer/jobs" 
+            component={JobsPage}
+          />
+        </EmployerLayout>
+      </Route>
+      <Route path="/employer/jobs/new">
+        <EmployerLayout>
+          <ProtectedRoute 
+            path="/employer/jobs/new" 
+            component={NewJobPage}
+          />
+        </EmployerLayout>
       </Route>
       <Route component={NotFound} />
     </Switch>
