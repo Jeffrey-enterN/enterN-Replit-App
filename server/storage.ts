@@ -1904,17 +1904,66 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(matches.matchedAt))
       .limit(10);
     
-    return recentMatches.map(match => ({
-      id: match.id,
-      name: 'Anonymous Profile', // Jobseeker profiles are anonymous until a certain point
-      matchDate: match.matchedAt,
-      status: match.status === 'interview_scheduled' 
-        ? 'interview-scheduled' 
-        : (match.status === 'mutual-match' ? 'mutual-match' : 'matched'),
-      statusText: match.status === 'interview_scheduled' 
-        ? 'Interview scheduled' 
-        : (match.status === 'mutual-match' ? 'Mutual match' : 'New match')
-    }));
+    const matchesWithProfiles = await Promise.all(
+      recentMatches.map(async (match) => {
+        if (match.status === 'mutual-match') {
+          // If mutual match, include full jobseeker profile info
+          const [jobseekerUser] = await db
+            .select({
+              id: users.id,
+              firstName: users.firstName,
+              lastName: users.lastName,
+              email: users.email,
+              phone: users.phone
+            })
+            .from(users)
+            .where(eq(users.id, match.jobseekerId));
+            
+          // Get the jobseeker profile for additional information
+          const [jobseekerProfile] = await db
+            .select()
+            .from(jobseekerProfiles)
+            .where(eq(jobseekerProfiles.userId, match.jobseekerId));
+            
+          const fullName = `${jobseekerUser?.firstName || ''} ${jobseekerUser?.lastName || ''}`.trim();
+          
+          return {
+            id: match.id,
+            name: fullName || 'Anonymous Profile',
+            matchDate: match.matchedAt,
+            status: match.status === 'interview_scheduled' 
+              ? 'interview-scheduled' 
+              : 'mutual-match',
+            statusText: match.status === 'interview_scheduled' 
+              ? 'Interview scheduled' 
+              : 'Mutual match',
+            contactInfo: {
+              firstName: jobseekerUser?.firstName,
+              lastName: jobseekerUser?.lastName,
+              email: jobseekerUser?.email,
+              phone: jobseekerUser?.phone,
+              school: jobseekerProfile?.school,
+              major: jobseekerProfile?.major
+            }
+          };
+        } else {
+          // For non-mutual matches, keep profile anonymous
+          return {
+            id: match.id,
+            name: 'Anonymous Profile',
+            matchDate: match.matchedAt,
+            status: match.status === 'interview_scheduled' 
+              ? 'interview-scheduled' 
+              : 'matched',
+            statusText: match.status === 'interview_scheduled' 
+              ? 'Interview scheduled' 
+              : 'New match'
+          };
+        }
+      })
+    );
+    
+    return matchesWithProfiles;
   }
 
   async recordJobseekerProfileView(jobseekerId: number, viewerId: number): Promise<void> {

@@ -30,6 +30,7 @@ import {
   ThumbsUp,
   FileText,
   Clock,
+  ExternalLink
 } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
