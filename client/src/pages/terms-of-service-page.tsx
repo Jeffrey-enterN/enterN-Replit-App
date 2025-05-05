@@ -1,19 +1,21 @@
 import React from 'react';
-import { Container } from '@/components/ui/container';
-import { Heading } from '@/components/ui/heading';
 import { Button } from '@/components/ui/button';
 import { Link } from 'wouter';
 import { ChevronLeft } from 'lucide-react';
+import Navbar from '@/components/layouts/navbar';
 
 export default function TermsOfServicePage() {
   return (
-    <div className="py-10">
-      <Container className="max-w-4xl">
+    <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
+      {/* Global Navbar */}
+      <Navbar />
+      
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 bg-white dark:bg-gray-800 my-8 rounded-lg shadow">
         <div className="mb-8">
           <Button
             variant="ghost"
             size="sm"
-            className="text-gray-700 flex items-center gap-1 mb-6"
+            className="text-gray-700 dark:text-gray-300 flex items-center gap-1 mb-6 hover:bg-gray-100 dark:hover:bg-gray-700"
             asChild
           >
             <Link href="/">
@@ -22,7 +24,9 @@ export default function TermsOfServicePage() {
             </Link>
           </Button>
           
-          <Heading level="h1" align="center" className="mb-6">Terms of Service</Heading>
+          <h1 className="text-3xl font-bold text-center mb-6">
+            <span className="text-gradient font-extrabold">Terms</span> of Service
+          </h1>
           <p className="text-gray-500 mb-8 text-center">Last updated: May 4, 2025</p>
         </div>
 
@@ -160,7 +164,16 @@ export default function TermsOfServicePage() {
             Email: legal@entern.io
           </p>
         </div>
-      </Container>
+      </div>
+      
+      {/* Footer */}
+      <footer className="bg-gray-900 text-white mt-auto">
+        <div className="max-w-7xl mx-auto py-8 px-4 overflow-hidden sm:px-6 lg:px-8">
+          <p className="text-center text-gray-400">
+            © 2025 enterN, All rights reserved.
+          </p>
+        </div>
+      </footer>
     </div>
   );
 }

@@ -1,7 +1,8 @@
 import React from 'react';
 import { Link } from 'wouter';
 import Navbar from '@/components/layouts/navbar';
-import enternLogo from '@/assets/entern-logo.png';
+import { Button } from '@/components/ui/button';
+import { ChevronLeft } from 'lucide-react';
 
 export default function PrivacyPolicyPage() {
   
@@ -12,8 +13,22 @@ export default function PrivacyPolicyPage() {
 
       {/* Privacy Policy Content */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 bg-white dark:bg-gray-800 my-8 rounded-lg shadow">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="text-gray-700 dark:text-gray-300 flex items-center gap-1 mb-6 hover:bg-gray-100 dark:hover:bg-gray-700"
+          asChild
+        >
+          <Link href="/">
+            <ChevronLeft className="h-4 w-4" />
+            Return to homepage
+          </Link>
+        </Button>
+        
         <div className="prose prose-lg max-w-none dark:prose-invert">
-          <h1 className="text-3xl font-bold mb-6 text-gradient">Privacy Policy for enterN</h1>
+          <h1 className="text-3xl font-bold text-center mb-6">
+            <span className="text-gradient font-extrabold">Privacy</span> Policy for enterN
+          </h1>
           <p className="text-gray-500 dark:text-gray-400 mb-8">Effective Date: 05/01/2025</p>
           
           <p className="mb-6 text-gray-800 dark:text-gray-200">
