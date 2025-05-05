@@ -194,25 +194,25 @@ export default function CollapsibleSliderSection({
                   </div>
                 </div>
               </AccordionTrigger>
-              <AccordionContent className="px-4">
-                <div className="py-4">
+              <AccordionContent className="px-2 sm:px-4">
+                <div className="py-2 sm:py-3">
                   {category.description && (
-                    <div className="mb-6 bg-white bg-opacity-70 p-4 rounded-lg border border-gray-100 shadow-sm">
-                      <p className="text-sm text-gray-600">{category.description}</p>
+                    <div className="mb-3 bg-white bg-opacity-70 p-2 sm:p-3 rounded-lg border border-gray-100 shadow-sm">
+                      <p className="text-xs sm:text-sm text-gray-600">{category.description}</p>
                     </div>
                   )}
                   
-                  <div className="space-y-8 py-2">
+                  <div className="space-y-2 py-2">
                     {/* Show all sliders in each category */}
                     {category.sliders.map((slider, index) => (
                       <div 
                         key={slider.id} 
                         className={`${
-                          index < category.sliders.length - 1 ? 'border-b border-gray-100 pb-8' : ''
+                          index < category.sliders.length - 1 ? 'border-b border-gray-50 pb-3' : ''
                         }`}
                       >
-                        <div className="mb-2">
-                          <h4 className="font-medium text-gray-800">{slider.name}</h4>
+                        <div className="mb-1">
+                          <h4 className="font-medium text-gray-800 text-sm sm:text-base">{slider.name}</h4>
                         </div>
                         <SliderWithLabels
                           leftLabel={slider.leftLabel}
