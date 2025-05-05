@@ -575,39 +575,45 @@ export const SLIDER_CATEGORIES = [
     ]
   },
   {
-    id: 'communication_style',
-    name: 'Communication Style',
-    description: 'How you prefer to communicate in the workplace',
+    id: 'problem_solving_decision_making',
+    name: 'Problem-Solving & Decision-Making',
+    description: 'Use these sliders to demonstrate how you solve problems and prefer to make decisions.',
     sliders: [
       {
-        id: 'direct_vs_diplomatic',
-        name: 'Direct vs. Diplomatic',
-        leftLabel: 'Prefer direct communication',
-        rightLabel: 'Prefer diplomatic communication'
+        id: 'analytical_vs_intuitive_approach',
+        name: 'Analytical vs. Intuitive Approach',
+        leftLabel: 'Data-Driven, Analytical Decision Making',
+        rightLabel: 'Gut-Feeling, Intuitive Judgments'
       },
       {
-        id: 'written_vs_verbal',
-        name: 'Written vs. Verbal',
-        leftLabel: 'Prefer written communication',
-        rightLabel: 'Prefer verbal communication'
+        id: 'collaborative_vs_independent_decisions',
+        name: 'Collaborative vs. Independent Decisions',
+        leftLabel: 'Group Consensus in Problem Solving',
+        rightLabel: 'Independent, Solo Decision Making'
       },
       {
-        id: 'frequent_vs_as_needed',
-        name: 'Frequent vs. As-Needed',
-        leftLabel: 'Prefer frequent updates',
-        rightLabel: 'Prefer as-needed updates'
+        id: 'structured_vs_creative',
+        name: 'Structured vs. Creative Problem-Solving',
+        leftLabel: 'Preference for Established Frameworks',
+        rightLabel: 'Creative, Flexible Problem-Solving Approaches'
       },
       {
-        id: 'formal_vs_casual_comm',
-        name: 'Formal vs. Casual Communication',
-        leftLabel: 'Prefer formal communication',
-        rightLabel: 'Prefer casual communication'
+        id: 'methodical_vs_rapid',
+        name: 'Methodical vs. Rapid Response',
+        leftLabel: 'Step-by-Step, Methodical Resolution',
+        rightLabel: 'Quick, Adaptive Reactions to Challenges'
       },
       {
-        id: 'detailed_vs_concise',
-        name: 'Detailed vs. Concise',
-        leftLabel: 'Prefer detailed information',
-        rightLabel: 'Prefer concise information'
+        id: 'data_vs_experience',
+        name: 'Data Reliance vs. Experience Reliance',
+        leftLabel: 'Bases Decisions on Hard Data and Metrics',
+        rightLabel: 'Values Personal Experience and Intuition in Decision-Making'
+      },
+      {
+        id: 'risk_mitigation_vs_opportunity',
+        name: 'Risk Mitigation vs. Opportunity Seizing',
+        leftLabel: 'Prioritizes Minimizing Risks in Decision-Making',
+        rightLabel: 'Focuses on Seizing Opportunities, Even if Involving Some Risk'
       }
     ]
   },
