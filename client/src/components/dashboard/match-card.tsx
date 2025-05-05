@@ -596,23 +596,26 @@ export default function MatchCard({ userType, data, onInterested, onNotIntereste
               <div className="mb-4">
                 <h5 className="text-sm font-medium text-gray-700 mb-2">Work & Interpersonal Style</h5>
                 
-                {/* Show a sample of sliders (up to 5) from different categories */}
-                {allSliders.slice(0, 5).map((slider) => (
-                  <div key={slider.id} className="mb-3">
-                    <div className="flex justify-between text-xs text-gray-500 mb-1">
-                      <span>{slider.left}</span>
-                      <span>{slider.right}</span>
+                {/* Create sample sliders using the top slider from each of the first 5 categories */}
+                {SLIDER_CATEGORIES.slice(0, 5).map((category) => {
+                  const slider = category.sliders[0]; // Get first slider from each category
+                  const sliderValue = jobseeker.sliderValues?.[slider.id] || 50;
+                  
+                  return (
+                    <div key={slider.id} className="mb-3">
+                      <div className="flex justify-between text-xs text-gray-500 mb-1">
+                        <span>{slider.leftLabel}</span>
+                        <span>{slider.rightLabel}</span>
+                      </div>
+                      <div className="h-2 bg-gray-200 rounded">
+                        <div 
+                          className="h-2 bg-primary rounded" 
+                          style={{ width: `${sliderValue}%` }}
+                        ></div>
+                      </div>
                     </div>
-                    <div className="h-2 bg-gray-200 rounded">
-                      <div 
-                        className="h-2 bg-primary rounded" 
-                        style={{ 
-                          width: `${(jobseeker.sliderValues && jobseeker.sliderValues[slider.id]) || 50}%` 
-                        }}
-                      ></div>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
               
               <div className="mb-3">
