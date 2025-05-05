@@ -596,26 +596,71 @@ export default function MatchCard({ userType, data, onInterested, onNotIntereste
               <div className="mb-4">
                 <h5 className="text-sm font-medium text-gray-700 mb-2">Work & Interpersonal Style</h5>
                 
-                {/* Create sample sliders using the top slider from each of the first 5 categories */}
-                {SLIDER_CATEGORIES.slice(0, 5).map((category) => {
-                  const slider = category.sliders[0]; // Get first slider from each category
-                  const sliderValue = jobseeker.sliderValues?.[slider.id] || 50;
-                  
-                  return (
-                    <div key={slider.id} className="mb-3">
-                      <div className="flex justify-between text-xs text-gray-500 mb-1">
-                        <span>{slider.leftLabel}</span>
-                        <span>{slider.rightLabel}</span>
-                      </div>
-                      <div className="h-2 bg-gray-200 rounded">
-                        <div 
-                          className="h-2 bg-primary rounded" 
-                          style={{ width: `${sliderValue}%` }}
-                        ></div>
-                      </div>
-                    </div>
-                  );
-                })}
+                {/* Display preview sliders using the same IDs as the detailed view */}
+                <div className="mb-3">
+                  <div className="flex justify-between text-xs text-gray-500 mb-1">
+                    <span>Fixed Schedule</span>
+                    <span>Flexible Schedule</span>
+                  </div>
+                  <div className="h-2 bg-gray-200 rounded">
+                    <div 
+                      className="h-2 bg-primary rounded" 
+                      style={{ width: `${(jobseeker.sliderValues && jobseeker.sliderValues['schedule_vs_flexibility']) || 50}%` }}
+                    ></div>
+                  </div>
+                </div>
+                
+                <div className="mb-3">
+                  <div className="flex justify-between text-xs text-gray-500 mb-1">
+                    <span>Strict Adherence to Policies</span>
+                    <span>Adaptable to Situations</span>
+                  </div>
+                  <div className="h-2 bg-gray-200 rounded">
+                    <div 
+                      className="h-2 bg-primary rounded" 
+                      style={{ width: `${(jobseeker.sliderValues && jobseeker.sliderValues['rule_adherence']) || 50}%` }}
+                    ></div>
+                  </div>
+                </div>
+                
+                <div className="mb-3">
+                  <div className="flex justify-between text-xs text-gray-500 mb-1">
+                    <span>Quiet, Controlled Workspace</span>
+                    <span>Dynamic, Open-Plan Environment</span>
+                  </div>
+                  <div className="h-2 bg-gray-200 rounded">
+                    <div 
+                      className="h-2 bg-primary rounded" 
+                      style={{ width: `${(jobseeker.sliderValues && jobseeker.sliderValues['noise_vs_quiet']) || 50}%` }}
+                    ></div>
+                  </div>
+                </div>
+                
+                <div className="mb-3">
+                  <div className="flex justify-between text-xs text-gray-500 mb-1">
+                    <span>Direct, Clear-Cut Communication</span>
+                    <span>Nuanced, Contextual Dialogue</span>
+                  </div>
+                  <div className="h-2 bg-gray-200 rounded">
+                    <div 
+                      className="h-2 bg-primary rounded" 
+                      style={{ width: `${(jobseeker.sliderValues && jobseeker.sliderValues['direct_vs_diplomatic']) || 50}%` }}
+                    ></div>
+                  </div>
+                </div>
+                
+                <div className="mb-3">
+                  <div className="flex justify-between text-xs text-gray-500 mb-1">
+                    <span>Strictly Defined Mission Statements</span>
+                    <span>Adaptable, Evolving Mission Focus</span>
+                  </div>
+                  <div className="h-2 bg-gray-200 rounded">
+                    <div 
+                      className="h-2 bg-primary rounded" 
+                      style={{ width: `${(jobseeker.sliderValues && jobseeker.sliderValues['mission_clarity']) || 50}%` }}
+                    ></div>
+                  </div>
+                </div>
               </div>
               
               <div className="mb-3">
