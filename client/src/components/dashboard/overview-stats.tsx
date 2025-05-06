@@ -53,6 +53,12 @@ interface OverviewStatsProps {
     matches?: number;
     interviews?: number;
     activeJobs?: number;
+    swipeAnalytics?: {
+      likes: number;
+      rejections: number;
+      totalSwipes: number;
+      likeRatio: number;
+    };
   };
 }
 
@@ -167,14 +173,56 @@ export default function OverviewStats({ userType, stats }: OverviewStatsProps) {
         </div>
       </div>
 
-      {/* Placeholder for data visualizations */}
+      {/* Data visualizations */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <div className="bg-card p-6 rounded-lg shadow-sm border border-border h-64 flex items-center justify-center">
-          <p className="text-muted-foreground text-center">Application Activity<br/>Coming soon</p>
-        </div>
+        {userType === USER_TYPES.EMPLOYER && stats.swipeAnalytics ? (
+          <div className="bg-card p-6 rounded-lg shadow-sm border border-border h-64">
+            <h3 className="text-lg font-medium mb-4">Swipe Analytics</h3>
+            <div className="space-y-4">
+              <div>
+                <div className="flex justify-between mb-1">
+                  <span className="text-sm font-medium">Like to Reject Ratio</span>
+                  <span className="text-sm font-medium">{stats.swipeAnalytics.likeRatio}%</span>
+                </div>
+                <div className="w-full bg-muted rounded-full h-2.5">
+                  <div 
+                    className="bg-primary h-2.5 rounded-full" 
+                    style={{ width: `${stats.swipeAnalytics.likeRatio}%` }}
+                  ></div>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4 mt-4">
+                <div className="bg-muted/30 p-4 rounded-lg">
+                  <div className="text-3xl font-bold text-primary">{stats.swipeAnalytics.likes}</div>
+                  <div className="text-sm text-muted-foreground mt-1">Likes</div>
+                </div>
+                <div className="bg-muted/30 p-4 rounded-lg">
+                  <div className="text-3xl font-bold text-secondary">{stats.swipeAnalytics.rejections}</div>
+                  <div className="text-sm text-muted-foreground mt-1">Passes</div>
+                </div>
+              </div>
+              
+              <div className="mt-4">
+                <div className="text-sm text-muted-foreground">
+                  Total Swipes: <span className="font-medium">{stats.swipeAnalytics.totalSwipes}</span>
+                </div>
+                <div className="text-xs text-muted-foreground mt-1">
+                  A higher like rate may increase your match opportunities.
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="bg-card p-6 rounded-lg shadow-sm border border-border h-64 flex items-center justify-center">
+            <p className="text-muted-foreground text-center">Application Activity<br/>Coming soon</p>
+          </div>
+        )}
+        
         <div className="bg-card p-6 rounded-lg shadow-sm border border-border h-64 flex items-center justify-center">
           <p className="text-muted-foreground text-center">Match Statistics<br/>Coming soon</p>
         </div>
+        
         <div className="bg-card p-6 rounded-lg shadow-sm border border-border h-64 flex items-center justify-center">
           <p className="text-muted-foreground text-center">Engagement Metrics<br/>Coming soon</p>
         </div>

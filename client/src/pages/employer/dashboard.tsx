@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useLocation } from 'wouter';
+import { useLocation, Link } from 'wouter';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
 import DashboardLayout from '@/components/layouts/dashboard-layout';
@@ -31,6 +31,12 @@ interface DashboardData {
     profileViews: number;
     matches: number;
     interviews: number;
+    swipeAnalytics?: {
+      likes: number;
+      rejections: number;
+      totalSwipes: number;
+      likeRatio: number;
+    };
   };
   recentMatches: Match[];
   jobs: Array<{

@@ -1752,6 +1752,32 @@ export class DatabaseStorage implements IStorage {
       .where(eq(jobPostings.employerId, userId))
       .limit(10);
     
+    // Get swipe analytics - count likes and rejections
+    const likesQuery = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(swipes)
+      .where(
+        and(
+          eq(swipes.employerId, userId),
+          eq(swipes.interested, true)
+        )
+      );
+    
+    const rejectionsQuery = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(swipes)
+      .where(
+        and(
+          eq(swipes.employerId, userId),
+          eq(swipes.interested, false)
+        )
+      );
+    
+    const likes = likesQuery[0]?.count || 0;
+    const rejections = rejectionsQuery[0]?.count || 0;
+    const totalSwipes = likes + rejections;
+    const likeRatio = totalSwipes > 0 ? Math.round((likes / totalSwipes) * 100) : 0;
+    
     const formattedJobs = jobs.map(job => ({
       id: job.id,
       title: job.title,
@@ -1767,10 +1793,6 @@ export class DatabaseStorage implements IStorage {
     const displayJobs = formattedJobs;
     
     // Count how many jobseekers have viewed the employer's profile
-    // This implementation counts views across all company job postings
-    // We need to handle cases where viewedBy might be null, empty or not an array
-    
-    // First count only where viewedBy is not null and contains the userId
     const profileViewsQuery = await db
       .select({ count: sql<number>`count(*)` })
       .from(jobseekerProfiles)
@@ -1787,9 +1809,15 @@ export class DatabaseStorage implements IStorage {
     return {
       stats: {
         activeJobs: jobsCount[0]?.count || 0,
-        profileViews: profileViews, // Now using actual profile view count
+        profileViews: profileViews,
         matches: matchCount[0]?.count || 0,
-        interviews: 0 // Set to 0 as we don't have interview scheduling yet
+        interviews: 0, // Set to 0 as we don't have interview scheduling yet
+        swipeAnalytics: {
+          likes,
+          rejections,
+          totalSwipes,
+          likeRatio
+        }
       },
       jobs: displayJobs,
       recentMatches: recentMatches.map(match => ({
