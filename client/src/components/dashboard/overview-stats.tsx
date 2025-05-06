@@ -207,9 +207,6 @@ export default function OverviewStats({ userType, stats }: OverviewStatsProps) {
                 <div className="text-sm text-muted-foreground">
                   Total Swipes: <span className="font-medium">{stats.swipeAnalytics.totalSwipes}</span>
                 </div>
-                <div className="text-xs text-muted-foreground mt-1">
-                  A higher like rate may increase your match opportunities.
-                </div>
               </div>
             </div>
           </div>
