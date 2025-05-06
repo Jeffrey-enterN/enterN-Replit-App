@@ -322,18 +322,21 @@ export default function JobseekerProfileForm() {
 
   const handleNextStep = async () => {
     if (currentStep === 1) {
-      // Validate step 1 fields - only require first name, last name, and phone
+      // Validate step 1 fields - require first name, last name, phone, and new address fields
       const isValid = await form.trigger([
-        'firstName', 'lastName', 'phone'
+        'firstName', 'lastName', 'phone', 'address', 'city', 'state'
       ]);
       
-      // If student toggle is on, also validate education fields
-      const isStudent = form.getValues('isStudent');
-      if (isStudent) {
-        const eduFieldsValid = await form.trigger([
-          'schoolEmail', 'school', 'degreeLevel', 'major'
-        ]);
-        if (!eduFieldsValid) return;
+      // Manual validation for "Other" referral source
+      const values = form.getValues();
+      const referralSource = values.referralSource;
+      
+      if (referralSource === 'Other' && !values.otherReferralSource) {
+        form.setError('otherReferralSource', { 
+          type: 'manual', 
+          message: 'Please specify how you heard about us' 
+        });
+        return;
       }
       
       if (isValid) {
@@ -622,7 +625,13 @@ export default function JobseekerProfileForm() {
                         <FormItem>
                           <FormLabel>How did you hear about enterN?</FormLabel>
                           <Select
-                            onValueChange={field.onChange}
+                            onValueChange={(value) => {
+                              field.onChange(value);
+                              // Clear the other field error if not "Other"
+                              if (value !== 'Other') {
+                                form.clearErrors('otherReferralSource');
+                              }
+                            }}
                             value={field.value}
                           >
                             <FormControl>
@@ -642,23 +651,24 @@ export default function JobseekerProfileForm() {
                         </FormItem>
                       )}
                     />
+                    
+                    {/* Conditional field for "Other" source */}
+                    {form.watch('referralSource') === 'Other' && (
+                      <FormField
+                        control={form.control}
+                        name="otherReferralSource"
+                        render={({ field }) => (
+                          <FormItem className="mt-3">
+                            <FormLabel>Please specify</FormLabel>
+                            <FormControl>
+                              <Input {...field} placeholder="Where did you hear about us?" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    )}
                   </div>
-
-                  {form.watch('referralSource') === 'Other' && (
-                    <FormField
-                      control={form.control}
-                      name="otherReferralSource"
-                      render={({ field }) => (
-                        <FormItem className="sm:col-span-6 mt-4">
-                          <FormLabel>Please specify</FormLabel>
-                          <FormControl>
-                            <Input {...field} placeholder="How did you hear about us?" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  )}
                 </div>
               </div>
             )}
