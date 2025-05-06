@@ -1478,6 +1478,79 @@ export class DatabaseStorage implements IStorage {
       return []; // Return empty array instead of crashing
     }
   }
+  
+  /**
+   * Check if a mutual match exists between jobseeker and employer, and create one if needed
+   * @param jobseekerId - The jobseeker's user ID
+   * @param employerId - The employer's user ID
+   * @returns Object containing match data and whether it's a new match
+   */
+  private async checkAndCreateMutualMatch(jobseekerId: number, employerId: number): Promise<{ match: Match | null, isNewMatch: boolean }> {
+    try {
+      // First check if a match already exists between these users
+      const existingMatch = await db.select()
+        .from(matches)
+        .where(
+          and(
+            eq(matches.jobseekerId, jobseekerId),
+            eq(matches.employerId, employerId)
+          )
+        ).limit(1);
+        
+      if (existingMatch.length > 0) {
+        console.log(`Match already exists between jobseeker ${jobseekerId} and employer ${employerId}`);
+        return { match: existingMatch[0], isNewMatch: false };
+      }
+      
+      // Get the employer's company info
+      const [employer] = await db.select()
+        .from(users)
+        .where(eq(users.id, employerId));
+      
+      // Check if both users swiped right on each other
+      const jobseekerToEmployerSwipe = await db.select()
+        .from(swipes)
+        .where(
+          and(
+            eq(swipes.jobseekerId, jobseekerId),
+            eq(swipes.employerId, employerId),
+            eq(swipes.direction, 'jobseeker-to-employer'),
+            eq(swipes.interested, true)
+          )
+        ).limit(1);
+        
+      const employerToJobseekerSwipe = await db.select()
+        .from(swipes)
+        .where(
+          and(
+            eq(swipes.employerId, employerId),
+            eq(swipes.jobseekerId, jobseekerId),
+            eq(swipes.direction, 'employer-to-jobseeker'),
+            eq(swipes.interested, true)
+          )
+        ).limit(1);
+      
+      // If both swipes exist and both parties are interested, create a match
+      if (jobseekerToEmployerSwipe.length > 0 && employerToJobseekerSwipe.length > 0) {
+        const matchData = {
+          jobseekerId,
+          employerId,
+          companyId: employer?.companyId || null,
+          status: MATCH_STATUS.NEW,
+          lastActivityAt: new Date()
+        };
+        
+        const [match] = await db.insert(matches).values(matchData).returning();
+        console.log(`Created mutual match between jobseeker ${jobseekerId} and employer ${employerId}`);
+        return { match, isNewMatch: true };
+      }
+      
+      return { match: null, isNewMatch: false };
+    } catch (error) {
+      console.error("Error checking/creating mutual match:", error);
+      return { match: null, isNewMatch: false };
+    }
+  }
 
   async handleJobseekerSwipe(jobseekerId: number, employerId: string, interested: boolean): Promise<any> {
     const employerIdNum = parseInt(employerId);
@@ -1513,42 +1586,18 @@ export class DatabaseStorage implements IStorage {
     
     const [swipe] = await db.insert(swipes).values(swipeData).returning();
     
-    // Only check for match if jobseeker is interested
+    // Check for a match if jobseeker is interested
     if (interested) {
-      // Check if employer already swiped right on this jobseeker
-      const [employerSwipe] = await db
-        .select()
-        .from(swipes)
-        .where(
-          and(
-            eq(swipes.employerId, employerIdNum),
-            eq(swipes.jobseekerId, jobseekerId),
-            eq(swipes.direction, 'employer-to-jobseeker'),
-            eq(swipes.interested, true)
-          )
-        );
-      
-      if (employerSwipe) {
-        // Create a match - this is a mutual match since both swiped right
-        const matchData = {
-          jobseekerId,
-          employerId: employerIdNum,
-          companyId: employer?.companyId || null,
-          status: 'new',
-          lastActivityAt: new Date()
-        };
+      try {
+        // Use the reusable match checking function
+        const { match, isNewMatch } = await this.checkAndCreateMutualMatch(jobseekerId, employerIdNum);
         
-        try {
-          const [match] = await db.insert(matches).values(matchData).returning();
-          
-          // Log successful match creation
-          console.log(`Created mutual match between jobseeker ${jobseekerId} and employer ${employerIdNum}`);
-          
+        if (match) {
           return { match, isMatch: true };
-        } catch (error) {
-          console.error("Error creating match:", error);
-          return { error: "Failed to create match", isMatch: false };
         }
+      } catch (error) {
+        console.error("Error checking for match:", error);
+        return { error: "Failed to check for match", isMatch: false };
       }
     }
     
