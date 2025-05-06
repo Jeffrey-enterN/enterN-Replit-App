@@ -1536,7 +1536,7 @@ export class DatabaseStorage implements IStorage {
           jobseekerId,
           employerId,
           companyId: employer?.companyId || null,
-          status: MATCH_STATUS.NEW,
+          status: MATCH_STATUS.CONNECTED, // Directly creating as a connected match
           lastActivityAt: new Date()
         };
         
@@ -2056,12 +2056,12 @@ export class DatabaseStorage implements IStorage {
             id: match.id,
             name: fullName || 'Anonymous Profile',
             matchDate: match.matchedAt,
-            status: match.status === 'interview_scheduled' 
+            status: match.status === MATCH_STATUS.INTERVIEW_SCHEDULED 
               ? 'interview-scheduled' 
-              : 'mutual-match',
-            statusText: match.status === 'interview_scheduled' 
+              : 'connected',
+            statusText: match.status === MATCH_STATUS.INTERVIEW_SCHEDULED 
               ? 'Interview scheduled' 
-              : 'Mutual match',
+              : 'Connected',
             contactInfo: {
               firstName: jobseekerUser?.firstName,
               lastName: jobseekerUser?.lastName,
@@ -2077,10 +2077,10 @@ export class DatabaseStorage implements IStorage {
             id: match.id,
             name: 'Anonymous Profile',
             matchDate: match.matchedAt,
-            status: match.status === 'interview_scheduled' 
+            status: match.status === MATCH_STATUS.INTERVIEW_SCHEDULED 
               ? 'interview-scheduled' 
               : 'matched',
-            statusText: match.status === 'interview_scheduled' 
+            statusText: match.status === MATCH_STATUS.INTERVIEW_SCHEDULED 
               ? 'Interview scheduled' 
               : 'New match'
           };
