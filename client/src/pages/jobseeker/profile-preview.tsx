@@ -1,0 +1,587 @@
+import { useEffect, useState } from "react";
+import { Redirect, useLocation } from "wouter";
+import { useAuth } from "@/context/auth-context";
+import { useQuery } from "@tanstack/react-query";
+import DashboardLayout from "@/components/layouts/dashboard-layout";
+import JobseekerNavbar from "@/components/layouts/jobseeker-navbar";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AlertCircle, Eye, EyeOff, ArrowLeft, Shield } from "lucide-react";
+import { USER_TYPES } from "@/lib/constants";
+
+export default function JobseekerProfilePreview() {
+  const { user } = useAuth();
+  const [, navigate] = useLocation();
+  const [tab, setTab] = useState("employer-view");
+
+  // Redirect if not logged in or not a jobseeker
+  if (!user) {
+    return <Redirect to="/auth" />;
+  }
+
+  if (user.userType !== USER_TYPES.JOBSEEKER) {
+    return <Redirect to="/employer/dashboard" />;
+  }
+
+  // Fetch jobseeker profile
+  const { data: profile, isLoading } = useQuery<any>({
+    queryKey: ["/api/jobseeker/profile"],
+    staleTime: 60000,
+  });
+
+  // Determine completion status
+  const hasBasicInfo = profile && profile.firstName && profile.lastName && profile.phone;
+  const hasEducation = profile && profile.school && profile.major && profile.degreeLevel;
+  const hasWorkPreferences = profile && profile.workArrangements && profile.workArrangements.length > 0;
+  
+  let completedSliderSections = 0;
+  let totalSliderCount = 0;
+  
+  if (profile && profile.sliderValues) {
+    const sections = Object.keys(profile.sliderValues).reduce((acc, key) => {
+      const category = key.split('_')[0];
+      if (!acc[category]) acc[category] = [];
+      acc[category].push(key);
+      return acc;
+    }, {} as Record<string, string[]>);
+    
+    Object.keys(sections).forEach(section => {
+      if (sections[section].length >= 5) {
+        completedSliderSections++;
+      }
+      totalSliderCount += sections[section].length;
+    });
+  }
+  
+  const isProfileComplete = hasBasicInfo && hasEducation && hasWorkPreferences && completedSliderSections >= 3;
+
+  return (
+    <>
+      <JobseekerNavbar />
+      <DashboardLayout title="Profile Preview">
+        <div className="container mx-auto max-w-5xl mb-8">
+          <div className="flex items-center mb-6">
+            <Button variant="outline" size="sm" onClick={() => navigate('/jobseeker/dashboard')} className="mr-4">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Dashboard
+            </Button>
+            <h2 className="text-2xl font-bold">Profile Preview</h2>
+          </div>
+          
+          <Alert className="mb-6">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Preview Mode</AlertTitle>
+            <AlertDescription>
+              This page shows how employers will see your profile in the matching process. Your personal information (name, email, phone, etc.) will not be visible to employers until you match with them.
+            </AlertDescription>
+          </Alert>
+          
+          <Tabs defaultValue="employer-view" className="mb-8" onValueChange={setTab}>
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="employer-view">
+                <Eye className="h-4 w-4 mr-2" />
+                Employer View
+              </TabsTrigger>
+              <TabsTrigger value="your-view">
+                <Shield className="h-4 w-4 mr-2" />
+                Your Complete Profile
+              </TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="employer-view" className="space-y-4 pt-4">
+              {isLoading ? (
+                <ProfileSkeleton />
+              ) : !profile ? (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>No Profile Found</CardTitle>
+                    <CardDescription>
+                      You haven't created a profile yet. Go to the Profile page to create one.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Button onClick={() => navigate('/jobseeker/profile')}>
+                      Create Profile
+                    </Button>
+                  </CardContent>
+                </Card>
+              ) : (
+                <>
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <CardTitle>Anonymous Jobseeker</CardTitle>
+                          <CardDescription>Early Career Professional</CardDescription>
+                        </div>
+                        {isProfileComplete ? (
+                          <Badge variant="outline" className="bg-green-50 text-green-700 hover:bg-green-50">
+                            Profile Complete
+                          </Badge>
+                        ) : (
+                          <Badge variant="outline" className="bg-amber-50 text-amber-700 hover:bg-amber-50">
+                            Profile Incomplete
+                          </Badge>
+                        )}
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        {hasEducation && (
+                          <div>
+                            <h3 className="font-medium text-sm">Education</h3>
+                            <p className="text-sm text-muted-foreground">{profile.degreeLevel} in {profile.major}</p>
+                            <p className="text-sm text-muted-foreground">University/School Name Hidden</p>
+                          </div>
+                        )}
+                        
+                        {hasWorkPreferences && (
+                          <div>
+                            <h3 className="font-medium text-sm">Work Preferences</h3>
+                            <div className="flex flex-wrap gap-2 mt-1">
+                              {profile.workArrangements.map((arrangement: string) => (
+                                <Badge key={arrangement} variant="secondary">
+                                  {arrangement.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                                </Badge>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        
+                        {!hasEducation && !hasWorkPreferences && (
+                          <div className="bg-amber-50 p-3 rounded border border-amber-200">
+                            <p className="text-amber-800 text-sm">
+                              Your basic profile information is incomplete. Employers can see that your profile exists, 
+                              but without education and work preferences, you may receive fewer match opportunities.
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg">Preference Profile</CardTitle>
+                      <CardDescription>
+                        Employers see your preference profile to determine potential fit
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      {profile.sliderValues && Object.keys(profile.sliderValues).length > 0 ? (
+                        <div className="space-y-6">
+                          {Object.entries(
+                            Object.keys(profile.sliderValues).reduce((acc, key) => {
+                              const category = key.split('_')[0];
+                              if (!acc[category]) acc[category] = [];
+                              acc[category].push(key);
+                              return acc;
+                            }, {} as Record<string, string[]>)
+                          ).map(([category, sliders], index) => (
+                            <div key={category} className="space-y-2">
+                              <h3 className="font-medium">
+                                {category.charAt(0).toUpperCase() + category.slice(1).replace(/_/g, ' ')} Preferences
+                                {sliders.length >= 5 && (
+                                  <Badge variant="outline" className="ml-2 bg-green-50 text-green-700">
+                                    Complete
+                                  </Badge>
+                                )}
+                              </h3>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {sliders.slice(0, 4).map(key => {
+                                  const [, ...parts] = key.split('_');
+                                  const label = parts.join('_').replace(/_/g, ' ');
+                                  return (
+                                    <div key={key} className="flex items-center justify-between">
+                                      <span className="text-sm capitalize">{label}</span>
+                                      <div className="w-20 h-2 bg-secondary rounded-full overflow-hidden">
+                                        <div 
+                                          className="h-full bg-primary"
+                                          style={{ width: `${profile.sliderValues[key]}%` }}
+                                        />
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                                {sliders.length > 4 && (
+                                  <div className="text-sm text-muted-foreground md:col-span-2">
+                                    + {sliders.length - 4} more preferences in this category
+                                  </div>
+                                )}
+                              </div>
+                              {index < Object.keys(
+                                Object.keys(profile.sliderValues).reduce((acc, key) => {
+                                  const category = key.split('_')[0];
+                                  if (!acc[category]) acc[category] = [];
+                                  acc[category].push(key);
+                                  return acc;
+                                }, {} as Record<string, string[]>)
+                              ).length - 1 && <Separator className="my-4" />}
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="bg-amber-50 p-4 rounded border border-amber-200">
+                          <div className="flex items-start gap-3">
+                            <AlertCircle className="h-5 w-5 text-amber-600 mt-0.5" />
+                            <div>
+                              <h3 className="font-medium text-amber-800">No preference data found</h3>
+                              <p className="text-sm text-amber-700 mt-1">
+                                You haven't set your preferences yet. Employers use these values to determine potential 
+                                fit with their organization. We recommend completing at least 3 preference categories.
+                              </p>
+                              <Button 
+                                className="mt-3" 
+                                size="sm"
+                                onClick={() => navigate('/jobseeker/profile')}
+                              >
+                                Update Profile
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                  
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg">Hidden Information</CardTitle>
+                      <CardDescription>
+                        This information is only revealed to employers after a mutual match
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <h3 className="text-sm font-medium">Name</h3>
+                            <div className="flex items-center mt-1">
+                              <EyeOff className="h-4 w-4 mr-2 text-muted-foreground" />
+                              <div className="h-4 w-28 bg-muted rounded" />
+                            </div>
+                          </div>
+                          <div>
+                            <h3 className="text-sm font-medium">Email</h3>
+                            <div className="flex items-center mt-1">
+                              <EyeOff className="h-4 w-4 mr-2 text-muted-foreground" />
+                              <div className="h-4 w-32 bg-muted rounded" />
+                            </div>
+                          </div>
+                          <div>
+                            <h3 className="text-sm font-medium">Phone</h3>
+                            <div className="flex items-center mt-1">
+                              <EyeOff className="h-4 w-4 mr-2 text-muted-foreground" />
+                              <div className="h-4 w-24 bg-muted rounded" />
+                            </div>
+                          </div>
+                          <div>
+                            <h3 className="text-sm font-medium">School</h3>
+                            <div className="flex items-center mt-1">
+                              <EyeOff className="h-4 w-4 mr-2 text-muted-foreground" />
+                              <div className="h-4 w-28 bg-muted rounded" />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </>
+              )}
+            </TabsContent>
+            
+            <TabsContent value="your-view" className="pt-4">
+              {isLoading ? (
+                <ProfileSkeleton />
+              ) : !profile ? (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>No Profile Found</CardTitle>
+                    <CardDescription>
+                      You haven't created a profile yet. Go to the Profile page to create one.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Button onClick={() => navigate('/jobseeker/profile')}>
+                      Create Profile
+                    </Button>
+                  </CardContent>
+                </Card>
+              ) : (
+                <>
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <CardTitle>
+                            {profile.firstName && profile.lastName
+                              ? `${profile.firstName} ${profile.lastName}`
+                              : "Your Profile"}
+                          </CardTitle>
+                          <CardDescription>
+                            Completion Status: {isProfileComplete ? "Complete" : "Incomplete"}
+                          </CardDescription>
+                        </div>
+                        {isProfileComplete ? (
+                          <Badge variant="outline" className="bg-green-50 text-green-700 hover:bg-green-50">
+                            Profile Complete
+                          </Badge>
+                        ) : (
+                          <Badge variant="outline" className="bg-amber-50 text-amber-700 hover:bg-amber-50">
+                            Profile Incomplete
+                          </Badge>
+                        )}
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <h3 className="font-medium text-sm">Contact Information</h3>
+                            <div className="space-y-1 mt-1 text-sm">
+                              <p>
+                                <span className="text-muted-foreground">Email:</span>{" "}
+                                {profile.email || "Not provided"}
+                              </p>
+                              <p>
+                                <span className="text-muted-foreground">Phone:</span>{" "}
+                                {profile.phone || "Not provided"}
+                              </p>
+                            </div>
+                          </div>
+                          
+                          <div>
+                            <h3 className="font-medium text-sm">Education</h3>
+                            <div className="space-y-1 mt-1 text-sm">
+                              <p>
+                                <span className="text-muted-foreground">School:</span>{" "}
+                                {profile.school || "Not provided"}
+                              </p>
+                              <p>
+                                <span className="text-muted-foreground">Degree:</span>{" "}
+                                {profile.degreeLevel || "Not provided"} in {profile.major || "Not provided"}
+                              </p>
+                              <p>
+                                <span className="text-muted-foreground">Status:</span>{" "}
+                                {profile.isStudent ? "Current Student" : "Graduate"}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {profile.workArrangements && profile.workArrangements.length > 0 && (
+                          <div>
+                            <h3 className="font-medium text-sm">Work Preferences</h3>
+                            <div className="flex flex-wrap gap-2 mt-1">
+                              {profile.workArrangements.map((arrangement: string) => (
+                                <Badge key={arrangement} variant="secondary">
+                                  {arrangement.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                                </Badge>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        
+                        {(!hasEducation || !hasWorkPreferences) && (
+                          <div className="bg-amber-50 p-3 rounded border border-amber-200">
+                            <p className="text-amber-800 text-sm">
+                              Your profile is missing key information. To become visible to potential employers, 
+                              please complete your {!hasEducation && "education"}{!hasEducation && !hasWorkPreferences && " and "}
+                              {!hasWorkPreferences && "work preferences"}.
+                            </p>
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="mt-2"
+                              onClick={() => navigate('/jobseeker/profile')}
+                            >
+                              Complete Profile
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card className="mt-4">
+                    <CardHeader>
+                      <CardTitle className="text-lg">Preference Profile Status</CardTitle>
+                      <CardDescription>
+                        Completion Progress: {completedSliderSections} of 9 sections completed
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      {profile.sliderValues && Object.keys(profile.sliderValues).length > 0 ? (
+                        <div className="space-y-4">
+                          <div className="w-full bg-secondary h-2 rounded-full overflow-hidden">
+                            <div 
+                              className="h-full bg-primary transition-all"
+                              style={{ width: `${Math.min(100, (completedSliderSections / 3) * 100)}%` }}
+                            />
+                          </div>
+                          
+                          <p className="text-sm">
+                            {completedSliderSections >= 3 
+                              ? `You've completed ${completedSliderSections} slider sections with ${totalSliderCount} total preferences set. This meets the minimum requirement!` 
+                              : `You need to complete at least 3 slider sections. Currently, you've completed ${completedSliderSections}.`
+                            }
+                          </p>
+                          
+                          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mt-2">
+                            {['organizational', 'work', 'leadership', 'environment', 'collaboration', 'growth', 'problem', 'adaptability', 'emotional'].map(category => {
+                              const sliders = Object.keys(profile.sliderValues || {}).filter(key => key.startsWith(category));
+                              const isComplete = sliders.length >= 5;
+                              return (
+                                <div 
+                                  key={category} 
+                                  className={`border rounded-md p-3 ${isComplete ? 'border-green-200 bg-green-50' : 'border-amber-200 bg-amber-50'}`}
+                                >
+                                  <div className="flex justify-between items-center">
+                                    <span className="text-sm font-medium capitalize">
+                                      {category.replace(/_/g, ' ')}
+                                    </span>
+                                    {isComplete ? (
+                                      <Badge variant="outline" className="bg-green-100 text-green-700 border-green-200">
+                                        Complete
+                                      </Badge>
+                                    ) : (
+                                      <Badge variant="outline" className="bg-amber-100 text-amber-700 border-amber-200">
+                                        Incomplete
+                                      </Badge>
+                                    )}
+                                  </div>
+                                  <div className="mt-1 text-xs text-muted-foreground">
+                                    {sliders.length} of {category === 'leadership' ? 7 : 6} preferences set
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                          
+                          <Button
+                            className="mt-2"
+                            onClick={() => navigate('/jobseeker/profile')}
+                          >
+                            Update Preferences
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="bg-amber-50 p-4 rounded border border-amber-200">
+                          <div className="flex items-start gap-3">
+                            <AlertCircle className="h-5 w-5 text-amber-600 mt-0.5" />
+                            <div>
+                              <h3 className="font-medium text-amber-800">No preference data found</h3>
+                              <p className="text-sm text-amber-700 mt-1">
+                                You haven't set any preferences yet. To become visible in the match feed, 
+                                you need to complete at least 3 preference categories (15+ total sliders).
+                              </p>
+                              <Button 
+                                className="mt-3" 
+                                onClick={() => navigate('/jobseeker/profile')}
+                              >
+                                Set Preferences
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </>
+              )}
+            </TabsContent>
+          </Tabs>
+          
+          <div className="flex justify-between mt-6">
+            <Button variant="outline" onClick={() => navigate('/jobseeker/dashboard')}>
+              Back to Dashboard
+            </Button>
+            <Button onClick={() => navigate('/jobseeker/profile')}>
+              Edit Profile
+            </Button>
+          </div>
+        </div>
+      </DashboardLayout>
+    </>
+  );
+}
+
+function ProfileSkeleton() {
+  return (
+    <div className="space-y-4">
+      <Card>
+        <CardHeader className="pb-2">
+          <Skeleton className="h-6 w-48" />
+          <Skeleton className="h-4 w-32 mt-1" />
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div>
+              <Skeleton className="h-4 w-24 mb-2" />
+              <Skeleton className="h-4 w-full max-w-md" />
+            </div>
+            <div>
+              <Skeleton className="h-4 w-24 mb-2" />
+              <div className="flex gap-2 flex-wrap">
+                <Skeleton className="h-6 w-16 rounded-full" />
+                <Skeleton className="h-6 w-20 rounded-full" />
+                <Skeleton className="h-6 w-24 rounded-full" />
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+      
+      <Card>
+        <CardHeader>
+          <Skeleton className="h-6 w-48" />
+          <Skeleton className="h-4 w-64 mt-1" />
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-6">
+            <div>
+              <Skeleton className="h-5 w-32 mb-3" />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="flex justify-between items-center">
+                  <Skeleton className="h-4 w-24" />
+                  <Skeleton className="h-2 w-20 rounded-full" />
+                </div>
+                <div className="flex justify-between items-center">
+                  <Skeleton className="h-4 w-24" />
+                  <Skeleton className="h-2 w-20 rounded-full" />
+                </div>
+                <div className="flex justify-between items-center">
+                  <Skeleton className="h-4 w-24" />
+                  <Skeleton className="h-2 w-20 rounded-full" />
+                </div>
+                <div className="flex justify-between items-center">
+                  <Skeleton className="h-4 w-24" />
+                  <Skeleton className="h-2 w-20 rounded-full" />
+                </div>
+              </div>
+            </div>
+            <Separator />
+            <div>
+              <Skeleton className="h-5 w-32 mb-3" />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="flex justify-between items-center">
+                  <Skeleton className="h-4 w-24" />
+                  <Skeleton className="h-2 w-20 rounded-full" />
+                </div>
+                <div className="flex justify-between items-center">
+                  <Skeleton className="h-4 w-24" />
+                  <Skeleton className="h-2 w-20 rounded-full" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
