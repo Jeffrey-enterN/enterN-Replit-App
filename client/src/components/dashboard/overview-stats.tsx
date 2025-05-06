@@ -176,36 +176,70 @@ export default function OverviewStats({ userType, stats }: OverviewStatsProps) {
       {/* Data visualizations */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {userType === USER_TYPES.EMPLOYER && stats.swipeAnalytics ? (
-          <div className="bg-card p-6 rounded-lg shadow-sm border border-border h-64">
+          <div className="bg-card p-6 rounded-lg shadow-sm border border-border h-auto">
             <h3 className="text-lg font-medium mb-4">Swipe Analytics</h3>
-            <div className="space-y-4">
+            <div className="space-y-6">
+              {/* Your Swipes */}
               <div>
-                <div className="flex justify-between mb-1">
-                  <span className="text-sm font-medium">Like to Reject Ratio</span>
-                  <span className="text-sm font-medium">{stats.swipeAnalytics.likeRatio}%</span>
+                <h4 className="text-sm font-medium mb-3">Your Swipes</h4>
+                <div>
+                  <div className="flex justify-between mb-1">
+                    <span className="text-xs">Like to Pass Ratio</span>
+                    <span className="text-xs font-medium">{stats.swipeAnalytics.employer.likeRatio}%</span>
+                  </div>
+                  <div className="w-full bg-muted rounded-full h-2">
+                    <div 
+                      className="bg-primary h-2 rounded-full" 
+                      style={{ width: `${stats.swipeAnalytics.employer.likeRatio}%` }}
+                    ></div>
+                  </div>
                 </div>
-                <div className="w-full bg-muted rounded-full h-2.5">
-                  <div 
-                    className="bg-primary h-2.5 rounded-full" 
-                    style={{ width: `${stats.swipeAnalytics.likeRatio}%` }}
-                  ></div>
+                
+                <div className="grid grid-cols-3 gap-2 mt-2">
+                  <div className="bg-muted/30 p-2 rounded-lg">
+                    <div className="text-xl font-bold text-primary">{stats.swipeAnalytics.employer.likes}</div>
+                    <div className="text-xs text-muted-foreground">Likes</div>
+                  </div>
+                  <div className="bg-muted/30 p-2 rounded-lg">
+                    <div className="text-xl font-bold text-secondary">{stats.swipeAnalytics.employer.rejections}</div>
+                    <div className="text-xs text-muted-foreground">Passes</div>
+                  </div>
+                  <div className="bg-muted/30 p-2 rounded-lg">
+                    <div className="text-xl font-bold">{stats.swipeAnalytics.employer.totalSwipes}</div>
+                    <div className="text-xs text-muted-foreground">Total</div>
+                  </div>
                 </div>
               </div>
               
-              <div className="grid grid-cols-2 gap-4 mt-4">
-                <div className="bg-muted/30 p-4 rounded-lg">
-                  <div className="text-3xl font-bold text-primary">{stats.swipeAnalytics.likes}</div>
-                  <div className="text-sm text-muted-foreground mt-1">Likes</div>
+              {/* Jobseeker Swipes */}
+              <div>
+                <h4 className="text-sm font-medium mb-3">Jobseeker Interest</h4>
+                <div>
+                  <div className="flex justify-between mb-1">
+                    <span className="text-xs">Interest Rate</span>
+                    <span className="text-xs font-medium">{stats.swipeAnalytics.jobseeker.likeRatio}%</span>
+                  </div>
+                  <div className="w-full bg-muted rounded-full h-2">
+                    <div 
+                      className="bg-[#FF66C4] h-2 rounded-full" 
+                      style={{ width: `${stats.swipeAnalytics.jobseeker.likeRatio}%` }}
+                    ></div>
+                  </div>
                 </div>
-                <div className="bg-muted/30 p-4 rounded-lg">
-                  <div className="text-3xl font-bold text-secondary">{stats.swipeAnalytics.rejections}</div>
-                  <div className="text-sm text-muted-foreground mt-1">Passes</div>
-                </div>
-              </div>
-              
-              <div className="mt-4">
-                <div className="text-sm text-muted-foreground">
-                  Total Swipes: <span className="font-medium">{stats.swipeAnalytics.totalSwipes}</span>
+                
+                <div className="grid grid-cols-3 gap-2 mt-2">
+                  <div className="bg-muted/30 p-2 rounded-lg">
+                    <div className="text-xl font-bold text-[#FF66C4]">{stats.swipeAnalytics.jobseeker.likes}</div>
+                    <div className="text-xs text-muted-foreground">Likes</div>
+                  </div>
+                  <div className="bg-muted/30 p-2 rounded-lg">
+                    <div className="text-xl font-bold text-secondary">{stats.swipeAnalytics.jobseeker.rejections}</div>
+                    <div className="text-xs text-muted-foreground">Passes</div>
+                  </div>
+                  <div className="bg-muted/30 p-2 rounded-lg">
+                    <div className="text-xl font-bold">{stats.swipeAnalytics.jobseeker.totalSwipes}</div>
+                    <div className="text-xs text-muted-foreground">Total</div>
+                  </div>
                 </div>
               </div>
             </div>

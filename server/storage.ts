@@ -1752,8 +1752,8 @@ export class DatabaseStorage implements IStorage {
       .where(eq(jobPostings.employerId, userId))
       .limit(10);
     
-    // Get swipe analytics - count likes and rejections
-    const likesQuery = await db
+    // Get employer swipe analytics - count likes and rejections
+    const employerLikesQuery = await db
       .select({ count: sql<number>`count(*)` })
       .from(swipes)
       .where(
@@ -1763,7 +1763,7 @@ export class DatabaseStorage implements IStorage {
         )
       );
     
-    const rejectionsQuery = await db
+    const employerRejectionsQuery = await db
       .select({ count: sql<number>`count(*)` })
       .from(swipes)
       .where(
@@ -1773,10 +1773,48 @@ export class DatabaseStorage implements IStorage {
         )
       );
     
-    const likes = likesQuery[0]?.count || 0;
-    const rejections = rejectionsQuery[0]?.count || 0;
-    const totalSwipes = likes + rejections;
-    const likeRatio = totalSwipes > 0 ? Math.round((likes / totalSwipes) * 100) : 0;
+    const employerLikes = employerLikesQuery[0]?.count || 0;
+    const employerRejections = employerRejectionsQuery[0]?.count || 0;
+    const employerTotalSwipes = employerLikes + employerRejections;
+    const employerLikeRatio = employerTotalSwipes > 0 ? Math.round((employerLikes / employerTotalSwipes) * 100) : 0;
+    
+    // Get jobseeker swipe analytics for this employer - count likes and rejections
+    const jobseekerLikesQuery = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(swipes)
+      .where(
+        and(
+          isNotNull(swipes.jobseekerId),
+          sql`EXISTS(
+            SELECT 1 FROM ${users} 
+            WHERE ${users.id} = ${swipes.jobseekerId} 
+            AND ${users.userType} = 'jobseeker'
+          )`,
+          eq(swipes.employerId, userId),
+          eq(swipes.interested, true)
+        )
+      );
+    
+    const jobseekerRejectionsQuery = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(swipes)
+      .where(
+        and(
+          isNotNull(swipes.jobseekerId),
+          sql`EXISTS(
+            SELECT 1 FROM ${users} 
+            WHERE ${users.id} = ${swipes.jobseekerId} 
+            AND ${users.userType} = 'jobseeker'
+          )`,
+          eq(swipes.employerId, userId),
+          eq(swipes.interested, false)
+        )
+      );
+    
+    const jobseekerLikes = jobseekerLikesQuery[0]?.count || 0;
+    const jobseekerRejections = jobseekerRejectionsQuery[0]?.count || 0;
+    const jobseekerTotalSwipes = jobseekerLikes + jobseekerRejections;
+    const jobseekerLikeRatio = jobseekerTotalSwipes > 0 ? Math.round((jobseekerLikes / jobseekerTotalSwipes) * 100) : 0;
     
     const formattedJobs = jobs.map(job => ({
       id: job.id,
@@ -1813,10 +1851,18 @@ export class DatabaseStorage implements IStorage {
         matches: matchCount[0]?.count || 0,
         interviews: 0, // Set to 0 as we don't have interview scheduling yet
         swipeAnalytics: {
-          likes,
-          rejections,
-          totalSwipes,
-          likeRatio
+          employer: {
+            likes: employerLikes,
+            rejections: employerRejections,
+            totalSwipes: employerTotalSwipes,
+            likeRatio: employerLikeRatio
+          },
+          jobseeker: {
+            likes: jobseekerLikes,
+            rejections: jobseekerRejections,
+            totalSwipes: jobseekerTotalSwipes,
+            likeRatio: jobseekerLikeRatio
+          }
         }
       },
       jobs: displayJobs,

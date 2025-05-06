@@ -32,10 +32,18 @@ interface DashboardData {
     matches: number;
     interviews: number;
     swipeAnalytics?: {
-      likes: number;
-      rejections: number;
-      totalSwipes: number;
-      likeRatio: number;
+      employer: {
+        likes: number;
+        rejections: number;
+        totalSwipes: number;
+        likeRatio: number;
+      };
+      jobseeker: {
+        likes: number;
+        rejections: number;
+        totalSwipes: number;
+        likeRatio: number;
+      };
     };
   };
   recentMatches: Match[];
