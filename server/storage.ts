@@ -1576,6 +1576,9 @@ export class DatabaseStorage implements IStorage {
     
     const [swipe] = await db.insert(swipes).values(swipeData).returning();
     
+    // Log the swipe for analytics debugging
+    console.log(`Recorded jobseeker swipe - Jobseeker ID: ${jobseekerId}, Employer ID: ${employerIdNum}, Interested: ${interested}`);
+    
     // Check for a match if jobseeker is interested
     if (interested) {
       try {
@@ -1583,6 +1586,7 @@ export class DatabaseStorage implements IStorage {
         const { match, isNewMatch } = await this.checkAndCreateMutualMatch(jobseekerId, employerIdNum);
         
         if (match) {
+          console.log(`Created a new match between jobseeker ${jobseekerId} and employer ${employerIdNum}`);
           return { match, isMatch: true };
         }
       } catch (error) {
@@ -1779,19 +1783,21 @@ export class DatabaseStorage implements IStorage {
     const employerLikeRatio = employerTotalSwipes > 0 ? Math.round((employerLikes / employerTotalSwipes) * 100) : 0;
     
     // Get jobseeker swipe analytics for this employer - count likes and rejections
+    // This queries for swipes where jobseekers have swiped on this employer profile
     const jobseekerLikesQuery = await db
       .select({ count: sql<number>`count(*)` })
       .from(swipes)
       .where(
         and(
           isNotNull(swipes.jobseekerId),
+          eq(swipes.employerId, userId),
+          eq(swipes.interested, true),
+          // Making sure the one who swiped is actually a jobseeker
           sql`EXISTS(
             SELECT 1 FROM ${users} 
             WHERE ${users.id} = ${swipes.jobseekerId} 
             AND ${users.userType} = 'jobseeker'
-          )`,
-          eq(swipes.employerId, userId),
-          eq(swipes.interested, true)
+          )`
         )
       );
     
@@ -1801,20 +1807,33 @@ export class DatabaseStorage implements IStorage {
       .where(
         and(
           isNotNull(swipes.jobseekerId),
+          eq(swipes.employerId, userId),
+          eq(swipes.interested, false),
+          // Making sure the one who swiped is actually a jobseeker
           sql`EXISTS(
             SELECT 1 FROM ${users} 
             WHERE ${users.id} = ${swipes.jobseekerId} 
             AND ${users.userType} = 'jobseeker'
-          )`,
-          eq(swipes.employerId, userId),
-          eq(swipes.interested, false)
+          )`
         )
       );
     
     const jobseekerLikes = jobseekerLikesQuery[0]?.count || 0;
     const jobseekerRejections = jobseekerRejectionsQuery[0]?.count || 0;
     const jobseekerTotalSwipes = jobseekerLikes + jobseekerRejections;
-    const jobseekerLikeRatio = jobseekerTotalSwipes > 0 ? Math.round((jobseekerLikes / jobseekerTotalSwipes) * 100) : 0;
+    
+    // Calculate the ratio only if there are swipes to avoid incorrect 0%
+    const jobseekerLikeRatio = jobseekerTotalSwipes > 0 
+      ? Math.round((jobseekerLikes / jobseekerTotalSwipes) * 100) 
+      : 0;
+    
+    // Log this data for debugging
+    console.log(`Jobseeker swipe analytics for employer ${userId}:`, {
+      likes: jobseekerLikes,
+      rejections: jobseekerRejections,
+      totalSwipes: jobseekerTotalSwipes,
+      likeRatio: jobseekerLikeRatio
+    });
     
     const formattedJobs = jobs.map(job => ({
       id: job.id,
@@ -2064,6 +2083,9 @@ export class DatabaseStorage implements IStorage {
     
     const [swipe] = await db.insert(swipes).values(swipeData).returning();
     
+    // Log the swipe for analytics debugging
+    console.log(`Recorded employer swipe - Employer ID: ${employerId}, Jobseeker ID: ${jobseekerIdNum}, Interested: ${interested}`);
+    
     // Check for a match if employer is interested
     if (interested) {
       try {
@@ -2071,6 +2093,7 @@ export class DatabaseStorage implements IStorage {
         const { match, isNewMatch } = await this.checkAndCreateMutualMatch(jobseekerIdNum, employerId);
         
         if (match) {
+          console.log(`Created a new match between employer ${employerId} and jobseeker ${jobseekerIdNum}`);
           return { match, isMatch: true };
         }
       } catch (error) {
