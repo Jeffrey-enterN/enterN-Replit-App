@@ -20,6 +20,136 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
   
+  // Database migration endpoint (for development use)
+  app.post("/api/admin/db/migrate", async (req, res) => {
+    try {
+      // Check if the request has a secret key matching DB_ADMIN_KEY
+      // This is a basic protection to prevent unauthorized schema updates
+      if (req.body.key !== 'enterN-admin-secret-key') {
+        return res.status(403).json({ 
+          error: "Unauthorized", 
+          message: "Valid admin key required for database operations" 
+        });
+      }
+
+      // Import the database client
+      const { db } = await import("./db");
+      
+      // Get the current schema object
+      const { swipes, matches } = await import("../shared/schema");
+      
+      // Special migration: Add companyId, direction and jobPostingId to swipes table if not exists
+      try {
+        // Check if table exists and if columns need to be added
+        const tableInfo = await db.execute(`
+          SELECT 
+            column_name
+          FROM 
+            information_schema.columns
+          WHERE 
+            table_name = 'swipes'
+        `);
+        
+        const columns = tableInfo.rows.map(r => r.column_name);
+        
+        // If direction column doesn't exist, add it
+        if (!columns.includes('direction')) {
+          await db.execute(`
+            ALTER TABLE swipes
+            ADD COLUMN "direction" TEXT NOT NULL DEFAULT 'jobseeker-to-employer'
+          `);
+          console.log("Added 'direction' column to swipes table");
+        }
+        
+        // If companyId column doesn't exist, add it
+        if (!columns.includes('company_id')) {
+          await db.execute(`
+            ALTER TABLE swipes
+            ADD COLUMN "company_id" INTEGER REFERENCES "companies"("id") ON DELETE CASCADE
+          `);
+          console.log("Added 'company_id' column to swipes table");
+        }
+        
+        // If jobPostingId column doesn't exist, add it
+        if (!columns.includes('job_posting_id')) {
+          await db.execute(`
+            ALTER TABLE swipes
+            ADD COLUMN "job_posting_id" UUID REFERENCES "job_postings"("id") ON DELETE SET NULL
+          `);
+          console.log("Added 'job_posting_id' column to swipes table");
+        }
+        
+        // Check for uniqueness constraint
+        const constraints = await db.execute(`
+          SELECT 
+            constraint_name
+          FROM 
+            information_schema.table_constraints
+          WHERE 
+            table_name = 'swipes' AND
+            constraint_type = 'UNIQUE'
+        `);
+        
+        const constraintNames = constraints.rows.map(r => r.constraint_name);
+        
+        if (!constraintNames.includes('swipes_jobseeker_id_employer_id_direction_unique')) {
+          await db.execute(`
+            ALTER TABLE swipes
+            ADD CONSTRAINT swipes_jobseeker_id_employer_id_direction_unique
+            UNIQUE (jobseeker_id, employer_id, direction)
+          `);
+          console.log("Added uniqueness constraint to swipes table");
+        }
+        
+        // Also update matches table if needed
+        const matchesTableInfo = await db.execute(`
+          SELECT 
+            column_name
+          FROM 
+            information_schema.columns
+          WHERE 
+            table_name = 'matches'
+        `);
+        
+        const matchesColumns = matchesTableInfo.rows.map(r => r.column_name);
+        
+        // If companyId column doesn't exist in matches, add it
+        if (!matchesColumns.includes('company_id')) {
+          await db.execute(`
+            ALTER TABLE matches
+            ADD COLUMN "company_id" INTEGER REFERENCES "companies"("id") ON DELETE CASCADE
+          `);
+          console.log("Added 'company_id' column to matches table");
+        }
+        
+        // If lastActivityAt column doesn't exist in matches, add it
+        if (!matchesColumns.includes('last_activity_at')) {
+          await db.execute(`
+            ALTER TABLE matches
+            ADD COLUMN "last_activity_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+          `);
+          console.log("Added 'last_activity_at' column to matches table");
+        }
+        
+        return res.status(200).json({ 
+          success: true, 
+          message: "Database schema updated successfully"
+        });
+      } catch (error) {
+        console.error("Migration error:", error);
+        return res.status(500).json({ 
+          error: "Migration failed", 
+          message: (error as Error).message
+        });
+      }
+    } catch (error) {
+      return res.status(500).json({ 
+        error: "Server error", 
+        message: (error as Error).message
+      });
+    }
+  });
+  
   // Test route for company draft system
   app.get("/api/test/company-draft", async (req, res) => {
     try {

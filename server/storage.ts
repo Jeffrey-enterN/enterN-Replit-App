@@ -1478,18 +1478,42 @@ export class DatabaseStorage implements IStorage {
   }
 
   async handleJobseekerSwipe(jobseekerId: number, employerId: string, interested: boolean): Promise<any> {
-    // Insert swipe record
     const employerIdNum = parseInt(employerId);
+    
+    // Check if user already swiped on this profile
+    const existingSwipe = await db.select()
+      .from(swipes)
+      .where(
+        and(
+          eq(swipes.jobseekerId, jobseekerId),
+          eq(swipes.employerId, employerIdNum),
+          eq(swipes.direction, 'jobseeker-to-employer')
+        )
+      ).limit(1);
+      
+    if (existingSwipe.length > 0) {
+      return { error: "Already swiped on this employer", isMatch: false };
+    }
+    
+    // Get the employer's company info
+    const [employer] = await db.select()
+      .from(users)
+      .where(eq(users.id, employerIdNum));
+      
+    // Insert swipe record
     const swipeData = {
       jobseekerId,
       employerId: employerIdNum,
+      companyId: employer?.companyId || null,
+      direction: 'jobseeker-to-employer',
       interested
     };
     
-    const [swipe] = await db.insert(swipes).values([swipeData]).returning();
+    const [swipe] = await db.insert(swipes).values(swipeData).returning();
     
-    // Check if there's a match (employer already swiped right on this jobseeker)
+    // Only check for match if jobseeker is interested
     if (interested) {
+      // Check if employer already swiped right on this jobseeker
       const [employerSwipe] = await db
         .select()
         .from(swipes)
@@ -1497,6 +1521,7 @@ export class DatabaseStorage implements IStorage {
           and(
             eq(swipes.employerId, employerIdNum),
             eq(swipes.jobseekerId, jobseekerId),
+            eq(swipes.direction, 'employer-to-jobseeker'),
             eq(swipes.interested, true)
           )
         );
@@ -1506,15 +1531,26 @@ export class DatabaseStorage implements IStorage {
         const matchData = {
           jobseekerId,
           employerId: employerIdNum,
-          status: 'mutual-match'
+          companyId: employer?.companyId || null,
+          status: 'new',
+          lastActivityAt: new Date()
         };
         
-        const [match] = await db.insert(matches).values([matchData]).returning();
-        return { match, isMatch: true };
+        try {
+          const [match] = await db.insert(matches).values(matchData).returning();
+          
+          // Log successful match creation
+          console.log(`Created mutual match between jobseeker ${jobseekerId} and employer ${employerIdNum}`);
+          
+          return { match, isMatch: true };
+        } catch (error) {
+          console.error("Error creating match:", error);
+          return { error: "Failed to create match", isMatch: false };
+        }
       }
     }
     
-    return { isMatch: false };
+    return { swipe, isMatch: false };
   }
 
   async getJobseekerRecentMatches(userId: number): Promise<any[]> {
@@ -1883,18 +1919,42 @@ export class DatabaseStorage implements IStorage {
   }
 
   async handleEmployerSwipe(employerId: number, jobseekerId: string, interested: boolean): Promise<any> {
-    // Insert swipe record
     const jobseekerIdNum = parseInt(jobseekerId);
+    
+    // Check if employer already swiped on this profile
+    const existingSwipe = await db.select()
+      .from(swipes)
+      .where(
+        and(
+          eq(swipes.employerId, employerId),
+          eq(swipes.jobseekerId, jobseekerIdNum),
+          eq(swipes.direction, 'employer-to-jobseeker')
+        )
+      ).limit(1);
+      
+    if (existingSwipe.length > 0) {
+      return { error: "Already swiped on this jobseeker", isMatch: false };
+    }
+    
+    // Get the employer's company info
+    const [employer] = await db.select()
+      .from(users)
+      .where(eq(users.id, employerId));
+      
+    // Insert swipe record with direction
     const swipeData = {
       employerId,
       jobseekerId: jobseekerIdNum,
+      companyId: employer?.companyId || null,
+      direction: 'employer-to-jobseeker',
       interested
     };
     
-    const [swipe] = await db.insert(swipes).values([swipeData]).returning();
+    const [swipe] = await db.insert(swipes).values(swipeData).returning();
     
-    // Check if there's a match (jobseeker already swiped right on this employer)
+    // Only check for match if employer is interested
     if (interested) {
+      // Check if jobseeker already swiped right on this employer
       const [jobseekerSwipe] = await db
         .select()
         .from(swipes)
@@ -1902,6 +1962,7 @@ export class DatabaseStorage implements IStorage {
           and(
             eq(swipes.jobseekerId, jobseekerIdNum),
             eq(swipes.employerId, employerId),
+            eq(swipes.direction, 'jobseeker-to-employer'),
             eq(swipes.interested, true)
           )
         );
@@ -1911,15 +1972,26 @@ export class DatabaseStorage implements IStorage {
         const matchData = {
           jobseekerId: jobseekerIdNum,
           employerId,
-          status: 'mutual-match'
+          companyId: employer?.companyId || null,
+          status: 'new',
+          lastActivityAt: new Date()
         };
         
-        const [match] = await db.insert(matches).values([matchData]).returning();
-        return { match, isMatch: true };
+        try {
+          const [match] = await db.insert(matches).values(matchData).returning();
+          
+          // Log successful match creation
+          console.log(`Created mutual match between employer ${employerId} and jobseeker ${jobseekerIdNum}`);
+          
+          return { match, isMatch: true };
+        } catch (error) {
+          console.error("Error creating match:", error);
+          return { error: "Failed to create match", isMatch: false };
+        }
       }
     }
     
-    return { isMatch: false };
+    return { swipe, isMatch: false };
   }
 
   async getEmployerRecentMatches(userId: number): Promise<any[]> {
