@@ -862,12 +862,11 @@ export default function JobseekerProfileForm() {
             {/* Step 3: Organization Fit Sliders */}
             {currentStep === 3 && (
               <div>
-                <h2 className="text-2xl font-bold text-gray-900 font-heading mb-4">
-                  <span className="text-gradient">Step 3:</span> Preference-Based Profile
-                </h2>
-                <div className="bg-gradient-to-r from-blue-50 to-cyan-50 p-6 rounded-lg border border-cyan-100 mb-8">
+                <h2 className="text-xl font-semibold text-gray-900 font-heading mb-6">Step 3: Preference-Based Profile</h2>
+                
+                <div className="border rounded-lg p-5 bg-gray-50 mb-6">
                   <div className="flex gap-4 items-start">
-                    <div className="bg-white p-2 rounded-full shadow-sm">
+                    <div className="bg-white p-2 rounded-full border border-gray-200">
                       <Check className="h-5 w-5 text-primary" />
                     </div>
                     <div>
@@ -882,14 +881,14 @@ export default function JobseekerProfileForm() {
                   </div>
                 </div>
                 
-                <div className="mb-8">
+                <div className="mb-6">
                   <div className="flex justify-between items-center mb-2">
                     <span className="font-medium text-gray-800">Completion Progress</span>
                     <span className="font-semibold text-primary">{calculateSliderCompletionPercentage()}%</span>
                   </div>
-                  <div className="w-full bg-gray-100 rounded-full h-3 shadow-inner">
+                  <div className="w-full bg-gray-100 rounded-full h-3">
                     <div 
-                      className="bg-gradient-to-r from-primary to-[#5CE1E6] h-3 rounded-full shadow-sm transition-all duration-300 ease-in-out" 
+                      className="bg-primary h-3 rounded-full transition-all duration-300 ease-in-out" 
                       style={{ width: `${calculateSliderCompletionPercentage()}%` }}
                     ></div>
                   </div>
@@ -904,38 +903,6 @@ export default function JobseekerProfileForm() {
                       ? "Almost there! Just a few more sliders to adjust."
                       : "Perfect! Your profile is fully optimized for matching."}
                   </p>
-                </div>
-                
-                {/* Profile Preview Card */}
-                <div className="mb-8">
-                  <div className="bg-gray-50 border border-gray-200 p-5 rounded-lg">
-                    <div className="flex items-center mb-4">
-                      <EyeIcon className="h-5 w-5 text-primary mr-2" />
-                      <h3 className="font-medium text-gray-800">Preview Your Profile</h3>
-                    </div>
-                    <p className="text-sm text-gray-600 mb-4">
-                      See exactly how your profile appears to employers in the matching process.
-                      This preview shows the anonymized version of your profile that employers will see.
-                    </p>
-                    
-                    <ProfilePreview 
-                      profile={{
-                        education: {
-                          degree: form.getValues('degreeLevel'),
-                          major: form.getValues('major'),
-                          school: form.getValues('school'),
-                        },
-                        locations: form.getValues('workArrangements') || [],
-                        sliderValues: sliderValues
-                      }}
-                      trigger={
-                        <Button variant="outline" className="w-full">
-                          <EyeIcon className="h-4 w-4 mr-2" />
-                          Preview Your Profile
-                        </Button>
-                      }
-                    />
-                  </div>
                 </div>
                 
                 <CollapsibleSliderSection
