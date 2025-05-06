@@ -374,8 +374,20 @@ export const swipes = pgTable("swipes", {
   id: uuid("id").defaultRandom().primaryKey(),
   jobseekerId: integer("jobseeker_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   employerId: integer("employer_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  companyId: integer("company_id").references(() => companies.id, { onDelete: "cascade" }),
+  jobPostingId: uuid("job_posting_id").references(() => jobPostings.id, { onDelete: "set null" }),
+  direction: text("direction").notNull(), // 'jobseeker-to-employer' or 'employer-to-jobseeker'
   interested: boolean("interested").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
+}, (table) => {
+  return {
+    // Ensure a user can't swipe on the same profile twice (unique combination of users and direction)
+    uniqueSwipe: unique().on(
+      table.jobseekerId, 
+      table.employerId, 
+      table.direction
+    ),
+  }
 });
 
 export const swipesRelations = relations(swipes, ({ one }) => ({
@@ -388,6 +400,14 @@ export const swipesRelations = relations(swipes, ({ one }) => ({
     fields: [swipes.employerId],
     references: [users.id],
     relationName: "employerSwipes",
+  }),
+  company: one(companies, {
+    fields: [swipes.companyId],
+    references: [companies.id],
+  }),
+  jobPosting: one(jobPostings, {
+    fields: [swipes.jobPostingId],
+    references: [jobPostings.id],
   }),
 }));
 
@@ -405,11 +425,21 @@ export const matches = pgTable("matches", {
   id: uuid("id").defaultRandom().primaryKey(),
   jobseekerId: integer("jobseeker_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   employerId: integer("employer_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  companyId: integer("company_id").references(() => companies.id, { onDelete: "cascade" }),
   matchedAt: timestamp("matched_at").defaultNow(),
   status: text("status").notNull().default('new'),
   jobPostingId: uuid("job_posting_id").references(() => jobPostings.id, { onDelete: "set null" }),
+  lastActivityAt: timestamp("last_activity_at").defaultNow(),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => {
+  return {
+    // Ensure uniqueness of matches (one match per jobseeker-employer pair)
+    uniqueMatch: unique().on(
+      table.jobseekerId, 
+      table.employerId
+    ),
+  }
 });
 
 export const matchesRelations = relations(matches, ({ one }) => ({
@@ -420,6 +450,10 @@ export const matchesRelations = relations(matches, ({ one }) => ({
   employer: one(users, {
     fields: [matches.employerId],
     references: [users.id],
+  }),
+  company: one(companies, {
+    fields: [matches.companyId],
+    references: [companies.id],
   }),
   jobPosting: one(jobPostings, {
     fields: [matches.jobPostingId],
