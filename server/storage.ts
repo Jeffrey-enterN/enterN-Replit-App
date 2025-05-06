@@ -1508,13 +1508,13 @@ export class DatabaseStorage implements IStorage {
         .where(eq(users.id, employerId));
       
       // Check if both users swiped right on each other
+      // Note: We can't use the direction field since it doesn't exist in the database yet
       const jobseekerToEmployerSwipe = await db.select()
         .from(swipes)
         .where(
           and(
             eq(swipes.jobseekerId, jobseekerId),
             eq(swipes.employerId, employerId),
-            eq(swipes.direction, 'jobseeker-to-employer'),
             eq(swipes.interested, true)
           )
         ).limit(1);
@@ -1525,7 +1525,6 @@ export class DatabaseStorage implements IStorage {
           and(
             eq(swipes.employerId, employerId),
             eq(swipes.jobseekerId, jobseekerId),
-            eq(swipes.direction, 'employer-to-jobseeker'),
             eq(swipes.interested, true)
           )
         ).limit(1);
@@ -1975,8 +1974,7 @@ export class DatabaseStorage implements IStorage {
       .where(
         and(
           eq(swipes.employerId, employerId),
-          eq(swipes.jobseekerId, jobseekerIdNum),
-          eq(swipes.direction, 'employer-to-jobseeker')
+          eq(swipes.jobseekerId, jobseekerIdNum)
         )
       ).limit(1);
       
@@ -1989,18 +1987,12 @@ export class DatabaseStorage implements IStorage {
       .from(users)
       .where(eq(users.id, employerId));
       
-    // Insert swipe record with direction
-    const swipeData: any = {
+    // Insert swipe record - only use fields that exist in the database
+    const swipeData = {
       employerId,
       jobseekerId: jobseekerIdNum,
-      direction: 'employer-to-jobseeker',
       interested
     };
-    
-    // Only include companyId if the employer has one
-    if (employer && employer.companyId) {
-      swipeData.companyId = employer.companyId;
-    }
     
     const [swipe] = await db.insert(swipes).values(swipeData).returning();
     
