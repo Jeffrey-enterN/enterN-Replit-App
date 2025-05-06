@@ -54,10 +54,18 @@ interface OverviewStatsProps {
     interviews?: number;
     activeJobs?: number;
     swipeAnalytics?: {
-      likes: number;
-      rejections: number;
-      totalSwipes: number;
-      likeRatio: number;
+      employer: {
+        likes: number;
+        rejections: number;
+        totalSwipes: number;
+        likeRatio: number;
+      };
+      jobseeker: {
+        likes: number;
+        rejections: number;
+        totalSwipes: number;
+        likeRatio: number;
+      };
     };
   };
 }
