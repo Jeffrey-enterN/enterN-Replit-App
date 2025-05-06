@@ -342,9 +342,9 @@ export const SLIDER_CATEGORIES = [
     sliders: [
       {
         id: 'mission_clarity',
-        name: 'Clear, Unyielding Mission',
-        leftLabel: 'Strictly Defined Mission Statements',
-        rightLabel: 'Adaptable, Evolving Mission Focus'
+        name: 'Organizational Mission Alignment',
+        leftLabel: 'Purpose-Driven Organization',
+        rightLabel: 'Profit-Driven Organization'
       },
       {
         id: 'traditional_values',
