@@ -1532,13 +1532,18 @@ export class DatabaseStorage implements IStorage {
       
       // If both swipes exist and both parties are interested, create a match
       if (jobseekerToEmployerSwipe.length > 0 && employerToJobseekerSwipe.length > 0) {
-        const matchData = {
+        // Check if employer has a companyId field before adding it to match data
+        const matchData: any = {
           jobseekerId,
           employerId,
-          companyId: employer?.companyId || null,
           status: MATCH_STATUS.CONNECTED, // Directly creating as a connected match
           lastActivityAt: new Date()
         };
+        
+        // Only include companyId if the employer has one
+        if (employer && employer.companyId) {
+          matchData.companyId = employer.companyId;
+        }
         
         const [match] = await db.insert(matches).values(matchData).returning();
         console.log(`Created mutual match between jobseeker ${jobseekerId} and employer ${employerId}`);
@@ -1576,13 +1581,17 @@ export class DatabaseStorage implements IStorage {
       .where(eq(users.id, employerIdNum));
       
     // Insert swipe record
-    const swipeData = {
+    const swipeData: any = {
       jobseekerId,
       employerId: employerIdNum,
-      companyId: employer?.companyId || null,
       direction: 'jobseeker-to-employer',
       interested
     };
+    
+    // Only include companyId if the employer has one
+    if (employer && employer.companyId) {
+      swipeData.companyId = employer.companyId;
+    }
     
     const [swipe] = await db.insert(swipes).values(swipeData).returning();
     
@@ -1993,13 +2002,17 @@ export class DatabaseStorage implements IStorage {
       .where(eq(users.id, employerId));
       
     // Insert swipe record with direction
-    const swipeData = {
+    const swipeData: any = {
       employerId,
       jobseekerId: jobseekerIdNum,
-      companyId: employer?.companyId || null,
       direction: 'employer-to-jobseeker',
       interested
     };
+    
+    // Only include companyId if the employer has one
+    if (employer && employer.companyId) {
+      swipeData.companyId = employer.companyId;
+    }
     
     const [swipe] = await db.insert(swipes).values(swipeData).returning();
     
