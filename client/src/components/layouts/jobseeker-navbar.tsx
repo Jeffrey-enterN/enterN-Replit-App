@@ -30,7 +30,8 @@ import {
   ThumbsUp,
   FileText,
   Clock,
-  ExternalLink
+  ExternalLink,
+  Eye
 } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
@@ -57,6 +58,7 @@ export default function JobseekerNavbar() {
     { label: 'Dashboard', href: '/jobseeker/dashboard', icon: LayoutDashboard },
     { label: 'Match Feed', href: '/jobseeker/match-feed', icon: ThumbsUp },
     { label: 'Profile', href: '/jobseeker/profile', icon: UserCircle },
+    { label: 'Preview Profile', href: '/jobseeker/profile-preview', icon: Eye },
     { 
       label: 'BooBase', 
       href: 'https://boobase-by-entern.replit.app/', 
@@ -241,6 +243,12 @@ export default function JobseekerNavbar() {
                 <Link href="/jobseeker/profile" className="flex items-center gap-2 cursor-pointer">
                   <UserCircle className="h-4 w-4" />
                   Profile
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="/jobseeker/profile-preview" className="flex items-center gap-2 cursor-pointer">
+                  <Eye className="h-4 w-4" />
+                  Preview Profile
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>

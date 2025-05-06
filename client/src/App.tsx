@@ -49,6 +49,7 @@ function Router() {
       <ProtectedRoute path="/contact-details" component={ContactDetailsPage} />
       <ProtectedRoute path="/jobseeker/dashboard" component={JobseekerDashboard} />
       <ProtectedRoute path="/jobseeker/profile" component={JobseekerProfilePage} />
+      <ProtectedRoute path="/jobseeker/profile-preview" component={JobseekerProfilePreview} />
       <ProtectedRoute path="/jobseeker/match-feed" component={JobseekerMatchFeed} />
       <ProtectedRoute path="/jobseeker/calendar" component={JobseekerCalendar} />
       <Route path="/employer/dashboard">
