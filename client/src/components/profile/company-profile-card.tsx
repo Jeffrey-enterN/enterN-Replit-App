@@ -3,16 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { INDUSTRIES, COMPANY_SIZES } from '@/lib/constants';
 
-// Define the proper types for industries and company sizes
-interface IndustryOption {
-  value: string;
-  label: string;
-}
-
-interface CompanySizeOption {
-  value: string;
-  label: string;
-}
+// These imports aren't needed as our constants are just string arrays
 import { Separator } from '@/components/ui/separator';
 import { Building, MapPin, Users, Calendar, Briefcase } from 'lucide-react';
 

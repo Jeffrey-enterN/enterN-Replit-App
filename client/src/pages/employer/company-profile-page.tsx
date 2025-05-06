@@ -45,7 +45,7 @@ export default function CompanyProfilePage() {
   
   return (
     <div className="container max-w-5xl mx-auto py-8 px-4">
-      <div className="w-full flex justify-start mb-4">
+      <div className="w-full flex justify-between mb-4">
         <Button
           variant="ghost" 
           className="flex items-center gap-1 text-muted-foreground" 
@@ -56,6 +56,19 @@ export default function CompanyProfilePage() {
             Return to Dashboard
           </Link>
         </Button>
+        
+        {user?.companyId && (
+          <Button
+            variant="outline"
+            className="flex items-center gap-2"
+            asChild
+          >
+            <Link href="/employer/company-profile/preview">
+              <Building className="h-4 w-4" />
+              Preview Company Profile
+            </Link>
+          </Button>
+        )}
       </div>
       
       <div className="flex flex-col items-center mb-8 text-center">

@@ -19,8 +19,24 @@ export default function CompanyProfilePreview() {
     }
   }, [user, navigate]);
 
+  // Define the type for company data
+  interface CompanyData {
+    name: string;
+    logo?: string;
+    industry?: string;
+    location?: string;
+    size?: string;
+    founded?: string;
+    mission?: string;
+    description?: string;
+    benefits?: string[];
+    workArrangements?: string[];
+    departments?: string[];
+    sliderValues?: Record<string, number>;
+  }
+
   // Fetch company profile data
-  const { data: companyData, isLoading } = useQuery({
+  const { data: companyData, isLoading } = useQuery<CompanyData>({
     queryKey: ['/api/employer/company'],
     enabled: !!user && user.userType === USER_TYPES.EMPLOYER && !!user.companyId,
   });
@@ -72,8 +88,19 @@ export default function CompanyProfilePreview() {
           ) : (
             <div className="max-w-lg mx-auto">
               <CompanyProfileCard 
-                companyData={companyData || {
-                  name: user?.companyName || 'Your Company',
+                companyData={{
+                  name: companyData?.name || user?.companyName || 'Your Company',
+                  logo: companyData?.logo,
+                  industry: companyData?.industry,
+                  location: companyData?.location,
+                  size: companyData?.size,
+                  founded: companyData?.founded,
+                  mission: companyData?.mission,
+                  description: companyData?.description,
+                  benefits: companyData?.benefits || [],
+                  workArrangements: companyData?.workArrangements || [],
+                  departments: companyData?.departments || [],
+                  sliderValues: companyData?.sliderValues || {}
                 }}
                 showPreviewHeader={true}
               />
