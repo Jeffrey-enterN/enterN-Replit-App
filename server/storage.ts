@@ -1566,8 +1566,7 @@ export class DatabaseStorage implements IStorage {
       .where(
         and(
           eq(swipes.jobseekerId, jobseekerId),
-          eq(swipes.employerId, employerIdNum),
-          eq(swipes.direction, 'jobseeker-to-employer')
+          eq(swipes.employerId, employerIdNum)
         )
       ).limit(1);
       
@@ -1575,23 +1574,12 @@ export class DatabaseStorage implements IStorage {
       return { error: "Already swiped on this employer", isMatch: false };
     }
     
-    // Get the employer's company info
-    const [employer] = await db.select()
-      .from(users)
-      .where(eq(users.id, employerIdNum));
-      
-    // Insert swipe record
-    const swipeData: any = {
+    // Insert swipe record - only use fields that exist in the database
+    const swipeData = {
       jobseekerId,
       employerId: employerIdNum,
-      direction: 'jobseeker-to-employer',
       interested
     };
-    
-    // Only include companyId if the employer has one
-    if (employer && employer.companyId) {
-      swipeData.companyId = employer.companyId;
-    }
     
     const [swipe] = await db.insert(swipes).values(swipeData).returning();
     
