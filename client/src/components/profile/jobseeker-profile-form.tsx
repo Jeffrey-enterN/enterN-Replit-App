@@ -48,15 +48,20 @@ const step1Schema = z.object({
   firstName: z.string().min(1, { message: 'First name is required' }),
   lastName: z.string().min(1, { message: 'Last name is required' }),
   phone: z.string().min(10, { message: 'Please enter a valid phone number' }),
+  address: z.string().min(1, { message: 'Address is required' }),
+  city: z.string().min(1, { message: 'City is required' }),
+  state: z.string().min(1, { message: 'State is required' }),
+  referralSource: z.string().optional().or(z.literal('')),
+  otherReferralSource: z.string().optional().or(z.literal('')),
+});
+
+// Define the schema for step 2
+const step2Schema = z.object({
   isStudent: z.boolean().optional(),
   schoolEmail: z.string().email({ message: 'Please enter a valid school email' }).optional().or(z.literal('')),
   school: z.string().optional().or(z.literal('')),
   degreeLevel: z.string().optional().or(z.literal('')),
   major: z.string().optional().or(z.literal('')),
-});
-
-// Define the schema for step 2
-const step2Schema = z.object({
   portfolioUrl: z.string().url({ message: 'Please enter a valid URL' }).optional().or(z.literal('')),
   workArrangements: z.array(z.string()).optional().default([]),
 });

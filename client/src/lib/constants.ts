@@ -38,6 +38,20 @@ export const INDUSTRIES = [
   'E-commerce'
 ];
 
+// How did you hear about us sources
+export const HEAR_ABOUT_US_SOURCES = [
+  'Career Center',
+  'Facebook',
+  'LinkedIn',
+  'Reddit',
+  'Slack', 
+  'Discord',
+  'Flyer',
+  'Web Search',
+  'Friend',
+  'Other'
+];
+
 // Functional Areas
 export const FUNCTIONAL_AREAS = [
   'Software Development',
