@@ -1531,18 +1531,12 @@ export class DatabaseStorage implements IStorage {
       
       // If both swipes exist and both parties are interested, create a match
       if (jobseekerToEmployerSwipe.length > 0 && employerToJobseekerSwipe.length > 0) {
-        // Check if employer has a companyId field before adding it to match data
-        const matchData: any = {
+        // Create match data with only the fields that exist in the database
+        const matchData = {
           jobseekerId,
           employerId,
-          status: MATCH_STATUS.CONNECTED, // Directly creating as a connected match
-          lastActivityAt: new Date()
+          status: MATCH_STATUS.CONNECTED // Directly creating as a connected match
         };
-        
-        // Only include companyId if the employer has one
-        if (employer && employer.companyId) {
-          matchData.companyId = employer.companyId;
-        }
         
         const [match] = await db.insert(matches).values(matchData).returning();
         console.log(`Created mutual match between jobseeker ${jobseekerId} and employer ${employerId}`);

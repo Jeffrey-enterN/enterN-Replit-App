@@ -387,18 +387,14 @@ export const swipes = pgTable("swipes", {
   id: uuid("id").defaultRandom().primaryKey(),
   jobseekerId: integer("jobseeker_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   employerId: integer("employer_id").notNull().references(() => users.id, { onDelete: "cascade" }),
-  companyId: integer("company_id").references(() => companies.id, { onDelete: "cascade" }),
-  jobPostingId: uuid("job_posting_id").references(() => jobPostings.id, { onDelete: "set null" }),
-  direction: text("direction").notNull(), // 'jobseeker-to-employer' or 'employer-to-jobseeker'
   interested: boolean("interested").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
 }, (table) => {
   return {
-    // Ensure a user can't swipe on the same profile twice (unique combination of users and direction)
+    // Ensure a user can't swipe on the same profile twice (unique combination of users)
     uniqueSwipe: unique().on(
       table.jobseekerId, 
-      table.employerId, 
-      table.direction
+      table.employerId
     ),
   }
 });
@@ -413,15 +409,8 @@ export const swipesRelations = relations(swipes, ({ one }) => ({
     fields: [swipes.employerId],
     references: [users.id],
     relationName: "employerSwipes",
-  }),
-  company: one(companies, {
-    fields: [swipes.companyId],
-    references: [companies.id],
-  }),
-  jobPosting: one(jobPostings, {
-    fields: [swipes.jobPostingId],
-    references: [jobPostings.id],
-  }),
+  })
+  // Note: Removed company and jobPosting relations as these fields don't exist in the database
 }));
 
 export const insertSwipeSchema = createInsertSchema(swipes).omit({
@@ -438,16 +427,9 @@ export const matches = pgTable("matches", {
   id: uuid("id").defaultRandom().primaryKey(),
   jobseekerId: integer("jobseeker_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   employerId: integer("employer_id").notNull().references(() => users.id, { onDelete: "cascade" }),
-  companyId: integer("company_id").references(() => companies.id, { onDelete: "cascade" }),
   matchedAt: timestamp("matched_at").defaultNow(),
   status: text("status").notNull().default(MATCH_STATUS.NEW),
   jobPostingId: uuid("job_posting_id").references(() => jobPostings.id, { onDelete: "set null" }),
-  // Added new fields for enhanced match functionality
-  lastMessageAt: timestamp("last_message_at"),
-  lastActivityAt: timestamp("last_activity_at").defaultNow(),
-  initiatedBy: integer("initiated_by").references(() => users.id), // Which user initiated contact
-  notes: text("notes"), // Optional notes about the match
-  interviewDate: timestamp("interview_date"), // For scheduled interviews
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 }, (table) => {
@@ -469,14 +451,11 @@ export const matchesRelations = relations(matches, ({ one }) => ({
     fields: [matches.employerId],
     references: [users.id],
   }),
-  company: one(companies, {
-    fields: [matches.companyId],
-    references: [companies.id],
-  }),
   jobPosting: one(jobPostings, {
     fields: [matches.jobPostingId],
     references: [jobPostings.id],
-  }),
+  })
+  // Note: Removed company relation as this field doesn't exist in the database
 }));
 
 export const insertMatchSchema = createInsertSchema(matches).omit({
