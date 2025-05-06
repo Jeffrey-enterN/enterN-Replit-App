@@ -1633,12 +1633,12 @@ export class DatabaseStorage implements IStorage {
           id: match.id,
           name: employerProfile?.companyName || employer?.companyName || 'Unknown Company',
           matchDate: match.matchedAt,
-          status: match.status === 'interview_scheduled' 
+          status: match.status === MATCH_STATUS.INTERVIEW_SCHEDULED 
             ? 'interview-scheduled' 
-            : (match.status === 'mutual-match' ? 'mutual-match' : 'matched'),
-          statusText: match.status === 'interview_scheduled' 
+            : (match.status === MATCH_STATUS.CONNECTED ? 'connected' : 'matched'),
+          statusText: match.status === MATCH_STATUS.INTERVIEW_SCHEDULED 
             ? 'Interview scheduled' 
-            : (match.status === 'mutual-match' ? 'Mutual match' : 'New match')
+            : (match.status === MATCH_STATUS.CONNECTED ? 'Connected' : 'New match')
         };
       })
     );
@@ -1806,12 +1806,12 @@ export class DatabaseStorage implements IStorage {
         id: match.id,
         name: 'Anonymous Profile', // Jobseeker profiles are anonymous until a certain point
         matchDate: match.matchedAt,
-        status: match.status === 'interview_scheduled' 
+        status: match.status === MATCH_STATUS.INTERVIEW_SCHEDULED 
           ? 'interview-scheduled' 
-          : (match.status === 'mutual-match' ? 'mutual-match' : 'matched'),
-        statusText: match.status === 'interview_scheduled' 
+          : (match.status === MATCH_STATUS.CONNECTED ? 'connected' : 'matched'),
+        statusText: match.status === MATCH_STATUS.INTERVIEW_SCHEDULED 
           ? 'Interview scheduled' 
-          : (match.status === 'mutual-match' ? 'Mutual match' : 'New match')
+          : (match.status === MATCH_STATUS.CONNECTED ? 'Connected' : 'New match')
       }))
     };
   }
@@ -2003,42 +2003,18 @@ export class DatabaseStorage implements IStorage {
     
     const [swipe] = await db.insert(swipes).values(swipeData).returning();
     
-    // Only check for match if employer is interested
+    // Check for a match if employer is interested
     if (interested) {
-      // Check if jobseeker already swiped right on this employer
-      const [jobseekerSwipe] = await db
-        .select()
-        .from(swipes)
-        .where(
-          and(
-            eq(swipes.jobseekerId, jobseekerIdNum),
-            eq(swipes.employerId, employerId),
-            eq(swipes.direction, 'jobseeker-to-employer'),
-            eq(swipes.interested, true)
-          )
-        );
-      
-      if (jobseekerSwipe) {
-        // Create a match - this is a mutual match since both swiped right
-        const matchData = {
-          jobseekerId: jobseekerIdNum,
-          employerId,
-          companyId: employer?.companyId || null,
-          status: 'new',
-          lastActivityAt: new Date()
-        };
+      try {
+        // Use the reusable match checking function
+        const { match, isNewMatch } = await this.checkAndCreateMutualMatch(jobseekerIdNum, employerId);
         
-        try {
-          const [match] = await db.insert(matches).values(matchData).returning();
-          
-          // Log successful match creation
-          console.log(`Created mutual match between employer ${employerId} and jobseeker ${jobseekerIdNum}`);
-          
+        if (match) {
           return { match, isMatch: true };
-        } catch (error) {
-          console.error("Error creating match:", error);
-          return { error: "Failed to create match", isMatch: false };
         }
+      } catch (error) {
+        console.error("Error checking for match:", error);
+        return { error: "Failed to check for match", isMatch: false };
       }
     }
     
@@ -2055,7 +2031,7 @@ export class DatabaseStorage implements IStorage {
     
     const matchesWithProfiles = await Promise.all(
       recentMatches.map(async (match) => {
-        if (match.status === 'mutual-match') {
+        if (match.status === MATCH_STATUS.CONNECTED) {
           // If mutual match, include full jobseeker profile info
           const [jobseekerUser] = await db
             .select({
