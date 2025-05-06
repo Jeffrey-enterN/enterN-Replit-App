@@ -10,6 +10,19 @@ export const USER_TYPES = {
 
 export type UserType = (typeof USER_TYPES)[keyof typeof USER_TYPES];
 
+// Match status constants
+export const MATCH_STATUS = {
+  NEW: 'new',                     // Initial match state
+  CONNECTED: 'connected',         // Users have initiated communication
+  CHATTING: 'chatting',           // Active conversation in progress
+  INTERVIEW_SCHEDULED: 'interview_scheduled', // Interview has been scheduled
+  REJECTED: 'rejected',           // One party rejected the match
+  ARCHIVED: 'archived',           // Match archived/no longer active
+  HIRED: 'hired'                  // Jobseeker was hired
+} as const;
+
+export type MatchStatus = (typeof MATCH_STATUS)[keyof typeof MATCH_STATUS];
+
 // === COMPANY TABLE ===
 
 export const companies = pgTable("companies", {
@@ -427,9 +440,14 @@ export const matches = pgTable("matches", {
   employerId: integer("employer_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   companyId: integer("company_id").references(() => companies.id, { onDelete: "cascade" }),
   matchedAt: timestamp("matched_at").defaultNow(),
-  status: text("status").notNull().default('new'),
+  status: text("status").notNull().default(MATCH_STATUS.NEW),
   jobPostingId: uuid("job_posting_id").references(() => jobPostings.id, { onDelete: "set null" }),
+  // Added new fields for enhanced match functionality
+  lastMessageAt: timestamp("last_message_at"),
   lastActivityAt: timestamp("last_activity_at").defaultNow(),
+  initiatedBy: integer("initiated_by").references(() => users.id), // Which user initiated contact
+  notes: text("notes"), // Optional notes about the match
+  interviewDate: timestamp("interview_date"), // For scheduled interviews
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 }, (table) => {
