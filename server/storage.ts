@@ -26,7 +26,9 @@ import {
   InsertCompany,
   companyInvites,
   CompanyInvite,
-  InsertCompanyInvite
+  InsertCompanyInvite,
+  MATCH_STATUS,
+  MatchStatus
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, sql, isNotNull } from "drizzle-orm";
