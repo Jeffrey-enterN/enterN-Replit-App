@@ -39,25 +39,28 @@ export default function JobseekerProfilePreview() {
   const hasEducation = profile && profile.school && profile.major && profile.degreeLevel;
   const hasWorkPreferences = profile && profile.workArrangements && profile.workArrangements.length > 0;
   
-  let completedSliderSections = 0;
-  let totalSliderCount = 0;
-  
-  if (profile && profile.sliderValues) {
-    const sections = Object.keys(profile.sliderValues).reduce((acc, key) => {
-      const category = key.split('_')[0];
-      if (!acc[category]) acc[category] = [];
-      acc[category].push(key);
-      return acc;
-    }, {} as Record<string, string[]>);
+  // Calculate which slider categories are complete (5 or more sliders in a category)
+  const completedCategories = profile?.sliderValues 
+    ? SLIDER_CATEGORIES.filter(category => {
+        const completedSliders = category.sliders
+          .filter(slider => profile.sliderValues[slider.id] !== undefined)
+          .length;
+        return completedSliders >= 5;
+      })
+    : [];
     
-    Object.keys(sections).forEach(section => {
-      if (sections[section].length >= 5) {
-        completedSliderSections++;
-      }
-      totalSliderCount += sections[section].length;
-    });
-  }
+  const completedSliderSections = completedCategories.length;
   
+  // Count total sliders completed
+  const totalSliderCount = profile?.sliderValues
+    ? Object.keys(profile.sliderValues).length
+    : 0;
+  
+  // Profile is complete if:
+  // 1. Has basic info
+  // 2. Has education info
+  // 3. Has work preferences
+  // 4. Has at least 3 completed slider categories (5+ sliders in each)
   const isProfileComplete = hasBasicInfo && hasEducation && hasWorkPreferences && completedSliderSections >= 3;
 
   return (
@@ -175,8 +178,7 @@ export default function JobseekerProfilePreview() {
                     <CardContent>
                       {profile.sliderValues && Object.keys(profile.sliderValues).length > 0 ? (
                         <div className="space-y-6">
-                          {/* Grouping sliders by their categories based on SLIDER_CATEGORIES */}
-                          {SLIDER_CATEGORIES.map((category, index) => {
+                          {SLIDER_CATEGORIES.map((category, categoryIndex) => {
                             // Get all slider keys that belong to this category
                             const categorySliders = category.sliders
                               .map(slider => slider.id)
@@ -217,7 +219,7 @@ export default function JobseekerProfilePreview() {
                                     </div>
                                   )}
                                 </div>
-                                {index < SLIDER_CATEGORIES.length - 1 && <Separator className="my-4" />}
+                                {categoryIndex < SLIDER_CATEGORIES.length - 1 && <Separator className="my-4" />}
                               </div>
                             );
                           })}
@@ -430,42 +432,39 @@ export default function JobseekerProfilePreview() {
                           </p>
                           
                           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mt-2">
-                            {['organizational', 'work', 'leadership', 'environment', 'collaboration', 'growth', 'problem', 'adaptability', 'emotional'].map(category => {
-                              const sliders = Object.keys(profile.sliderValues || {}).filter(key => key.startsWith(category));
-                              const isComplete = sliders.length >= 5;
+                            {SLIDER_CATEGORIES.map((category) => {
+                              const categorySliders = category.sliders
+                                .map(slider => slider.id)
+                                .filter(id => profile.sliderValues && profile.sliderValues[id] !== undefined);
+                              const isComplete = categorySliders.length >= 5;
+                              
                               return (
                                 <div 
-                                  key={category} 
+                                  key={category.id} 
                                   className={`border rounded-md p-3 ${isComplete ? 'border-green-200 bg-green-50' : 'border-amber-200 bg-amber-50'}`}
                                 >
                                   <div className="flex justify-between items-center">
-                                    <span className="text-sm font-medium capitalize">
-                                      {category.replace(/_/g, ' ')}
-                                    </span>
-                                    {isComplete ? (
-                                      <Badge variant="outline" className="bg-green-100 text-green-700 border-green-200">
-                                        Complete
-                                      </Badge>
-                                    ) : (
-                                      <Badge variant="outline" className="bg-amber-100 text-amber-700 border-amber-200">
-                                        Incomplete
-                                      </Badge>
-                                    )}
-                                  </div>
-                                  <div className="mt-1 text-xs text-muted-foreground">
-                                    {sliders.length} of {category === 'leadership' ? 7 : 6} preferences set
+                                    <span className="text-sm font-medium">{category.name}</span>
+                                    <Badge 
+                                      variant="outline" 
+                                      className={`text-xs ${isComplete ? 'bg-green-50 text-green-700' : 'bg-amber-50 text-amber-700'}`}
+                                    >
+                                      {categorySliders.length}/5
+                                    </Badge>
                                   </div>
                                 </div>
                               );
                             })}
                           </div>
                           
-                          <Button
-                            className="mt-2"
-                            onClick={() => navigate('/jobseeker/profile')}
-                          >
-                            Update Preferences
-                          </Button>
+                          {completedSliderSections < 3 && (
+                            <Button
+                              onClick={() => navigate('/jobseeker/profile')}
+                              className="mt-2"
+                            >
+                              Complete Preferences
+                            </Button>
+                          )}
                         </div>
                       ) : (
                         <div className="bg-amber-50 p-4 rounded border border-amber-200">
@@ -474,11 +473,12 @@ export default function JobseekerProfilePreview() {
                             <div>
                               <h3 className="font-medium text-amber-800">No preference data found</h3>
                               <p className="text-sm text-amber-700 mt-1">
-                                You haven't set any preferences yet. To become visible in the match feed, 
-                                you need to complete at least 3 preference categories (15+ total sliders).
+                                You haven't set your preferences yet. These values are critical for matching with 
+                                potential employers. We recommend completing at least 3 preference categories.
                               </p>
                               <Button 
                                 className="mt-3" 
+                                size="sm"
                                 onClick={() => navigate('/jobseeker/profile')}
                               >
                                 Set Preferences
@@ -493,15 +493,6 @@ export default function JobseekerProfilePreview() {
               )}
             </TabsContent>
           </Tabs>
-          
-          <div className="flex justify-between mt-6">
-            <Button variant="outline" onClick={() => navigate('/jobseeker/dashboard')}>
-              Back to Dashboard
-            </Button>
-            <Button onClick={() => navigate('/jobseeker/profile')}>
-              Edit Profile
-            </Button>
-          </div>
         </div>
       </DashboardLayout>
     </>
@@ -512,22 +503,22 @@ function ProfileSkeleton() {
   return (
     <div className="space-y-4">
       <Card>
-        <CardHeader className="pb-2">
+        <CardHeader>
           <Skeleton className="h-6 w-48" />
-          <Skeleton className="h-4 w-32 mt-1" />
+          <Skeleton className="h-4 w-32 mt-2" />
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <div>
-              <Skeleton className="h-4 w-24 mb-2" />
-              <Skeleton className="h-4 w-full max-w-md" />
-            </div>
-            <div>
-              <Skeleton className="h-4 w-24 mb-2" />
-              <div className="flex gap-2 flex-wrap">
-                <Skeleton className="h-6 w-16 rounded-full" />
-                <Skeleton className="h-6 w-20 rounded-full" />
-                <Skeleton className="h-6 w-24 rounded-full" />
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Skeleton className="h-4 w-24 mb-2" />
+                <Skeleton className="h-3 w-40" />
+                <Skeleton className="h-3 w-32 mt-1" />
+              </div>
+              <div>
+                <Skeleton className="h-4 w-24 mb-2" />
+                <Skeleton className="h-3 w-40" />
+                <Skeleton className="h-3 w-32 mt-1" />
               </div>
             </div>
           </div>
@@ -536,29 +527,29 @@ function ProfileSkeleton() {
       
       <Card>
         <CardHeader>
-          <Skeleton className="h-6 w-48" />
-          <Skeleton className="h-4 w-64 mt-1" />
+          <Skeleton className="h-6 w-40" />
+          <Skeleton className="h-4 w-60 mt-2" />
         </CardHeader>
         <CardContent>
           <div className="space-y-6">
             <div>
               <Skeleton className="h-5 w-32 mb-3" />
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="flex justify-between items-center">
-                  <Skeleton className="h-4 w-24" />
-                  <Skeleton className="h-2 w-20 rounded-full" />
+                <div className="flex items-center justify-between">
+                  <Skeleton className="h-3 w-24" />
+                  <Skeleton className="h-2 w-20" />
                 </div>
-                <div className="flex justify-between items-center">
-                  <Skeleton className="h-4 w-24" />
-                  <Skeleton className="h-2 w-20 rounded-full" />
+                <div className="flex items-center justify-between">
+                  <Skeleton className="h-3 w-24" />
+                  <Skeleton className="h-2 w-20" />
                 </div>
-                <div className="flex justify-between items-center">
-                  <Skeleton className="h-4 w-24" />
-                  <Skeleton className="h-2 w-20 rounded-full" />
+                <div className="flex items-center justify-between">
+                  <Skeleton className="h-3 w-24" />
+                  <Skeleton className="h-2 w-20" />
                 </div>
-                <div className="flex justify-between items-center">
-                  <Skeleton className="h-4 w-24" />
-                  <Skeleton className="h-2 w-20 rounded-full" />
+                <div className="flex items-center justify-between">
+                  <Skeleton className="h-3 w-24" />
+                  <Skeleton className="h-2 w-20" />
                 </div>
               </div>
             </div>
@@ -566,13 +557,13 @@ function ProfileSkeleton() {
             <div>
               <Skeleton className="h-5 w-32 mb-3" />
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="flex justify-between items-center">
-                  <Skeleton className="h-4 w-24" />
-                  <Skeleton className="h-2 w-20 rounded-full" />
+                <div className="flex items-center justify-between">
+                  <Skeleton className="h-3 w-24" />
+                  <Skeleton className="h-2 w-20" />
                 </div>
-                <div className="flex justify-between items-center">
-                  <Skeleton className="h-4 w-24" />
-                  <Skeleton className="h-2 w-20 rounded-full" />
+                <div className="flex items-center justify-between">
+                  <Skeleton className="h-3 w-24" />
+                  <Skeleton className="h-2 w-20" />
                 </div>
               </div>
             </div>
