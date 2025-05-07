@@ -159,7 +159,7 @@ export default function TermsServiceModal({ trigger }: TermsServiceModalProps) {
             </p>
             <p>
               enterN, Inc.<br />
-              Email: legal@entern.io
+              Email: info@enter-n.com
             </p>
           </div>
         </ScrollArea>

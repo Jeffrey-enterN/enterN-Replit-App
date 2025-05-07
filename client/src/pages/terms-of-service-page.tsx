@@ -161,7 +161,7 @@ export default function TermsOfServicePage() {
           </p>
           <p>
             enterN, Inc.<br />
-            Email: legal@entern.io
+            Email: info@enter-n.com
           </p>
         </div>
       </div>

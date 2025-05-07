@@ -41,13 +41,13 @@ export default function SupportPage() {
             <CardContent>
               <div className="flex items-center gap-3 mb-2">
                 <Mail className="h-5 w-5 text-primary" />
-                <a href="mailto:support@entern.io" className="text-primary hover:underline">
-                  support@entern.io
+                <a href="mailto:info@enter-n.com" className="text-primary hover:underline">
+                  info@enter-n.com
                 </a>
               </div>
             </CardContent>
             <CardFooter>
-              <Button variant="outline" className="w-full" onClick={() => window.location.href = "mailto:support@entern.io"}>
+              <Button variant="outline" className="w-full" onClick={() => window.location.href = "mailto:info@enter-n.com"}>
                 Send Email
               </Button>
             </CardFooter>
@@ -64,7 +64,7 @@ export default function SupportPage() {
               </p>
             </CardContent>
             <CardFooter>
-              <Button variant="outline" className="w-full" onClick={() => window.location.href = "mailto:feedback@entern.io?subject=Feature Request"}>
+              <Button variant="outline" className="w-full" onClick={() => window.location.href = "mailto:info@enter-n.com?subject=Feature Request"}>
                 <PenLine className="h-4 w-4 mr-2" />
                 Submit Feature Request
               </Button>
