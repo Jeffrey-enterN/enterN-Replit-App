@@ -218,9 +218,8 @@ export default function JobseekerProfilePreview() {
                                   )}
                                 </div>
                                 {index < SLIDER_CATEGORIES.length - 1 && <Separator className="my-4" />}
-                              </div>
-                            );
-                          })}
+                            </div>
+                          ))}
                         </div>
                       ) : (
                         <div className="bg-amber-50 p-4 rounded border border-amber-200">
