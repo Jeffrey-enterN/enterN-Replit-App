@@ -149,7 +149,8 @@ async function mergeEmployerToCompanyProfiles() {
 }
 
 // Execute the migration when this script is run directly
-if (require.main === module) {
+// For ESM compatibility
+if (import.meta.url === `file://${process.argv[1]}`) {
   mergeEmployerToCompanyProfiles()
     .then((result) => {
       console.log(result.message);
