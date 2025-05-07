@@ -95,7 +95,37 @@ export default function SupportPage() {
             <AccordionItem value="item-1">
               <AccordionTrigger>How does enterN's matching algorithm work?</AccordionTrigger>
               <AccordionContent>
-                enterN uses a sophisticated preference-based matching system that analyzes both jobseeker and employer preferences across multiple dimensions. The system considers factors like organizational values, work style, leadership preferences, and more to create meaningful connections beyond just skills and experience. The more slider preferences you complete, the more accurate your matches will be.
+                <div className="space-y-4">
+                  <h4 className="font-medium">How the enterN Algorithm Works (in plain terms):</h4>
+                  <p>
+                    At the heart of enterN is a smart matching engine that blends behavioral data, AI, and preference modeling to connect jobseekers with the right employers—without using resumes.
+                  </p>
+                  
+                  <h5 className="font-medium">Understanding Employers:</h5>
+                  <p>
+                    We start by analyzing job descriptions and company career pages using a proprietary algorithm that extracts key indicators of a company's culture, communication style, pace, and values. This gives us a "behavioral fingerprint" for each employer.
+                  </p>
+                  
+                  <h5 className="font-medium">Understanding Jobseekers:</h5>
+                  <p>
+                    Jobseekers answer a series of binary preference questions (e.g., "I prefer clear structure vs. I prefer flexibility") that help us determine where they naturally thrive. Their answers help us align them with compatible environments—not just job titles.
+                  </p>
+                  
+                  <h5 className="font-medium">Forming Match Archetypes:</h5>
+                  <p>
+                    As jobseekers swipe through opportunities, we collect metadata and behavioral patterns (who they swipe right or left on, and why). Our machine learning models use this data to continuously refine individual and collective "fit profiles," improving the accuracy of matches over time.
+                  </p>
+                  
+                  <h5 className="font-medium">Smart Matching, Not Filtering:</h5>
+                  <p>
+                    Unlike traditional systems, our AI doesn't eliminate any profiles. Instead, it prioritizes the most promising matches first, so employers don't waste time endlessly swiping. Everyone stays visible, but the best-fit candidates rise to the top.
+                  </p>
+                  
+                  <h5 className="font-medium">Learning from Real Outcomes:</h5>
+                  <p>
+                    After an internship ends, both the jobseeker and employer provide feedback. That quality-of-experience data is used to fine-tune the algorithm, making the system smarter and more precise with every hire.
+                  </p>
+                </div>
               </AccordionContent>
             </AccordionItem>
             
