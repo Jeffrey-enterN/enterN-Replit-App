@@ -82,7 +82,7 @@ export default function SupportPage() {
               </p>
             </CardContent>
             <CardFooter>
-              <Button className="w-full" onClick={() => window.location.href = "https://calendly.com/entern/demo"}>
+              <Button className="w-full" onClick={() => window.location.href = "https://calendly.com/enter-n/demo"}>
                 Book a Demo
               </Button>
             </CardFooter>

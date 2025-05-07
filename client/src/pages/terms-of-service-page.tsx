@@ -32,7 +32,7 @@ export default function TermsOfServicePage() {
 
         <div className="prose prose-stone max-w-none">
           <p>
-            The website located at www.entern.io (the "Site") is a copyrighted work belonging to enterN, Inc. ("Company", "us", "our", and "we"). 
+            The website located at www.enter-n.com (the "Site") is a copyrighted work belonging to enterN, Inc. ("Company", "us", "our", and "we"). 
             Certain features of the Site may be subject to additional guidelines, terms, or rules, which will be posted on the Site in connection with such features. 
             All such additional terms, guidelines, and rules are incorporated by reference into these Terms.
           </p>
