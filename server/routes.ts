@@ -1796,6 +1796,82 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     }
   });
+  
+  // Admin endpoint to migrate employer profiles to company records
+  app.post("/api/admin/merge-employer-company", async (req, res) => {
+    try {
+      // Check if the request has a secret key matching DB_ADMIN_KEY
+      if (req.body.key !== 'enterN-admin-secret-key') {
+        return res.status(403).json({ 
+          error: "Unauthorized", 
+          message: "Valid admin key required for migration operations" 
+        });
+      }
+      
+      console.log("Starting employer to company migration via admin endpoint");
+      
+      // Import the migration script
+      const mergeEmployerToCompany = (await import("../scripts/merge-employer-company")).default;
+      
+      // Run the migration
+      const result = await mergeEmployerToCompany();
+      
+      res.status(200).json({
+        success: true,
+        result,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error("Error during employer to company migration:", error);
+      res.status(500).json({
+        success: false,
+        error: (error as Error).message,
+        timestamp: new Date().toISOString()
+      });
+    }
+  });
+  
+  // Admin endpoint to remove employer tables after migration
+  app.post("/api/admin/remove-employer-tables", async (req, res) => {
+    try {
+      // Check if the request has a secret key matching DB_ADMIN_KEY
+      if (req.body.key !== 'enterN-admin-secret-key') {
+        return res.status(403).json({ 
+          error: "Unauthorized", 
+          message: "Valid admin key required for migration operations" 
+        });
+      }
+      
+      // Check for confirmation flag
+      if (!req.body.confirm) {
+        return res.status(400).json({ 
+          error: "Confirmation Required", 
+          message: "This operation will permanently delete tables. Add 'confirm: true' to proceed." 
+        });
+      }
+      
+      console.log("Starting employer tables removal via admin endpoint");
+      
+      // Import the migration script
+      const removeEmployerTables = (await import("../scripts/remove-employer-tables")).default;
+      
+      // Run the script
+      const result = await removeEmployerTables();
+      
+      res.status(200).json({
+        success: true,
+        result,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error("Error during employer tables removal:", error);
+      res.status(500).json({
+        success: false,
+        error: (error as Error).message,
+        timestamp: new Date().toISOString()
+      });
+    }
+  });
 
   // Set up match routes (swipe-to-match functionality)
   const router = Router();

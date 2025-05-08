@@ -116,9 +116,6 @@ async function migrateDraftsToCompanies(deleteDrafts = false) {
       success: false, 
       error: errorMessage 
     };
-  } finally {
-    // Close the database connection
-    await pool.end();
   }
 }
 
