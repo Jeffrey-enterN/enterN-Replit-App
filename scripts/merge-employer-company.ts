@@ -53,22 +53,26 @@ async function mergeEmployerToCompanyProfiles() {
           if (existingCompany) {
             console.log(`User ${user.id} already has company ID: ${existingCompany.id}, updating with employer profile data`);
             
+            // Build company update data
+            const updateData = {
+              name: profile.companyName || existingCompany.name,
+              about: profile.aboutCompany || existingCompany.about,
+              industries: profile.companyIndustry ? [profile.companyIndustry] : existingCompany.industries,
+              size: profile.companySize || existingCompany.size,
+              yearFounded: profile.yearFounded || existingCompany.yearFounded,
+              additionalOffices: profile.additionalOffices || existingCompany.additionalOffices,
+              workArrangements: profile.additionalOffices ? profile.additionalOffices : existingCompany.workArrangements,
+              website: profile.companyWebsite || existingCompany.website,
+              logo: existingCompany.logo,
+              mission: profile.companyMission || existingCompany.mission,
+              values: profile.companyValues || existingCompany.values,
+              benefits: profile.benefits || existingCompany.benefits,
+              updatedAt: new Date()
+            };
+            
             const [updatedCompany] = await db
               .update(companies)
-              .set({
-                name: profile.companyName || existingCompany.name,
-                about: profile.aboutCompany || existingCompany.about,
-                industries: profile.companyIndustry ? [profile.companyIndustry] : existingCompany.industries,
-                size: profile.companySize || existingCompany.size,
-                yearFounded: profile.yearFounded || existingCompany.yearFounded,
-                additionalOffices: profile.additionalOffices || existingCompany.additionalOffices,
-                workArrangements: profile.additionalOffices ? profile.additionalOffices : existingCompany.workArrangements,
-                website: profile.companyWebsite || existingCompany.website,
-                logo: existingCompany.logo,
-                values: profile.companyValues || existingCompany.values,
-                benefits: profile.benefits || existingCompany.benefits,
-                updatedAt: new Date()
-              })
+              .set(updateData)
               .where(eq(companies.id, existingCompany.id))
               .returning();
             
@@ -78,24 +82,27 @@ async function mergeEmployerToCompanyProfiles() {
             console.log(`User ${user.id} has companyId ${user.companyId} but company not found, creating new company`);
             
             // Create a new company with employer profile data
+            // Build object with only valid fields from the companies schema
+            const companyData = {
+              name: profile.companyName || user.companyName || 'Unnamed Company',
+              about: profile.aboutCompany || null,
+              industries: profile.companyIndustry ? [profile.companyIndustry] : [],
+              size: profile.companySize || null,
+              yearFounded: profile.yearFounded || null,
+              additionalOffices: profile.additionalOffices || [],
+              workArrangements: [],
+              website: profile.companyWebsite || null,
+              logo: null,
+              mission: profile.companyMission || null,
+              values: profile.companyValues || null,
+              benefits: profile.benefits || [],
+              createdAt: new Date(),
+              updatedAt: new Date()
+            };
+
             const [newCompany] = await db
               .insert(companies)
-              .values({
-                name: profile.companyName || user.companyName || 'Unnamed Company',
-                about: profile.aboutCompany || null,
-                industries: profile.companyIndustry ? [profile.companyIndustry] : [],
-                size: profile.companySize || null,
-                yearFounded: profile.yearFounded || null,
-                additionalOffices: profile.additionalOffices || [],
-                workArrangements: [],
-                website: profile.companyWebsite || null,
-                logo: null,
-                mission: profile.companyMission || null,
-                values: profile.companyValues || null,
-                benefits: profile.benefits || null,
-                createdAt: new Date(),
-                updatedAt: new Date()
-              })
+              .values(companyData)
               .returning();
             
             console.log(`Created new company ID: ${newCompany.id} for user ${user.id}`);
@@ -117,9 +124,8 @@ async function mergeEmployerToCompanyProfiles() {
           // User doesn't have a company, create one
           console.log(`User ${user.id} doesn't have a company, creating new company`);
           
-          const [newCompany] = await db
-            .insert(companies)
-            .values({
+          // Build company data object
+          const companyData = {
               name: profile.companyName || user.companyName || 'Unnamed Company',
               about: profile.aboutCompany || null,
               industries: profile.companyIndustry ? [profile.companyIndustry] : [],
@@ -131,10 +137,14 @@ async function mergeEmployerToCompanyProfiles() {
               logo: null,
               mission: profile.companyMission || null,
               values: profile.companyValues || null,
-              benefits: profile.benefits || null,
+              benefits: profile.benefits || [],
               createdAt: new Date(),
               updatedAt: new Date()
-            })
+          };
+          
+          const [newCompany] = await db
+            .insert(companies)
+            .values(companyData)
             .returning();
           
           console.log(`Created new company ID: ${newCompany.id} for user ${user.id}`);
@@ -164,25 +174,28 @@ async function mergeEmployerToCompanyProfiles() {
           
           // For each draft, create a company profile draft
           for (const draft of employerDrafts) {
+            // Build draft data with correct field mapping
+            const draftData = {
+              name: draft.draftData.companyName || user.companyName || 'Unnamed Company',
+              about: draft.draftData.aboutCompany || null,
+              industries: draft.draftData.companyIndustry ? [draft.draftData.companyIndustry] : [],
+              size: draft.draftData.companySize || null,
+              yearFounded: draft.draftData.yearFounded || null,
+              additionalOffices: draft.draftData.additionalOffices || [],
+              workArrangements: [],
+              website: draft.draftData.companyWebsite || null,
+              logo: null,
+              mission: draft.draftData.companyMission || null,
+              values: draft.draftData.companyValues || null,
+              benefits: draft.draftData.benefits || []
+            };
+            
             const [companyDraft] = await db
               .insert(companyProfileDrafts)
               .values({
                 userId: user.id,
                 companyId: user.companyId,
-                draftData: {
-                  name: draft.draftData.companyName || user.companyName || 'Unnamed Company',
-                  about: draft.draftData.aboutCompany || null,
-                  industries: draft.draftData.companyIndustry ? [draft.draftData.companyIndustry] : [],
-                  size: draft.draftData.companySize || null,
-                  yearFounded: draft.draftData.yearFounded || null,
-                  additionalOffices: draft.draftData.additionalOffices || [],
-                  workArrangements: [],
-                  website: draft.draftData.companyWebsite || null,
-                  logo: null,
-                  mission: draft.draftData.companyMission || null,
-                  values: draft.draftData.companyValues || null,
-                  benefits: draft.draftData.benefits || null
-                },
+                draftData: draftData,
                 createdAt: draft.createdAt,
                 updatedAt: new Date()
               })
