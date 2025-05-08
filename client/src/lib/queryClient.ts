@@ -1,4 +1,11 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
+import { 
+  addMobileAuthToRequest, 
+  saveMobileToken, 
+  clearMobileToken, 
+  isIOSDevice, 
+  isMobileDevice 
+} from './mobile-auth-helper';
 
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
@@ -19,6 +26,12 @@ async function throwIfResNotOk(res: Response) {
       errorMessage = res.statusText;
     }
     
+    // If unauthorized on a mobile device, clear the mobile token
+    if (res.status === 401 && isMobileDevice()) {
+      console.log('Unauthorized response - clearing mobile token');
+      clearMobileToken();
+    }
+    
     // Provide a more user-friendly message
     throw new Error(errorMessage || `Error ${res.status}: Please try again later`);
   }
@@ -29,15 +42,40 @@ export async function apiRequest(
   url: string,
   data?: unknown | undefined,
 ): Promise<Response> {
-  const res = await fetch(url, {
-    method,
-    headers: data ? { "Content-Type": "application/json" } : {},
-    body: data ? JSON.stringify(data) : undefined,
-    credentials: "include",
-  });
+  try {
+    // Add mobile auth token to request headers if on mobile
+    const requestOptions = addMobileAuthToRequest({
+      method,
+      headers: data ? { "Content-Type": "application/json" } : {},
+      body: data ? JSON.stringify(data) : undefined,
+      credentials: "include", // Important for cookies to be sent
+    });
+    
+    const res = await fetch(url, requestOptions);
+    
+    // Handle auth token from response for mobile devices
+    if (isMobileDevice() && res.ok) {
+      try {
+        // Attempt to parse the response to check for mobile token
+        const clonedRes = res.clone();
+        const data = await clonedRes.json();
+        
+        // If the response contains a mobile token in the metadata, save it
+        if (data && data._meta && data._meta.mobileToken) {
+          console.log('Mobile authentication token received');
+          saveMobileToken(data._meta.mobileToken);
+        }
+      } catch (e) {
+        // Silently fail - not all responses will be JSON or have tokens
+      }
+    }
 
-  await throwIfResNotOk(res);
-  return res;
+    await throwIfResNotOk(res);
+    return res;
+  } catch (error) {
+    console.error(`API request error (${method} ${url}):`, error);
+    throw error;
+  }
 }
 
 type UnauthorizedBehavior = "returnNull" | "throw";
@@ -46,16 +84,49 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
-    const res = await fetch(queryKey[0] as string, {
-      credentials: "include",
+    // Add mobile auth token to request headers if on mobile
+    const requestOptions = addMobileAuthToRequest({
+      credentials: "include"
     });
+    
+    try {
+      const res = await fetch(queryKey[0] as string, requestOptions);
+      
+      // Handle auth token from response for mobile devices
+      if (isMobileDevice() && res.ok) {
+        try {
+          // Attempt to parse the response to check for mobile token
+          const clonedRes = res.clone();
+          const data = await clonedRes.json();
+          
+          // If the response contains a mobile token in the metadata, save it
+          if (data && data._meta && data._meta.mobileToken) {
+            console.log('Mobile authentication token received from query');
+            saveMobileToken(data._meta.mobileToken);
+          }
+          
+          // Return the original parsed data
+          await throwIfResNotOk(res);
+          return data;
+        } catch (e) {
+          // If JSON parsing fails, continue with normal flow
+        }
+      }
 
-    if (unauthorizedBehavior === "returnNull" && res.status === 401) {
-      return null;
+      if (unauthorizedBehavior === "returnNull" && res.status === 401) {
+        if (isMobileDevice()) {
+          console.log('Unauthorized in query - clearing mobile token');
+          clearMobileToken();
+        }
+        return null;
+      }
+
+      await throwIfResNotOk(res);
+      return await res.json();
+    } catch (error) {
+      console.error(`Query error (${queryKey[0]}):`, error);
+      throw error;
     }
-
-    await throwIfResNotOk(res);
-    return await res.json();
   };
 
 // Helper to detect if we're on iOS

@@ -79,7 +79,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const loginMutation = useMutation({
     mutationFn: async (credentials: LoginData) => {
       try {
-        const res = await apiRequest("POST", "/api/login", credentials);
+        // Add a flag for mobile clients to improve server-side handling
+        const credentialsWithMeta = {
+          ...credentials,
+          _clientInfo: {
+            isMobile: isMobile,
+            isIOS: isIOS,
+            userAgent: navigator.userAgent,
+            timestamp: new Date().toISOString()
+          }
+        };
+        
+        // Use our enhanced apiRequest that handles mobile tokens
+        const res = await apiRequest("POST", "/api/login", credentialsWithMeta);
         return await res.json();
       } catch (error) {
         console.error("Login API error:", error);
@@ -116,7 +128,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const registerMutation = useMutation({
     mutationFn: async (credentials: RegisterData) => {
       try {
-        const res = await apiRequest("POST", "/api/register", credentials);
+        // Add a flag for mobile clients to improve server-side handling
+        const credentialsWithMeta = {
+          ...credentials,
+          _clientInfo: {
+            isMobile: isMobile,
+            isIOS: isIOS,
+            userAgent: navigator.userAgent,
+            timestamp: new Date().toISOString()
+          }
+        };
+        
+        // Use our enhanced apiRequest that handles mobile tokens
+        const res = await apiRequest("POST", "/api/register", credentialsWithMeta);
         return await res.json();
       } catch (error) {
         console.error("Registration API error:", error);
@@ -156,6 +180,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
     onSuccess: () => {
       queryClient.setQueryData(["/api/user"], null);
+      
+      // Clear mobile auth token on logout
+      if (isMobile) {
+        import('../lib/mobile-auth-helper').then(({ clearMobileToken }) => {
+          clearMobileToken();
+          console.log('Mobile auth token cleared on logout');
+        });
+      }
     },
     onError: (error: Error) => {
       toast({
