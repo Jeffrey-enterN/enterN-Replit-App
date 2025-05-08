@@ -3,6 +3,9 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth } from "./auth";
 import { USER_TYPES } from "../shared/schema";
+import { setupMatchRoutes } from "./routes-match";
+import { WebSocketServer } from 'ws';
+import { Router } from "express";
 import { scrapeCompanyWebsite } from "./utils/website-scraper";
 import { sql } from "drizzle-orm";
 
@@ -1574,7 +1577,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Set up match routes (swipe-to-match functionality)
+  const router = Router();
+  setupMatchRoutes(router);
+  app.use(router);
+
+  // Create HTTP server
   const httpServer = createServer(app);
+
+  // Set up WebSocket server for real-time notifications
+  const wss = new WebSocketServer({ server: httpServer, path: '/ws' });
+  
+  // WebSocket connection handler
+  wss.on('connection', (ws) => {
+    console.log('WebSocket client connected');
+    
+    // Send a welcome message
+    ws.send(JSON.stringify({
+      type: 'connection',
+      message: 'Connected to enterN WebSocket server'
+    }));
+    
+    // Handle messages from clients
+    ws.on('message', (message) => {
+      try {
+        const data = JSON.parse(message.toString());
+        console.log('Received message:', data);
+        
+        // Handle different message types
+        switch (data.type) {
+          case 'ping':
+            ws.send(JSON.stringify({ type: 'pong', timestamp: Date.now() }));
+            break;
+            
+          default:
+            console.log('Unknown message type:', data.type);
+        }
+      } catch (error) {
+        console.error('Error handling WebSocket message:', error);
+      }
+    });
+    
+    // Handle disconnection
+    ws.on('close', () => {
+      console.log('WebSocket client disconnected');
+    });
+  });
 
   return httpServer;
 }
