@@ -1616,6 +1616,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     }
   });
+  
+  // Submit company profile draft to create or update real company profile
+  app.post("/api/employer/company-profile/submit", async (req, res) => {
+    if (!req.isAuthenticated()) return res.status(401).json({ message: "Unauthorized" });
+    if (req.user.userType !== USER_TYPES.EMPLOYER) return res.status(403).json({ message: "Forbidden" });
+    
+    const { draftId } = req.body;
+    
+    if (!draftId) {
+      return res.status(400).json({ message: "Draft ID is required" });
+    }
+    
+    try {
+      console.log(`Submitting company profile draft ${draftId} for user ${req.user.id}`);
+      
+      // Submit the draft to create or update a company
+      const company = await storage.submitCompanyProfileDraft(req.user.id, draftId);
+      
+      console.log(`Successfully created/updated company profile for user ${req.user.id}, company ID: ${company.id}`);
+      
+      // Return the company data with the user's company record updated
+      const updatedUser = await storage.getUser(req.user.id);
+      
+      // Update the session user data
+      if (updatedUser) {
+        req.login(updatedUser, (err) => {
+          if (err) {
+            console.error("Error updating session user data:", err);
+          }
+        });
+      }
+      
+      // Return the company data
+      res.status(200).json({
+        ...company,
+        _meta: {
+          submittedAt: new Date().toISOString(),
+          userId: req.user.id,
+          message: "Company profile successfully created/updated"
+        }
+      });
+    } catch (error) {
+      console.error(`Error submitting company profile draft:`, error);
+      res.status(500).json({ 
+        message: (error as Error).message,
+        _meta: {
+          userId: req.user.id,
+          draftId,
+          timestamp: new Date().toISOString(),
+          errorType: error instanceof Error ? error.name : 'Unknown'
+        }
+      });
+    }
+  });
 
   // Set up match routes (swipe-to-match functionality)
   const router = Router();
