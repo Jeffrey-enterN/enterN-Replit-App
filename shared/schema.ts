@@ -393,7 +393,8 @@ export const swipes = pgTable("swipes", {
   jobseekerId: integer("jobseeker_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   employerId: integer("employer_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   interested: boolean("interested").notNull(),
-  hideUntil: timestamp("hide_until"),  // For temporarily hiding rejected profiles from company feed
+  // Note: hideUntil column was removed as it doesn't exist in the actual database
+  // hideUntil: timestamp("hide_until"),  // For temporarily hiding rejected profiles from company feed
   createdAt: timestamp("created_at").defaultNow(),
 }, (table) => {
   return {
