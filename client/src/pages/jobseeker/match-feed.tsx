@@ -98,9 +98,40 @@ export default function JobseekerMatchFeed() {
   const handleNotInterested = (id: string) => {
     swipeMutation.mutate({ id, interested: false });
   };
+  
+  // Reset all swipes for testing
+  const resetSwipesMutation = useMutation({
+    mutationFn: async () => {
+      const response = await apiRequest('POST', '/api/test/jobseeker/reset-swipes', {});
+      return response.json();
+    },
+    onSuccess: (data) => {
+      // Show a success toast with how many swipes were reset
+      toast({
+        title: 'Rejected Companies Reset',
+        description: data.message || `Successfully reset ${data.count} previously rejected companies.`,
+      });
+      
+      // Clear existing matches data from cache and fetch new matches
+      queryClient.removeQueries({ queryKey: ['/api/jobseeker/matches/potential'] });
+      refetchPotentialMatches();
+    },
+    onError: (error: Error) => {
+      toast({
+        title: 'Error Resetting Rejected Companies',
+        description: error.message,
+        variant: 'destructive',
+      });
+    }
+  });
+  
+  const handleResetSwipes = () => {
+    resetSwipesMutation.mutate();
+  };
 
   // Determine if we should show the loading state
-  const showLoadingState = isLoading || isRefetching || isProcessingSwipe || swipeMutation.isPending;
+  const showLoadingState = isLoading || isRefetching || isProcessingSwipe || 
+    swipeMutation.isPending || resetSwipesMutation.isPending;
   
   return (
     <JobseekerLayout>
@@ -138,6 +169,17 @@ export default function JobseekerMatchFeed() {
                 <RefreshCw className="w-4 h-4 mr-2" />
                 Check for new opportunities
               </Button>
+              
+              <Button 
+                className="w-full max-w-xs bg-primary hover:bg-primary/90"
+                onClick={handleResetSwipes}
+              >
+                Reset Rejected Companies
+              </Button>
+              
+              <p className="text-xs text-gray-500 mt-1 max-w-xs mx-auto">
+                This will let you see previously rejected companies again, while preserving your matches.
+              </p>
               
               <Button 
                 className="w-full max-w-xs" 

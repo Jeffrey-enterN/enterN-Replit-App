@@ -620,6 +620,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Reset all swipes for an employer (testing endpoint)
+  app.post("/api/test/employer/reset-swipes", async (req, res) => {
+    if (!req.isAuthenticated()) return res.status(401).json({ message: "Unauthorized" });
+    if (req.user.userType !== USER_TYPES.EMPLOYER) return res.status(403).json({ message: "Forbidden" });
+    
+    try {
+      const result = await storage.resetEmployerSwipes(req.user.id);
+      console.log(`Reset ${result.count} swipes for employer ${req.user.id}`);
+      
+      // Return a success message with count
+      res.status(200).json({
+        message: `Successfully reset ${result.count} swipes. Refresh the page to see new potential matches.`,
+        count: result.count
+      });
+    } catch (error) {
+      console.error("Error resetting swipes:", error);
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
+  
   // Support message endpoint - logs support requests to the console
   app.post("/api/support/message", async (req, res) => {
     const { name, email, subject, message } = req.body;

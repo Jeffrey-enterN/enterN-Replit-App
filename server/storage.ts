@@ -2446,33 +2446,49 @@ export class DatabaseStorage implements IStorage {
   }
 
   /**
-   * Reset all swipes for a jobseeker to enable reusing profiles for testing
+   * Reset negative swipes for a jobseeker to enable reusing profiles for testing
+   * Only remove swipes where the jobseeker was not interested (preserve matches)
    * This is a development/testing feature
    */
   async resetJobseekerSwipes(jobseekerId: number): Promise<{ count: number }> {
-    console.log(`Resetting swipes for jobseeker: ${jobseekerId}`);
+    console.log(`Resetting negative swipes for jobseeker: ${jobseekerId}`);
     
+    // Only delete swipes where interested = false (rejected profiles)
+    // This preserves matches and positive swipes
     const result = await db
       .delete(swipes)
-      .where(eq(swipes.jobseekerId, jobseekerId));
+      .where(
+        and(
+          eq(swipes.jobseekerId, jobseekerId),
+          eq(swipes.interested, false)
+        )
+      );
     
-    console.log(`Deleted ${result.rowCount} swipes for jobseeker ${jobseekerId}`);
+    console.log(`Deleted ${result.rowCount} negative swipes for jobseeker ${jobseekerId}`);
     
     return { count: result.rowCount || 0 };
   }
 
   /**
-   * Reset all swipes for an employer to enable reusing profiles for testing
+   * Reset negative swipes for an employer to enable reusing profiles for testing
+   * Only remove swipes where the employer was not interested (preserve matches)
    * This is a development/testing feature
    */
   async resetEmployerSwipes(employerId: number): Promise<{ count: number }> {
-    console.log(`Resetting swipes for employer: ${employerId}`);
+    console.log(`Resetting negative swipes for employer: ${employerId}`);
     
+    // Only delete swipes where interested = false (rejected profiles)
+    // This preserves matches and positive swipes
     const result = await db
       .delete(swipes)
-      .where(eq(swipes.employerId, employerId));
+      .where(
+        and(
+          eq(swipes.employerId, employerId),
+          eq(swipes.interested, false)
+        )
+      );
     
-    console.log(`Deleted ${result.rowCount} swipes for employer ${employerId}`);
+    console.log(`Deleted ${result.rowCount} negative swipes for employer ${employerId}`);
     
     return { count: result.rowCount || 0 };
   }
