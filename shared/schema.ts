@@ -15,7 +15,12 @@ export const MATCH_STATUS = {
   NEW: 'new',                     // Initial match state
   CONNECTED: 'connected',         // Users have initiated communication
   CHATTING: 'chatting',           // Active conversation in progress
+  JOBS_SHARED: 'jobs_shared',     // Employer has shared jobs with jobseeker
+  JOB_INTERESTED: 'job_interested', // Jobseeker has expressed interest in a shared job
+  INTERVIEW_REQUESTED: 'interview_requested', // Interview has been requested
   INTERVIEW_SCHEDULED: 'interview_scheduled', // Interview has been scheduled
+  INTERVIEWING: 'interviewing',   // Interview process is ongoing
+  OFFER_MADE: 'offer_made',       // Job offer has been made
   REJECTED: 'rejected',           // One party rejected the match
   ARCHIVED: 'archived',           // Match archived/no longer active
   HIRED: 'hired'                  // Jobseeker was hired
@@ -388,6 +393,7 @@ export const swipes = pgTable("swipes", {
   jobseekerId: integer("jobseeker_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   employerId: integer("employer_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   interested: boolean("interested").notNull(),
+  hideUntil: timestamp("hide_until"),  // For temporarily hiding rejected profiles from company feed
   createdAt: timestamp("created_at").defaultNow(),
 }, (table) => {
   return {
@@ -430,6 +436,12 @@ export const matches = pgTable("matches", {
   matchedAt: timestamp("matched_at").defaultNow(),
   status: text("status").notNull().default(MATCH_STATUS.NEW),
   jobPostingId: uuid("job_posting_id").references(() => jobPostings.id, { onDelete: "set null" }),
+  // Enhanced fields for messaging and scheduling
+  messagingEnabled: boolean("messaging_enabled").default(false),
+  schedulingEnabled: boolean("scheduling_enabled").default(false),
+  jobsShared: jsonb("jobs_shared"),  // Array of job IDs shared with the jobseeker
+  interviewScheduledAt: timestamp("interview_scheduled_at"),
+  interviewStatus: text("interview_status"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 }, (table) => {
@@ -467,3 +479,42 @@ export const insertMatchSchema = createInsertSchema(matches).omit({
 
 export type InsertMatch = z.infer<typeof insertMatchSchema>;
 export type Match = typeof matches.$inferSelect;
+
+// === JOB INTERESTS ===
+
+export const jobInterests = pgTable("job_interests", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  jobseekerId: integer("jobseeker_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  jobPostingId: uuid("job_posting_id").notNull().references(() => jobPostings.id, { onDelete: "cascade" }),
+  interested: boolean("interested").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => {
+  return {
+    // Ensure a jobseeker can only express interest in a job once
+    uniqueJobInterest: unique().on(
+      table.jobseekerId, 
+      table.jobPostingId
+    ),
+  }
+});
+
+export const jobInterestsRelations = relations(jobInterests, ({ one }) => ({
+  jobseeker: one(users, {
+    fields: [jobInterests.jobseekerId],
+    references: [users.id],
+  }),
+  jobPosting: one(jobPostings, {
+    fields: [jobInterests.jobPostingId],
+    references: [jobPostings.id],
+  })
+}));
+
+export const insertJobInterestSchema = createInsertSchema(jobInterests).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertJobInterest = z.infer<typeof insertJobInterestSchema>;
+export type JobInterest = typeof jobInterests.$inferSelect;
