@@ -67,16 +67,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const loginMutation = useMutation({
     mutationFn: async (credentials: LoginData) => {
-      const res = await apiRequest("POST", "/api/login", credentials);
-      return await res.json();
+      try {
+        const res = await apiRequest("POST", "/api/login", credentials);
+        return await res.json();
+      } catch (error) {
+        console.error("Login API error:", error);
+        throw error; // Re-throw to be handled by onError
+      }
     },
     onSuccess: (user: User) => {
       queryClient.setQueryData(["/api/user"], user);
+      
+      // Show success toast
+      toast({
+        title: "Signed in successfully",
+        description: `Welcome back${user.firstName ? ', ' + user.firstName : ''}!`,
+        variant: "default",
+      });
     },
     onError: (error: Error) => {
+      console.error("Login mutation error:", error);
+      
+      // Format error message for better user experience
+      let errorMessage = error.message;
+      if (errorMessage.includes("401") || errorMessage.includes("Invalid username or password")) {
+        errorMessage = "Invalid email or password. Please try again.";
+      }
+      
       toast({
         title: "Login failed",
-        description: error.message,
+        description: errorMessage,
         variant: "destructive",
       });
     },
@@ -84,16 +104,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const registerMutation = useMutation({
     mutationFn: async (credentials: RegisterData) => {
-      const res = await apiRequest("POST", "/api/register", credentials);
-      return await res.json();
+      try {
+        const res = await apiRequest("POST", "/api/register", credentials);
+        return await res.json();
+      } catch (error) {
+        console.error("Registration API error:", error);
+        throw error; // Re-throw to be handled by onError
+      }
     },
     onSuccess: (user: User) => {
       queryClient.setQueryData(["/api/user"], user);
+      // Show success toast
+      toast({
+        title: "Account created successfully!",
+        description: "Welcome to enterN. You're now logged in.",
+        variant: "default",
+      });
     },
     onError: (error: Error) => {
+      console.error("Registration mutation error:", error);
+      // Format error message for better user experience
+      let errorMessage = error.message;
+      if (errorMessage.includes("Username already exists")) {
+        errorMessage = "This email address is already registered. Please sign in instead.";
+      } else if (errorMessage.includes("400")) {
+        errorMessage = "Please check your information and try again.";
+      }
+      
       toast({
         title: "Registration failed",
-        description: error.message,
+        description: errorMessage,
         variant: "destructive",
       });
     },

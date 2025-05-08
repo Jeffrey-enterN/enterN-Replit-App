@@ -19,6 +19,7 @@ import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
+import { useToast } from '@/hooks/use-toast';
 
 // Form schema for jobseeker registration
 const formSchema = z.object({
@@ -39,6 +40,7 @@ export default function JobseekerSignUpPage() {
   const { user, registerMutation } = useAuth();
   const [, navigate] = useLocation();
   const [showPassword, setShowPassword] = useState(false);
+  const { toast } = useToast();
 
   // Redirect to dashboard if already logged in as a jobseeker
   useEffect(() => {
@@ -77,9 +79,21 @@ export default function JobseekerSignUpPage() {
         console.log('Registration successful:', data);
         // After successful registration, redirect to contact details page
         navigate('/contact-details');
+        
+        toast({
+          title: "Account created successfully",
+          description: "Welcome to enterN! Complete your profile to start matching with employers.",
+          variant: "default",
+        });
       },
       onError: (error) => {
         console.error('Registration error:', error);
+        
+        toast({
+          title: "Registration failed",
+          description: error instanceof Error ? error.message : "An unexpected error occurred. Please try again.",
+          variant: "destructive",
+        });
       }
     });
   }

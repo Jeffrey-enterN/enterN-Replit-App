@@ -43,6 +43,9 @@ function Router() {
       <Route path="/sign-up/jobseeker" component={JobseekerSignUpPage} />
       <Route path="/sign-up/employer" component={EmployerSignUpPage} />
       <Route path="/sign-up" component={SignUpPage} />
+      {/* Add these routes to handle direct access to sign-up paths */}
+      <Route path="/sign-up-jobseeker" component={JobseekerSignUpPage} />
+      <Route path="/sign-up-employer" component={EmployerSignUpPage} />
       <Route path="/privacy-policy" component={PrivacyPolicyPage} />
       <Route path="/terms-of-service" component={TermsOfServicePage} />
       <Route path="/support" component={SupportPage} />
