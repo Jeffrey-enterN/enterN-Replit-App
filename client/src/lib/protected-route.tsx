@@ -34,16 +34,22 @@ export function ProtectedRoute({
     );
   }
 
-  // Check if the user type matches the route
-  if (
-    (isJobseekerRoute && user.userType !== USER_TYPES.JOBSEEKER) ||
-    (isEmployerRoute && user.userType !== USER_TYPES.EMPLOYER)
-  ) {
-    return (
-      <Route path={path}>
-        <Redirect to={user.userType === USER_TYPES.JOBSEEKER ? "/jobseeker/dashboard" : "/employer/dashboard"} />
-      </Route>
-    );
+  // Special case for admin routes - they're accessible to all authenticated users
+  const isAdminRoute = path.startsWith("/admin");
+  
+  // Skip type checking for admin routes
+  if (!isAdminRoute) {
+    // Check if the user type matches the route
+    if (
+      (isJobseekerRoute && user.userType !== USER_TYPES.JOBSEEKER) ||
+      (isEmployerRoute && user.userType !== USER_TYPES.EMPLOYER)
+    ) {
+      return (
+        <Route path={path}>
+          <Redirect to={user.userType === USER_TYPES.JOBSEEKER ? "/jobseeker/dashboard" : "/employer/dashboard"} />
+        </Route>
+      );
+    }
   }
 
   return <Route path={path} component={Component} />;
