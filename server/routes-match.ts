@@ -41,7 +41,7 @@ export function setupMatchRoutes(router: Router) {
     const result = await getEmployerMatchFeed(user.id);
     
     if (!result.success) {
-      return res.status(500).json({ error: result.error });
+      return res.status(500).json({ error: result.error ? result.error : 'Unknown error' });
     }
 
     res.json(result.jobseekers);
@@ -80,7 +80,7 @@ export function setupMatchRoutes(router: Router) {
       );
       
       if (!result.success) {
-        return res.status(500).json({ error: result.error });
+        return res.status(500).json({ error: result.error ? result.error : 'Unknown error' });
       }
 
       res.status(201).json(result);
@@ -123,7 +123,7 @@ export function setupMatchRoutes(router: Router) {
       );
       
       if (!result.success) {
-        return res.status(500).json({ error: result.error });
+        return res.status(500).json({ error: result.error ? result.error : 'Unknown error' });
       }
 
       res.status(201).json(result);
@@ -162,12 +162,12 @@ export function setupMatchRoutes(router: Router) {
       const result = await shareJobsWithJobseeker(matchId, jobPostingIds);
       
       if (!result.success) {
-        return res.status(400).json({ error: result.error });
+        return res.status(400).json({ error: result.error ? result.error : 'Unknown error' });
       }
 
       res.json(result.match);
     } catch (error) {
-      res.status(400).json({ error: error.message });
+      res.status(400).json({ error: error instanceof Error ? error.message : String(error) });
     }
   });
 
@@ -200,12 +200,12 @@ export function setupMatchRoutes(router: Router) {
       const result = await expressJobInterest(user.id, jobPostingId, interested);
       
       if (!result.success) {
-        return res.status(400).json({ error: result.error });
+        return res.status(400).json({ error: result.error ? result.error : 'Unknown error' });
       }
 
       res.status(201).json(result);
     } catch (error) {
-      res.status(400).json({ error: error.message });
+      res.status(400).json({ error: error instanceof Error ? error.message : String(error) });
     }
   });
 
@@ -243,12 +243,12 @@ export function setupMatchRoutes(router: Router) {
       );
       
       if (!result.success) {
-        return res.status(400).json({ error: result.error });
+        return res.status(400).json({ error: result.error ? result.error : 'Unknown error' });
       }
 
       res.json(result.match);
     } catch (error) {
-      res.status(400).json({ error: error.message });
+      res.status(400).json({ error: error instanceof Error ? error.message : String(error) });
     }
   });
 
@@ -266,7 +266,7 @@ export function setupMatchRoutes(router: Router) {
       // Placeholder for actual implementation
       res.json([]);
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ error: error instanceof Error ? error.message : String(error) });
     }
   });
 
@@ -284,7 +284,7 @@ export function setupMatchRoutes(router: Router) {
       // Placeholder for actual implementation
       res.json({});
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ error: error instanceof Error ? error.message : String(error) });
     }
   });
 
