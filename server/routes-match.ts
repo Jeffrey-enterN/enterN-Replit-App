@@ -70,6 +70,7 @@ export function setupMatchRoutes(router: Router) {
     });
 
     try {
+      console.log('Processing jobseeker swipe, request body:', req.body);
       const { employerId, interested } = swipeSchema.parse(req.body);
       
       const result = await processJobseekerSwipe(
@@ -84,7 +85,8 @@ export function setupMatchRoutes(router: Router) {
 
       res.status(201).json(result);
     } catch (error) {
-      res.status(400).json({ error: error.message });
+      console.error('Error processing jobseeker swipe:', error);
+      res.status(400).json({ error: error instanceof Error ? error.message : String(error) });
     }
   });
 
@@ -94,7 +96,6 @@ export function setupMatchRoutes(router: Router) {
    * POST body:
    * - jobseekerId: ID of the jobseeker being swiped on
    * - interested: true for like, false for reject
-   * - hideUntilHours: (optional) hours to hide rejected profile
    */
   router.post('/api/swipe/employer', async (req: Request, res: Response) => {
     if (!req.isAuthenticated()) {
@@ -108,18 +109,17 @@ export function setupMatchRoutes(router: Router) {
 
     const swipeSchema = z.object({
       jobseekerId: z.number(),
-      interested: z.boolean(),
-      hideUntilHours: z.number().optional()
+      interested: z.boolean()
     });
 
     try {
-      const { jobseekerId, interested, hideUntilHours } = swipeSchema.parse(req.body);
+      console.log('Processing employer swipe, request body:', req.body);
+      const { jobseekerId, interested } = swipeSchema.parse(req.body);
       
       const result = await processEmployerSwipe(
         user.id,
         jobseekerId,
-        interested,
-        hideUntilHours
+        interested
       );
       
       if (!result.success) {
@@ -128,7 +128,8 @@ export function setupMatchRoutes(router: Router) {
 
       res.status(201).json(result);
     } catch (error) {
-      res.status(400).json({ error: error.message });
+      console.error('Error processing employer swipe:', error);
+      res.status(400).json({ error: error instanceof Error ? error.message : String(error) });
     }
   });
 
