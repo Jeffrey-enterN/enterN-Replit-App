@@ -67,7 +67,7 @@ export default function LandingPage() {
                   <span className="block text-gradient font-extrabold">enterN: Rewiring Hiring</span>
                 </h1>
                 <p className="mt-6 text-base text-gray-600 dark:text-gray-300 sm:mt-8 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-8 md:text-xl lg:mx-0 leading-relaxed">
-                  enterN connects employers with early-career talent based on organizational fit and values alignment, not just resumes. Build meaningful connections that lead to lasting careers.
+                  Resumes are bullsh!t, so enterN connects employers with early-career talent based on organizational fit and values alignment, not just resumes. Build meaningful connections that lead to lasting careers.
                 </p>
                 <div className="mt-8 sm:mt-10 sm:flex sm:justify-center lg:justify-start gap-4 flex-wrap">
                   <Button 
@@ -121,7 +121,7 @@ export default function LandingPage() {
                   <p className="ml-20 text-xl leading-6 font-medium text-gray-900 dark:text-white mb-4">Anonymized Jobseeker Profiles</p>
                 </dt>
                 <dd className="mt-2 ml-20 text-base text-gray-600 dark:text-gray-200 leading-relaxed">
-                  We've replaced the resume with bias-resistant anonymized profiles that capture 45 points of organizational and collaborative compatibility. Now you'll know if someone is a good fit, even before your first conversation.
+                  We ditched the dusty resume and built bias-resistant, anonymized profiles with 45 simple insights into team fit and work style. Now you'll know who vibes with your team before you even say, "hello." Bye guesswork, hellow great hires.
                 </dd>
               </div>
 
@@ -130,10 +130,10 @@ export default function LandingPage() {
                   <div className="absolute top-6 left-6 flex items-center justify-center h-14 w-14 rounded-md btn-gradient text-white shadow-lg">
                     <i className="fas fa-exchange-alt text-xl"></i>
                   </div>
-                  <p className="ml-20 text-xl leading-6 font-medium text-gray-900 dark:text-white mb-4">Symmetrical Matching</p>
+                  <p className="ml-20 text-xl leading-6 font-medium text-gray-900 dark:text-white mb-4">Swipe to Match</p>
                 </dt>
                 <dd className="mt-2 ml-20 text-base text-gray-600 dark:text-gray-200 leading-relaxed">
-                  Our platform uses a two-way matching algorithm where both jobseekers and employers express interest independently. Only when there's mutual interest does a match occur, leading to higher engagement and better conversion rates.
+                  Swipe right for fit. enterN's match mechanic connects jobseekers and employers who actually want to work together. No wasted time - just mutual vibes and real opportunities.
                 </dd>
               </div>
 
@@ -142,10 +142,10 @@ export default function LandingPage() {
                   <div className="absolute top-6 left-6 flex items-center justify-center h-14 w-14 rounded-md btn-gradient text-white shadow-lg">
                     <i className="fas fa-handshake text-xl"></i>
                   </div>
-                  <p className="ml-20 text-xl leading-6 font-medium text-gray-900 dark:text-white mb-4">Organizational Alignment</p>
+                  <p className="ml-20 text-xl leading-6 font-medium text-gray-900 dark:text-white mb-4">Better Hires</p>
                 </dt>
                 <dd className="mt-2 ml-20 text-base text-gray-600 dark:text-gray-200 leading-relaxed">
-                  Beyond skills and experience, enterN focuses on organizational fit, supervisor compatibility, and mission alignment. Our data shows that these factors lead to higher job satisfaction, better retention, and improved productivity.
+                  enterN goes beyond skills and experience: with a focus on organizational fit and team dynamics, we help you drive hires with higher job satisfaction, better retention, and improved productivity. It's time to rewire how you hire.
                 </dd>
               </div>
             </dl>
