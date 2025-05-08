@@ -1,4 +1,4 @@
-import { eq, and, or, isNull, gt } from 'drizzle-orm';
+import { eq, and, or, isNull, gt, inArray } from 'drizzle-orm';
 import { db } from './db';
 import { 
   users, swipes, matches, jobInterests, jobPostings,
@@ -99,30 +99,25 @@ export async function processJobseekerSwipe(
  * 
  * If the company rejects the jobseeker:
  *   - Record the swipe with interested=false 
- *   - Set hideUntil timestamp to temporarily hide the profile
+ *   - (Note: hideUntil functionality removed as column doesn't exist in database)
  */
 export async function processEmployerSwipe(
   employerId: number,
   jobseekerId: number,
   interested: boolean,
-  hideUntilHours: number = 24 // Default hide for 24 hours if rejected
+  hideUntilHours: number = 24 // This parameter is kept for backward compatibility but not used
 ) {
   try {
+    console.log(`Processing employer swipe: employerId=${employerId}, jobseekerId=${jobseekerId}, interested=${interested}`);
     // Begin transaction
     return await db.transaction(async (tx) => {
-      // For rejections, set a hideUntil timestamp
-      const hideUntil = !interested 
-        ? new Date(Date.now() + hideUntilHours * 60 * 60 * 1000) 
-        : null;
-
-      // Record the swipe
+      // Record the swipe - without hideUntil since the column doesn't exist
       const [swipe] = await tx
         .insert(swipes)
         .values({
           jobseekerId,
           employerId,
-          interested,
-          hideUntil
+          interested
         })
         .returning();
 
@@ -205,7 +200,7 @@ export async function shareJobsWithJobseeker(
     return { success: true, match: updatedMatch };
   } catch (error) {
     console.error('Error sharing jobs with jobseeker:', error);
-    return { success: false, error: error.message };
+    return { success: false, error: error instanceof Error ? error.message : String(error) };
   }
 }
 
@@ -307,7 +302,7 @@ export async function expressJobInterest(
     });
   } catch (error) {
     console.error('Error expressing job interest:', error);
-    return { success: false, error: error.message };
+    return { success: false, error: error instanceof Error ? error.message : String(error) };
   }
 }
 
@@ -319,11 +314,12 @@ export async function expressJobInterest(
  * 2. They have swiped to match (like) on the company
  * 
  * Jobseekers are excluded if:
- * 1. The employer already rejected them and the hideUntil period is active
+ * 1. The employer already rejected them (hideUntil functionality removed)
  * 2. The jobseeker rejected the employer
  */
 export async function getEmployerMatchFeed(employerId: number) {
   try {
+    console.log(`====== Getting potential matches for employer: ${employerId} ======`);
     // Get all jobseekers
     const allJobseekers = await db.query.users.findMany({
       where: eq(users.userType, USER_TYPES.JOBSEEKER),
@@ -338,6 +334,8 @@ export async function getEmployerMatchFeed(employerId: number) {
       }
     });
 
+    console.log(`Total jobseekers found: ${allJobseekers.length}`);
+
     // Filter the jobseekers based on swipe rules
     const eligibleJobseekers = allJobseekers.filter(jobseeker => {
       // Get the jobseeker's swipe on this employer (if any)
@@ -351,11 +349,9 @@ export async function getEmployerMatchFeed(employerId: number) {
         return false;
       }
       
-      // If the employer rejected and hideUntil is in the future, exclude them
-      if (employerSwipe && 
-          !employerSwipe.interested && 
-          employerSwipe.hideUntil && 
-          new Date(employerSwipe.hideUntil) > new Date()) {
+      // If the employer already rejected this jobseeker, exclude them
+      // (No longer using hideUntil since that column doesn't exist)
+      if (employerSwipe && !employerSwipe.interested) {
         return false;
       }
       
@@ -369,7 +365,7 @@ export async function getEmployerMatchFeed(employerId: number) {
     };
   } catch (error) {
     console.error('Error getting employer match feed:', error);
-    return { success: false, error: error.message };
+    return { success: false, error: error instanceof Error ? error.message : String(error) };
   }
 }
 
@@ -399,6 +395,6 @@ export async function scheduleInterview(
     return { success: true, match: updatedMatch };
   } catch (error) {
     console.error('Error scheduling interview:', error);
-    return { success: false, error: error.message };
+    return { success: false, error: error instanceof Error ? error.message : String(error) };
   }
 }
