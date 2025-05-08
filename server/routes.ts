@@ -1505,50 +1505,85 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const currentDraftType = draftType || 'create';
     
     try {
-      console.log(`Saving draft for user ID ${req.user.id}${parsedCompanyId ? ` and company ID ${parsedCompanyId}` : ''}, step ${currentStep}, type: ${currentDraftType}`);
+      console.log(`Saving company profile for user ID ${req.user.id}${parsedCompanyId ? ` and company ID ${parsedCompanyId}` : ''}, step ${currentStep}`);
       
       // Enhanced validation with detailed feedback
       if (!draftData) {
         return res.status(400).json({ 
-          message: "Draft data is required",
+          message: "Profile data is required",
           _meta: {
             userId: req.user.id,
             companyId: parsedCompanyId,
             timestamp: new Date().toISOString(),
-            error: "Missing draft data",
-            params: { step: currentStep, draftType: currentDraftType }
+            error: "Missing profile data",
+            params: { step: currentStep }
           }
         });
       }
       
       // Log payload size for debugging
-      console.log("Draft data size:", JSON.stringify(draftData).length, "bytes");
+      console.log("Profile data size:", JSON.stringify(draftData).length, "bytes");
       
-      const companyDraft = await storage.saveCompanyProfileDraft(
-        req.user.id, 
-        draftData, 
-        parsedCompanyId, 
-        currentStep,
-        currentDraftType
-      );
+      let company;
       
-      console.log(`Draft saved successfully, ID: ${companyDraft.id}`);
+      if (parsedCompanyId) {
+        // Update existing company
+        company = await storage.updateCompany(parsedCompanyId, {
+          ...draftData,
+          updatedAt: new Date()
+        });
+        console.log(`Company updated successfully, ID: ${company.id}`);
+      } else if (req.user.companyId) {
+        // Update user's existing company
+        company = await storage.updateCompany(req.user.companyId, {
+          ...draftData,
+          updatedAt: new Date()
+        });
+        console.log(`User's company updated successfully, ID: ${company.id}`);
+      } else {
+        // Create new company and associate with user
+        company = await storage.createCompany({
+          ...draftData,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        }, req.user.id);
+        
+        // Update user with company association
+        await storage.updateUser(req.user.id, {
+          companyId: company.id,
+          companyRole: 'admin',
+          updatedAt: new Date()
+        });
+        
+        console.log(`New company created successfully, ID: ${company.id}`);
+      }
+      
+      // Update session with new company info if needed
+      if (!req.user.companyId && company.id) {
+        const updatedUser = await storage.getUser(req.user.id);
+        if (updatedUser) {
+          req.login(updatedUser, (err) => {
+            if (err) {
+              console.error("Error updating session user data:", err);
+            }
+          });
+        }
+      }
       
       // Enhanced response with more metadata
       res.status(200).json({
-        ...companyDraft,
+        ...company,
         _meta: {
           savedAt: new Date().toISOString(),
-          message: "Company profile draft saved successfully",
+          message: "Company profile saved successfully",
           userId: req.user.id,
-          companyId: parsedCompanyId,
+          companyId: company.id,
           step: currentStep,
-          draftType: currentDraftType,
-          draftId: companyDraft.id
+          profileCompletion: company.profileCompletion || 0
         }
       });
     } catch (error) {
-      console.error("Error saving company profile draft:", error);
+      console.error("Error saving company profile:", error);
       res.status(500).json({ 
         message: (error as Error).message,
         _meta: {
@@ -1561,25 +1596,78 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Get company profile draft
+  // Get company profile (formerly "draft")
   app.get("/api/employer/company-profile/draft", async (req, res) => {
     if (!req.isAuthenticated()) return res.status(401).json({ message: "Unauthorized" });
     if (req.user.userType !== USER_TYPES.EMPLOYER) return res.status(403).json({ message: "Forbidden" });
 
-    const companyId = req.query.companyId ? parseInt(req.query.companyId as string) : undefined;
+    // Get from requested ID, user's company ID, or check drafts as fallback
+    const requestedCompanyId = req.query.companyId ? parseInt(req.query.companyId as string) : undefined;
+    const userCompanyId = req.user.companyId;
+    const targetCompanyId = requestedCompanyId || userCompanyId;
     
     try {
-      console.log(`Fetching draft for user ID ${req.user.id}${companyId ? ` and company ID ${companyId}` : ''}`);
+      let company;
+      let source = "company";
+      let draftData;
+      let step = 1;
       
-      const companyDraft = await storage.getCompanyProfileDraft(req.user.id, companyId);
+      // First try to find the company record
+      if (targetCompanyId) {
+        console.log(`Fetching company profile for user ID ${req.user.id} and company ID ${targetCompanyId}`);
+        company = await storage.getCompany(targetCompanyId);
+      }
       
-      if (!companyDraft) {
-        console.log(`No draft found for user ID ${req.user.id}${companyId ? ` and company ID ${companyId}` : ''}`);
+      // If company not found but we have drafts, try to find a draft as fallback
+      if (!company) {
+        console.log(`No company found, checking for drafts for user ID ${req.user.id}`);
+        
+        // Check for a company profile draft in the old system (for compatibility)
+        try {
+          const companyDraft = await storage.getCompanyProfileDraft(req.user.id, requestedCompanyId);
+          
+          if (companyDraft) {
+            console.log(`Draft found, ID: ${companyDraft.id}, migrating to company record`);
+            
+            // Create a company from the draft data
+            company = await storage.createCompany(companyDraft.draftData, req.user.id);
+            
+            // Update user with company association
+            await storage.updateUser(req.user.id, {
+              companyId: company.id,
+              companyRole: 'admin',
+              updatedAt: new Date()
+            });
+            
+            // Update the session user data
+            const updatedUser = await storage.getUser(req.user.id);
+            if (updatedUser) {
+              req.login(updatedUser, (err) => {
+                if (err) {
+                  console.error("Error updating session user data:", err);
+                }
+              });
+            }
+            
+            source = "migrated_draft";
+            draftData = companyDraft.draftData;
+            step = companyDraft.step || 1;
+            
+            console.log(`Migrated draft to company ID: ${company.id}`);
+          }
+        } catch (err) {
+          console.log("No draft found or error accessing drafts:", err);
+        }
+      }
+      
+      if (!company) {
+        console.log(`No company or draft found for user ID ${req.user.id}`);
         return res.status(404).json({
-          message: "No company profile draft found",
+          message: "No company profile found",
           _meta: {
             userId: req.user.id,
-            companyId,
+            requestedCompanyId,
+            userCompanyId,
             timestamp: new Date().toISOString(),
             path: req.path,
             query: req.query
@@ -1587,28 +1675,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
-      console.log(`Draft found, ID: ${companyDraft.id}, step: ${companyDraft.step}, type: ${companyDraft.draftType}`);
+      console.log(`Company profile found, ID: ${company.id}`);
       
+      // For backward compatibility, format the response like drafts were before
       res.status(200).json({
-        ...companyDraft,
+        id: company.id,
+        userId: req.user.id,
+        companyId: company.id,
+        draftData: draftData || company,
+        step: step,
         _meta: {
           fetchedAt: new Date().toISOString(),
           userId: req.user.id,
-          companyId,
-          source: "draft",
-          draftId: companyDraft.id,
-          draftType: companyDraft.draftType || 'create',
-          step: companyDraft.step || 1,
-          lastActive: companyDraft.lastActive || companyDraft.updatedAt
+          companyId: company.id,
+          source: source,
+          profileComplete: (company.profileCompletion || 0) >= 100
         }
       });
     } catch (error) {
-      console.error("Error fetching company profile draft:", error);
+      console.error("Error fetching company profile:", error);
       res.status(500).json({ 
         message: (error as Error).message,
         _meta: {
           userId: req.user?.id,
-          companyId,
+          requestedCompanyId,
+          userCompanyId,
           timestamp: new Date().toISOString(),
           path: req.path,
           errorType: error instanceof Error ? error.name : 'Unknown'
@@ -1667,6 +1758,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
           timestamp: new Date().toISOString(),
           errorType: error instanceof Error ? error.name : 'Unknown'
         }
+      });
+    }
+  });
+
+  // Admin endpoint to migrate company profile drafts to company records
+  app.post("/api/admin/migrate-drafts", async (req, res) => {
+    try {
+      // Check if the request has a secret key matching DB_ADMIN_KEY
+      if (req.body.key !== 'enterN-admin-secret-key') {
+        return res.status(403).json({ 
+          error: "Unauthorized", 
+          message: "Valid admin key required for migration operations" 
+        });
+      }
+      
+      console.log("Starting draft migration via admin endpoint");
+      
+      // Import the migration script
+      const migrateDraftsToCompanies = (await import("../scripts/migrate-drafts-to-companies")).default;
+      
+      // Run the migration (optional flag to delete drafts after migration)
+      const deleteDrafts = req.body.deleteDrafts === true;
+      const result = await migrateDraftsToCompanies(deleteDrafts);
+      
+      res.status(200).json({
+        success: true,
+        result,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error("Error during draft migration:", error);
+      res.status(500).json({
+        success: false,
+        error: (error as Error).message,
+        timestamp: new Date().toISOString()
       });
     }
   });
