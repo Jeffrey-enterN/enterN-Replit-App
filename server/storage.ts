@@ -84,6 +84,7 @@ export interface IStorage {
   removeUserFromCompany(userId: number, companyId: number): Promise<void>;
   saveCompanyProfileDraft(userId: number, draftData: any, companyId?: number, step?: number, draftType?: string): Promise<any>;
   getCompanyProfileDraft(userId: number, companyId?: number): Promise<any | undefined>;
+  submitCompanyProfileDraft(userId: number, draftId: string): Promise<Company>;
   
   // Job posting methods
   getJobPosting(jobId: string): Promise<JobPosting | undefined>;
@@ -2491,6 +2492,86 @@ export class DatabaseStorage implements IStorage {
     console.log(`Deleted ${result.rowCount} negative swipes for employer ${employerId}`);
     
     return { count: result.rowCount || 0 };
+  }
+  
+  /**
+   * Submit a company profile draft to create or update a real company profile
+   * @param userId The user ID of the person submitting the draft
+   * @param draftId The ID of the draft to submit
+   * @returns The created or updated company
+   */
+  async submitCompanyProfileDraft(userId: number, draftId: string): Promise<Company> {
+    console.log(`Submitting company profile draft ${draftId} for user ${userId}`);
+    
+    // Find the draft
+    const [draft] = await db
+      .select()
+      .from(companyProfileDrafts)
+      .where(eq(companyProfileDrafts.id, draftId));
+    
+    if (!draft) {
+      throw new Error(`Draft with ID ${draftId} not found`);
+    }
+    
+    // Verify the user owns this draft
+    if (draft.userId !== userId) {
+      throw new Error(`User ${userId} does not own draft ${draftId}`);
+    }
+    
+    console.log(`Found draft for user ${userId}, draft type: ${draft.draftType}`);
+    
+    // Use a transaction to ensure atomicity
+    return await db.transaction(async (tx) => {
+      let company: Company;
+      
+      if (draft.draftType === 'create' || !draft.companyId) {
+        // Create a new company
+        console.log(`Creating new company from draft ${draftId}`);
+        
+        const [newCompany] = await tx
+          .insert(companies)
+          .values({
+            ...draft.draftData,
+            createdAt: new Date(),
+            updatedAt: new Date()
+          })
+          .returning();
+        
+        // Also update the user's company association
+        await tx
+          .update(users)
+          .set({
+            companyId: newCompany.id,
+            companyRole: 'admin',
+            updatedAt: new Date()
+          })
+          .where(eq(users.id, userId));
+        
+        company = newCompany;
+      } else {
+        // Update existing company
+        console.log(`Updating company ${draft.companyId} from draft ${draftId}`);
+        
+        const [updatedCompany] = await tx
+          .update(companies)
+          .set({
+            ...draft.draftData,
+            updatedAt: new Date()
+          })
+          .where(eq(companies.id, draft.companyId))
+          .returning();
+        
+        company = updatedCompany;
+      }
+      
+      // Delete the draft since it's been applied
+      console.log(`Deleting draft ${draftId} after successful application`);
+      await tx
+        .delete(companyProfileDrafts)
+        .where(eq(companyProfileDrafts.id, draftId));
+      
+      return company;
+    });
   }
 }
 
