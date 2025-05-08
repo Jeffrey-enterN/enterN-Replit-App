@@ -243,11 +243,17 @@ export function setupAuth(app: Express) {
           res.set('Expires', '-1');
           res.set('Pragma', 'no-cache');
           
+          // For mobile clients, generate a token they can use as fallback auth
+          const mobileToken = isIOS || isMobile 
+            ? `${user.id}:${req.sessionID}-${Date.now()}` 
+            : undefined;
+          
           res.status(201).json({
             ...userWithoutPassword,
             _meta: {
               authenticated: true,
               sessionID: req.sessionID,
+              mobileToken, // Include the token for mobile clients
               timestamp: new Date().toISOString(),
               isIOS
             }
@@ -319,11 +325,17 @@ export function setupAuth(app: Express) {
           res.set('Expires', '-1');
           res.set('Pragma', 'no-cache');
           
+          // For mobile clients, generate a token they can use as fallback auth
+          const mobileToken = isIOS || isMobile 
+            ? `${user.id}:${req.sessionID}-${Date.now()}` 
+            : undefined;
+            
           return res.status(200).json({
             ...userWithoutPassword,
             _meta: {
               authenticated: true,
               sessionID: req.sessionID,
+              mobileToken, // Include the token for mobile clients
               timestamp: new Date().toISOString(),
               isIOS
             }
@@ -345,6 +357,73 @@ export function setupAuth(app: Express) {
     console.log(`/api/user request - Session ID: ${req.sessionID}`);
     console.log(`  isAuthenticated: ${req.isAuthenticated()}`);
     console.log(`  session exists: ${!!req.session}`);
+    
+    // Check for alternate auth via Authorization header (used as fallback on iOS)
+    // Authorization: Bearer 123:sessiontoken format
+    const authHeader = req.headers.authorization;
+    let userFromToken = null;
+    let processingTokenAuth = false;
+    
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const token = authHeader.substring(7);
+      if (token && token.includes(':')) {
+        processingTokenAuth = true;
+        try {
+          // Simple validation and extraction
+          const [userIdStr, sessionToken] = token.split(':');
+          const userId = parseInt(userIdStr, 10);
+          
+          console.log(`Mobile token auth attempt - User ID: ${userId}, Token: ${sessionToken.substring(0, 5)}...`);
+          
+          if (!isNaN(userId) && sessionToken) {
+            storage.getUser(userId).then(user => {
+              if (user) {
+                console.log(`Mobile token auth successful for user ${userId}`);
+                
+                // Establish session for this user
+                req.login(user, (err) => {
+                  if (err) {
+                    console.error("Error logging in with token:", err);
+                    return res.status(401).json({ message: "Auth token invalid" });
+                  }
+                  
+                  // Remove password from response
+                  const { password: _, ...userWithoutPassword } = user;
+                  
+                  // Set cache headers
+                  res.set('Cache-Control', 'private, no-cache, no-store, must-revalidate');
+                  res.set('Expires', '-1');
+                  res.set('Pragma', 'no-cache');
+                  
+                  // Add mobile token to response for continued use
+                  res.json({
+                    ...userWithoutPassword,
+                    _meta: {
+                      authenticated: true,
+                      sessionID: req.sessionID,
+                      mobileToken: `${userId}:${sessionToken}`,
+                      timestamp: new Date().toISOString()
+                    }
+                  });
+                });
+              } else {
+                console.log(`Mobile token auth failed - User not found`);
+                res.status(401).json({ message: "Auth token invalid" });
+              }
+            }).catch(err => {
+              console.error("Error in token auth:", err);
+              res.status(401).json({ message: "Auth error" });
+            });
+          } else {
+            res.status(401).json({ message: "Invalid token format" });
+          }
+        } catch (error) {
+          console.error("Error processing auth token:", error);
+          res.status(401).json({ message: "Invalid token" });
+        }
+        return; // Return early as we're handling response asynchronously
+      }
+    }
     
     if (req.session) {
       console.log(`  session cookie settings:`, {
@@ -387,21 +466,49 @@ export function setupAuth(app: Express) {
       }
     }
     
-    if (!req.isAuthenticated()) {
+    // If not processing token auth and not authenticated via session
+    if (!processingTokenAuth && !req.isAuthenticated()) {
       console.log(`User not authenticated for /api/user - Status 401`);
       return res.sendStatus(401);
     }
     
-    // Remove password from the response
-    const { password: _, ...userWithoutPassword } = req.user;
-    
-    // Set the cache headers to prevent caching
-    res.set('Cache-Control', 'private, no-cache, no-store, must-revalidate');
-    res.set('Expires', '-1');
-    res.set('Pragma', 'no-cache');
-    
-    console.log(`User data successfully sent for user ID: ${req.user.id}`);
-    res.json(userWithoutPassword);
+    // If authentication is via session (not token)
+    if (!processingTokenAuth && req.user) {
+      // TypeScript safety - we've already verified authenticated above
+      const user = req.user as Express.User;
+      
+      // Remove password from the response
+      const { password: _, ...userWithoutPassword } = user;
+      
+      // Detect if it's a mobile client
+      const userAgent = req.headers['user-agent'] || '';
+      const isIOS = /iPad|iPhone|iPod/.test(userAgent);
+      const isMobile = /Mobile|Android/.test(userAgent);
+      
+      // Set the cache headers to prevent caching
+      res.set('Cache-Control', 'private, no-cache, no-store, must-revalidate');
+      res.set('Expires', '-1');
+      res.set('Pragma', 'no-cache');
+      
+      console.log(`User data successfully sent for user ID: ${user.id}`);
+      
+      // For mobile clients, generate a token they can use as fallback
+      if (isIOS || isMobile) {
+        const mobileToken = `${user.id}:${req.sessionID}-${Date.now()}`;
+        res.json({
+          ...userWithoutPassword,
+          _meta: {
+            authenticated: true,
+            sessionID: req.sessionID,
+            mobileToken,
+            timestamp: new Date().toISOString()
+          }
+        });
+      } else {
+        res.json(userWithoutPassword);
+      }
+    }
+    // If token auth, response is already sent
   });
 
   // Endpoint for updating user profile with contact details
