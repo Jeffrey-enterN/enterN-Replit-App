@@ -4,6 +4,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/context/auth-context";
+import { lazy } from "react";
 
 import { NotificationSettingsProvider } from "@/context/notification-settings-context";
 import { ProtectedRoute } from "@/lib/protected-route";
@@ -33,6 +34,9 @@ import SupportPage from "@/pages/support";
 import JobsPage from "@/pages/employer/jobs";
 import NewJobPage from "@/pages/employer/jobs/new";
 import NotFound from "@/pages/not-found";
+
+// Lazy-loaded admin pages
+const DatabaseOperationsPage = lazy(() => import("@/pages/admin/database-operations"));
 
 function Router() {
   return (
@@ -107,6 +111,13 @@ function Router() {
             component={NewJobPage}
           />
         </EmployerLayout>
+      </Route>
+      {/* Admin routes */}
+      <Route path="/admin/database-operations">
+        <ProtectedRoute 
+          path="/admin/database-operations" 
+          component={DatabaseOperationsPage}
+        />
       </Route>
       <Route component={NotFound} />
     </Switch>
