@@ -40,14 +40,17 @@ export function setupAuth(app: Express) {
   // Get session security configuration based on environment
   const isProduction = process.env.NODE_ENV === 'production';
   
+  // Detect if we're running on Replit (which provides HTTPS even in dev)
+  const isReplit = process.env.REPL_ID !== undefined;
+  
   // A more robust session configuration
   const sessionSettings: session.SessionOptions = {
     // In a production environment, use a strong secret set via environment variable
     secret: process.env.SESSION_SECRET || "enterN-secret-key-please-change-in-production",
-    // Always re-save the session even if it wasn't modified (helps with persistence)
-    resave: true,
-    // Save uninitialized sessions (important for guest browsing and consistent ID)
-    saveUninitialized: true,
+    // Don't save the session if it wasn't modified
+    resave: false,
+    // Don't save uninitialized sessions (new but not modified)
+    saveUninitialized: false,
     // Use our configured store
     store: storage.sessionStore,
     // Rolling session - reset maxAge on every response (extends session lifetime with activity)
@@ -55,12 +58,14 @@ export function setupAuth(app: Express) {
     // Name the cookie specifically for our app to avoid conflicts
     name: "enterN.sid",
     cookie: {
-      // Set to true only in production with HTTPS, false for development
-      secure: isProduction,
+      // Set cookie security appropriate for the environment
+      // Note: Replit provides HTTPS even in development
+      secure: isProduction || isReplit,
       // Prevent client JavaScript from accessing the cookie
       httpOnly: true,
-      // Same-site policy (lax allows cookies to be sent on navigation from external sites)
-      sameSite: isProduction ? 'lax' : 'none',
+      // SameSite=None requires Secure, so we set based on environment
+      // If we're in development and not on Replit, use 'lax' instead
+      sameSite: isProduction || isReplit ? 'none' : 'lax',
       // Keep cookie for 30 days (in milliseconds)
       maxAge: 30 * 24 * 60 * 60 * 1000,
       // Allow cookie to be sent to all paths
@@ -168,16 +173,26 @@ export function setupAuth(app: Express) {
         return res.status(400).json({ message: "Username already exists" });
       }
 
-      // Detect iOS clients
+      // Detect iOS clients and mobile browsers
       const userAgent = req.headers['user-agent'] || '';
       const isIOS = /iPad|iPhone|iPod/.test(userAgent);
+      const isMobile = /Mobile|Android/.test(userAgent);
       
-      // Customize session cookie for iOS if needed
-      if (isIOS && req.session && req.session.cookie) {
-        // Ensure cookie settings are optimal for iOS
-        console.log("Setting enhanced cookie settings for iOS client during registration");
-        req.session.cookie.secure = false; // Force non-secure for iOS testing
-        req.session.cookie.sameSite = 'none'; // iOS sometimes requires 'none'
+      // Mobile browsers may need special handling
+      if ((isIOS || isMobile) && req.session && req.session.cookie) {
+        // Get environment detection from outside scope
+        const isProduction = process.env.NODE_ENV === 'production';
+        const isReplit = process.env.REPL_ID !== undefined;
+        
+        console.log(`Mobile browser detected during registration. Optimizing session cookies.`);
+        
+        // Use appropriate settings for mobile browsers
+        // Secure must be true when sameSite is 'none', except in some test environments
+        req.session.cookie.secure = isProduction || isReplit; 
+        req.session.cookie.sameSite = isProduction || isReplit ? 'none' : 'lax';
+        
+        // Ensure session doesn't expire too quickly
+        req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000; // 30 days
       }
 
       const hashedPassword = await hashPassword(password);
@@ -254,16 +269,26 @@ export function setupAuth(app: Express) {
       if (err) return next(err);
       if (!user) return res.status(401).json({ message: "Invalid username or password" });
       
-      // Detect iOS clients
+      // Detect iOS clients and mobile browsers
       const userAgent = req.headers['user-agent'] || '';
       const isIOS = /iPad|iPhone|iPod/.test(userAgent);
+      const isMobile = /Mobile|Android/.test(userAgent);
       
-      // Customize session cookie for iOS if needed
-      if (isIOS && req.session && req.session.cookie) {
-        // Ensure cookie settings are optimal for iOS
-        console.log("Setting enhanced cookie settings for iOS client");
-        req.session.cookie.secure = false; // Force non-secure for iOS testing
-        req.session.cookie.sameSite = 'none'; // iOS sometimes requires 'none'
+      // Mobile browsers may need special handling
+      if ((isIOS || isMobile) && req.session && req.session.cookie) {
+        // Get environment detection from outside scope
+        const isProduction = process.env.NODE_ENV === 'production';
+        const isReplit = process.env.REPL_ID !== undefined;
+        
+        console.log(`Mobile browser detected during login. Optimizing session cookies.`);
+        
+        // Use appropriate settings for mobile browsers
+        // Secure must be true when sameSite is 'none', except in some test environments
+        req.session.cookie.secure = isProduction || isReplit; 
+        req.session.cookie.sameSite = isProduction || isReplit ? 'none' : 'lax';
+        
+        // Ensure session doesn't expire too quickly
+        req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000; // 30 days
       }
       
       req.login(user, (loginErr) => {
@@ -329,17 +354,34 @@ export function setupAuth(app: Express) {
         maxAge: req.session.cookie.maxAge
       });
       
-      // For iOS clients, ensure cookies are properly set
+      // Detect iOS clients and mobile browsers
       const userAgent = req.headers['user-agent'] || '';
       const isIOS = /iPad|iPhone|iPod/.test(userAgent);
+      const isMobile = /Mobile|Android/.test(userAgent);
       
-      if (isIOS) {
-        // Mark as iOS client and trace session
-        console.log(`iOS client detected on /api/user endpoint`);
-        const session = req.session as any;
-        session.isIOSClient = true;
+      // Mobile browsers may need special handling
+      if ((isIOS || isMobile) && req.session) {
+        // Get environment detection from outside scope
+        const isProduction = process.env.NODE_ENV === 'production';
+        const isReplit = process.env.REPL_ID !== undefined;
         
-        // Force session save to persist iOS sessions
+        console.log(`Mobile browser detected on /api/user endpoint. Optimizing session cookies.`);
+        
+        // Mark as mobile client and trace session
+        const session = req.session as any;
+        session.isMobileClient = true;
+        
+        // Use appropriate settings for mobile browsers
+        if (req.session.cookie) {
+          // Secure must be true when sameSite is 'none', except in some test environments
+          req.session.cookie.secure = isProduction || isReplit; 
+          req.session.cookie.sameSite = isProduction || isReplit ? 'none' : 'lax';
+          
+          // Ensure session doesn't expire too quickly
+          req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000; // 30 days
+        }
+        
+        // Force session save to persist mobile sessions
         req.session.touch();
         req.session.save();
       }

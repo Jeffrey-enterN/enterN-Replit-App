@@ -54,6 +54,14 @@ export function useAuth() {
   return context;
 }
 
+// Helper to detect if we're on iOS
+const isIOS = typeof window !== 'undefined' ? 
+  /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream : false;
+
+// Helper to detect if we're on any mobile device
+const isMobile = typeof window !== 'undefined' ? 
+  /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) : false;
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
   const {
@@ -63,6 +71,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   } = useQuery<User | null, Error>({
     queryKey: ["/api/user"],
     queryFn: getQueryFn({ on401: "returnNull" }),
+    // For mobile devices (especially iOS), reduce stale time to refresh more often
+    // This helps catch session issues more proactively
+    staleTime: isMobile ? 5 * 60 * 1000 : 30 * 60 * 1000 // 5 minutes for mobile vs 30 minutes
   });
 
   const loginMutation = useMutation({

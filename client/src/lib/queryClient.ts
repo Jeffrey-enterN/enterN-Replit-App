@@ -58,17 +58,31 @@ export const getQueryFn: <T>(options: {
     return await res.json();
   };
 
+// Helper to detect if we're on iOS
+const isIOS = typeof window !== 'undefined' ? 
+  /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream : false;
+
+// Helper to detect if we're on any mobile device
+const isMobile = typeof window !== 'undefined' ? 
+  /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) : false;
+
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       queryFn: getQueryFn({ on401: "throw" }),
       refetchInterval: false,
-      refetchOnWindowFocus: false,
-      staleTime: Infinity,
-      retry: false,
+      // Enable window focus refetching on mobile devices to refresh state after app switches
+      refetchOnWindowFocus: isMobile,
+      // Mobile devices should have a shorter stale time to avoid persistence issues
+      staleTime: isMobile ? 5 * 60 * 1000 : Infinity, // 5 minutes for mobile, infinite for desktop
+      // Add retries for mobile to handle temporary connection drops
+      retry: isMobile ? 2 : false,
+      // Add a retry delay for mobile to avoid hammering the server
+      retryDelay: attempt => Math.min(1000 * 2 ** attempt, 30000),
     },
     mutations: {
-      retry: false,
+      // Mobile needs retries to handle potential connection issues
+      retry: isMobile ? 1 : false,
     },
   },
 });
