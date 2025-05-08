@@ -59,6 +59,7 @@ export interface IStorage {
   handleJobseekerSwipe(jobseekerId: number, employerId: string, interested: boolean): Promise<any>;
   getJobseekerRecentMatches(userId: number): Promise<any[]>;
   recordJobseekerProfileView(jobseekerId: number, viewerId: number): Promise<void>;
+  resetJobseekerSwipes(jobseekerId: number): Promise<{ count: number }>;
 
   // Employer profile methods
   createEmployerProfile(userId: number, profileData: any): Promise<EmployerProfile>;
@@ -2442,6 +2443,38 @@ export class DatabaseStorage implements IStorage {
     if (result.rowCount === 0) {
       throw new Error(`Job posting with id ${jobId} not found`);
     }
+  }
+
+  /**
+   * Reset all swipes for a jobseeker to enable reusing profiles for testing
+   * This is a development/testing feature
+   */
+  async resetJobseekerSwipes(jobseekerId: number): Promise<{ count: number }> {
+    console.log(`Resetting swipes for jobseeker: ${jobseekerId}`);
+    
+    const result = await db
+      .delete(swipes)
+      .where(eq(swipes.jobseekerId, jobseekerId));
+    
+    console.log(`Deleted ${result.rowCount} swipes for jobseeker ${jobseekerId}`);
+    
+    return { count: result.rowCount || 0 };
+  }
+
+  /**
+   * Reset all swipes for an employer to enable reusing profiles for testing
+   * This is a development/testing feature
+   */
+  async resetEmployerSwipes(employerId: number): Promise<{ count: number }> {
+    console.log(`Resetting swipes for employer: ${employerId}`);
+    
+    const result = await db
+      .delete(swipes)
+      .where(eq(swipes.employerId, employerId));
+    
+    console.log(`Deleted ${result.rowCount} swipes for employer ${employerId}`);
+    
+    return { count: result.rowCount || 0 };
   }
 }
 
