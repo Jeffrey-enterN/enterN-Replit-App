@@ -56,7 +56,7 @@ export function useAuth() {
 
 // Helper to detect if we're on iOS
 const isIOS = typeof window !== 'undefined' ? 
-  /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream : false;
+  /iPad|iPhone|iPod/.test(navigator.userAgent) : false;
 
 // Helper to detect if we're on any mobile device
 const isMobile = typeof window !== 'undefined' ? 

@@ -47,10 +47,10 @@ export function setupAuth(app: Express) {
   const sessionSettings: session.SessionOptions = {
     // In a production environment, use a strong secret set via environment variable
     secret: process.env.SESSION_SECRET || "enterN-secret-key-please-change-in-production",
-    // Don't save the session if it wasn't modified
-    resave: false,
-    // Don't save uninitialized sessions (new but not modified)
-    saveUninitialized: false,
+    // Resave session to ensure it's saved even if not modified
+    resave: true,
+    // Save uninitialized sessions to ensure cookie is set on first visit
+    saveUninitialized: true,
     // Use our configured store
     store: storage.sessionStore,
     // Rolling session - reset maxAge on every response (extends session lifetime with activity)
