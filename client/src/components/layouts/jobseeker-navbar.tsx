@@ -130,6 +130,15 @@ export default function JobseekerNavbar() {
               <Separator className="my-4" />
               <div className="px-6">
                 <div className="flex items-center justify-between mb-4">
+                  <Label htmlFor="theme-mobile" className="flex items-center gap-2">
+                    <svg className="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                    </svg>
+                    Theme
+                  </Label>
+                  <ThemeToggle />
+                </div>
+                <div className="flex items-center justify-between mb-4">
                   <Label htmlFor="notifications-mobile" className="flex items-center gap-2">
                     <BellRing className="h-4 w-4" />
                     Push Notifications
@@ -182,6 +191,8 @@ export default function JobseekerNavbar() {
         </div>
 
         <div className="flex items-center gap-2">
+          <ThemeToggle />
+          
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon">
