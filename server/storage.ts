@@ -85,6 +85,7 @@ export interface IStorage {
   getJobPosting(jobId: string): Promise<JobPosting | undefined>;
   getEmployerJobPostings(userId: number): Promise<JobPosting[]>;
   getCompanyJobPostings(companyId: number): Promise<JobPosting[]>;
+  getAllJobPostings(): Promise<JobPosting[]>;
   createJobPosting(jobData: any): Promise<JobPosting>;
   updateJobPosting(jobId: string, jobData: any): Promise<JobPosting>;
   updateJobStatus(jobId: string, status: string): Promise<JobPosting>;
@@ -875,6 +876,11 @@ export class MemStorage implements IStorage {
   async getCompanyJobPostings(companyId: number): Promise<JobPosting[]> {
     return Array.from(this.jobPostings.values())
       .filter(job => job.companyId === companyId);
+  }
+  
+  async getAllJobPostings(): Promise<JobPosting[]> {
+    // Return all job postings
+    return Array.from(this.jobPostings.values());
   }
   
   async createJobPosting(jobData: any): Promise<JobPosting> {
@@ -2665,6 +2671,12 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(jobPostings)
       .where(eq(jobPostings.companyId, companyId));
+  }
+  
+  async getAllJobPostings(): Promise<JobPosting[]> {
+    return db
+      .select()
+      .from(jobPostings);
   }
   
   async createJobPosting(jobData: any): Promise<JobPosting> {

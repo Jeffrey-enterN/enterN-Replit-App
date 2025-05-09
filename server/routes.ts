@@ -387,7 +387,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       try {
         // Import required components for direct DB access
         const { db } = await import("./db");
-        const { users, employerProfiles, swipes } = await import("../shared/schema");
+        const { users, swipes } = await import("../shared/schema");
         const { eq, and } = await import("drizzle-orm");
         
         // Special debug endpoint to check the exact issue with hr@enter-n.com not appearing
@@ -401,15 +401,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const hrUser = hrUsers[0];
           console.log('HR user found:', JSON.stringify(hrUser));
           
-          // Check if the HR user has an employer profile
-          const hrProfiles = await db
-            .select()
-            .from(employerProfiles)
-            .where(eq(employerProfiles.userId, hrUser.id));
-            
-          console.log(`HR employer profiles found: ${hrProfiles.length}`);
-          
-          // Also check if they have a company
+          // Check if they have a company
           const { companies } = await import("../shared/schema");
           // Check if the HR user's companyId exists and look it up
           if (hrUser.companyId) {
@@ -441,34 +433,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
             console.log('Latest draft:', JSON.stringify(query.rows[0]));
           }
           
-          if (hrProfiles.length > 0) {
-            console.log('HR employer profile found:', JSON.stringify(hrProfiles[0]));
+          // Check if the company already exists
+          if (hrUser.companyId) {
+            console.log('HR user already has a company profile with ID:', hrUser.companyId);
           } else {
-            console.log('HR employer profile NOT found in the database');
-            console.log('Creating an employer profile for the HR user...');
+            console.log('HR user does not have a company profile');
+            console.log('Creating a company profile for the HR user...');
             
-            // Create an employer profile for the HR user
+            // Create a company profile for the HR user
             try {
-              const profileData = {
-                companyName: "enterN Inc.",
-                companySize: "51-200",
-                industry: "Software & Technology",
+              const companyData = {
+                name: "enterN Inc.",
+                size: "51-200",
+                industries: ["Software & Technology"],
                 headquarters: "Peoria, IL",
-                companyType: "Startup",
-                founded: "2024",
+                yearFounded: "2024",
                 about: "enterN helps early-career talent match with employers",
-                website: "https://www.enter-n.com",
-                aboutCompany: "enterN is changing the way companies connect with early-career talent through AI-driven matching algorithms that focus on company culture fit and values alignment rather than just resumes and keywords."
+                mission: "enterN is changing the way companies connect with early-career talent through AI-driven matching algorithms that focus on company culture fit and values alignment rather than just resumes and keywords."
               };
               
-              const newProfile = await db.insert(employerProfiles).values({
-                userId: hrUser.id,
-                ...profileData
+              const { companies } = await import("../shared/schema");
+              const newCompany = await db.insert(companies).values({
+                ...companyData,
+                createdAt: new Date(),
+                updatedAt: new Date()
               }).returning();
               
-              console.log('Created employer profile for HR user:', JSON.stringify(newProfile));
+              // Update the user to link to the company
+              if (newCompany.length > 0) {
+                await db.update(users)
+                  .set({
+                    companyId: newCompany[0].id,
+                    companyRole: 'admin',
+                    updatedAt: new Date()
+                  })
+                  .where(eq(users.id, hrUser.id));
+                  
+                console.log('Created company profile for HR user:', JSON.stringify(newCompany[0]));
+              }
             } catch (profileError) {
-              console.error('Error creating employer profile for HR user:', profileError);
+              console.error('Error creating company profile for HR user:', profileError);
             }
           }
           
@@ -531,6 +535,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const recentMatches = await storage.getJobseekerRecentMatches(req.user.id);
       res.status(200).json(recentMatches);
     } catch (error) {
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
+  
+  // Get Available Jobs for Jobseeker
+  app.get("/api/jobseeker/jobs/available", async (req, res) => {
+    if (!req.isAuthenticated()) return res.status(401).json({ message: "Unauthorized" });
+    if (req.user.userType !== USER_TYPES.JOBSEEKER) return res.status(403).json({ message: "Forbidden" });
+
+    try {
+      // Get all available job postings
+      const jobPostings = await storage.getAllJobPostings();
+      
+      // Get company info for each job
+      const jobsWithCompanyInfo = await Promise.all(jobPostings.map(async (job) => {
+        const company = job.companyId ? await storage.getCompany(job.companyId) : null;
+        
+        return {
+          id: job.id,
+          title: job.title,
+          companyName: company?.name || 'Unknown Company',
+          companyId: company?.id || 0,
+          location: job.location,
+          description: job.description,
+          workType: job.workType || [],
+          employmentType: job.employmentType,
+          department: job.department,
+          // Add additional job details as needed
+        };
+      }));
+      
+      res.status(200).json(jobsWithCompanyInfo);
+    } catch (error) {
+      console.error('Error fetching available jobs:', error);
       res.status(500).json({ message: (error as Error).message });
     }
   });
