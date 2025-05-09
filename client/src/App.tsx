@@ -38,6 +38,7 @@ import NotFound from "@/pages/not-found";
 
 // Lazy-loaded admin pages
 const DatabaseOperationsPage = lazy(() => import("@/pages/admin/database-operations"));
+const JobsViewPage = lazy(() => import("@/pages/admin/jobs-view"));
 
 function Router() {
   return (
@@ -116,6 +117,7 @@ function Router() {
       </Route>
       {/* Admin routes - direct access without ProtectedRoute */}
       <Route path="/admin/database-operations" component={DatabaseOperationsPage} />
+      <Route path="/admin/jobs" component={JobsViewPage} />
       <Route component={NotFound} />
     </Switch>
   );
