@@ -1,6 +1,3 @@
-import { db } from '../server/db';
-import { sql } from 'drizzle-orm';
-
 /**
  * Migration to add job_interests table and enhance matches and swipes
  * 
@@ -9,68 +6,57 @@ import { sql } from 'drizzle-orm';
  * - Enhance matches table with scheduling and messaging fields
  * - Add new status fields to support the match workflow
  */
-async function addJobInterestsAndEnhanceMatching() {
-  console.log('Starting migration to enhance match system...');
-  
+
+import { pool, db } from "../server/db";
+import { pgTable, text, serial, integer, boolean, timestamp, uuid, unique } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
+
+async function addJobInterestsTable() {
   try {
-    // Begin transaction
-    await db.transaction(async (tx) => {
-      console.log('Creating job_interests table...');
-      
-      // Create job_interests table
-      await tx.execute(sql`
-        CREATE TABLE IF NOT EXISTS job_interests (
-          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-          jobseeker_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-          job_posting_id UUID NOT NULL REFERENCES job_postings(id) ON DELETE CASCADE,
-          interested BOOLEAN NOT NULL,
-          created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-          updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
-          UNIQUE(jobseeker_id, job_posting_id)
-        );
-      `);
-      
-      // Add hide_until field to swipes to allow temporary hiding
-      console.log('Adding hide_until field to swipes table...');
-      await tx.execute(sql`
-        ALTER TABLE swipes
-        ADD COLUMN IF NOT EXISTS hide_until TIMESTAMP;
-      `);
-      
-      // Enhance matches table with fields for messaging and scheduling
-      console.log('Enhancing matches table with messaging and scheduling fields...');
-      await tx.execute(sql`
-        -- Add new columns for messaging and scheduling
-        ALTER TABLE matches
-        ADD COLUMN IF NOT EXISTS messaging_enabled BOOLEAN DEFAULT FALSE,
-        ADD COLUMN IF NOT EXISTS scheduling_enabled BOOLEAN DEFAULT FALSE,
-        ADD COLUMN IF NOT EXISTS jobs_shared JSONB,
-        ADD COLUMN IF NOT EXISTS interview_scheduled_at TIMESTAMP,
-        ADD COLUMN IF NOT EXISTS interview_status TEXT;
-      `);
-      
-      console.log('Tables successfully updated');
-    });
+    console.log('Starting migration: Creating job_interests table...');
     
-    console.log('Match system enhancement completed successfully');
-    return { success: true, message: 'Match system enhancement completed successfully' };
+    // Create the job_interests table
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS job_interests (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        jobseeker_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        job_posting_id UUID NOT NULL REFERENCES job_postings(id) ON DELETE CASCADE,
+        interested BOOLEAN NOT NULL,
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW(),
+        UNIQUE(jobseeker_id, job_posting_id)
+      );
+    `);
+    
+    console.log('Successfully created job_interests table');
+    
+    return { success: true, message: 'Job interests table created successfully' };
   } catch (error) {
-    console.error('Error during match system enhancement:', error);
-    return { success: false, message: error.message };
+    console.error('Error creating job_interests table:', error);
+    return { success: false, error };
   }
 }
 
-// For ESM compatibility
-if (import.meta.url === `file://${process.argv[1]}`) {
-  addJobInterestsAndEnhanceMatching()
-    .then((result) => {
-      console.log(result.message);
-      process.exit(result.success ? 0 : 1);
-    })
-    .catch((error) => {
-      console.error('Unhandled error during migration:', error);
+async function main() {
+  console.log('Starting migration...');
+  
+  try {
+    const result = await addJobInterestsTable();
+    
+    if (result.success) {
+      console.log('Migration completed successfully!');
+    } else {
+      console.error('Migration failed:', result.error);
       process.exit(1);
-    });
+    }
+  } catch (error) {
+    console.error('Migration error:', error);
+    process.exit(1);
+  } finally {
+    // Close the database connection
+    await pool.end();
+    console.log('Database connection closed');
+  }
 }
 
-export default addJobInterestsAndEnhanceMatching;
+main();
