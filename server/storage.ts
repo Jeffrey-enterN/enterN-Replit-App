@@ -5,13 +5,8 @@ import {
   JobseekerProfile,
   jobseekerProfiles,
   InsertJobseekerProfile,
-  EmployerProfile,
-  employerProfiles,
-  InsertEmployerProfile,
   jobseekerProfileDrafts,
   JobseekerProfileDraft,
-  employerProfileDrafts,
-  EmployerProfileDraft,
   Match,
   matches,
   InsertMatch,
@@ -62,9 +57,9 @@ export interface IStorage {
   resetJobseekerSwipes(jobseekerId: number): Promise<{ count: number }>;
 
   // Employer profile methods
-  createEmployerProfile(userId: number, profileData: any): Promise<EmployerProfile>;
+  createEmployerProfile(userId: number, profileData: any): Promise<any>;
   saveEmployerProfileDraft(userId: number, draftData: any): Promise<any>;
-  getEmployerProfile(userId: number): Promise<EmployerProfile | undefined>;
+  getEmployerProfile(userId: number): Promise<any>;
   getEmployerDashboard(userId: number): Promise<any>;
   getEmployerPotentialMatches(userId: number): Promise<any[]>;
   handleEmployerSwipe(employerId: number, jobseekerId: string, interested: boolean): Promise<any>;
@@ -102,7 +97,6 @@ export interface IStorage {
 export class MemStorage implements IStorage {
   private users: Map<number, User>;
   private jobseekerProfiles: Map<number, JobseekerProfile>;
-  private employerProfiles: Map<number, EmployerProfile>;
   private swipes: Swipe[];
   private matches: Match[];
   private jobPostings: Map<string, JobPosting>;
@@ -119,7 +113,6 @@ export class MemStorage implements IStorage {
   constructor() {
     this.users = new Map();
     this.jobseekerProfiles = new Map();
-    this.employerProfiles = new Map();
     this.swipes = [];
     this.matches = [];
     this.jobPostings = new Map();
@@ -282,12 +275,14 @@ export class MemStorage implements IStorage {
         matches: matches.length
       },
       recentMatches: matches.slice(0, 5).map(match => {
-        const employer = Array.from(this.employerProfiles.values())
-          .find(profile => profile.userId.toString() === match.employerId);
+        // First get the user
+        const user = this.users.get(Number(match.employerId));
+        // Then get their company
+        const company = user?.companyId ? this.companies.get(user.companyId) : undefined;
         
         return {
           id: match.id,
-          name: employer?.companyName || 'Unknown Company',
+          name: company?.name || user?.companyName || 'Unknown Company',
           matchDate: match.matchedAt,
           status: 'matched',
           statusText: 'New match'
@@ -302,22 +297,35 @@ export class MemStorage implements IStorage {
       .filter(swipe => swipe.jobseekerId === userId)
       .map(swipe => swipe.employerId);
     
-    const potentialEmployers = Array.from(this.employerProfiles.values())
-      .filter(profile => !swipedEmployerIds.includes(profile.userId.toString()))
+    // Get all users who are employers with companies
+    const employerUsers = Array.from(this.users.values())
+      .filter(user => 
+        user.userType === 'employer' && 
+        user.companyId && 
+        !swipedEmployerIds.includes(user.id.toString()));
+    
+    // Get their companies
+    const potentialEmployers = employerUsers
+      .filter(user => user.companyId)
+      .map(user => ({
+        user,
+        company: this.companies.get(user.companyId as number)
+      }))
+      .filter(item => item.company) // Filter out users without companies
       .slice(0, 5); // Limit to 5 potential matches
     
-    return potentialEmployers.map(employer => {
+    return potentialEmployers.map(({ user, company }) => {
       // Get job postings for this employer
       const jobPostings = Array.from(this.jobPostings.values())
-        .filter(posting => posting.employerId === employer.userId)
+        .filter(posting => posting.employerId === user.id)
         .map(posting => posting.title);
       
       return {
-        id: employer.userId.toString(),
-        name: employer.companyName,
-        location: employer.headquarters,
-        description: employer.aboutCompany,
-        positions: jobPostings.length > 0 ? jobPostings : ['Software Engineer', 'Product Manager', 'UX Designer'] // Mock data if no postings
+        id: user.id.toString(),
+        name: company?.name || user.companyName || 'Unknown Company',
+        location: company?.industries?.[0] || 'Various Industries',
+        description: company?.about || 'No description available',
+        positions: jobPostings.length > 0 ? jobPostings : []
       };
     });
   }
@@ -362,15 +370,21 @@ export class MemStorage implements IStorage {
   async getJobseekerRecentMatches(userId: number): Promise<any[]> {
     return this.matches
       .filter(match => match.jobseekerId === userId)
-      .sort((a, b) => b.matchedAt.getTime() - a.matchedAt.getTime())
+      .sort((a, b) => {
+        const aTime = a.matchedAt ? a.matchedAt.getTime() : 0;
+        const bTime = b.matchedAt ? b.matchedAt.getTime() : 0;
+        return bTime - aTime;
+      })
       .slice(0, 10)
       .map(match => {
-        const employer = Array.from(this.employerProfiles.values())
-          .find(profile => profile.userId.toString() === match.employerId);
+        // First get the user
+        const user = this.users.get(Number(match.employerId));
+        // Then get their company
+        const company = user?.companyId ? this.companies.get(user.companyId) : undefined;
         
         return {
           id: match.id,
-          name: employer?.companyName || 'Unknown Company',
+          name: company?.name || user?.companyName || 'Unknown Company',
           matchDate: match.matchedAt,
           status: match.status === 'interview_scheduled' 
             ? 'interview-scheduled' 
@@ -566,7 +580,11 @@ export class MemStorage implements IStorage {
   async getEmployerRecentMatches(userId: number): Promise<any[]> {
     return this.matches
       .filter(match => match.employerId === userId.toString())
-      .sort((a, b) => b.matchedAt.getTime() - a.matchedAt.getTime())
+      .sort((a, b) => {
+        const aTime = a.matchedAt ? a.matchedAt.getTime() : 0;
+        const bTime = b.matchedAt ? b.matchedAt.getTime() : 0;
+        return bTime - aTime;
+      })
       .slice(0, 10)
       .map(match => {
         return {
