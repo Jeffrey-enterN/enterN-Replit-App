@@ -9,9 +9,9 @@ import JobseekerLayout from '@/components/layouts/jobseeker-layout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { 
-  Loader2, RefreshCw, ThumbsUp, ThumbsDown, Building2, 
+  AlertCircle, Loader2, RefreshCw, ThumbsUp, ThumbsDown, Building2, 
   MapPin, Briefcase, ChevronDown, ChevronUp, Calendar, 
-  DollarSign, GraduationCap, Clock, Users
+  DollarSign, GraduationCap, Clock, Users, X
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -108,9 +108,15 @@ export default function JobsFeed() {
   // State to track current error status
   const [currentErrorMessage, setCurrentErrorMessage] = useState<string | null>(null);
 
+  // Define the type for the job interest mutation variables
+  interface JobInterestMutationVariables {
+    jobId: string; 
+    interested: boolean;
+  }
+
   // Handle job interest
-  const jobInterestMutation = useMutation({
-    mutationFn: async ({ jobId, interested }: { jobId: string; interested: boolean }) => {
+  const jobInterestMutation = useMutation<any, Error, JobInterestMutationVariables>({
+    mutationFn: async ({ jobId, interested }) => {
       // Clear any previous error messages
       setCurrentErrorMessage(null);
       setIsProcessingInterest(true);
@@ -400,24 +406,52 @@ export default function JobsFeed() {
                     </div>
                   </CardContent>
                   
-                  <CardFooter className="flex justify-end space-x-2 pt-0">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleNotInterested(enhancedJob.id)}
-                      disabled={showLoadingState}
-                    >
-                      <ThumbsDown className="h-4 w-4 mr-2" />
-                      Not Interested
-                    </Button>
-                    <Button
-                      size="sm"
-                      onClick={() => handleInterested(enhancedJob.id)}
-                      disabled={showLoadingState}
-                    >
-                      <ThumbsUp className="h-4 w-4 mr-2" />
-                      Interested
-                    </Button>
+                  <CardFooter className="flex justify-between pt-0">
+                    {/* Left side for status display */}
+                    <div className="flex items-center">
+                      {jobInterestMutation.isPending && jobInterestMutation.variables?.jobId === enhancedJob.id && (
+                        <div className="flex items-center text-gray-500 text-sm">
+                          <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                          <span>Processing...</span>
+                        </div>
+                      )}
+                      
+                      {currentErrorMessage && jobInterestMutation.variables?.jobId === enhancedJob.id && (
+                        <div className="flex items-center text-red-600 text-sm">
+                          <AlertCircle className="h-4 w-4 mr-1" />
+                          <span>{currentErrorMessage}</span>
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            className="h-6 ml-1 text-red-600 hover:text-red-700 p-0 px-1"
+                            onClick={() => setCurrentErrorMessage(null)}
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Right side for action buttons */}
+                    <div className="flex space-x-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleNotInterested(enhancedJob.id)}
+                        disabled={showLoadingState || (jobInterestMutation.isPending && jobInterestMutation.variables?.jobId === enhancedJob.id)}
+                      >
+                        <ThumbsDown className="h-4 w-4 mr-2" />
+                        Not Interested
+                      </Button>
+                      <Button
+                        size="sm"
+                        onClick={() => handleInterested(enhancedJob.id)}
+                        disabled={showLoadingState || (jobInterestMutation.isPending && jobInterestMutation.variables?.jobId === enhancedJob.id)}
+                      >
+                        <ThumbsUp className="h-4 w-4 mr-2" />
+                        Interested
+                      </Button>
+                    </div>
                   </CardFooter>
                 </Card>
               );
