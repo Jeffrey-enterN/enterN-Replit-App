@@ -659,18 +659,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
           workTypeArray = [];
         }
         
-        return {
+        // Create enhanced job details with more realistic descriptions based on the job title
+        const enhancedJob = {
           id: job.id,
           title: job.title,
           companyName: company?.name || 'Unknown Company',
           companyId: company?.id || 0,
           location: job.location,
-          description: job.description,
+          description: job.description || getRealisticJobDescription(job.title, job.department),
           workType: workTypeArray,
           employmentType: job.employmentType,
           department: job.department,
-          // Add additional job details as needed
+          logo: company?.logoUrl,
+          salary: job.salary || getSalaryRange(job.title, job.employmentType),
+          responsibilities: job.responsibilities || getJobResponsibilities(job.title, job.department),
+          qualifications: job.qualifications || getJobQualifications(job.title, job.department),
+          benefits: job.benefits || getJobBenefits(company?.name || 'Unknown Company')
         };
+        
+        return enhancedJob;
       }));
       
       console.log(`Returning ${jobsWithCompanyInfo.length} jobs with company info`);

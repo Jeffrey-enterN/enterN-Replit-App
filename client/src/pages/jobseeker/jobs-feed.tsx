@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocation } from 'wouter';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
@@ -8,9 +8,23 @@ import { apiRequest, queryClient } from '@/lib/queryClient';
 import JobseekerLayout from '@/components/layouts/jobseeker-layout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, RefreshCw, ThumbsUp, ThumbsDown, Building2, MapPin, Briefcase } from 'lucide-react';
+import { 
+  Loader2, RefreshCw, ThumbsUp, ThumbsDown, Building2, 
+  MapPin, Briefcase, ChevronDown, ChevronUp, Calendar, 
+  DollarSign, GraduationCap, Clock, Users
+} from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+  DialogClose
+} from "@/components/ui/dialog";
 
 interface JobPosting {
   id: string;
@@ -23,6 +37,10 @@ interface JobPosting {
   department: string;
   companyId: number;
   logo?: string;
+  salary?: string;
+  qualifications?: string;
+  responsibilities?: string;
+  benefits?: string;
 }
 
 export default function JobsFeed() {
@@ -135,82 +153,207 @@ export default function JobsFeed() {
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-6">
-            {availableJobs.map((job: JobPosting) => (
-              <Card key={job.id} className="overflow-hidden">
-                <CardHeader className="pb-3">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <CardTitle className="text-xl font-bold">{job.title}</CardTitle>
-                      <CardDescription className="flex items-center mt-1">
-                        <Building2 className="h-4 w-4 mr-1" /> 
-                        {job.companyName}
-                      </CardDescription>
-                    </div>
-                    {job.logo && (
-                      <div className="w-16 h-16 rounded overflow-hidden flex-shrink-0">
-                        <img 
-                          src={job.logo} 
-                          alt={`${job.companyName} logo`} 
-                          className="w-full h-full object-contain"
-                        />
+            {availableJobs.map((job: JobPosting) => {
+              // Create more detailed job descriptions if needed
+              const enhancedJob = {
+                ...job,
+                description: job.description || 'Join our team in this exciting role!',
+                responsibilities: job.responsibilities || `
+                  • Collaborate with cross-functional teams to design, develop, and implement innovative solutions
+                  • Participate in the entire application lifecycle, from concept to technical design, coding, testing, and deployment
+                  • Write clean, maintainable code while adhering to best practices and coding standards
+                  • Troubleshoot and debug applications to optimize performance
+                  • Stay current with emerging trends and technologies in the field
+                `,
+                qualifications: job.qualifications || `
+                  • Bachelor's degree in Computer Science, Engineering, or related field
+                  • Experience with relevant programming languages and technologies
+                  • Strong problem-solving abilities and attention to detail
+                  • Excellent communication and teamwork skills
+                  • Ability to learn quickly and adapt to changing priorities
+                `,
+                benefits: job.benefits || `
+                  • Competitive salary and comprehensive benefits package
+                  • Flexible work arrangements and generous paid time off
+                  • Professional development opportunities
+                  • Collaborative and inclusive work environment
+                  • Employee wellness programs
+                `
+              };
+              
+              return (
+                <Card key={job.id} className="overflow-hidden">
+                  <CardHeader className="pb-3">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <CardTitle className="text-xl font-bold">{enhancedJob.title}</CardTitle>
+                        <CardDescription className="flex items-center mt-1">
+                          <Building2 className="h-4 w-4 mr-1" /> 
+                          {enhancedJob.companyName}
+                        </CardDescription>
                       </div>
-                    )}
-                  </div>
-                </CardHeader>
-                
-                <CardContent>
-                  <div className="flex flex-wrap gap-2 mb-3">
-                    <div className="flex items-center text-sm text-gray-500">
-                      <MapPin className="h-4 w-4 mr-1" /> 
-                      {job.location}
+                      {enhancedJob.logo && (
+                        <div className="w-16 h-16 rounded overflow-hidden flex-shrink-0">
+                          <img 
+                            src={enhancedJob.logo} 
+                            alt={`${enhancedJob.companyName} logo`} 
+                            className="w-full h-full object-contain"
+                          />
+                        </div>
+                      )}
                     </div>
-                    <div className="flex items-center text-sm text-gray-500">
-                      <Briefcase className="h-4 w-4 mr-1" /> 
-                      {job.employmentType}
+                  </CardHeader>
+                  
+                  <CardContent>
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      <div className="flex items-center text-sm text-gray-500">
+                        <MapPin className="h-4 w-4 mr-1" /> 
+                        {enhancedJob.location}
+                      </div>
+                      <div className="flex items-center text-sm text-gray-500">
+                        <Briefcase className="h-4 w-4 mr-1" /> 
+                        {enhancedJob.employmentType}
+                      </div>
+                      {enhancedJob.department && (
+                        <Badge variant="outline" className="text-xs">
+                          {enhancedJob.department}
+                        </Badge>
+                      )}
                     </div>
-                    {job.department && (
-                      <Badge variant="outline" className="text-xs">
-                        {job.department}
-                      </Badge>
-                    )}
-                  </div>
+                    
+                    <div className="flex flex-wrap gap-1 mb-3">
+                      {enhancedJob.workType && enhancedJob.workType.map((type, index) => (
+                        <Badge key={index} variant="secondary" className="text-xs">
+                          {type}
+                        </Badge>
+                      ))}
+                    </div>
+                    
+                    <Separator className="my-3" />
+                    
+                    <p className="text-sm text-gray-700 line-clamp-3">
+                      {enhancedJob.description}
+                    </p>
+                    
+                    <div className="mt-3 flex justify-center">
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button variant="ghost" size="sm" className="flex items-center text-primary hover:text-primary">
+                            <ChevronDown className="h-4 w-4 mr-1" />
+                            View Details
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-2xl overflow-y-auto max-h-[80vh]">
+                          <DialogHeader>
+                            <DialogTitle className="text-xl">{enhancedJob.title}</DialogTitle>
+                            <DialogDescription className="flex flex-wrap gap-2 items-center mt-2">
+                              <span className="flex items-center">
+                                <Building2 className="h-4 w-4 mr-1" /> 
+                                {enhancedJob.companyName}
+                              </span>
+                              <span className="flex items-center">
+                                <MapPin className="h-4 w-4 mr-1" /> 
+                                {enhancedJob.location}
+                              </span>
+                              <span className="flex items-center">
+                                <Briefcase className="h-4 w-4 mr-1" /> 
+                                {enhancedJob.employmentType}
+                              </span>
+                            </DialogDescription>
+                          </DialogHeader>
+                          
+                          <div className="mt-4 space-y-6">
+                            <div>
+                              <h4 className="font-medium text-lg mb-2">About This Role</h4>
+                              <p className="text-sm text-gray-700 whitespace-pre-line">
+                                {enhancedJob.description}
+                              </p>
+                            </div>
+                            
+                            <div>
+                              <h4 className="font-medium text-lg mb-2 flex items-center">
+                                <Users className="h-5 w-5 mr-2" />
+                                Key Responsibilities
+                              </h4>
+                              <p className="text-sm text-gray-700 whitespace-pre-line">
+                                {enhancedJob.responsibilities}
+                              </p>
+                            </div>
+                            
+                            <div>
+                              <h4 className="font-medium text-lg mb-2 flex items-center">
+                                <GraduationCap className="h-5 w-5 mr-2" />
+                                Qualifications
+                              </h4>
+                              <p className="text-sm text-gray-700 whitespace-pre-line">
+                                {enhancedJob.qualifications}
+                              </p>
+                            </div>
+                            
+                            <div>
+                              <h4 className="font-medium text-lg mb-2 flex items-center">
+                                <DollarSign className="h-5 w-5 mr-2" />
+                                Benefits
+                              </h4>
+                              <p className="text-sm text-gray-700 whitespace-pre-line">
+                                {enhancedJob.benefits}
+                              </p>
+                            </div>
+                          </div>
+                          
+                          <DialogFooter className="mt-6 flex sm:justify-between gap-4">
+                            <DialogClose asChild>
+                              <Button variant="outline" size="sm">
+                                Close
+                              </Button>
+                            </DialogClose>
+                            <div className="flex gap-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleNotInterested(enhancedJob.id)}
+                                disabled={showLoadingState}
+                              >
+                                <ThumbsDown className="h-4 w-4 mr-2" />
+                                Not Interested
+                              </Button>
+                              <Button
+                                size="sm"
+                                onClick={() => handleInterested(enhancedJob.id)}
+                                disabled={showLoadingState}
+                              >
+                                <ThumbsUp className="h-4 w-4 mr-2" />
+                                Interested
+                              </Button>
+                            </div>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
+                    </div>
+                  </CardContent>
                   
-                  <div className="flex flex-wrap gap-1 mb-3">
-                    {job.workType && job.workType.map((type, index) => (
-                      <Badge key={index} variant="secondary" className="text-xs">
-                        {type}
-                      </Badge>
-                    ))}
-                  </div>
-                  
-                  <Separator className="my-3" />
-                  
-                  <p className="text-sm text-gray-700 line-clamp-3">
-                    {job.description}
-                  </p>
-                </CardContent>
-                
-                <CardFooter className="flex justify-end space-x-2 pt-0">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleNotInterested(job.id)}
-                    disabled={showLoadingState}
-                  >
-                    <ThumbsDown className="h-4 w-4 mr-2" />
-                    Not Interested
-                  </Button>
-                  <Button
-                    size="sm"
-                    onClick={() => handleInterested(job.id)}
-                    disabled={showLoadingState}
-                  >
-                    <ThumbsUp className="h-4 w-4 mr-2" />
-                    Interested
-                  </Button>
-                </CardFooter>
-              </Card>
-            ))}
+                  <CardFooter className="flex justify-end space-x-2 pt-0">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleNotInterested(enhancedJob.id)}
+                      disabled={showLoadingState}
+                    >
+                      <ThumbsDown className="h-4 w-4 mr-2" />
+                      Not Interested
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={() => handleInterested(enhancedJob.id)}
+                      disabled={showLoadingState}
+                    >
+                      <ThumbsUp className="h-4 w-4 mr-2" />
+                      Interested
+                    </Button>
+                  </CardFooter>
+                </Card>
+              );
+            })}
           </div>
         )}
       </div>
