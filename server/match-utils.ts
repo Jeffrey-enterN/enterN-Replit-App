@@ -44,6 +44,7 @@ export async function processJobseekerSwipe(
           jobseekerId,
           employerId,
           interested,
+          swipedBy: USER_TYPES.JOBSEEKER,
         })
         .returning();
 
@@ -117,7 +118,8 @@ export async function processEmployerSwipe(
         .values({
           jobseekerId,
           employerId,
-          interested
+          interested,
+          swipedBy: USER_TYPES.EMPLOYER
         })
         .returning();
 
@@ -209,8 +211,10 @@ export async function shareJobsWithJobseeker(
  * 
  * This:
  * 1. Creates a record in the job_interests table
- * 2. Updates the match status to JOB_INTERESTED
- * 3. Enables scheduling for the match
+ * 2. Automatically creates a positive swipe from the employer
+ * 3. Creates a match if one doesn't exist
+ * 4. Updates the match status to JOB_INTERESTED
+ * 5. Enables scheduling for the match
  */
 export async function expressJobInterest(
   jobseekerId: number,
@@ -265,20 +269,72 @@ export async function expressJobInterest(
         };
       }
 
-      // Find the match between this jobseeker and employer
-      const matchRecord = await tx.query.matches.findFirst({
+      // Check if there's already an employer swipe
+      const existingEmployerSwipe = await tx.query.swipes.findFirst({
+        where: and(
+          eq(swipes.jobseekerId, jobseekerId),
+          eq(swipes.employerId, employer.id),
+          eq(swipes.swipedBy, USER_TYPES.EMPLOYER)
+        )
+      });
+
+      // If no existing swipe, create a positive swipe from employer
+      let employerSwipe;
+      if (!existingEmployerSwipe) {
+        [employerSwipe] = await tx
+          .insert(swipes)
+          .values({
+            jobseekerId,
+            employerId: employer.id,
+            interested: true,
+            swipedBy: USER_TYPES.EMPLOYER
+          })
+          .returning();
+      } else {
+        employerSwipe = existingEmployerSwipe;
+      }
+
+      // Check if jobseeker has swiped on this employer
+      let jobseekerSwipe = await tx.query.swipes.findFirst({
+        where: and(
+          eq(swipes.jobseekerId, jobseekerId),
+          eq(swipes.employerId, employer.id),
+          eq(swipes.swipedBy, USER_TYPES.JOBSEEKER)
+        )
+      });
+      
+      // If no jobseeker swipe, create one
+      if (!jobseekerSwipe) {
+        [jobseekerSwipe] = await tx
+          .insert(swipes)
+          .values({
+            jobseekerId,
+            employerId: employer.id,
+            interested: true,
+            swipedBy: USER_TYPES.JOBSEEKER
+          })
+          .returning();
+      }
+
+      // Find or create a match between this jobseeker and employer
+      let matchRecord = await tx.query.matches.findFirst({
         where: and(
           eq(matches.jobseekerId, jobseekerId),
           eq(matches.employerId, employer.id)
         )
       });
 
+      // If no match exists, create one
       if (!matchRecord) {
-        return { 
-          success: true, 
-          jobInterest, 
-          warning: 'No matching record found'
-        };
+        [matchRecord] = await tx
+          .insert(matches)
+          .values({
+            jobseekerId,
+            employerId: employer.id,
+            status: MATCH_STATUS.NEW,
+            messagingEnabled: true
+          })
+          .returning();
       }
 
       // Update the match to reflect job interest and enable scheduling
@@ -297,7 +353,10 @@ export async function expressJobInterest(
         success: true, 
         jobInterest, 
         match: updatedMatch,
-        schedulingEnabled: true
+        employerSwipe,
+        jobseekerSwipe,
+        schedulingEnabled: true,
+        isAutomaticEmployerMatch: !existingEmployerSwipe
       };
     });
   } catch (error) {

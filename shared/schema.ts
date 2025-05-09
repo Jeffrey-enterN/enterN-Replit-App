@@ -393,15 +393,18 @@ export const swipes = pgTable("swipes", {
   jobseekerId: integer("jobseeker_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   employerId: integer("employer_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   interested: boolean("interested").notNull(),
+  // Identify who performed the swipe action (JOBSEEKER or EMPLOYER)
+  swipedBy: text("swiped_by"),
   // Note: hideUntil column was removed as it doesn't exist in the actual database
   // hideUntil: timestamp("hide_until"),  // For temporarily hiding rejected profiles from company feed
   createdAt: timestamp("created_at").defaultNow(),
 }, (table) => {
   return {
-    // Ensure a user can't swipe on the same profile twice (unique combination of users)
+    // Modified uniqueness constraint to allow both parties to swipe
     uniqueSwipe: unique().on(
       table.jobseekerId, 
-      table.employerId
+      table.employerId,
+      table.swipedBy
     ),
   }
 });
