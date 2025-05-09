@@ -260,7 +260,7 @@ export default function JobsFeed() {
                     </div>
                     
                     <div className="flex flex-wrap gap-1 mb-3">
-                      {enhancedJob.workType && enhancedJob.workType.map((type, index) => (
+                      {enhancedJob.workType && Array.isArray(enhancedJob.workType) && enhancedJob.workType.map((type: string, index: number) => (
                         <Badge key={index} variant="secondary" className="text-xs">
                           {type}
                         </Badge>

@@ -899,7 +899,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           workType: workTypeArray,
           employmentType: job.employmentType,
           department: job.department || '',
-          logo: company ? company.logoUrl || null : null,
+          logo: company ? company.logo || null : null,
           salary: getSalaryRange(job.title, job.employmentType),
           responsibilities: getJobResponsibilities(job.title, job.department || ''),
           qualifications: getJobQualifications(job.title, job.department || ''),
