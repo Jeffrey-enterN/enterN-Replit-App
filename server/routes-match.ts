@@ -378,7 +378,7 @@ export function setupMatchRoutes(router: Router) {
       }
       
       // Update the company's slider preferences
-      const [updatedCompany] = await db
+      const updatedCompany = await db
         .update(companies)
         .set({
           sliderPreferences: {
@@ -392,7 +392,7 @@ export function setupMatchRoutes(router: Router) {
       
       res.json({
         success: true,
-        sliderPreferences: updatedCompany.sliderPreferences
+        sliderPreferences: updatedCompany[0].sliderPreferences
       });
     } catch (error) {
       console.error('Error updating company slider preferences:', error);
