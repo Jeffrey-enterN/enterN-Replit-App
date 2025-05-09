@@ -48,6 +48,10 @@ export const companies = pgTable("companies", {
   compensationLevel: text("compensation_level"),
   about: text("about"),
   culture: text("culture"),
+  sliderPreferences: jsonb("slider_preferences").$type<{
+    preferredSliders: string[],
+    preferredSides: Record<string, "left" | "right">
+  }>(),
   mission: text("mission"),
   values: text("values"),
   benefits: jsonb("benefits").$type<string[]>(),

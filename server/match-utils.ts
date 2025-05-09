@@ -400,9 +400,74 @@ export async function expressJobInterest(
  * 1. The employer already rejected them (hideUntil functionality removed)
  * 2. The jobseeker rejected the employer
  */
+/**
+ * Calculate a match score between a jobseeker's slider values and a company's preferences
+ * 
+ * @param sliderValues Jobseeker's slider values
+ * @param preferences Company's slider preferences
+ * @returns Score between 0 and 1, with 1 being a perfect match
+ */
+function calculateMatchScore(
+  sliderValues: Record<string, number>,
+  preferences: { preferredSliders: string[], preferredSides: Record<string, "left" | "right"> } | null
+): number {
+  // If no preferences are set, return a neutral score
+  if (!preferences || !preferences.preferredSliders || preferences.preferredSliders.length === 0) {
+    return 0.5;
+  }
+
+  // Calculate a score based on the preferred sliders and sides
+  let totalScore = 0;
+  const preferredSliders = preferences.preferredSliders;
+  const preferredSides = preferences.preferredSides || {};
+
+  // Calculate how well each preferred slider matches with the jobseeker's value
+  for (const sliderId of preferredSliders) {
+    // If the jobseeker doesn't have a value for this slider, skip it
+    if (typeof sliderValues[sliderId] === 'undefined') {
+      continue;
+    }
+
+    const jobseekerValue = sliderValues[sliderId];
+    const preferredSide = preferredSides[sliderId];
+
+    // Calculate how well the jobseeker's value aligns with the preferred side
+    let sliderScore;
+    if (preferredSide === 'left') {
+      // For left preference, lower values are better (0-49)
+      sliderScore = (100 - jobseekerValue) / 100;
+    } else if (preferredSide === 'right') {
+      // For right preference, higher values are better (51-100)
+      sliderScore = jobseekerValue / 100;
+    } else {
+      // If no side preference, use a bell curve centered at 50
+      const distanceFromCenter = Math.abs(jobseekerValue - 50);
+      sliderScore = 1 - (distanceFromCenter / 50);
+    }
+
+    totalScore += sliderScore;
+  }
+
+  // Normalize score to 0-1 range
+  return preferredSliders.length > 0 ? totalScore / preferredSliders.length : 0.5;
+}
+
 export async function getEmployerMatchFeed(employerId: number) {
   try {
     console.log(`====== Getting potential matches for employer: ${employerId} ======`);
+    
+    // Get the company for this employer to access preferences
+    const employer = await db.query.users.findFirst({
+      where: eq(users.id, employerId),
+      with: {
+        company: true
+      }
+    });
+
+    if (!employer || !employer.company) {
+      return { success: false, error: "Employer or company not found" };
+    }
+
     // Get all jobseekers
     const allJobseekers = await db.query.users.findMany({
       where: eq(users.userType, USER_TYPES.JOBSEEKER),
@@ -439,7 +504,6 @@ export async function getEmployerMatchFeed(employerId: number) {
       }
       
       // If the employer already rejected this jobseeker, exclude them
-      // (No longer using hideUntil since that column doesn't exist)
       if (employerSwipe && !employerSwipe.interested) {
         return false;
       }
@@ -447,6 +511,27 @@ export async function getEmployerMatchFeed(employerId: number) {
       // Include all other jobseekers
       return true;
     });
+
+    // Sort the jobseekers based on match score if company has preferences
+    if (employer.company.sliderPreferences) {
+      eligibleJobseekers.sort((a, b) => {
+        // Calculate match scores for both jobseekers
+        const scoreA = calculateMatchScore(
+          a.jobseekerProfile?.sliderValues || {}, 
+          employer.company?.sliderPreferences
+        );
+        
+        const scoreB = calculateMatchScore(
+          b.jobseekerProfile?.sliderValues || {}, 
+          employer.company?.sliderPreferences
+        );
+        
+        // Sort in descending order (highest match score first)
+        return scoreB - scoreA;
+      });
+      
+      console.log(`Sorted jobseekers based on company preferences`);
+    }
 
     return { 
       success: true, 
