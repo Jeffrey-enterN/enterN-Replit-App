@@ -109,7 +109,7 @@
 
   body {
     @apply font-sans antialiased text-foreground min-h-screen;
-    @apply bg-white;
+    @apply bg-background;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -123,13 +123,12 @@
   }
 
   .slider-with-labels .slider-labels {
-    @apply flex justify-between mb-2 text-sm font-medium text-gray-700 dark:text-gray-300;
+    @apply flex justify-between mb-2 text-sm font-medium text-foreground;
   }
 
   .social-auth-button {
     @apply w-full py-2 px-4 border rounded-md shadow-sm text-sm font-medium focus:outline-none flex items-center justify-center;
-    @apply border-gray-300 bg-white text-gray-700 hover:bg-gray-50;
-    @apply dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700;
+    @apply border-border bg-background text-foreground hover:bg-muted/50;
   }
   
   .text-gradient {
@@ -149,20 +148,13 @@
     @apply text-transparent bg-clip-text transition-all duration-300 hover:shadow-lg hover:shadow-brand-cyan/20;
     background-image: linear-gradient(135deg, #FF66C4, #5CE1E6);
     
-    /* Light mode */
-    background: linear-gradient(white, white) padding-box,
+    background: linear-gradient(hsl(var(--background)), hsl(var(--background))) padding-box,
                 linear-gradient(135deg, #FF66C4, #5CE1E6) border-box;
-                
-    /* Dark mode */
-    .dark & {
-      background: linear-gradient(hsl(240, 10%, 3.9%), hsl(240, 10%, 3.9%)) padding-box,
-                  linear-gradient(135deg, #FF66C4, #5CE1E6) border-box;
-    }
   }
   
   .btn-circle {
     @apply h-40 w-40 rounded-full flex flex-col items-center justify-center gap-3 text-base font-medium;
-    @apply bg-white dark:bg-gray-800 border dark:border-gray-700;
+    @apply bg-card border border-border;
     transition: all 0.3s ease;
   }
   
