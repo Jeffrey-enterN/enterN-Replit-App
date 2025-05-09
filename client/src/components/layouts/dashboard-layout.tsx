@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { SettingsDialog } from '../layouts/settings-dialog';
 import JobseekerNav from './jobseeker-nav';
 import enternLogo from '@/assets/entern-logo.png';
-import { ModeToggle } from '@/components/mode-toggle';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -105,11 +105,11 @@ export default function DashboardLayout({ children, title, subtitle }: Dashboard
       <main className="flex-grow py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <div className="md:flex md:items-center md:justify-between mb-8">
           <div className="flex-1 min-w-0">
-            <h1 className="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate font-heading">
+            <h1 className="text-2xl font-bold leading-7 text-gray-900 dark:text-gray-100 sm:text-3xl sm:truncate font-heading">
               {title}
             </h1>
             {subtitle && (
-              <p className="mt-1 text-sm text-gray-500">{subtitle}</p>
+              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{subtitle}</p>
             )}
           </div>
         </div>

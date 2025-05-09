@@ -16,6 +16,7 @@ import {
   AvatarFallback,
   AvatarImage,
 } from '@/components/ui/avatar';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
 import {
   BellRing,
   LogOut,
@@ -33,7 +34,6 @@ import {
   ExternalLink,
   Eye
 } from 'lucide-react';
-import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
