@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { SettingsDialog } from '../layouts/settings-dialog';
 import JobseekerNav from './jobseeker-nav';
 import enternLogo from '@/assets/entern-logo.png';
+import { ModeToggle } from '@/components/mode-toggle';
 
 interface DashboardLayoutProps {
   children: ReactNode;

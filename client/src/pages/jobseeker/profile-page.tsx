@@ -21,7 +21,8 @@ export default function JobseekerProfilePage() {
     ? `Complete your profile to start connecting with employers, ${user.firstName}.`
     : 'Complete your profile to start connecting with employers.';
 
-  const title = user?.profile?.id ? 'Edit Your Profile' : 'Create Your Profile';
+  // Default to 'Create Your Profile' as title
+  const title = 'Create Your Profile';
 
   return (
     <>

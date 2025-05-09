@@ -441,7 +441,7 @@ export default function JobseekerProfilePreview() {
                               return (
                                 <div 
                                   key={category.id} 
-                                  className={`border rounded-md p-3 ${isComplete ? 'border-green-200 bg-green-50' : 'border-amber-200 bg-amber-50'}`}
+                                  className={`border rounded-md p-3 ${isComplete ? 'border-green-200 bg-green-50 dark:bg-green-900/20 dark:border-green-800/30' : 'border-amber-200 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-800/30'}`}
                                 >
                                   <div className="flex justify-between items-center">
                                     <span className="text-sm font-medium">{category.name}</span>
