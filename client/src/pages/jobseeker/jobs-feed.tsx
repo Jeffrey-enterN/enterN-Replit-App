@@ -58,18 +58,40 @@ export default function JobsFeed() {
 
   // Fetch available jobs
   const { 
-    data: availableJobs, 
+    data: rawJobsData, 
     refetch: refetchAvailableJobs, 
     isLoading,
     isRefetching,
     error: jobsError
-  } = useQuery<JobPosting[]>({
+  } = useQuery<any>({
     queryKey: ['/api/jobseeker/jobs/available'],
     enabled: !!user && user.userType === USER_TYPES.JOBSEEKER,
     // Use the default queryFn from the client setup to benefit from all auth handling logic
     staleTime: 0, // Force refetch every time
     retry: 2 // Retry a few times to handle auth issues
   });
+  
+  // Process the raw jobs data to handle different response formats
+  const availableJobs = React.useMemo(() => {
+    if (!rawJobsData) return [];
+    
+    // Handle different response formats
+    if (Array.isArray(rawJobsData)) {
+      return rawJobsData;
+    }
+    
+    // If the response includes _meta for mobile clients
+    if (rawJobsData && typeof rawJobsData === 'object' && rawJobsData._meta) {
+      // Extract the actual jobs array from the object keys (excluding _meta)
+      const jobs = Object.keys(rawJobsData)
+        .filter(key => key !== '_meta')
+        .map(key => rawJobsData[key]);
+      return jobs;
+    }
+    
+    console.error('Unexpected jobs data format:', rawJobsData);
+    return [];
+  }, [rawJobsData]);
   
   // Handle errors for job loading
   React.useEffect(() => {
@@ -144,7 +166,7 @@ export default function JobsFeed() {
           <div className="flex justify-center items-center h-60">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
-        ) : !availableJobs || availableJobs.length === 0 ? (
+        ) : !availableJobs || !Array.isArray(availableJobs) || availableJobs.length === 0 ? (
           <div className="text-center py-12">
             <h3 className="text-lg font-medium text-gray-900">No jobs available</h3>
             <p className="mt-2 text-sm text-gray-500">
@@ -153,7 +175,7 @@ export default function JobsFeed() {
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-6">
-            {availableJobs.map((job: JobPosting) => {
+            {Array.isArray(availableJobs) && availableJobs.map((job: JobPosting) => {
               // Create more detailed job descriptions if needed
               const enhancedJob = {
                 ...job,
@@ -243,10 +265,10 @@ export default function JobsFeed() {
                             View Details
                           </Button>
                         </DialogTrigger>
-                        <DialogContent className="max-w-2xl overflow-y-auto max-h-[80vh]">
+                        <DialogContent className="max-w-2xl overflow-y-auto max-h-[80vh]" aria-describedby={`job-details-${job.id}`}>
                           <DialogHeader>
                             <DialogTitle className="text-xl">{enhancedJob.title}</DialogTitle>
-                            <DialogDescription className="flex flex-wrap gap-2 items-center mt-2">
+                            <DialogDescription id={`job-details-${job.id}`} className="flex flex-wrap gap-2 items-center mt-2">
                               <span className="flex items-center">
                                 <Building2 className="h-4 w-4 mr-1" /> 
                                 {enhancedJob.companyName}

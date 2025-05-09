@@ -659,6 +659,235 @@ export async function registerRoutes(app: Express): Promise<Server> {
           workTypeArray = [];
         }
         
+        // Helper functions for generating realistic job descriptions
+        function getRealisticJobDescription(title: string, department?: string) {
+          // Generate realistic job descriptions based on title/department
+          const titleLower = (title || '').toLowerCase();
+          
+          if (titleLower.includes('software') || titleLower.includes('developer') || titleLower.includes('engineer')) {
+            return `We are seeking a talented ${title} to join our ${department || 'technology'} team. In this role, you will design, develop, and implement software solutions that drive our business forward. You'll work in a collaborative environment with opportunities to make significant contributions to our product development lifecycle while growing your technical skills.`;
+          } 
+          else if (titleLower.includes('data') || titleLower.includes('analyst')) {
+            return `Join our team as a ${title} and help transform our data into actionable insights. You'll be responsible for analyzing complex datasets, creating visualization tools, and working with stakeholders to make data-driven decisions that impact our business strategies.`;
+          }
+          else if (titleLower.includes('market') || titleLower.includes('brand')) {
+            return `We're looking for a creative and strategic ${title} to develop and execute marketing campaigns that elevate our brand presence. You'll collaborate with cross-functional teams to create compelling content, manage digital marketing initiatives, and drive customer engagement across multiple channels.`;
+          }
+          else if (titleLower.includes('design') || titleLower.includes('ux') || titleLower.includes('ui')) {
+            return `As a ${title}, you'll create intuitive and engaging user experiences that delight our customers. You'll leverage design thinking methodologies to solve complex problems, create prototypes, and collaborate with developers to bring your designs to life.`;
+          }
+          else if (titleLower.includes('finance') || titleLower.includes('account')) {
+            return `Join our finance team as a ${title} and help drive financial excellence across the organization. You'll be responsible for financial analysis, reporting, and compliance while contributing to strategic financial planning and optimization initiatives.`;
+          }
+          else if (titleLower.includes('sales') || titleLower.includes('account executive')) {
+            return `We're seeking a results-driven ${title} to expand our client base and drive revenue growth. You'll build and nurture client relationships, understand customer needs, and develop tailored solutions that deliver value while meeting sales targets.`;
+          }
+          else if (titleLower.includes('hr') || titleLower.includes('human resources') || titleLower.includes('talent')) {
+            return `As a ${title}, you'll help shape our organizational culture and support employee success. You'll manage talent acquisition, employee development, and engagement initiatives while ensuring compliance with HR policies and best practices.`;
+          }
+          else if (titleLower.includes('project') || titleLower.includes('product') || titleLower.includes('manager')) {
+            return `We're looking for an organized and strategic ${title} to lead projects from conception to completion. You'll coordinate cross-functional teams, manage project timelines and resources, and ensure deliverables meet quality standards while driving innovation.`;
+          }
+          else {
+            return `Join our dynamic team as a ${title} and contribute to our mission of delivering exceptional products and services. In this role, you'll leverage your skills and expertise to drive initiatives that support our business objectives while developing professionally in a collaborative environment.`;
+          }
+        }
+        
+        function getJobResponsibilities(title: string, department?: string) {
+          // Generate job responsibilities based on title/department
+          const titleLower = (title || '').toLowerCase();
+          
+          if (titleLower.includes('software') || titleLower.includes('developer') || titleLower.includes('engineer')) {
+            return `• Design, develop, and maintain high-quality software applications
+• Collaborate with cross-functional teams to define, design, and ship new features
+• Implement clean, maintainable code following best practices and design patterns
+• Identify and address performance bottlenecks and bugs
+• Participate in code reviews and mentor junior developers
+• Stay current with emerging trends and technologies`;
+          } 
+          else if (titleLower.includes('data') || titleLower.includes('analyst')) {
+            return `• Collect, process, and analyze complex datasets to identify trends and insights
+• Create and maintain dashboards and reports for key stakeholders
+• Develop predictive models and algorithms to support business decisions
+• Collaborate with teams to implement data-driven solutions
+• Ensure data quality, integrity, and security
+• Present findings and recommendations to non-technical audiences`;
+          }
+          else if (titleLower.includes('market') || titleLower.includes('brand')) {
+            return `• Develop and execute comprehensive marketing strategies and campaigns
+• Create compelling content for various digital and traditional channels
+• Track and analyze marketing metrics to optimize campaign performance
+• Manage social media presence and engagement initiatives
+• Collaborate with design and content teams on brand messaging
+• Stay current with marketing trends and competitor activities`;
+          }
+          else if (titleLower.includes('design') || titleLower.includes('ux') || titleLower.includes('ui')) {
+            return `• Create user-centered designs, wireframes, and prototypes
+• Conduct user research and usability testing to inform design decisions
+• Develop and maintain design systems and style guides
+• Collaborate with product managers and engineers on product development
+• Incorporate customer feedback into design iterations
+• Stay current with design trends and accessibility standards`;
+          }
+          else if (titleLower.includes('finance') || titleLower.includes('account')) {
+            return `• Prepare and analyze financial statements and reports
+• Manage budget planning, forecasting, and variance analysis
+• Ensure compliance with financial regulations and internal controls
+• Optimize financial processes and systems
+• Support audit activities and financial due diligence
+• Provide financial insights to support strategic decision-making`;
+          }
+          else if (titleLower.includes('sales') || titleLower.includes('account executive')) {
+            return `• Identify and pursue new business opportunities
+• Build and maintain relationships with prospects and clients
+• Understand customer needs and develop tailored solutions
+• Prepare and deliver compelling sales presentations
+• Negotiate contracts and close deals
+• Meet or exceed sales targets and performance metrics`;
+          }
+          else if (titleLower.includes('hr') || titleLower.includes('human resources') || titleLower.includes('talent')) {
+            return `• Manage full-cycle recruitment and onboarding processes
+• Develop and implement employee engagement and retention programs
+• Administer benefits, compensation, and performance management systems
+• Ensure compliance with employment laws and regulations
+• Facilitate employee relations and conflict resolution
+• Support diversity, equity, and inclusion initiatives`;
+          }
+          else if (titleLower.includes('project') || titleLower.includes('product') || titleLower.includes('manager')) {
+            return `• Define project scope, goals, and deliverables with stakeholders
+• Develop project plans, timelines, and resource allocations
+• Coordinate cross-functional teams throughout project lifecycle
+• Monitor progress and address issues or bottlenecks
+• Manage changes to project scope and requirements
+• Communicate project status to stakeholders and leadership`;
+          }
+          else {
+            return `• Contribute to team and company objectives through specialized expertise
+• Collaborate with cross-functional teams on initiatives and projects
+• Identify opportunities for improvement and innovation
+• Maintain high-quality standards in all deliverables
+• Build relationships with internal and external stakeholders
+• Stay current with relevant industry trends and best practices`;
+          }
+        }
+        
+        function getJobQualifications(title: string, department?: string) {
+          // Generate job qualifications based on title/department
+          const titleLower = (title || '').toLowerCase();
+          
+          if (titleLower.includes('software') || titleLower.includes('developer') || titleLower.includes('engineer')) {
+            return `• Bachelor's degree in Computer Science, Engineering, or related field
+• Proficiency in relevant programming languages and frameworks
+• Experience with software development methodologies and tools
+• Strong problem-solving and algorithmic thinking skills
+• Excellent communication and teamwork abilities
+• Experience with version control systems and CI/CD pipelines`;
+          } 
+          else if (titleLower.includes('data') || titleLower.includes('analyst')) {
+            return `• Bachelor's degree in Statistics, Mathematics, Computer Science, or related field
+• Proficiency in data analysis tools and programming languages (SQL, Python, R)
+• Experience with data visualization tools and techniques
+• Strong analytical and problem-solving abilities
+• Excellent communication skills for presenting technical concepts
+• Knowledge of statistical methods and machine learning concepts`;
+          }
+          else if (titleLower.includes('market') || titleLower.includes('brand')) {
+            return `• Bachelor's degree in Marketing, Communications, or related field
+• Experience developing and executing marketing campaigns
+• Proficiency with digital marketing platforms and analytics tools
+• Strong creative thinking and content development skills
+• Excellent written and verbal communication abilities
+• Understanding of market research methodologies and consumer behavior`;
+          }
+          else if (titleLower.includes('design') || titleLower.includes('ux') || titleLower.includes('ui')) {
+            return `• Bachelor's degree in Design, Human-Computer Interaction, or related field
+• Portfolio demonstrating strong design skills and problem-solving
+• Proficiency with design and prototyping tools
+• Experience conducting user research and usability testing
+• Knowledge of accessibility standards and responsive design
+• Excellent visual communication and presentation skills`;
+          }
+          else if (titleLower.includes('finance') || titleLower.includes('account')) {
+            return `• Bachelor's degree in Finance, Accounting, or related field
+• Relevant professional certifications (CPA, CFA, etc.) preferred
+• Experience with financial analysis and reporting
+• Proficiency with accounting software and financial systems
+• Strong analytical and mathematical skills
+• Attention to detail and high level of accuracy`;
+          }
+          else if (titleLower.includes('sales') || titleLower.includes('account executive')) {
+            return `• Bachelor's degree in Business, Marketing, or related field
+• Proven track record of meeting or exceeding sales targets
+• Strong negotiation and relationship-building skills
+• Excellent verbal and written communication abilities
+• Customer-focused mindset and problem-solving approach
+• Self-motivation and ability to work independently`;
+          }
+          else if (titleLower.includes('hr') || titleLower.includes('human resources') || titleLower.includes('talent')) {
+            return `• Bachelor's degree in Human Resources, Business, or related field
+• HR certifications (SHRM-CP, PHR, etc.) preferred
+• Knowledge of employment laws and HR best practices
+• Experience with HRIS and applicant tracking systems
+• Strong interpersonal and communication skills
+• Ability to maintain confidentiality and handle sensitive matters`;
+          }
+          else if (titleLower.includes('project') || titleLower.includes('product') || titleLower.includes('manager')) {
+            return `• Bachelor's degree in Business, Engineering, or related field
+• Project management certifications (PMP, Agile, Scrum) preferred
+• Experience managing projects from conception to completion
+• Strong organizational and time management skills
+• Excellent leadership and team collaboration abilities
+• Problem-solving skills and adaptability to changing requirements`;
+          }
+          else {
+            return `• Bachelor's degree in a relevant field or equivalent experience
+• Strong knowledge and expertise in the specific domain
+• Excellent analytical and problem-solving abilities
+• Effective communication and collaboration skills
+• Ability to adapt to changing priorities and requirements
+• Commitment to continuous learning and professional development`;
+          }
+        }
+        
+        function getJobBenefits(companyName: string) {
+          // Generate standard benefits with some company-specific variation
+          return `• Competitive salary and performance-based bonuses
+• Comprehensive health, dental, and vision insurance
+• 401(k) retirement plan with employer matching
+• Generous paid time off and flexible work arrangements
+• Professional development and continuing education support
+• Employee wellness programs and team-building activities
+• Collaborative and inclusive work environment at ${companyName}`;
+        }
+        
+        function getSalaryRange(title: string, employmentType?: string) {
+          // Generate realistic salary ranges based on job title and employment type
+          const titleLower = (title || '').toLowerCase();
+          const isFullTime = !employmentType || employmentType.toLowerCase().includes('full');
+          
+          if (titleLower.includes('senior') || titleLower.includes('lead') || titleLower.includes('manager')) {
+            return isFullTime ? "$90,000 - $130,000/year" : "$45 - $65/hour";
+          }
+          else if (titleLower.includes('software') || titleLower.includes('developer') || titleLower.includes('engineer')) {
+            return isFullTime ? "$75,000 - $110,000/year" : "$40 - $55/hour";
+          }
+          else if (titleLower.includes('data') || titleLower.includes('analyst')) {
+            return isFullTime ? "$65,000 - $95,000/year" : "$35 - $50/hour";
+          }
+          else if (titleLower.includes('design') || titleLower.includes('ux') || titleLower.includes('ui')) {
+            return isFullTime ? "$70,000 - $100,000/year" : "$35 - $55/hour";
+          }
+          else if (titleLower.includes('market') || titleLower.includes('sales')) {
+            return isFullTime ? "$60,000 - $90,000/year + commission" : "$30 - $45/hour + commission";
+          }
+          else if (titleLower.includes('intern') || titleLower.includes('assistant')) {
+            return isFullTime ? "$40,000 - $55,000/year" : "$20 - $25/hour";
+          }
+          else {
+            return isFullTime ? "$55,000 - $85,000/year" : "$25 - $40/hour";
+          }
+        }
+        
         // Create enhanced job details with more realistic descriptions based on the job title
         const enhancedJob = {
           id: job.id,
