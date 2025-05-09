@@ -33,18 +33,18 @@ export default function JobseekerDashboard() {
   }, [user, navigate]);
 
   // Fetch dashboard data
-  const { data: dashboardData } = useQuery({
+  const { data: dashboardData = { stats: {}, recentMatches: [] } } = useQuery({
     queryKey: ['/api/jobseeker/dashboard'],
     enabled: !!user && user.userType === USER_TYPES.JOBSEEKER,
   });
 
   // Fetch potential matches
-  const { data: potentialMatches, refetch: refetchPotentialMatches } = useQuery({
+  const { data: potentialMatches = [], refetch: refetchPotentialMatches } = useQuery({
     queryKey: ['/api/jobseeker/matches/potential'],
     enabled: !!user && user.userType === USER_TYPES.JOBSEEKER,
   });
 
-  const currentEmployer = potentialMatches?.[0] as EmployerMatch | undefined;
+  const currentEmployer = potentialMatches[0] as EmployerMatch | undefined;
 
   // Handle interest/not interest
   const swipeMutation = useMutation({
