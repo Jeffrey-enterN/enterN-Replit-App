@@ -38,9 +38,25 @@ export default function LoginForm() {
   });
 
   function onSubmit(data: FormData) {
+    // Clear any previous errors
+    form.clearErrors();
+    
+    // Add detailed error handling and logging
+    console.log("Attempting login with email:", data.username);
+    
     loginMutation.mutate({
       username: data.username,
       password: data.password,
+    }, {
+      onError: (error) => {
+        console.error("Login submission error:", error);
+        
+        // Set form-level error for better visibility
+        form.setError("root", { 
+          type: "manual",
+          message: error.message || "Login failed. Please check your email and password."
+        });
+      }
     });
   }
 
@@ -49,6 +65,13 @@ export default function LoginForm() {
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="mt-8 space-y-6">
+          {/* Display form-level errors */}
+          {form.formState.errors.root && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+              <span className="block sm:inline">{form.formState.errors.root.message}</span>
+            </div>
+          )}
+          
           <FormField
             control={form.control}
             name="username"

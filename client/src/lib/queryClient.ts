@@ -43,31 +43,57 @@ export async function apiRequest(
   data?: unknown | undefined,
 ): Promise<Response> {
   try {
+    // Prepare headers with content type if data is provided
+    const headers: Record<string, string> = data 
+      ? { "Content-Type": "application/json" } 
+      : {};
+    
+    // Add request ID for tracing issues
+    const requestId = `req_${Math.random().toString(36).substring(2, 10)}`;
+    headers['X-Request-ID'] = requestId;
+    
     // Add mobile auth token to request headers if on mobile
     const requestOptions = addMobileAuthToRequest({
       method,
-      headers: data ? { "Content-Type": "application/json" } : {},
+      headers: headers,
       body: data ? JSON.stringify(data) : undefined,
       credentials: "include", // Important for cookies to be sent
     });
     
+    // Add enhanced logging for debugging
+    if (isMobileDevice()) {
+      const token = getMobileToken();
+      console.log(`[${requestId}] Making ${method} request to ${url}`, { 
+        hasMobileToken: !!token,
+        hasData: !!data
+      });
+    }
+    
     const res = await fetch(url, requestOptions);
     
     // Handle auth token from response for mobile devices
-    if (isMobileDevice() && res.ok) {
+    if (isMobileDevice()) {
       try {
         // Attempt to parse the response to check for mobile token
         const clonedRes = res.clone();
-        const data = await clonedRes.json();
+        const jsonData = await clonedRes.json();
         
         // If the response contains a mobile token in the metadata, save it
-        if (data && data._meta && data._meta.mobileToken) {
-          console.log('Mobile authentication token received');
-          saveMobileToken(data._meta.mobileToken);
+        if (jsonData && jsonData._meta && jsonData._meta.mobileToken) {
+          console.log(`[${requestId}] Mobile authentication token received`);
+          saveMobileToken(jsonData._meta.mobileToken);
         }
       } catch (e) {
         // Silently fail - not all responses will be JSON or have tokens
+        if (isMobileDevice()) {
+          console.log(`[${requestId}] Response couldn't be parsed as JSON (normal for some endpoints)`);
+        }
       }
+    }
+
+    // If response is not ok, enhance error handling
+    if (!res.ok) {
+      console.error(`[${requestId}] API request failed: ${method} ${url} - Status: ${res.status}`);
     }
 
     await throwIfResNotOk(res);

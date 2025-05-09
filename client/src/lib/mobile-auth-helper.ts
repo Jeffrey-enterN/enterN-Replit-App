@@ -71,13 +71,27 @@ export function addMobileAuthToRequest(options: RequestInit = {}): RequestInit {
   const isMobile = isMobileDevice();
   const token = getMobileToken();
   
+  // For debugging auth issues
+  if (isMobile) {
+    console.log(`Mobile device detected. Token ${token ? 'present' : 'not present'}`);
+  }
+  
   if (isMobile && token) {
+    // Ensure we properly merge headers
+    const currentHeaders = options.headers || {};
+    
+    // Create a merged headers object
+    const newHeaders = {
+      ...currentHeaders,
+      'Authorization': `Bearer ${token}`,
+      'X-Client-Type': 'mobile' // Add additional header to help with debugging
+    };
+    
     return {
       ...options,
-      headers: {
-        ...options.headers,
-        'Authorization': `Bearer ${token}`
-      }
+      headers: newHeaders,
+      // Ensure credentials are included for cookies
+      credentials: 'include'
     };
   }
   

@@ -271,9 +271,22 @@ export function setupAuth(app: Express) {
   });
 
   app.post("/api/login", (req, res, next) => {
+    console.log("Login attempt:", { 
+      email: req.body.username,
+      userAgent: req.headers['user-agent'],
+      clientInfo: req.body._clientInfo
+    });
+    
     passport.authenticate("local", (err: Error | null, user: any, info: { message: string } | undefined) => {
-      if (err) return next(err);
-      if (!user) return res.status(401).json({ message: "Invalid username or password" });
+      if (err) {
+        console.error("Login error from passport:", err);
+        return next(err);
+      }
+      
+      if (!user) {
+        console.log("Authentication failed: Invalid credentials");
+        return res.status(401).json({ message: "Invalid username or password" });
+      }
       
       // Detect iOS clients and mobile browsers
       const userAgent = req.headers['user-agent'] || '';

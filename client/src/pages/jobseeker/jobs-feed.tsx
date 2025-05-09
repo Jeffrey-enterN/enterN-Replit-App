@@ -105,12 +105,29 @@ export default function JobsFeed() {
     }
   }, [jobsError, toast]);
 
+  // State to track current error status
+  const [currentErrorMessage, setCurrentErrorMessage] = useState<string | null>(null);
+
   // Handle job interest
   const jobInterestMutation = useMutation({
     mutationFn: async ({ jobId, interested }: { jobId: string; interested: boolean }) => {
+      // Clear any previous error messages
+      setCurrentErrorMessage(null);
       setIsProcessingInterest(true);
-      const response = await apiRequest('POST', `/api/jobs/${jobId}/interest`, { interested });
-      return response.json();
+      
+      try {
+        const response = await apiRequest('POST', `/api/jobs/${jobId}/interest`, { interested });
+        const data = await response.json();
+        return data;
+      } catch (error) {
+        // Check if it's a duplicate key error
+        if (error instanceof Error && error.message.includes('duplicate key value')) {
+          // Extract the job ID from the error message if possible
+          setCurrentErrorMessage("You've already expressed interest in this job");
+          throw new Error("You've already expressed interest in this job");
+        }
+        throw error;
+      }
     },
     onSuccess: () => {
       // Invalidate related queries
@@ -127,9 +144,18 @@ export default function JobsFeed() {
     },
     onError: (error: Error) => {
       setIsProcessingInterest(false);
+      
+      // Create a more user-friendly error message
+      const errorMessage = error.message.includes('duplicate key value') 
+        ? "You've already expressed interest in this job"
+        : error.message;
+      
+      // Set the current error for display in the UI
+      setCurrentErrorMessage(errorMessage);
+      
       toast({
         title: 'Error',
-        description: error.message,
+        description: errorMessage,
         variant: 'destructive',
       });
     },
