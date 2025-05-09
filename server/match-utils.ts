@@ -518,12 +518,12 @@ export async function getEmployerMatchFeed(employerId: number) {
         // Calculate match scores for both jobseekers
         const scoreA = calculateMatchScore(
           a.jobseekerProfile?.sliderValues || {}, 
-          employer.company?.sliderPreferences
+          employer.company.sliderPreferences
         );
         
         const scoreB = calculateMatchScore(
           b.jobseekerProfile?.sliderValues || {}, 
-          employer.company?.sliderPreferences
+          employer.company.sliderPreferences
         );
         
         // Sort in descending order (highest match score first)

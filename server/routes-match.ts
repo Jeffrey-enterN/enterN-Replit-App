@@ -8,7 +8,9 @@ import {
   getEmployerMatchFeed,
   scheduleInterview
 } from './match-utils';
-import { USER_TYPES } from '@shared/schema';
+import { USER_TYPES, companies, users } from '@shared/schema';
+import { db } from './db';
+import { eq, and } from 'drizzle-orm';
 
 /**
  * Routes for handling the swipe-to-match feature
@@ -319,6 +321,81 @@ export function setupMatchRoutes(router: Router) {
       // Placeholder for actual implementation
       res.json({});
     } catch (error) {
+      res.status(500).json({ error: error instanceof Error ? error.message : String(error) });
+    }
+  });
+
+  /**
+   * Update company slider preferences for matching
+   * 
+   * POST body:
+   * - preferredSliders: Array of slider IDs (max 3)
+   * - preferredSides: Object mapping slider IDs to "left" or "right"
+   */
+  router.post('/api/company/slider-preferences', async (req: Request, res: Response) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ error: 'Not authenticated' });
+    }
+
+    const user = req.user;
+    if (user.userType !== USER_TYPES.EMPLOYER) {
+      return res.status(403).json({ error: 'Only employers can set slider preferences' });
+    }
+    
+    try {
+      const { preferredSliders, preferredSides } = req.body;
+      
+      // Validate the input
+      if (!Array.isArray(preferredSliders)) {
+        return res.status(400).json({ error: 'preferredSliders must be an array' });
+      }
+      
+      if (preferredSliders.length > 3) {
+        return res.status(400).json({ error: 'Maximum of 3 preferred sliders allowed' });
+      }
+      
+      if (typeof preferredSides !== 'object' || preferredSides === null) {
+        return res.status(400).json({ error: 'preferredSides must be an object' });
+      }
+      
+      // Validate that each side is either "left" or "right"
+      for (const sliderId of Object.keys(preferredSides)) {
+        if (preferredSides[sliderId] !== 'left' && preferredSides[sliderId] !== 'right') {
+          return res.status(400).json({ error: `Invalid side value for slider ${sliderId}: must be "left" or "right"` });
+        }
+      }
+      
+      // Get the company for this employer
+      const userData = await db.query.users.findFirst({
+        where: eq(users.id, req.user!.id),
+        with: {
+          company: true
+        }
+      });
+      
+      if (!userData || !userData.company) {
+        return res.status(404).json({ error: 'Company not found for this employer' });
+      }
+      
+      // Update the company's slider preferences
+      const [updatedCompany] = await db
+        .update(companies)
+        .set({
+          sliderPreferences: {
+            preferredSliders,
+            preferredSides
+          },
+          updatedAt: new Date()
+        })
+        .where(eq(companies.id, userData.company.id))
+        .returning();
+      
+      res.json({
+        success: true,
+        sliderPreferences: updatedCompany.sliderPreferences
+      });
+    } catch (error) {
+      console.error('Error updating company slider preferences:', error);
       res.status(500).json({ error: error instanceof Error ? error.message : String(error) });
     }
   });
