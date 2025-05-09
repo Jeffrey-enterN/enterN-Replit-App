@@ -43,16 +43,27 @@ export default function JobsFeed() {
     data: availableJobs, 
     refetch: refetchAvailableJobs, 
     isLoading,
-    isRefetching 
-  } = useQuery({
+    isRefetching,
+    error: jobsError
+  } = useQuery<JobPosting[]>({
     queryKey: ['/api/jobseeker/jobs/available'],
     enabled: !!user && user.userType === USER_TYPES.JOBSEEKER,
-    queryFn: async () => {
-      const response = await apiRequest('GET', '/api/jobseeker/jobs/available');
-      return response.json();
-    },
+    // Use the default queryFn from the client setup to benefit from all auth handling logic
     staleTime: 0, // Force refetch every time
+    retry: 2 // Retry a few times to handle auth issues
   });
+  
+  // Handle errors for job loading
+  React.useEffect(() => {
+    if (jobsError) {
+      console.error('Error fetching jobs:', jobsError);
+      toast({
+        title: 'Error fetching jobs',
+        description: 'There was an issue loading jobs. Please try refreshing.',
+        variant: 'destructive',
+      });
+    }
+  }, [jobsError, toast]);
 
   // Handle job interest
   const jobInterestMutation = useMutation({

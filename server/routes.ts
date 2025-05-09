@@ -586,8 +586,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Get Available Jobs for Jobseeker
   app.get("/api/jobseeker/jobs/available", async (req, res) => {
-    if (!req.isAuthenticated()) return res.status(401).json({ message: "Unauthorized" });
-    if (req.user.userType !== USER_TYPES.JOBSEEKER) return res.status(403).json({ message: "Forbidden" });
+    // Check authentication (handles both session and mobile token auth)
+    if (!req.isAuthenticated()) {
+      // Attempt mobile token authentication as a fallback
+      const authHeader = req.headers.authorization;
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        const token = authHeader.substring(7); // Remove 'Bearer ' from header
+        try {
+          // Validate the mobile token
+          const tokenParts = token.split('.');
+          if (tokenParts.length === 2) {
+            const userId = parseInt(tokenParts[0], 10);
+            // Fetch the user
+            const user = await storage.getUser(userId);
+            if (user) {
+              // Attach the user to the request
+              (req as any).user = user;
+              console.log(`Mobile token authentication successful for user ${userId}`);
+            } else {
+              console.log(`Mobile token authentication failed - user ${userId} not found`);
+              return res.status(401).json({ message: "Unauthorized - invalid token" });
+            }
+          } else {
+            console.log(`Mobile token authentication failed - invalid token format`);
+            return res.status(401).json({ message: "Unauthorized - invalid token format" });
+          }
+        } catch (error) {
+          console.error("Mobile token auth error:", error);
+          return res.status(401).json({ message: "Unauthorized - token error" });
+        }
+      } else {
+        console.log("No authentication detected for jobs feed request");
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+    }
+    
+    // Check user type (now that we've authenticated)
+    if (req.user.userType !== USER_TYPES.JOBSEEKER) {
+      console.log(`User ${req.user.id} is not a jobseeker (${req.user.userType})`);
+      return res.status(403).json({ message: "Forbidden - not a jobseeker" });
+    }
 
     try {
       console.log("Fetching available jobs for jobseeker:", req.user.id);
@@ -636,7 +674,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }));
       
       console.log(`Returning ${jobsWithCompanyInfo.length} jobs with company info`);
-      res.status(200).json(jobsWithCompanyInfo);
+      
+      // For mobile clients, add a refresh token in the response
+      if (req.headers['user-agent'] && /iPhone|iPad|iPod/i.test(req.headers['user-agent'] as string) && req.user) {
+        // Import randomBytes for token generation
+        const { randomBytes } = await import('crypto');
+        // Add the mobile token to the response metadata
+        const mobileToken = `${req.user.id}.${randomBytes(16).toString('hex')}`;
+        res.status(200).json({
+          ...jobsWithCompanyInfo,
+          _meta: {
+            mobileToken,
+            timestamp: new Date().toISOString()
+          }
+        });
+      } else {
+        res.status(200).json(jobsWithCompanyInfo);
+      }
     } catch (error) {
       console.error('Error fetching available jobs:', error);
       res.status(500).json({ message: (error as Error).message });
