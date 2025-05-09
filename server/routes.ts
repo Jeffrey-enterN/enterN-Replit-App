@@ -590,23 +590,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     if (req.user.userType !== USER_TYPES.JOBSEEKER) return res.status(403).json({ message: "Forbidden" });
 
     try {
+      console.log("Fetching available jobs for jobseeker:", req.user.id);
+      
       // Get all available job postings
       const jobPostings = await storage.getAllJobPostings();
+      console.log(`Found ${jobPostings.length} job postings in database`);
       
       // Get company info for each job
       const jobsWithCompanyInfo = await Promise.all(jobPostings.map(async (job) => {
+        console.log(`Processing job: ${job.id}, title: ${job.title}, companyId: ${job.companyId}`);
         const company = job.companyId ? await storage.getCompany(job.companyId) : null;
+        console.log(`Company info for job ${job.id}:`, company ? `${company.id} - ${company.name}` : 'No company found');
         
         // Parse workType from JSON string to array
         let workTypeArray: string[] = [];
         try {
           if (job.workType) {
+            console.log(`Job ${job.id} workType (before parsing):`, job.workType, typeof job.workType);
             // Handle different formats of workType data
             if (typeof job.workType === 'string') {
               workTypeArray = JSON.parse(job.workType);
             } else if (Array.isArray(job.workType)) {
               workTypeArray = job.workType;
             }
+            console.log(`Job ${job.id} workType (after parsing):`, workTypeArray);
           }
         } catch (error) {
           console.error(`Error parsing workType for job ${job.id}:`, error);
@@ -628,6 +635,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         };
       }));
       
+      console.log(`Returning ${jobsWithCompanyInfo.length} jobs with company info`);
       res.status(200).json(jobsWithCompanyInfo);
     } catch (error) {
       console.error('Error fetching available jobs:', error);
