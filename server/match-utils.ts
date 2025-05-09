@@ -58,7 +58,8 @@ export async function processJobseekerSwipe(
         where: and(
           eq(swipes.jobseekerId, jobseekerId),
           eq(swipes.employerId, employerId),
-          eq(swipes.interested, true)
+          eq(swipes.interested, true),
+          eq(swipes.swipedBy, USER_TYPES.EMPLOYER)
         ),
       });
 
@@ -133,7 +134,8 @@ export async function processEmployerSwipe(
         where: and(
           eq(swipes.jobseekerId, jobseekerId),
           eq(swipes.employerId, employerId),
-          eq(swipes.interested, true)
+          eq(swipes.interested, true),
+          eq(swipes.swipedBy, USER_TYPES.JOBSEEKER)
         ),
       });
 
@@ -385,10 +387,16 @@ export async function getEmployerMatchFeed(employerId: number) {
       with: {
         jobseekerProfile: true,
         jobseekerSwipes: {
-          where: eq(swipes.employerId, employerId)
+          where: and(
+            eq(swipes.employerId, employerId),
+            eq(swipes.swipedBy, USER_TYPES.JOBSEEKER)
+          )
         },
         employerSwipes: {
-          where: eq(swipes.employerId, employerId)
+          where: and(
+            eq(swipes.employerId, employerId),
+            eq(swipes.swipedBy, USER_TYPES.EMPLOYER)
+          )
         }
       }
     });
