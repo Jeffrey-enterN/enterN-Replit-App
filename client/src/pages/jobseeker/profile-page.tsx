@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useLocation } from 'wouter';
 import DashboardLayout from '@/components/layouts/dashboard-layout';
 import JobseekerProfileForm from '@/components/profile/jobseeker-profile-form';
+import JobseekerNavbar from '@/components/layouts/jobseeker-navbar';
 import { useAuth } from '@/context/auth-context';
 import { USER_TYPES } from '@/lib/constants';
 
@@ -23,8 +24,11 @@ export default function JobseekerProfilePage() {
   const title = user?.profile?.id ? 'Edit Your Profile' : 'Create Your Profile';
 
   return (
-    <DashboardLayout title={title} subtitle={subtitle}>
-      <JobseekerProfileForm />
-    </DashboardLayout>
+    <>
+      <JobseekerNavbar />
+      <DashboardLayout title={title} subtitle={subtitle}>
+        <JobseekerProfileForm />
+      </DashboardLayout>
+    </>
   );
 }

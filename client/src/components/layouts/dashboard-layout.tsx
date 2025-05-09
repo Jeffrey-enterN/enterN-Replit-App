@@ -29,7 +29,7 @@ export default function DashboardLayout({ children, title, subtitle }: Dashboard
       
       {/* Main navigation for dashboard pages */}
       {!isJobseekerPage && (
-        <nav className="bg-white shadow-sm sticky top-0 z-50">
+        <nav className="bg-background border-b border-border sticky top-0 z-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between h-20">
               <div className="flex">
@@ -41,20 +41,28 @@ export default function DashboardLayout({ children, title, subtitle }: Dashboard
                 <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
                   {user?.userType === USER_TYPES.JOBSEEKER && (
                     <>
-                      <Link href="/jobseeker/dashboard" className={`inline-flex items-center px-1 pt-1 text-sm font-medium ${location === "/jobseeker/dashboard" ? "border-b-2 border-primary text-gray-900" : "text-gray-500 hover:border-b-2 hover:border-gray-300 hover:text-gray-700"}`}>
+                      <Link href="/jobseeker/dashboard" className={`inline-flex items-center px-1 pt-1 text-sm font-medium ${location === "/jobseeker/dashboard" 
+                        ? "border-b-2 border-primary text-foreground" 
+                        : "text-muted-foreground hover:border-b-2 hover:border-muted hover:text-foreground"}`}>
                         Dashboard
                       </Link>
-                      <Link href="/jobseeker/profile" className={`inline-flex items-center px-1 pt-1 text-sm font-medium ${location === "/jobseeker/profile" ? "border-b-2 border-primary text-gray-900" : "text-gray-500 hover:border-b-2 hover:border-gray-300 hover:text-gray-700"}`}>
+                      <Link href="/jobseeker/profile" className={`inline-flex items-center px-1 pt-1 text-sm font-medium ${location === "/jobseeker/profile" 
+                        ? "border-b-2 border-primary text-foreground" 
+                        : "text-muted-foreground hover:border-b-2 hover:border-muted hover:text-foreground"}`}>
                         Profile
                       </Link>
                     </>
                   )}
                   {user?.userType === USER_TYPES.EMPLOYER && (
                     <>
-                      <Link href="/employer/dashboard" className={`inline-flex items-center px-1 pt-1 text-sm font-medium ${location === "/employer/dashboard" ? "border-b-2 border-primary text-gray-900" : "text-gray-500 hover:border-b-2 hover:border-gray-300 hover:text-gray-700"}`}>
+                      <Link href="/employer/dashboard" className={`inline-flex items-center px-1 pt-1 text-sm font-medium ${location === "/employer/dashboard" 
+                        ? "border-b-2 border-primary text-foreground" 
+                        : "text-muted-foreground hover:border-b-2 hover:border-muted hover:text-foreground"}`}>
                         Dashboard
                       </Link>
-                      <Link href="/employer/match-feed" className={`inline-flex items-center px-1 pt-1 text-sm font-medium ${location === "/employer/match-feed" ? "border-b-2 border-primary text-gray-900" : "text-gray-500 hover:border-b-2 hover:border-gray-300 hover:text-gray-700"}`}>
+                      <Link href="/employer/match-feed" className={`inline-flex items-center px-1 pt-1 text-sm font-medium ${location === "/employer/match-feed" 
+                        ? "border-b-2 border-primary text-foreground" 
+                        : "text-muted-foreground hover:border-b-2 hover:border-muted hover:text-foreground"}`}>
                         Match Feed
                       </Link>
                     </>
@@ -62,25 +70,26 @@ export default function DashboardLayout({ children, title, subtitle }: Dashboard
                 </div>
               </div>
               <div className="flex items-center">
+                <ThemeToggle />
                 {user ? (
                   <>
                     <SettingsDialog 
                       trigger={
-                        <button className="rounded-md px-4 py-2 text-sm font-medium text-primary hover:bg-primary-50 focus:outline-none">
+                        <button className="rounded-md px-4 py-2 text-sm font-medium text-primary hover:bg-primary/10 focus:outline-none">
                           Settings
                         </button>
                       } 
                     />
                     <button 
                       onClick={handleLogout}
-                      className="rounded-md px-4 py-2 text-sm font-medium text-primary hover:bg-primary-50 focus:outline-none"
+                      className="rounded-md px-4 py-2 text-sm font-medium text-primary hover:bg-primary/10 focus:outline-none"
                     >
                       Sign Out
                     </button>
                   </>
                 ) : (
                   <>
-                    <Link href="/auth" className="rounded-md px-4 py-2 text-sm font-medium text-primary hover:bg-primary-50 focus:outline-none">
+                    <Link href="/auth" className="rounded-md px-4 py-2 text-sm font-medium text-primary hover:bg-primary/10 focus:outline-none">
                       Sign In
                     </Link>
                   </>
@@ -107,15 +116,15 @@ export default function DashboardLayout({ children, title, subtitle }: Dashboard
       </main>
 
       {/* Beta Tester Instructions */}
-      <div className="bg-blue-50 border-t border-blue-200">
+      <div className="bg-blue-50 dark:bg-blue-900/20 border-t border-blue-200 dark:border-blue-800">
         <div className="max-w-7xl mx-auto py-3 px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-center">
             <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="h-5 w-5 text-blue-600 dark:text-blue-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <div className="ml-3 text-sm text-blue-700">
+            <div className="ml-3 text-sm text-blue-700 dark:text-blue-300">
               <p>
                 <span className="font-medium">Beta Testing:</span> Thank you for helping us improve! Please report any bugs to <a href="mailto:info@enter-n.com" className="font-bold underline">info@enter-n.com</a>
               </p>
@@ -125,26 +134,26 @@ export default function DashboardLayout({ children, title, subtitle }: Dashboard
       </div>
 
       {/* Footer */}
-      <footer className="bg-white">
+      <footer className="bg-background border-t border-border">
         <div className="max-w-7xl mx-auto py-6 px-4 overflow-hidden sm:px-6 lg:px-8">
           <nav className="-mx-5 -my-2 flex flex-wrap justify-center" aria-label="Footer">
             <div className="px-5 py-2">
-              <Link href="#" className="text-sm text-gray-500 hover:text-gray-900">
+              <Link href="#" className="text-sm text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-300">
                 About
               </Link>
             </div>
             <div className="px-5 py-2">
-              <Link href="/privacy-policy" className="text-sm text-gray-500 hover:text-gray-900">
+              <Link href="/privacy-policy" className="text-sm text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-300">
                 Privacy
               </Link>
             </div>
             <div className="px-5 py-2">
-              <Link href="#" className="text-sm text-gray-500 hover:text-gray-900">
+              <Link href="#" className="text-sm text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-300">
                 Terms
               </Link>
             </div>
           </nav>
-          <p className="mt-4 text-center text-xs text-gray-400">
+          <p className="mt-4 text-center text-xs text-gray-400 dark:text-gray-500">
             &copy; 2025 enterN, Inc. All rights reserved.
           </p>
         </div>
