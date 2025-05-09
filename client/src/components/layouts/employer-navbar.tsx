@@ -29,6 +29,7 @@ import {
   Users,
   Users2,
   ThumbsUp,
+  SlidersHorizontal,
 } from 'lucide-react';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { Switch } from '@/components/ui/switch';
@@ -67,6 +68,7 @@ export default function EmployerNavbar() {
     { label: 'Company Profile', href: '/employer/company-profile', icon: Building },
     { label: 'Team', href: '/employer/company-team', icon: Users },
     { label: 'Jobs', href: '/employer/jobs', icon: Briefcase },
+    { label: 'Match Preferences', href: '/employer/slider-preferences', icon: SlidersHorizontal },
     { label: 'Candidates', href: '/employer/candidates', icon: Users2 },
     { 
       label: 'Support', 
@@ -244,6 +246,12 @@ export default function EmployerNavbar() {
                 <Link href="/employer/company-profile" className="flex items-center gap-2 cursor-pointer">
                   <Building className="h-4 w-4" />
                   Company Profile
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="/employer/slider-preferences" className="flex items-center gap-2 cursor-pointer">
+                  <SlidersHorizontal className="h-4 w-4" />
+                  Match Preferences
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />

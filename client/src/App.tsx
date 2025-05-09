@@ -34,6 +34,7 @@ import TermsOfServicePage from "@/pages/terms-of-service-page";
 import SupportPage from "@/pages/support";
 import JobsPage from "@/pages/employer/jobs";
 import NewJobPage from "@/pages/employer/jobs/new";
+import SliderPreferencesPage from "@/pages/employer/slider-preferences-page";
 import NotFound from "@/pages/not-found";
 
 // Lazy-loaded admin pages
@@ -112,6 +113,14 @@ function Router() {
           <ProtectedRoute 
             path="/employer/jobs/new" 
             component={NewJobPage}
+          />
+        </EmployerLayout>
+      </Route>
+      <Route path="/employer/slider-preferences">
+        <EmployerLayout>
+          <ProtectedRoute 
+            path="/employer/slider-preferences" 
+            component={SliderPreferencesPage}
           />
         </EmployerLayout>
       </Route>
