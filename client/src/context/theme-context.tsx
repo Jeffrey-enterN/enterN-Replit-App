@@ -28,35 +28,51 @@ export function ThemeProvider({
   storageKey = "entern-ui-theme",
   ...props
 }: ThemeProviderProps) {
-  // Force light theme
-  const [theme, setTheme] = useState<Theme>("light");
+  const [theme, setTheme] = useState<Theme>(
+    () => (localStorage.getItem(storageKey) as Theme) || defaultTheme
+  );
 
   useEffect(() => {
-    // Force light mode by removing dark class and adding light class
     const root = window.document.documentElement;
-    root.classList.remove("dark");
-    root.classList.add("light");
     
-    // Save to localStorage
-    localStorage.setItem(storageKey, "light");
-  }, []);
+    // Remove current theme class and add the new one
+    root.classList.remove("light", "dark");
+    
+    if (theme === "system") {
+      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light";
+      root.classList.add(systemTheme);
+      
+      // Listen for system theme changes
+      const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+      const handleChange = () => {
+        if (theme === "system") {
+          root.classList.remove("light", "dark");
+          root.classList.add(mediaQuery.matches ? "dark" : "light");
+        }
+      };
+      
+      mediaQuery.addEventListener("change", handleChange);
+      return () => mediaQuery.removeEventListener("change", handleChange);
+    } else {
+      root.classList.add(theme);
+    }
+  }, [theme]);
 
   const toggleTheme = () => {
-    // Force light theme - do nothing when toggle is called
-    return;
+    setTheme((prev) => {
+      const newTheme = prev === "dark" ? "light" : "dark";
+      localStorage.setItem(storageKey, newTheme);
+      return newTheme;
+    });
   };
 
   const value = {
-    theme: "light" as Theme,
+    theme,
     setTheme: (theme: Theme) => {
-      // Force light theme regardless of what is passed
-      localStorage.setItem(storageKey, "light");
-      setTheme("light");
-      
-      // Always make sure we're in light mode
-      const root = window.document.documentElement;
-      root.classList.remove("dark");
-      root.classList.add("light");
+      localStorage.setItem(storageKey, theme);
+      setTheme(theme);
     },
     toggleTheme,
   };

@@ -19,7 +19,7 @@
  */
 
 :root {
-  /* Base colors */
+  /* Base colors - Light Mode */
   --background: 0 0% 100%;
   --foreground: 20 14.3% 4.1%;
   --muted: 60 4.8% 95.9%;
@@ -68,6 +68,38 @@
   --chart-3: var(--brand-cyan);
   --chart-4: var(--brand-lime);
   --chart-5: var(--brand-darkgray);
+}
+
+.dark {
+  /* Base colors - Dark Mode */
+  --background: 240 10% 3.9%;
+  --foreground: 0 0% 98%;
+  --muted: 240 5% 14.9%;
+  --muted-foreground: 240 5% 64.9%;
+  --popover: 240 10% 3.9%;
+  --popover-foreground: 0 0% 98%;
+  --card: 240 10% 3.9%;
+  --card-foreground: 0 0% 98%;
+  --border: 240 5.9% 21%;
+  --input: 240 5.9% 21%;
+  
+  /* UI colors for dark mode */
+  --primary: 188 100% 45%;    /* Brighter teal for dark mode */
+  --primary-foreground: 0 0% 0%;
+  --secondary: 328 100% 70%;  /* Same pink but more visible on dark */
+  --secondary-foreground: 0 0% 0%;
+  --accent: 181 73% 74%;      /* Brighter cyan for dark mode */
+  --accent-foreground: 0 0% 0%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+  --ring: 188 100% 45%;
+  
+  /* Chart colors for dark mode - brighter variants */
+  --chart-1: 188 100% 45%;
+  --chart-2: 328 100% 75%;
+  --chart-3: 181 73% 74%;
+  --chart-4: 70 98% 60%;
+  --chart-5: 180 1% 67%;
 }
 
 @layer base {
