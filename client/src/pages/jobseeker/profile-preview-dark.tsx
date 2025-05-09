@@ -127,7 +127,7 @@ export default function JobseekerProfilePreview() {
                             Profile Complete
                           </Badge>
                         ) : (
-                          <Badge variant="outline" className="bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/30">
+                          <Badge variant="outline" className="bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/30">
                             Profile Incomplete
                           </Badge>
                         )}
@@ -331,7 +331,7 @@ export default function JobseekerProfilePreview() {
                             Profile Complete
                           </Badge>
                         ) : (
-                          <Badge variant="outline" className="bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/30">
+                          <Badge variant="outline" className="bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/30">
                             Profile Incomplete
                           </Badge>
                         )}
