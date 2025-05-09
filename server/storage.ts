@@ -1413,31 +1413,32 @@ export class DatabaseStorage implements IStorage {
       
       console.log(`Number of employers already swiped on: ${swipedEmployerIds.length}`);
       
-      // Check all employer profiles to debug
+      // Get all companies 
       const allEmployers = await db
         .select({
-          userId: employerProfiles.userId,
-          companyName: employerProfiles.companyName,
+          id: companies.id,
+          name: companies.name,
           email: users.email,
           username: users.username
         })
-        .from(employerProfiles)
-        .innerJoin(users, eq(employerProfiles.userId, users.id));
+        .from(companies)
+        .innerJoin(users, eq(users.companyId, companies.id));
       
-      console.log(`Total employer profiles in database: ${allEmployers.length}`);
-      console.log('All employer profiles:', JSON.stringify(allEmployers));
+      console.log(`Total companies in database: ${allEmployers.length}`);
       
-      // Get employer profiles that haven't been swiped on
+      // Get company profiles that haven't been swiped on
       const potentialEmployers = await db
         .select({
-          userId: employerProfiles.userId,
-          companyName: employerProfiles.companyName,
-          headquarters: employerProfiles.headquarters,
-          aboutCompany: employerProfiles.aboutCompany
+          id: companies.id,
+          userId: users.id,
+          name: companies.name,
+          about: companies.about,
+          industries: companies.industries
         })
-        .from(employerProfiles)
+        .from(companies)
+        .innerJoin(users, eq(users.companyId, companies.id))
         .where(
-          sql`${employerProfiles.userId} NOT IN (
+          sql`${users.id} NOT IN (
             SELECT ${swipes.employerId} FROM ${swipes} 
             WHERE ${swipes.jobseekerId} = ${userId}
           )`
@@ -1469,9 +1470,9 @@ export class DatabaseStorage implements IStorage {
         
         return {
           id: employer.userId.toString(),
-          name: employer.companyName || 'Unknown Company',
-          location: employer.headquarters || 'Remote',
-          description: employer.aboutCompany || 'No company description available',
+          name: employer.name || 'Unknown Company',
+          location: employer.industries?.[0] || 'Various Industries',
+          description: employer.about || 'No company description available',
           positions
         };
       }));
@@ -1610,24 +1611,29 @@ export class DatabaseStorage implements IStorage {
     
     return await Promise.all(
       recentMatches.map(async (match) => {
+        // Get employer user and company name
         const [employer] = await db
           .select({
             id: users.id,
-            companyName: users.companyName
+            companyName: users.companyName,
+            companyId: users.companyId
           })
           .from(users)
           .where(eq(users.id, match.employerId));
         
-        const [employerProfile] = await db
+        // Get company info if available
+        const [company] = await db
           .select({
-            companyName: employerProfiles.companyName
+            name: companies.name
           })
-          .from(employerProfiles)
-          .where(eq(employerProfiles.userId, match.employerId));
+          .from(companies)
+          .where(
+            eq(companies.id, employer?.companyId || 0)
+          );
         
         return {
           id: match.id,
-          name: employerProfile?.companyName || employer?.companyName || 'Unknown Company',
+          name: company?.name || employer?.companyName || 'Unknown Company',
           matchDate: match.matchedAt,
           status: match.status === MATCH_STATUS.INTERVIEW_SCHEDULED 
             ? 'interview-scheduled' 
@@ -1641,14 +1647,86 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Employer profile methods
-  async createEmployerProfile(userId: number, profileData: any): Promise<EmployerProfile> {
-    const insertData = {
-      userId,
-      ...profileData
-    };
+  async createEmployerProfile(userId: number, profileData: any): Promise<any> {
+    // Check if the user already has a company
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, userId));
     
-    const [profile] = await db.insert(employerProfiles).values([insertData]).returning();
-    return profile;
+    if (user?.companyId) {
+      // If user already has a company, update it
+      const [company] = await db
+        .update(companies)
+        .set({
+          name: profileData.companyName,
+          about: profileData.aboutCompany,
+          industries: profileData.companyIndustry ? [profileData.companyIndustry] : null,
+          size: profileData.companySize,
+          yearFounded: profileData.yearFounded,
+          values: profileData.companyValues,
+          mission: profileData.companyMission,
+          website: profileData.companyWebsite,
+          updatedAt: new Date()
+        })
+        .where(eq(companies.id, user.companyId))
+        .returning();
+      
+      return {
+        id: company.id,
+        userId,
+        companyName: company.name,
+        aboutCompany: company.about,
+        companyIndustry: company.industries?.[0] || null,
+        companySize: company.size,
+        yearFounded: company.yearFounded,
+        companyValues: company.values,
+        companyMission: company.mission,
+        companyWebsite: company.website,
+        createdAt: company.createdAt,
+        updatedAt: company.updatedAt
+      };
+    } else {
+      // Create a new company
+      const [company] = await db.insert(companies)
+        .values({
+          name: profileData.companyName,
+          about: profileData.aboutCompany,
+          industries: profileData.companyIndustry ? [profileData.companyIndustry] : null,
+          size: profileData.companySize,
+          yearFounded: profileData.yearFounded,
+          values: profileData.companyValues,
+          mission: profileData.companyMission,
+          website: profileData.companyWebsite,
+          createdBy: userId,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        })
+        .returning();
+      
+      // Update the user to link to this company
+      await db.update(users)
+        .set({
+          companyId: company.id,
+          companyRole: 'admin'
+        })
+        .where(eq(users.id, userId));
+      
+      return {
+        id: company.id,
+        userId,
+        companyName: company.name,
+        aboutCompany: company.about,
+        companyIndustry: company.industries?.[0] || null,
+        companySize: company.size,
+        yearFounded: company.yearFounded,
+        companyValues: company.values,
+        companyMission: company.mission,
+        companyWebsite: company.website,
+        createdAt: company.createdAt,
+        updatedAt: company.updatedAt
+      };
+    }
   }
 
   async saveEmployerProfileDraft(userId: number, draftData: any): Promise<any> {
@@ -1672,13 +1750,42 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  async getEmployerProfile(userId: number): Promise<EmployerProfile | undefined> {
-    const [profile] = await db
+  async getEmployerProfile(userId: number): Promise<any> {
+    // Get user first to find their company
+    const [user] = await db
       .select()
-      .from(employerProfiles)
-      .where(eq(employerProfiles.userId, userId));
+      .from(users)
+      .where(eq(users.id, userId));
     
-    return profile;
+    if (!user?.companyId) {
+      return undefined;
+    }
+    
+    // Get the company
+    const [company] = await db
+      .select()
+      .from(companies)
+      .where(eq(companies.id, user.companyId));
+    
+    // Map company fields to employer profile format for backward compatibility
+    if (company) {
+      return {
+        id: company.id,
+        userId: userId,
+        companyName: company.name,
+        aboutCompany: company.about,
+        companyIndustry: company.industries?.[0] || null,
+        companySize: company.size,
+        yearFounded: company.yearFounded,
+        companyValues: company.values,
+        companyMission: company.mission,
+        companyWebsite: company.website,
+        createdAt: company.createdAt,
+        updatedAt: company.updatedAt
+      };
+    }
+    
+    return undefined;
   }
   
   async getEmployerProfileDraft(userId: number): Promise<any | undefined> {
