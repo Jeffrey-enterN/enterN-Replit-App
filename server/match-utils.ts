@@ -225,15 +225,37 @@ export async function expressJobInterest(
 ) {
   try {
     return await db.transaction(async (tx) => {
-      // Record the job interest
-      const [jobInterest] = await tx
-        .insert(jobInterests)
-        .values({
-          jobseekerId,
-          jobPostingId,
-          interested
-        })
-        .returning();
+      // Check if the jobseeker has already expressed interest in this job
+      const existingInterest = await tx.query.jobInterests.findFirst({
+        where: and(
+          eq(jobInterests.jobseekerId, jobseekerId),
+          eq(jobInterests.jobPostingId, jobPostingId)
+        )
+      });
+      
+      let jobInterest;
+      
+      if (existingInterest) {
+        // Update the existing interest
+        [jobInterest] = await tx
+          .update(jobInterests)
+          .set({
+            interested,
+            updatedAt: new Date()
+          })
+          .where(eq(jobInterests.id, existingInterest.id))
+          .returning();
+      } else {
+        // Create a new interest record
+        [jobInterest] = await tx
+          .insert(jobInterests)
+          .values({
+            jobseekerId,
+            jobPostingId,
+            interested
+          })
+          .returning();
+      }
 
       if (!interested) {
         return { success: true, jobInterest };
