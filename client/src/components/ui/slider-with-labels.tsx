@@ -66,8 +66,8 @@ export function SliderWithLabels({
         
         <div className="absolute top-0 left-1/2 -translate-x-1/2 flex items-center">
           {isAdjusted && (
-            <div className="bg-green-50 p-1 rounded-full flex-shrink-0 border border-green-100">
-              <CheckCircle className="h-3 w-3 text-green-500" />
+            <div className="bg-green-50 dark:bg-green-900/20 p-1 rounded-full flex-shrink-0 border border-green-100 dark:border-green-800">
+              <CheckCircle className="h-3 w-3 text-green-500 dark:text-green-400" />
             </div>
           )}
           
@@ -80,13 +80,13 @@ export function SliderWithLabels({
                     className="inline-flex items-center justify-center ml-1 focus:outline-none"
                     aria-label="Help"
                   >
-                    <HelpCircle className="h-5 w-5 hover:opacity-80 transition-opacity" />
+                    <HelpCircle className="h-5 w-5 text-muted-foreground hover:text-foreground transition-colors" />
                   </button>
                 </TooltipTrigger>
                 <TooltipContent 
                   side="top" 
                   align="center" 
-                  className="max-w-sm bg-white text-gray-800 p-3 shadow-lg border border-gray-100 text-sm rounded-md"
+                  className="max-w-sm bg-popover text-popover-foreground p-3 shadow-lg border border-border text-sm rounded-md"
                 >
                   <p>{tooltipContent}</p>
                 </TooltipContent>
@@ -115,13 +115,13 @@ export function SliderWithLabels({
                   className="inline-flex items-center justify-center focus:outline-none flex-shrink-0"
                   aria-label="Help"
                 >
-                  <HelpCircle className={`h-4 w-4 ${accentColor} hover:opacity-80 transition-opacity`} />
+                  <HelpCircle className="h-4 w-4 text-muted-foreground hover:text-foreground transition-colors" />
                 </button>
               </TooltipTrigger>
               <TooltipContent 
                 side="top" 
                 align="center" 
-                className="max-w-[90vw] bg-white text-gray-800 p-2 shadow-lg border border-gray-100 text-xs rounded-md"
+                className="max-w-[90vw] bg-popover text-popover-foreground p-2 shadow-lg border border-border text-xs rounded-md"
               >
                 <p>{tooltipContent}</p>
               </TooltipContent>
@@ -138,13 +138,13 @@ export function SliderWithLabels({
           step={1}
           value={[value]}
           onValueChange={handleValueChange}
-          className={`h-2.5 sm:h-3 ${isAdjusted ? 'bg-gray-100' : 'bg-gray-200'} rounded-lg shadow-inner`}
-          thumbClassName={`h-6 w-6 sm:h-7 sm:w-7 border-2 border-white ${isAdjusted 
+          className={`h-2.5 sm:h-3 ${isAdjusted ? 'bg-muted/70' : 'bg-muted'} rounded-lg shadow-inner`}
+          thumbClassName={`h-6 w-6 sm:h-7 sm:w-7 border-2 border-background ${isAdjusted 
             ? accentColor.replace('text-', 'bg-') 
-            : 'bg-gray-400'} shadow-md hover:scale-110 transition-transform`}
+            : 'bg-muted-foreground'} shadow-md hover:scale-110 transition-transform`}
           trackClassName={isAdjusted 
             ? `bg-gradient-to-r from-primary to-[#5CE1E6]` 
-            : 'bg-gray-300'}
+            : 'bg-muted-foreground/30'}
         />
       </div>
       
@@ -162,7 +162,7 @@ export function SliderWithLabels({
             <span className="sm:hidden inline">✓</span>
           </span>
         ) : (
-          <span className="text-gray-400 animate-pulse hover:text-primary transition-colors duration-300 text-[10px] sm:text-xs">
+          <span className="text-muted-foreground animate-pulse hover:text-primary transition-colors duration-300 text-[10px] sm:text-xs">
             {isMobile ? 'Tap to adjust' : 'Adjust me'}
           </span>
         )}
