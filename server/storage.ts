@@ -143,6 +143,8 @@ export class MemStorage implements IStorage {
     const user: User = { 
       ...insertUser, 
       id, 
+      companyId: null,
+      companyRole: null,
       createdAt: new Date(), 
       updatedAt: new Date() 
     };
@@ -194,6 +196,12 @@ export class MemStorage implements IStorage {
   
   async getJobseekerProfileDraft(userId: number): Promise<any | undefined> {
     return this.jobseekerProfileDrafts.get(userId);
+  }
+  
+  async getEmployerProfileDraft(userId: number): Promise<any | undefined> {
+    // Redirect to the getCompanyProfileDraft method
+    // This ensures compatibility with the old API while using the new company structure
+    return this.getCompanyProfileDraft(userId);
   }
 
   async getJobseekerDashboard(userId: number): Promise<any> {
@@ -422,64 +430,85 @@ export class MemStorage implements IStorage {
     }
   }
 
-  // Employer profile methods
-  async createEmployerProfile(userId: number, profileData: any): Promise<EmployerProfile> {
-    const profile: EmployerProfile = {
-      id: `ep_${Date.now()}`,
-      userId,
-      ...profileData,
-      createdAt: new Date(),
-      updatedAt: new Date()
+  // Employer profile methods (now redirects to company creation)
+  async createEmployerProfile(userId: number, profileData: any): Promise<any> {
+    // Convert the employer profile data to company format
+    const companyData = {
+      name: profileData.companyName || 'Unnamed Company',
+      headquarters: profileData.headquarters || '',
+      size: profileData.size || '',
+      about: profileData.aboutCompany || '',
+      industries: profileData.industries || [],
+      functionalAreas: profileData.functionalAreas || [],
+      yearFounded: profileData.yearFounded || '',
+      mission: profileData.mission || '',
+      workArrangements: profileData.workArrangements || []
     };
-    this.employerProfiles.set(userId, profile);
-    return profile;
+    
+    // Create the company and link it to the user
+    const company = await this.createCompany(companyData, userId);
+    
+    // Return company data in a format compatible with the old employer profile
+    return {
+      id: `cp_${company.id}`,
+      userId,
+      companyId: company.id,
+      companyName: company.name,
+      headquarters: company.headquarters || '',
+      about: company.about || '',
+      createdAt: company.createdAt,
+      updatedAt: company.updatedAt
+    };
   }
 
   async saveEmployerProfileDraft(userId: number, draftData: any): Promise<any> {
-    const draft = {
-      ...draftData,
-      updatedAt: new Date()
-    };
-    this.employerProfileDrafts.set(userId, draft);
-    return draft;
+    // Redirect to the saveCompanyProfileDraft method
+    // This ensures compatibility with the old API while using the new company structure
+    return this.saveCompanyProfileDraft(userId, draftData);
   }
 
-  async getEmployerProfile(userId: number): Promise<EmployerProfile | undefined> {
-    return this.employerProfiles.get(userId);
+  async getEmployerProfile(userId: number): Promise<any> {
+    const user = this.users.get(userId);
+    if (!user) {
+      return undefined;
+    }
+    
+    // If user has a company, get that company profile
+    if (user.companyId) {
+      const company = this.companies.get(user.companyId);
+      if (company) {
+        return {
+          id: `cp_${company.id}`,
+          userId,
+          companyId: company.id,
+          companyName: company.name,
+          headquarters: company.headquarters || '',
+          size: company.size || '',
+          industries: company.industries || [],
+          functionalAreas: company.functionalAreas || [],
+          yearFounded: company.yearFounded || '',
+          about: company.about || '',
+          mission: company.mission || '',
+          workArrangements: company.workArrangements || [],
+          createdAt: company.createdAt,
+          updatedAt: company.updatedAt
+        };
+      }
+    }
+    
+    // If no company is found, return undefined
+    return undefined;
   }
 
   async getEmployerDashboard(userId: number): Promise<any> {
-    const profile = this.employerProfiles.get(userId);
+    const user = this.users.get(userId);
+    const company = user?.companyId ? this.companies.get(user.companyId) : undefined;
     
     const matches = this.matches.filter(match => match.employerId === userId.toString());
     
-    // Mock job postings for this employer
+    // Get job postings for this employer
     const jobs = Array.from(this.jobPostings.values())
-      .filter(job => job.employerId === userId);
-    
-    // If no job postings in storage, return mock data
-    const mockJobs = jobs.length === 0 ? [
-      {
-        id: 'job1',
-        title: 'Software Engineer',
-        department: 'Engineering',
-        location: 'San Francisco, CA',
-        workType: 'Onsite',
-        employmentType: 'Full-time',
-        status: 'Active',
-        matchCount: 5
-      },
-      {
-        id: 'job2',
-        title: 'Product Designer',
-        department: 'Design',
-        location: 'Remote',
-        workType: 'Remote',
-        employmentType: 'Full-time',
-        status: 'Active',
-        matchCount: 3
-      }
-    ] : jobs;
+      .filter(job => job.employerId === userId || (user?.companyId && job.companyId === user.companyId));
     
     // Count profile views
     let profileViews = 0;
@@ -493,12 +522,26 @@ export class MemStorage implements IStorage {
     
     return {
       stats: {
-        activeJobs: mockJobs.length,
-        profileViews: profileViews, // Now using actual profile view count
+        activeJobs: jobs.length,
+        profileViews: profileViews,
         matches: matches.length,
-        interviews: 0 // Set to 0 for consistency with DatabaseStorage
+        interviews: 0
       },
-      jobs: mockJobs,
+      company: company ? {
+        id: company.id,
+        name: company.name,
+        profileCompletion: company.profileCompletion || 0
+      } : null,
+      jobs: jobs.map(job => ({
+        id: job.id,
+        title: job.title,
+        department: job.department,
+        location: job.location,
+        workType: job.workArrangements,
+        employmentType: job.employmentType,
+        status: job.status,
+        matchCount: Math.floor(Math.random() * 10) // Temporary random count until proper matching is implemented
+      })),
       recentMatches: matches.slice(0, 5).map(match => {
         return {
           id: match.id,
@@ -877,6 +920,101 @@ export class MemStorage implements IStorage {
     }
     
     this.jobPostings.delete(jobId);
+  }
+  
+  /**
+   * Reset negative swipes for a jobseeker to enable reusing profiles for testing
+   * Only remove swipes where the jobseeker was not interested (preserve matches)
+   * This is a development/testing feature
+   */
+  async resetJobseekerSwipes(jobseekerId: number): Promise<{ count: number }> {
+    // Get all negative swipes by this jobseeker
+    const negativeSwipes = this.swipes.filter(swipe => 
+      swipe.jobseekerId === jobseekerId && !swipe.interested
+    );
+    
+    // Create a new swipes array without the negative swipes
+    this.swipes = this.swipes.filter(swipe => 
+      !(swipe.jobseekerId === jobseekerId && !swipe.interested)
+    );
+    
+    return { count: negativeSwipes.length };
+  }
+  
+  /**
+   * Get a company invite by its ID
+   */
+  async getCompanyInvite(inviteId: string): Promise<CompanyInvite | undefined> {
+    return this.companyInvites.find(invite => invite.id === inviteId);
+  }
+  
+  /**
+   * Delete a company invite
+   */
+  async deleteCompanyInvite(inviteId: string): Promise<void> {
+    const index = this.companyInvites.findIndex(invite => invite.id === inviteId);
+    if (index !== -1) {
+      this.companyInvites.splice(index, 1);
+    }
+  }
+  
+  /**
+   * Update a company invite
+   */
+  async updateCompanyInvite(inviteId: string, updateData: Partial<CompanyInvite>): Promise<CompanyInvite> {
+    const index = this.companyInvites.findIndex(invite => invite.id === inviteId);
+    if (index === -1) {
+      throw new Error(`Invite with id ${inviteId} not found`);
+    }
+    
+    const invite = this.companyInvites[index];
+    const updatedInvite = {
+      ...invite,
+      ...updateData,
+      updatedAt: new Date()
+    };
+    
+    this.companyInvites[index] = updatedInvite;
+    return updatedInvite;
+  }
+  
+  /**
+   * Submit a company profile draft to create or update a real company profile
+   */
+  async submitCompanyProfileDraft(userId: number, draftId: string): Promise<Company> {
+    // Get the draft
+    const draft = Array.from(this.companyProfileDrafts.values())
+      .find(d => d.id === draftId && d.userId === userId);
+    
+    if (!draft) {
+      throw new Error(`Draft with id ${draftId} not found for user ${userId}`);
+    }
+    
+    // If this is updating an existing company
+    if (draft.companyId) {
+      const company = this.companies.get(draft.companyId);
+      if (!company) {
+        throw new Error(`Company with id ${draft.companyId} not found`);
+      }
+      
+      // Update the company with the draft data
+      const updatedCompany = await this.updateCompany(draft.companyId, draft.draftData);
+      
+      // Delete the draft after submission
+      this.companyProfileDrafts.delete(draftId);
+      
+      return updatedCompany;
+    } 
+    // If this is creating a new company
+    else {
+      // Create the company with the draft data
+      const company = await this.createCompany(draft.draftData, userId);
+      
+      // Delete the draft after submission
+      this.companyProfileDrafts.delete(draftId);
+      
+      return company;
+    }
   }
 }
 
