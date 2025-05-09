@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2, AlertTriangle, X, Shield, LogIn } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
@@ -28,6 +29,35 @@ export default function DatabaseOperationsPage() {
   const [removeTablesLoading, setRemoveTablesLoading] = useState(false);
   const [removeTablesResult, setRemoveTablesResult] = useState<any>(null);
   const [removeTablesError, setRemoveTablesError] = useState<string | null>(null);
+  
+  // Jobs management
+  const [jobsLoading, setJobsLoading] = useState(false);
+  const [jobsData, setJobsData] = useState<any[]>([]);
+  const [jobsError, setJobsError] = useState<string | null>(null);
+  
+  // Function to load all jobs data
+  async function loadJobsData() {
+    setJobsLoading(true);
+    setJobsError(null);
+    
+    try {
+      const response = await apiRequest("GET", "/api/admin/jobs", {
+        key: adminKey
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to load jobs data: ${response.status} ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      setJobsData(data);
+    } catch (error) {
+      console.error("Error loading jobs data:", error);
+      setJobsError(String(error));
+    } finally {
+      setJobsLoading(false);
+    }
+  }
   const [removeTablesConfirm, setRemoveTablesConfirm] = useState(false);
   
   // Check if admin credentials are valid
@@ -162,10 +192,11 @@ export default function DatabaseOperationsPage() {
       </Alert>
 
       <Tabs defaultValue="migrate-drafts">
-        <TabsList className="grid grid-cols-3 mb-8">
+        <TabsList className="grid grid-cols-4 mb-8">
           <TabsTrigger value="migrate-drafts">Migrate Drafts</TabsTrigger>
           <TabsTrigger value="merge-employer">Merge Employer Profiles</TabsTrigger>
           <TabsTrigger value="remove-tables">Remove Employer Tables</TabsTrigger>
+          <TabsTrigger value="jobs">Job Postings</TabsTrigger>
         </TabsList>
 
         <TabsContent value="migrate-drafts">
@@ -329,6 +360,82 @@ export default function DatabaseOperationsPage() {
                 )}
               </Button>
             </CardFooter>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="jobs">
+          <Card>
+            <CardHeader>
+              <CardTitle>Job Postings</CardTitle>
+              <CardDescription>
+                View and manage all job postings in the database
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button 
+                onClick={loadJobsData} 
+                disabled={jobsLoading}
+                className="mb-4"
+              >
+                {jobsLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Loading jobs...
+                  </>
+                ) : (
+                  "Load Job Postings"
+                )}
+              </Button>
+              
+              {jobsError && (
+                <Alert variant="destructive" className="mb-4">
+                  <X className="h-4 w-4" />
+                  <AlertTitle>Error</AlertTitle>
+                  <AlertDescription>{jobsError}</AlertDescription>
+                </Alert>
+              )}
+              
+              {jobsData && jobsData.length > 0 ? (
+                <div className="space-y-4">
+                  <div className="text-sm font-medium">
+                    Found {jobsData.length} job postings
+                  </div>
+                  
+                  <div className="overflow-auto max-h-[500px] border rounded">
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="bg-gray-50 sticky top-0">
+                        <tr>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company</th>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        {jobsData.map((job) => (
+                          <tr key={job.id} className="hover:bg-gray-50">
+                            <td className="px-4 py-2 text-sm text-gray-500 font-mono">{job.id}</td>
+                            <td className="px-4 py-2 text-sm">{job.title}</td>
+                            <td className="px-4 py-2 text-sm">{job.companyName}</td>
+                            <td className="px-4 py-2 text-sm">{job.location}</td>
+                            <td className="px-4 py-2 text-sm">
+                              <Badge variant={job.status === 'active' ? 'success' : 'secondary'}>
+                                {job.status || 'active'}
+                              </Badge>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              ) : jobsData && jobsData.length === 0 ? (
+                <div className="py-8 text-center">
+                  <p className="text-gray-500">No job postings found in the database</p>
+                </div>
+              ) : null}
+            </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
