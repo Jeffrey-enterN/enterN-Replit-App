@@ -112,13 +112,8 @@ function Router() {
           />
         </EmployerLayout>
       </Route>
-      {/* Admin routes */}
-      <Route path="/admin/database-operations">
-        <ProtectedRoute 
-          path="/admin/database-operations" 
-          component={DatabaseOperationsPage}
-        />
-      </Route>
+      {/* Admin routes - direct access without ProtectedRoute */}
+      <Route path="/admin/database-operations" component={DatabaseOperationsPage} />
       <Route component={NotFound} />
     </Switch>
   );

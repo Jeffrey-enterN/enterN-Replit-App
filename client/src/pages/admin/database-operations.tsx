@@ -1,14 +1,21 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Loader2, AlertTriangle, X } from "lucide-react";
+import { Loader2, AlertTriangle, X, Shield, LogIn } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+import { useAuth } from "@/context/auth-context";
+import { Redirect } from "wouter";
 
 export default function DatabaseOperationsPage() {
+  const { user, isLoading } = useAuth();
   const [adminKey, setAdminKey] = useState<string>("enterN-admin-secret-key");
+  const [customAdminPassword, setCustomAdminPassword] = useState<string>("");
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(false);
+  
   const [migrateDraftsLoading, setMigrateDraftsLoading] = useState(false);
   const [migrateDraftsResult, setMigrateDraftsResult] = useState<any>(null);
   const [migrateDraftsError, setMigrateDraftsError] = useState<string | null>(null);
@@ -22,6 +29,13 @@ export default function DatabaseOperationsPage() {
   const [removeTablesResult, setRemoveTablesResult] = useState<any>(null);
   const [removeTablesError, setRemoveTablesError] = useState<string | null>(null);
   const [removeTablesConfirm, setRemoveTablesConfirm] = useState(false);
+  
+  // Check if admin credentials are valid
+  function authenticateAdmin() {
+    if (customAdminPassword === "enterN-admin") {
+      setIsAdminAuthenticated(true);
+    }
+  }
 
   async function runMigrateDrafts() {
     setMigrateDraftsLoading(true);
@@ -85,6 +99,56 @@ export default function DatabaseOperationsPage() {
     }
   }
 
+  // Show loading state while checking authentication
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+  
+  // Show admin login form if user is not yet authenticated as admin
+  if (!isAdminAuthenticated) {
+    return (
+      <div className="container mx-auto py-8 max-w-md">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Shield size={20} />
+              Admin Authentication
+            </CardTitle>
+            <CardDescription>
+              Enter admin password to access database operations.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <label htmlFor="admin-password" className="text-sm font-medium">
+                  Admin Password
+                </label>
+                <Input
+                  id="admin-password"
+                  type="password"
+                  value={customAdminPassword}
+                  onChange={(e) => setCustomAdminPassword(e.target.value)}
+                />
+              </div>
+            </div>
+          </CardContent>
+          <CardFooter>
+            <Button onClick={authenticateAdmin}>
+              <LogIn className="mr-2 h-4 w-4" />
+              Authenticate
+            </Button>
+          </CardFooter>
+        </Card>
+      </div>
+    );
+  }
+  
+  // Show admin operations once authenticated
   return (
     <div className="container mx-auto py-8">
       <h1 className="text-3xl font-bold mb-8">Database Operations</h1>
