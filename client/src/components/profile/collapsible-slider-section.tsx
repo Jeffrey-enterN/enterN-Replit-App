@@ -167,7 +167,7 @@ export default function CollapsibleSliderSection({
                         <Circle className={`h-5 w-5 ${colorScheme.iconColor} flex-shrink-0`} />
                       </div>
                     )}
-                    <span className="text-lg font-semibold text-gray-900 truncate">{category.name}</span>
+                    <span className="text-lg font-semibold text-foreground truncate">{category.name}</span>
                     {isComplete && (
                       <span className="px-2 py-0.5 text-xs font-medium bg-green-100 text-green-800 rounded-full">
                         Complete

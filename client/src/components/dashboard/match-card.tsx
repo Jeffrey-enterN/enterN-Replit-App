@@ -103,7 +103,7 @@ export default function MatchCard({ userType, data, onInterested, onNotIntereste
             animate={controls}
             onDragEnd={handleDragEnd}
             whileTap={{ cursor: 'grabbing' }}
-            className="relative bg-white shadow-md rounded-lg overflow-hidden touch-none"
+            className="relative bg-card shadow-md rounded-lg overflow-hidden touch-none border"
           >
             {/* Swipe indicators */}
             <motion.div 
@@ -131,27 +131,27 @@ export default function MatchCard({ userType, data, onInterested, onNotIntereste
             
             <div className="p-5">
               <div className="flex items-center mb-4">
-                <div className="w-12 h-12 bg-gray-200 rounded-full flex-shrink-0 flex items-center justify-center">
+                <div className="w-12 h-12 bg-muted rounded-full flex-shrink-0 flex items-center justify-center">
                   {employer.logo ? (
                     <img src={employer.logo} alt={`${employer.name} logo`} className="h-8 w-8" />
                   ) : (
-                    <span className="text-lg font-bold text-gray-700">{getInitials(employer.name)}</span>
+                    <span className="text-lg font-bold text-foreground">{getInitials(employer.name)}</span>
                   )}
                 </div>
                 <div className="ml-4">
-                  <h4 className="text-xl font-semibold text-gray-900">{employer.name}</h4>
-                  <p className="text-gray-600 text-sm">{employer.location}</p>
+                  <h4 className="text-xl font-semibold text-foreground">{employer.name}</h4>
+                  <p className="text-muted-foreground text-sm">{employer.location}</p>
                 </div>
               </div>
               
               <div className="mb-4">
-                <p className="text-gray-700">
+                <p className="text-foreground">
                   {employer.description}
                 </p>
               </div>
               
               <div className="mb-4">
-                <h5 className="text-sm font-medium text-gray-700 mb-2">Hiring for</h5>
+                <h5 className="text-sm font-medium text-foreground mb-2">Hiring for</h5>
                 <div className="flex flex-wrap gap-2">
                   {employer.positions.map((position, index) => (
                     <span 
@@ -179,9 +179,9 @@ export default function MatchCard({ userType, data, onInterested, onNotIntereste
                   onClick={() => onNotInterested(employer.id)}
                   disabled={isPending}
                   variant="outline"
-                  className="flex-1 mr-2 border border-gray-300 rounded-md py-2 px-3 flex items-center justify-center text-sm font-medium text-gray-700 hover:bg-gray-50"
+                  className="flex-1 mr-2 border border-border rounded-md py-2 px-3 flex items-center justify-center text-sm font-medium text-foreground hover:bg-accent"
                 >
-                  <svg className="h-5 w-5 text-gray-500 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <svg className="h-5 w-5 text-muted-foreground mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
                   </svg>
                   Not Interested
@@ -201,7 +201,7 @@ export default function MatchCard({ userType, data, onInterested, onNotIntereste
           </motion.div>
           
           {/* Swipe instructions hint */}
-          <div className="text-center mt-3 text-sm text-gray-500">
+          <div className="text-center mt-3 text-sm text-muted-foreground">
             Swipe right to show interest, left to pass
           </div>
         </div>
@@ -224,31 +224,31 @@ export default function MatchCard({ userType, data, onInterested, onNotIntereste
                 {/* Company details */}
                 <div>
                   <div className="flex items-center mb-4">
-                    <div className="w-16 h-16 bg-gray-200 rounded-full flex-shrink-0 flex items-center justify-center">
+                    <div className="w-16 h-16 bg-muted rounded-full flex-shrink-0 flex items-center justify-center">
                       {employer.logo ? (
                         <img src={employer.logo} alt={`${employer.name} logo`} className="h-10 w-10" />
                       ) : (
-                        <span className="text-xl font-bold text-gray-700">{getInitials(employer.name)}</span>
+                        <span className="text-xl font-bold text-foreground">{getInitials(employer.name)}</span>
                       )}
                     </div>
                     <div className="ml-4">
-                      <h4 className="text-2xl font-semibold text-gray-900">{employer.name}</h4>
-                      <p className="text-gray-600">{employer.location}</p>
+                      <h4 className="text-2xl font-semibold text-foreground">{employer.name}</h4>
+                      <p className="text-muted-foreground">{employer.location}</p>
                     </div>
                   </div>
                 </div>
                 
                 {/* Company description */}
                 <div>
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">About the Company</h3>
-                  <p className="text-gray-700">
+                  <h3 className="text-lg font-medium text-foreground mb-2">About the Company</h3>
+                  <p className="text-foreground">
                     {employer.description}
                   </p>
                 </div>
                 
                 {/* Open positions */}
                 <div>
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">Open Positions</h3>
+                  <h3 className="text-lg font-medium text-foreground mb-2">Open Positions</h3>
                   <div className="flex flex-wrap gap-2">
                     {employer.positions.map((position, index) => (
                       <span 
@@ -263,8 +263,8 @@ export default function MatchCard({ userType, data, onInterested, onNotIntereste
                 
                 {/* Benefits section (hardcoded for now) */}
                 <div>
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">Benefits</h3>
-                  <ul className="list-disc pl-5 space-y-2 text-gray-700">
+                  <h3 className="text-lg font-medium text-foreground mb-2">Benefits</h3>
+                  <ul className="list-disc pl-5 space-y-2 text-foreground">
                     <li>Competitive salary and benefits package</li>
                     <li>Professional development opportunities</li>
                     <li>Collaborative and inclusive work environment</li>
@@ -274,8 +274,8 @@ export default function MatchCard({ userType, data, onInterested, onNotIntereste
                 
                 {/* Company culture section */}
                 <div>
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">Company Culture</h3>
-                  <p className="text-gray-700">
+                  <h3 className="text-lg font-medium text-foreground mb-2">Company Culture</h3>
+                  <p className="text-foreground">
                     We're looking for talented individuals who thrive in a collaborative environment 
                     and are passionate about making a difference. Our culture values innovation, 
                     inclusivity, and continuous learning.
@@ -384,7 +384,7 @@ export default function MatchCard({ userType, data, onInterested, onNotIntereste
             animate={controls}
             onDragEnd={handleDragEnd}
             whileTap={{ cursor: 'grabbing' }}
-            className="relative bg-white shadow-md rounded-lg overflow-hidden touch-none"
+            className="relative bg-card shadow-md rounded-lg overflow-hidden touch-none border"
           >
             {/* Swipe indicators */}
             <motion.div 
@@ -413,7 +413,7 @@ export default function MatchCard({ userType, data, onInterested, onNotIntereste
             <div className="p-5">
               {/* Education summary */}
               <div className="mb-4">
-                <h4 className="text-lg font-semibold text-gray-900 mb-2">Education</h4>
+                <h4 className="text-lg font-semibold text-foreground mb-2">Education</h4>
                 <div className="bg-muted p-3 rounded-md">
                   <p><span className="font-medium">School:</span> {jobseeker.education?.school || 'Not specified'}</p>
                   <p><span className="font-medium">Degree:</span> {jobseeker.education?.degree || 'Not specified'}</p>
@@ -423,19 +423,19 @@ export default function MatchCard({ userType, data, onInterested, onNotIntereste
               
               {/* Location preferences */}
               <div className="mb-4">
-                <h4 className="text-lg font-semibold text-gray-900 mb-2">Location Preferences</h4>
+                <h4 className="text-lg font-semibold text-foreground mb-2">Location Preferences</h4>
                 <div className="flex flex-wrap gap-2">
                   {jobseeker.locations && jobseeker.locations.length > 0 ? (
                     jobseeker.locations.map((location, index) => (
                       <span 
                         key={index} 
-                        className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800"
+                        className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-muted/30 text-gray-800"
                       >
                         {location}
                       </span>
                     ))
                   ) : (
-                    <p className="text-gray-600">No location preferences specified</p>
+                    <p className="text-muted-foreground">No location preferences specified</p>
                   )}
                 </div>
               </div>
@@ -443,12 +443,12 @@ export default function MatchCard({ userType, data, onInterested, onNotIntereste
               {/* Work arrangements */}
               {jobseeker.workArrangements && jobseeker.workArrangements.length > 0 && (
                 <div className="mb-4">
-                  <h4 className="text-lg font-semibold text-gray-900 mb-2">Work Preferences</h4>
+                  <h4 className="text-lg font-semibold text-foreground mb-2">Work Preferences</h4>
                   <div className="flex flex-wrap gap-2">
                     {jobseeker.workArrangements.map((arrangement, index) => (
                       <span 
                         key={index} 
-                        className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800"
+                        className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-muted/30 text-gray-800"
                       >
                         {arrangement}
                       </span>
@@ -472,9 +472,9 @@ export default function MatchCard({ userType, data, onInterested, onNotIntereste
                   onClick={() => onNotInterested(jobseeker.id)}
                   disabled={isPending}
                   variant="outline"
-                  className="flex-1 mr-2 border border-gray-300 rounded-md py-2 px-3 flex items-center justify-center text-sm font-medium text-gray-700 hover:bg-gray-50"
+                  className="flex-1 mr-2 border border-border rounded-md py-2 px-3 flex items-center justify-center text-sm font-medium text-foreground hover:bg-accent"
                 >
-                  <svg className="h-5 w-5 text-gray-500 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <svg className="h-5 w-5 text-muted-foreground mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
                   </svg>
                   Not Interested
@@ -494,7 +494,7 @@ export default function MatchCard({ userType, data, onInterested, onNotIntereste
           </motion.div>
           
           {/* Swipe instructions hint */}
-          <div className="text-center mt-3 text-sm text-gray-500">
+          <div className="text-center mt-3 text-sm text-muted-foreground">
             Swipe right to show interest, left to pass
           </div>
         </div>
@@ -562,7 +562,7 @@ export default function MatchCard({ userType, data, onInterested, onNotIntereste
                             <div className="space-y-3 pt-2">
                               {category.sliders.map((slider) => (
                                 <div key={slider.id} className="mb-3">
-                                  <div className="flex justify-between text-xs text-gray-500 mb-1">
+                                  <div className="flex justify-between text-xs text-muted-foreground mb-1">
                                     <span className="text-left pr-2 max-w-[45%] whitespace-pre-wrap">
                                       {slider.leftLabel}
                                     </span>
@@ -570,7 +570,7 @@ export default function MatchCard({ userType, data, onInterested, onNotIntereste
                                       {slider.rightLabel}
                                     </span>
                                   </div>
-                                  <div className="h-2 bg-gray-200 rounded">
+                                  <div className="h-2 bg-muted rounded">
                                     <div 
                                       className="h-2 bg-primary rounded" 
                                       style={{ 
