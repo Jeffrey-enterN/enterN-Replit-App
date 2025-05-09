@@ -179,9 +179,9 @@ export default function CollapsibleSliderSection({
                       <span className={`font-medium ${isComplete ? 'text-green-600' : colorScheme.iconColor}`}>
                         {completion.completed}/{completion.total}
                       </span>
-                      <span className="text-gray-500">sliders adjusted</span>
+                      <span className="text-muted-foreground">sliders adjusted</span>
                     </div>
-                    <div className="w-24 bg-gray-200 rounded-full h-3 flex-shrink-0 shadow-inner">
+                    <div className="w-24 bg-muted rounded-full h-3 flex-shrink-0 shadow-inner">
                       <div 
                         className={`h-3 rounded-full transition-all duration-300 ease-in-out ${
                           isComplete 
@@ -197,8 +197,8 @@ export default function CollapsibleSliderSection({
               <AccordionContent className="px-2 sm:px-4">
                 <div className="py-2 sm:py-3">
                   {category.description && (
-                    <div className="mb-3 bg-white bg-opacity-70 p-2 sm:p-3 rounded-lg border border-gray-100 shadow-sm">
-                      <p className="text-xs sm:text-sm text-gray-600">{category.description}</p>
+                    <div className="mb-3 bg-card/70 p-2 sm:p-3 rounded-lg border border-border shadow-sm">
+                      <p className="text-xs sm:text-sm text-muted-foreground">{category.description}</p>
                     </div>
                   )}
                   
@@ -208,11 +208,11 @@ export default function CollapsibleSliderSection({
                       <div 
                         key={slider.id} 
                         className={`${
-                          index < category.sliders.length - 1 ? 'border-b border-gray-50 pb-2 mb-1' : ''
+                          index < category.sliders.length - 1 ? 'border-b border-border/30 pb-2 mb-1' : ''
                         }`}
                       >
                         <div className="mb-0.5">
-                          <h4 className="font-medium text-gray-800 text-xs sm:text-base">{slider.name}</h4>
+                          <h4 className="font-medium text-foreground text-xs sm:text-base">{slider.name}</h4>
                         </div>
                         <SliderWithLabels
                           leftLabel={slider.leftLabel}

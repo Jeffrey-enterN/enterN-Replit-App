@@ -60,7 +60,7 @@ export function SliderWithLabels({
       
       {/* LEFT LABEL - Only visible on desktop */}
       <div className="hidden sm:flex justify-between items-start relative px-0">
-        <div className="w-[45%] text-left text-sm font-medium text-gray-700 leading-tight transition-colors duration-300">
+        <div className="w-[45%] text-left text-sm font-medium text-foreground leading-tight transition-colors duration-300">
           {leftLabel}
         </div>
         
@@ -95,14 +95,14 @@ export function SliderWithLabels({
           )}
         </div>
         
-        <div className="w-[45%] text-right text-sm font-medium text-gray-700 leading-tight transition-colors duration-300">
+        <div className="w-[45%] text-right text-sm font-medium text-foreground leading-tight transition-colors duration-300">
           {rightLabel}
         </div>
       </div>
       
       {/* Mobile-only stacked view: Top label */}
       <div className="sm:hidden flex items-center justify-between mb-1">
-        <div className="text-left text-xs font-medium text-gray-700 leading-tight pr-1">
+        <div className="text-left text-xs font-medium text-foreground leading-tight pr-1">
           {leftLabel}
         </div>
         
@@ -149,7 +149,7 @@ export function SliderWithLabels({
       </div>
       
       {/* Mobile-only stacked view: Bottom label */}
-      <div className="sm:hidden text-right text-xs font-medium text-gray-700 leading-tight mt-1">
+      <div className="sm:hidden text-right text-xs font-medium text-foreground leading-tight mt-1">
         {rightLabel}
       </div>
       
