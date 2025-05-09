@@ -597,6 +597,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const jobsWithCompanyInfo = await Promise.all(jobPostings.map(async (job) => {
         const company = job.companyId ? await storage.getCompany(job.companyId) : null;
         
+        // Parse workType from JSON string to array
+        let workTypeArray: string[] = [];
+        try {
+          if (job.workType) {
+            // Handle different formats of workType data
+            if (typeof job.workType === 'string') {
+              workTypeArray = JSON.parse(job.workType);
+            } else if (Array.isArray(job.workType)) {
+              workTypeArray = job.workType;
+            }
+          }
+        } catch (error) {
+          console.error(`Error parsing workType for job ${job.id}:`, error);
+          // Default to empty array if parsing fails
+          workTypeArray = [];
+        }
+        
         return {
           id: job.id,
           title: job.title,
@@ -604,7 +621,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           companyId: company?.id || 0,
           location: job.location,
           description: job.description,
-          workType: job.workType || [],
+          workType: workTypeArray,
           employmentType: job.employmentType,
           department: job.department,
           // Add additional job details as needed
