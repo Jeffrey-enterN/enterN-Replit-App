@@ -23,6 +23,7 @@ import CompanyProfilePage from "@/pages/employer/company-profile-page";
 import CompanyTeamPage from "@/pages/employer/company-team-page";
 import EmployerMatchFeed from "@/pages/employer/match-feed";
 import JobseekerMatchFeed from "@/pages/jobseeker/match-feed";
+import JobsFeed from "@/pages/jobseeker/jobs-feed";
 import JobseekerCalendar from "@/pages/jobseeker/calendar";
 import JobseekerProfilePreview from "@/pages/jobseeker/profile-preview";
 import JobseekerSignUpPage from "@/pages/jobseeker/sign-up-page";
@@ -58,6 +59,7 @@ function Router() {
       <ProtectedRoute path="/jobseeker/profile" component={JobseekerProfilePage} />
       <ProtectedRoute path="/jobseeker/profile-preview" component={JobseekerProfilePreview} />
       <ProtectedRoute path="/jobseeker/match-feed" component={JobseekerMatchFeed} />
+      <ProtectedRoute path="/jobseeker/jobs-feed" component={JobsFeed} />
       <ProtectedRoute path="/jobseeker/calendar" component={JobseekerCalendar} />
       <Route path="/employer/dashboard">
         <EmployerLayout>

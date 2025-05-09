@@ -57,6 +57,7 @@ export default function JobseekerNavbar() {
   const navItems = [
     { label: 'Dashboard', href: '/jobseeker/dashboard', icon: LayoutDashboard },
     { label: 'Match Feed', href: '/jobseeker/match-feed', icon: ThumbsUp },
+    { label: 'Jobs Feed', href: '/jobseeker/jobs-feed', icon: Briefcase },
     { label: 'Profile', href: '/jobseeker/profile', icon: UserCircle },
     { label: 'Preview Profile', href: '/jobseeker/profile-preview', icon: Eye },
     { 
@@ -255,6 +256,12 @@ export default function JobseekerNavbar() {
                 <Link href="/jobseeker/match-feed" className="flex items-center gap-2 cursor-pointer">
                   <ThumbsUp className="h-4 w-4" />
                   Match Feed
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="/jobseeker/jobs-feed" className="flex items-center gap-2 cursor-pointer">
+                  <Briefcase className="h-4 w-4" />
+                  Jobs Feed
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
