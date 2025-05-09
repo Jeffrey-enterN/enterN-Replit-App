@@ -72,14 +72,24 @@
 
 .dark {
   /* Base colors - Dark Mode */
-  --background: 240 10% 3.9%;
+  --background: 240 10% 3.9%; /* dark gray-900 */
   --foreground: 0 0% 98%;
-  --muted: 240 5% 14.9%;
+  --muted: 240 5% 14.9%; /* gray-800 for sections */
   --muted-foreground: 240 5% 64.9%;
   --popover: 240 10% 3.9%;
   --popover-foreground: 0 0% 98%;
-  --card: 240 10% 3.9%;
+  
+  /* Different color shades for visual hierarchy in dark mode */
+  --card: 240 10% 7%; /* slightly lighter than background - gray-800 */
   --card-foreground: 0 0% 98%;
+  --card-highlight: 240 10% 9.5%; /* lighter card for highlights */
+  --card-bright: 240 8% 12%; /* even brighter for important cards */
+  --card-muted: 240 11% 5%; /* darker for less important cards */
+  
+  /* Section backgrounds for visual separation */
+  --section-alt: 240 10% 5.5%; /* slightly lighter than background */
+  --section-highlight: 240 8% 14%; /* highlighted sections */
+  
   --border: 240 5.9% 21%;
   --input: 240 5.9% 21%;
   

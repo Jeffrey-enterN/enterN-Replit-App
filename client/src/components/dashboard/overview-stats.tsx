@@ -170,12 +170,12 @@ export default function OverviewStats({ userType, stats }: OverviewStatsProps) {
       </div>
       
       {/* Divider */}
-      <div className="relative">
+      <div className="relative my-10">
         <div className="absolute inset-0 flex items-center">
           <div className="w-full border-t border-border"></div>
         </div>
         <div className="relative flex justify-center text-sm">
-          <span className="px-2 bg-background text-muted-foreground">
+          <span className="px-4 py-1 rounded-full bg-gradient-to-r from-primary/10 to-secondary/10 text-foreground border border-border font-medium">
             Performance Metrics
           </span>
         </div>
@@ -253,17 +253,20 @@ export default function OverviewStats({ userType, stats }: OverviewStatsProps) {
             </div>
           </div>
         ) : (
-          <div className="bg-card p-6 rounded-lg shadow-sm border border-border h-64 flex items-center justify-center">
-            <p className="text-muted-foreground text-center">Application Activity<br/>Coming soon</p>
+          <div className="bg-card p-6 rounded-lg shadow-sm border border-border h-64 flex flex-col items-center justify-center">
+            <h3 className="text-lg font-medium mb-2 text-foreground">Application Activity</h3>
+            <p className="text-muted-foreground text-center">Coming soon</p>
           </div>
         )}
         
-        <div className="bg-card p-6 rounded-lg shadow-sm border border-border h-64 flex items-center justify-center">
-          <p className="text-muted-foreground text-center">Match Statistics<br/>Coming soon</p>
+        <div className="bg-card p-6 rounded-lg shadow-sm border border-border h-64 flex flex-col items-center justify-center">
+          <h3 className="text-lg font-medium mb-2 text-foreground">Match Statistics</h3>
+          <p className="text-muted-foreground text-center">Coming soon</p>
         </div>
         
-        <div className="bg-card p-6 rounded-lg shadow-sm border border-border h-64 flex items-center justify-center">
-          <p className="text-muted-foreground text-center">Engagement Metrics<br/>Coming soon</p>
+        <div className="bg-card p-6 rounded-lg shadow-sm border border-border h-64 flex flex-col items-center justify-center">
+          <h3 className="text-lg font-medium mb-2 text-foreground">Engagement Metrics</h3>
+          <p className="text-muted-foreground text-center">Coming soon</p>
         </div>
       </div>
     </div>

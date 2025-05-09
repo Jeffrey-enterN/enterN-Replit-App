@@ -90,7 +90,7 @@ export default function JobseekerDashboard() {
       <OverviewStats userType={USER_TYPES.JOBSEEKER} stats={stats} />
 
       {/* Match Feed */}
-      <div className="bg-card shadow-sm rounded-lg overflow-hidden mb-8 border">
+      <div className="bg-white dark:bg-gray-700 shadow-md rounded-lg overflow-hidden mb-8 border border-border transform transition-all hover:shadow-lg">
         <div className="px-4 py-5 border-b border-border sm:px-6">
           <h3 className="text-lg leading-6 font-medium text-foreground">Match Feed</h3>
           <p className="mt-1 text-sm text-muted-foreground">Find your next opportunity by swiping on employers.</p>
