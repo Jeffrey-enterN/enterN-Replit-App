@@ -539,6 +539,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Admin endpoint to get all job postings
+  app.get("/api/admin/jobs", async (req, res) => {
+    try {
+      // Check if the request has a secret key matching DB_ADMIN_KEY
+      if (req.query.key !== 'enterN-admin-secret-key') {
+        return res.status(403).json({ 
+          error: "Unauthorized", 
+          message: "Valid admin key required for admin operations" 
+        });
+      }
+      
+      console.log("Fetching all jobs via admin endpoint");
+      
+      // Get all job postings
+      const jobPostings = await storage.getAllJobPostings();
+      
+      // Get company info for each job
+      const jobsWithCompanyInfo = await Promise.all(jobPostings.map(async (job) => {
+        const company = job.companyId ? await storage.getCompany(job.companyId) : null;
+        
+        return {
+          id: job.id,
+          title: job.title,
+          companyName: company?.name || 'Unknown Company',
+          companyId: company?.id || 0,
+          location: job.location,
+          description: job.description?.substring(0, 100) + (job.description && job.description.length > 100 ? '...' : ''),
+          workType: job.workType || [],
+          employmentType: job.employmentType,
+          department: job.department,
+          status: job.status || 'active',
+          createdAt: job.createdAt,
+        };
+      }));
+      
+      res.status(200).json(jobsWithCompanyInfo);
+    } catch (error) {
+      console.error('Error fetching admin jobs:', error);
+      res.status(500).json({ 
+        error: (error as Error).message,
+        timestamp: new Date().toISOString()
+      });
+    }
+  });
+  
   // Get Available Jobs for Jobseeker
   app.get("/api/jobseeker/jobs/available", async (req, res) => {
     if (!req.isAuthenticated()) return res.status(401).json({ message: "Unauthorized" });
