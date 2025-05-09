@@ -140,14 +140,24 @@ export class MemStorage implements IStorage {
 
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = this.currentId++;
+    
+    // Create a user with all required fields properly typed
     const user: User = { 
-      ...insertUser, 
-      id, 
+      id,
+      username: insertUser.username,
+      password: insertUser.password,
+      userType: insertUser.userType,
+      firstName: insertUser.firstName || null,
+      lastName: insertUser.lastName || null,
+      companyName: insertUser.companyName || null,
+      email: insertUser.email || null,
+      phone: insertUser.phone || null,
       companyId: null,
       companyRole: null,
       createdAt: new Date(), 
       updatedAt: new Date() 
     };
+    
     this.users.set(id, user);
     return user;
   }
@@ -317,7 +327,7 @@ export class MemStorage implements IStorage {
       .filter(user => user.companyId)
       .map(user => ({
         user,
-        company: this.companies.get(user.companyId as number)
+        company: this.companies.get(user.companyId!)
       }))
       .filter(item => item.company) // Filter out users without companies
       .slice(0, 5); // Limit to 5 potential matches
@@ -339,10 +349,11 @@ export class MemStorage implements IStorage {
   }
 
   async handleJobseekerSwipe(jobseekerId: number, employerId: string, interested: boolean): Promise<any> {
+    // Convert employerId to proper type
     const swipe: Swipe = {
       id: `swipe_${Date.now()}_${jobseekerId}_${employerId}`,
       jobseekerId,
-      employerId,
+      employerId, // String type is correct here as per schema
       interested,
       createdAt: new Date()
     };
@@ -362,7 +373,7 @@ export class MemStorage implements IStorage {
         const match: Match = {
           id: `match_${Date.now()}_${jobseekerId}_${employerId}`,
           jobseekerId,
-          employerId,
+          employerId, // String type is correct here as per schema
           matchedAt: new Date(),
           status: 'new'
         };
@@ -537,7 +548,7 @@ export class MemStorage implements IStorage {
         title: job.title,
         department: job.department,
         location: job.location,
-        workType: job.workArrangements,
+        workType: job.workType, // Use workType instead of workArrangements
         employmentType: job.employmentType,
         status: job.status,
         matchCount: Math.floor(Math.random() * 10) // Temporary random count until proper matching is implemented
