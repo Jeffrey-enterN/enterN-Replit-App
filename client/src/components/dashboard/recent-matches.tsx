@@ -58,10 +58,10 @@ export default function RecentMatches({ matches, emptyMessage, viewAllLink, isEm
   };
 
   return (
-    <div className="bg-white shadow-sm rounded-lg overflow-hidden">
-      <div className="px-4 py-5 border-b border-gray-200 sm:px-6">
-        <h3 className="text-lg leading-6 font-medium text-gray-900">Recent Matches</h3>
-        <p className="mt-1 text-sm text-gray-500">
+    <div className="bg-card shadow-sm rounded-lg overflow-hidden border">
+      <div className="px-4 py-5 border-b border-border sm:px-6">
+        <h3 className="text-lg leading-6 font-medium text-foreground">Recent Matches</h3>
+        <p className="mt-1 text-sm text-muted-foreground">
           {isEmployer 
             ? "Jobseekers you've matched with recently." 
             : "Companies you've matched with recently."}
@@ -70,25 +70,25 @@ export default function RecentMatches({ matches, emptyMessage, viewAllLink, isEm
       
       {matches.length > 0 ? (
         <>
-          <ul className="divide-y divide-gray-200">
+          <ul className="divide-y divide-border">
             {matches.map((match) => (
               <li key={match.id}>
                 <div className="px-4 py-4 sm:px-6">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center">
-                      <div className="flex-shrink-0 h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
-                        <span className="font-medium text-gray-700">{getInitials(match.name)}</span>
+                      <div className="flex-shrink-0 h-10 w-10 rounded-full bg-muted flex items-center justify-center">
+                        <span className="font-medium text-foreground">{getInitials(match.name)}</span>
                       </div>
                       <div className="ml-4">
-                        <div className="text-sm font-medium text-gray-900">{match.name}</div>
-                        <div className="text-sm text-gray-500">Matched {formatDate(match.matchDate)}</div>
+                        <div className="text-sm font-medium text-foreground">{match.name}</div>
+                        <div className="text-sm text-muted-foreground">Matched {formatDate(match.matchDate)}</div>
                       </div>
                     </div>
                     <div>
                       {match.status === 'mutual-match' ? (
                         <Button 
                           variant="outline"
-                          className="inline-flex items-center px-3 py-1 border border-transparent text-sm leading-4 font-medium rounded-md text-primary bg-primary-100 hover:bg-primary-200 focus:outline-none"
+                          className="inline-flex items-center px-3 py-1 border border-transparent text-sm leading-4 font-medium rounded-md text-primary bg-primary/10 hover:bg-primary/20 focus:outline-none"
                         >
                           Message
                         </Button>
@@ -98,7 +98,7 @@ export default function RecentMatches({ matches, emptyMessage, viewAllLink, isEm
                     </div>
                   </div>
                   <div className="mt-2">
-                    <div className="text-sm text-gray-500">
+                    <div className="text-sm text-muted-foreground">
                       {getStatusBadge(match.status)}
                       {match.statusText && <span className="ml-2">{match.statusText}</span>}
                     </div>
@@ -107,14 +107,14 @@ export default function RecentMatches({ matches, emptyMessage, viewAllLink, isEm
               </li>
             ))}
           </ul>
-          <div className="px-4 py-4 sm:px-6 border-t border-gray-200">
+          <div className="px-4 py-4 sm:px-6 border-t border-border">
             <Link href={viewAllLink} className="text-sm font-medium text-primary hover:text-primary/80">
               View all matches <span aria-hidden="true">&rarr;</span>
             </Link>
           </div>
         </>
       ) : (
-        <div className="px-4 py-12 text-center text-gray-500">
+        <div className="px-4 py-12 text-center text-muted-foreground">
           <p>{emptyMessage}</p>
         </div>
       )}

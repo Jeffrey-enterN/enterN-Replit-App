@@ -90,10 +90,10 @@ export default function JobseekerDashboard() {
       <OverviewStats userType={USER_TYPES.JOBSEEKER} stats={stats} />
 
       {/* Match Feed */}
-      <div className="bg-white shadow-sm rounded-lg overflow-hidden mb-8">
-        <div className="px-4 py-5 border-b border-gray-200 sm:px-6">
-          <h3 className="text-lg leading-6 font-medium text-gray-900">Match Feed</h3>
-          <p className="mt-1 text-sm text-gray-500">Find your next opportunity by swiping on employers.</p>
+      <div className="bg-card shadow-sm rounded-lg overflow-hidden mb-8 border">
+        <div className="px-4 py-5 border-b border-border sm:px-6">
+          <h3 className="text-lg leading-6 font-medium text-foreground">Match Feed</h3>
+          <p className="mt-1 text-sm text-muted-foreground">Find your next opportunity by swiping on employers.</p>
         </div>
         <div className="px-4 py-6 sm:p-6">
           {currentEmployer ? (
@@ -105,7 +105,7 @@ export default function JobseekerDashboard() {
               isPending={swipeMutation.isPending}
             />
           ) : (
-            <div className="text-center py-12 text-gray-500">
+            <div className="text-center py-12 text-muted-foreground">
               No more potential matches right now. Check back later!
             </div>
           )}
