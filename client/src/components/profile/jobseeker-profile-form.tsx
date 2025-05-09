@@ -502,7 +502,7 @@ export default function JobseekerProfileForm() {
   };
 
   return (
-    <div className="bg-white shadow-sm rounded-lg p-6 mb-8">
+    <div className="bg-background dark:bg-card shadow-sm rounded-lg p-6 mb-8 border border-border">
       {/* Session Expired Alert Dialog */}
       <AlertDialog open={showSessionAlert} onOpenChange={setShowSessionAlert}>
         <AlertDialogContent>
