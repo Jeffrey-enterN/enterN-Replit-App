@@ -649,6 +649,256 @@ const sampleCompanies = [
         department: "User Experience"
       }
     ]
+  },
+  {
+    name: "LogisticsPlus Solutions",
+    industries: ["Logistics", "Supply Chain"],
+    size: "201-500",
+    headquarters: "Chicago, IL",
+    description: "LogisticsPlus provides innovative supply chain and logistics solutions for businesses worldwide.",
+    jobs: [
+      {
+        title: "Supply Chain Management Intern",
+        description: "Learn about modern supply chain management practices and logistics solutions.",
+        location: "Chicago, IL",
+        workType: ["On-site"],
+        employmentType: "Internship",
+        department: "Supply Chain"
+      },
+      {
+        title: "Logistics Analytics Intern",
+        description: "Help analyze logistics data to optimize supply chain operations and efficiency.",
+        location: "Chicago, IL",
+        workType: ["Hybrid"],
+        employmentType: "Internship",
+        department: "Analytics"
+      }
+    ]
+  },
+  {
+    name: "RoboticsAdvance Corporation",
+    industries: ["Robotics", "Technology"],
+    size: "201-500",
+    headquarters: "Pittsburgh, PA",
+    description: "RoboticsAdvance develops cutting-edge robotics solutions for industrial and commercial applications.",
+    jobs: [
+      {
+        title: "Robotics Engineering Intern",
+        description: "Work on designing and programming robotic systems and components.",
+        location: "Pittsburgh, PA",
+        workType: ["On-site"],
+        employmentType: "Internship",
+        department: "Engineering"
+      },
+      {
+        title: "Robotics AI Development Intern",
+        description: "Help develop artificial intelligence algorithms for robotic systems.",
+        location: "Pittsburgh, PA",
+        workType: ["Hybrid"],
+        employmentType: "Internship",
+        department: "AI Development"
+      }
+    ]
+  },
+  {
+    name: "GlobeTravel Technologies",
+    industries: ["Travel", "Technology"],
+    size: "201-500",
+    headquarters: "Miami, FL",
+    description: "GlobeTravel develops innovative technology solutions for the travel and hospitality industry.",
+    jobs: [
+      {
+        title: "Travel Tech Developer Intern",
+        description: "Help develop technology solutions for improving travel experiences.",
+        location: "Miami, FL",
+        workType: ["Hybrid"],
+        employmentType: "Internship",
+        department: "Development"
+      },
+      {
+        title: "Travel Analytics Intern",
+        description: "Analyze travel data to provide insights for improved customer experiences.",
+        location: "Miami, FL",
+        workType: ["Remote"],
+        employmentType: "Internship",
+        department: "Analytics"
+      }
+    ]
+  },
+  {
+    name: "NanoTech Materials",
+    industries: ["Nanotechnology", "Materials Science"],
+    size: "51-200",
+    headquarters: "Boston, MA",
+    description: "NanoTech develops advanced materials using nanotechnology for various industrial applications.",
+    jobs: [
+      {
+        title: "Materials Science Intern",
+        description: "Work on developing and testing advanced materials with nanotechnology applications.",
+        location: "Boston, MA",
+        workType: ["On-site"],
+        employmentType: "Internship",
+        department: "Research"
+      },
+      {
+        title: "Nanotechnology Research Intern",
+        description: "Assist in research projects focused on nanotechnology applications in materials science.",
+        location: "Cambridge, MA",
+        workType: ["On-site"],
+        employmentType: "Internship",
+        department: "Research & Development"
+      }
+    ]
+  },
+  {
+    name: "SmartHome Technologies",
+    industries: ["IoT", "Smart Home"],
+    size: "51-200",
+    headquarters: "Austin, TX",
+    description: "SmartHome develops innovative IoT solutions for connected homes and buildings.",
+    jobs: [
+      {
+        title: "IoT Development Intern",
+        description: "Work on developing smart home devices and IoT applications.",
+        location: "Austin, TX",
+        workType: ["Hybrid"],
+        employmentType: "Internship",
+        department: "Development"
+      },
+      {
+        title: "Smart Home UX Design Intern",
+        description: "Help design user interfaces for smart home applications and systems.",
+        location: "Austin, TX",
+        workType: ["Remote"],
+        employmentType: "Internship",
+        department: "Design"
+      }
+    ]
+  },
+  {
+    name: "FinancialAdvisor Group",
+    industries: ["Finance", "Financial Services"],
+    size: "201-500",
+    headquarters: "New York, NY",
+    description: "FinancialAdvisor Group provides comprehensive financial advisory services to individuals and businesses.",
+    jobs: [
+      {
+        title: "Financial Planning Intern",
+        description: "Learn about financial planning processes and help analyze client financial situations.",
+        location: "New York, NY",
+        workType: ["On-site"],
+        employmentType: "Internship",
+        department: "Financial Planning"
+      },
+      {
+        title: "Investment Analysis Intern",
+        description: "Assist in researching and analyzing investment opportunities for clients.",
+        location: "New York, NY",
+        workType: ["Hybrid"],
+        employmentType: "Internship",
+        department: "Investment Analysis"
+      }
+    ]
+  },
+  {
+    name: "CloudCompute Systems",
+    industries: ["Cloud Computing", "Technology"],
+    size: "501-1000",
+    headquarters: "Seattle, WA",
+    description: "CloudCompute provides cloud computing solutions and services for businesses of all sizes.",
+    jobs: [
+      {
+        title: "Cloud Software Engineer Intern",
+        description: "Work on developing and improving cloud computing applications and services.",
+        location: "Seattle, WA",
+        workType: ["Hybrid"],
+        employmentType: "Internship",
+        department: "Engineering"
+      },
+      {
+        title: "Cloud Infrastructure Intern",
+        description: "Help design and implement cloud infrastructure solutions for clients.",
+        location: "Seattle, WA",
+        workType: ["On-site"],
+        employmentType: "Internship",
+        department: "Infrastructure"
+      }
+    ]
+  },
+  {
+    name: "RenewableEnergy Systems",
+    industries: ["Energy", "Renewable Energy"],
+    size: "201-500",
+    headquarters: "San Francisco, CA",
+    description: "RenewableEnergy develops innovative renewable energy solutions for a sustainable future.",
+    jobs: [
+      {
+        title: "Renewable Energy Engineer Intern",
+        description: "Work on designing and implementing renewable energy systems and technologies.",
+        location: "San Francisco, CA",
+        workType: ["On-site"],
+        employmentType: "Internship",
+        department: "Engineering"
+      },
+      {
+        title: "Sustainability Analyst Intern",
+        description: "Help analyze environmental impact and sustainability metrics for renewable energy projects.",
+        location: "San Francisco, CA",
+        workType: ["Hybrid"],
+        employmentType: "Internship",
+        department: "Sustainability"
+      }
+    ]
+  },
+  {
+    name: "ArtificialMind Labs",
+    industries: ["Artificial Intelligence", "Technology"],
+    size: "51-200",
+    headquarters: "Cambridge, MA",
+    description: "ArtificialMind develops cutting-edge artificial intelligence solutions for various industries.",
+    jobs: [
+      {
+        title: "AI Research Intern",
+        description: "Assist in researching and developing artificial intelligence algorithms and models.",
+        location: "Cambridge, MA",
+        workType: ["On-site"],
+        employmentType: "Internship",
+        department: "Research"
+      },
+      {
+        title: "Machine Learning Engineer Intern",
+        description: "Help implement machine learning solutions for real-world problems.",
+        location: "Cambridge, MA",
+        workType: ["Hybrid"],
+        employmentType: "Internship",
+        department: "Engineering"
+      }
+    ]
+  },
+  {
+    name: "DigitalMarketing Experts",
+    industries: ["Marketing", "Digital Media"],
+    size: "51-200",
+    headquarters: "Chicago, IL",
+    description: "DigitalMarketing provides innovative digital marketing solutions for businesses of all sizes.",
+    jobs: [
+      {
+        title: "Digital Marketing Strategist Intern",
+        description: "Help develop and implement digital marketing strategies for clients.",
+        location: "Chicago, IL",
+        workType: ["Hybrid"],
+        employmentType: "Internship",
+        department: "Strategy"
+      },
+      {
+        title: "Social Media Marketing Intern",
+        description: "Work on creating and managing social media campaigns for various clients.",
+        location: "Chicago, IL",
+        workType: ["Remote"],
+        employmentType: "Internship",
+        department: "Social Media"
+      }
+    ]
   }
 ];
 
