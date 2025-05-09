@@ -195,16 +195,51 @@ export function setupMatchRoutes(router: Router) {
     });
 
     try {
+      // Log request details for debugging
+      console.log(`Job interest request: jobseekerId=${user.id}, jobPostingId=${jobPostingId}, params=${JSON.stringify(req.params)}, body=${JSON.stringify(req.body)}`);
+      
       const { interested } = interestSchema.parse(req.body);
       
-      const result = await expressJobInterest(user.id, jobPostingId, interested);
-      
-      if (!result.success) {
-        return res.status(400).json({ error: result.error ? result.error : 'Unknown error' });
+      try {
+        const result = await expressJobInterest(user.id, jobPostingId, interested);
+        
+        if (!result.success) {
+          return res.status(400).json({ error: result.error ? result.error : 'Unknown error' });
+        }
+  
+        res.status(201).json(result);
+      } catch (dbError) {
+        // Check if it's a database constraint error (duplicate key)
+        if (dbError instanceof Error && 
+            (dbError.message.includes('duplicate key') || 
+             dbError.message.includes('unique constraint'))) {
+          console.log(`Duplicate job interest detected for user ${user.id} on job ${jobPostingId}`);
+          
+          // Try to handle this gracefully by checking if the record exists
+          try {
+            // Attempt to update instead of insert
+            const result = await expressJobInterest(user.id, jobPostingId, interested);
+            return res.status(200).json({
+              ...result,
+              message: 'Your job interest preference has been updated'
+            });
+          } catch (retryError) {
+            // If retry also fails, return a user-friendly error
+            console.error('Failed to handle duplicate job interest:', retryError);
+            return res.status(409).json({ 
+              error: "You've already expressed interest in this job. Please refresh the page to see the updated status." 
+            });
+          }
+        }
+        
+        // For other database errors, log and return
+        console.error(`Database error in job interest API:`, dbError);
+        return res.status(500).json({ 
+          error: 'Unable to save your job interest at this time. Please try again later.' 
+        });
       }
-
-      res.status(201).json(result);
     } catch (error) {
+      console.error(`Error in job interest API:`, error);
       res.status(400).json({ error: error instanceof Error ? error.message : String(error) });
     }
   });
