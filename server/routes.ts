@@ -895,15 +895,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
           companyName: company?.name || 'Unknown Company',
           companyId: company?.id || 0,
           location: job.location,
-          description: job.description || getRealisticJobDescription(job.title, job.department),
+          description: job.description || getRealisticJobDescription(job.title, job.department || ''),
           workType: workTypeArray,
           employmentType: job.employmentType,
-          department: job.department,
-          logo: company?.logoUrl,
-          salary: job.salary || getSalaryRange(job.title, job.employmentType),
-          responsibilities: job.responsibilities || getJobResponsibilities(job.title, job.department),
-          qualifications: job.qualifications || getJobQualifications(job.title, job.department),
-          benefits: job.benefits || getJobBenefits(company?.name || 'Unknown Company')
+          department: job.department || '',
+          logo: company ? company.logoUrl || null : null,
+          salary: getSalaryRange(job.title, job.employmentType),
+          responsibilities: getJobResponsibilities(job.title, job.department || ''),
+          qualifications: getJobQualifications(job.title, job.department || ''),
+          benefits: getJobBenefits(company?.name || 'Unknown Company')
         };
         
         return enhancedJob;

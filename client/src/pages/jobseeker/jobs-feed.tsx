@@ -177,8 +177,20 @@ export default function JobsFeed() {
           <div className="grid grid-cols-1 gap-6">
             {Array.isArray(availableJobs) && availableJobs.map((job: JobPosting) => {
               // Create more detailed job descriptions if needed
+              // Parse workType if it's a string
+              let workType = [];
+              try {
+                workType = typeof job.workType === 'string'
+                  ? JSON.parse(job.workType as string)
+                  : (Array.isArray(job.workType) ? job.workType : []);
+              } catch (error) {
+                console.error("Error parsing workType:", error);
+                workType = Array.isArray(job.workType) ? job.workType : [];
+              }
+                
               const enhancedJob = {
                 ...job,
+                workType: workType,
                 description: job.description || 'Join our team in this exciting role!',
                 responsibilities: job.responsibilities || `
                   • Collaborate with cross-functional teams to design, develop, and implement innovative solutions
@@ -236,6 +248,10 @@ export default function JobsFeed() {
                         <Briefcase className="h-4 w-4 mr-1" /> 
                         {enhancedJob.employmentType}
                       </div>
+                      <div className="flex items-center text-sm text-gray-500">
+                        <DollarSign className="h-4 w-4 mr-1" /> 
+                        {enhancedJob.salary || "$65,000 - $95,000/year"}
+                      </div>
                       {enhancedJob.department && (
                         <Badge variant="outline" className="text-xs">
                           {enhancedJob.department}
@@ -280,6 +296,10 @@ export default function JobsFeed() {
                               <span className="flex items-center">
                                 <Briefcase className="h-4 w-4 mr-1" /> 
                                 {enhancedJob.employmentType}
+                              </span>
+                              <span className="flex items-center">
+                                <DollarSign className="h-4 w-4 mr-1" /> 
+                                {enhancedJob.salary || "$65,000 - $95,000/year"}
                               </span>
                             </DialogDescription>
                           </DialogHeader>
