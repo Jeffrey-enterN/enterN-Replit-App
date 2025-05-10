@@ -2274,17 +2274,20 @@ export class DatabaseStorage implements IStorage {
         }
       },
       jobs: displayJobs,
-      recentMatches: recentMatches.map(match => ({
-        id: match.id,
-        name: 'Anonymous Profile', // Jobseeker profiles are anonymous until a certain point
-        matchDate: match.matchedAt,
-        status: match.status === MATCH_STATUS.INTERVIEW_SCHEDULED 
-          ? 'interview-scheduled' 
-          : (match.status === MATCH_STATUS.CONNECTED ? 'connected' : 'matched'),
-        statusText: match.status === MATCH_STATUS.INTERVIEW_SCHEDULED 
-          ? 'Interview scheduled' 
-          : (match.status === MATCH_STATUS.CONNECTED ? 'Connected' : 'New match')
-      }))
+      recentMatches: recentMatches.map(match => {
+        // Make sure we have valid data even if schema has changed
+        return {
+          id: match.id,
+          name: 'Anonymous Profile', // Jobseeker profiles are anonymous until a certain point
+          matchDate: match.matchedAt,
+          status: match.status === MATCH_STATUS.INTERVIEW_SCHEDULED 
+            ? 'interview-scheduled' 
+            : (match.status === MATCH_STATUS.CONNECTED ? 'connected' : 'matched'),
+          statusText: match.status === MATCH_STATUS.INTERVIEW_SCHEDULED 
+            ? 'Interview scheduled' 
+            : (match.status === MATCH_STATUS.CONNECTED ? 'Connected' : 'New match')
+        };
+      })
     };
   }
 
