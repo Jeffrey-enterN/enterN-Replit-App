@@ -377,15 +377,17 @@ export function CompanyProfileForm({ companyId }: { companyId?: number }) {
     if (draftData?.draftData && !isDraftLoading) {
       form.reset(draftData.draftData);
       
-      // Set current step from draft if available, ensuring it doesn't exceed our max steps
-      if (draftData.step) {
+      // Set current step from draft if available, but ONLY on initial load
+      // This prevents the step from being reset when saving progress during navigation
+      if (draftData.step && currentStep === 1) {
         // If the saved step is greater than our available steps (e.g., after reducing from 4 to 3 steps),
         // set it to the maximum valid step
         const safeStep = Math.min(draftData.step, COMPANY_PROFILE_STEPS.length);
         setCurrentStep(safeStep);
+        console.log('Loaded step from draft:', safeStep);
       }
     }
-  }, [draftData, isDraftLoading, form]);
+  }, [draftData, isDraftLoading, form, currentStep]);
   
   // Save draft function (can be called manually or automatically)
   const saveDraft = async (silent: boolean = false) => {
