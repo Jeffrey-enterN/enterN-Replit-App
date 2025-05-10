@@ -1104,11 +1104,27 @@ export function CompanyProfileForm({ companyId }: { companyId?: number }) {
                 </Button>
               ) : (
                 <Button
-                  type="button"
+                  type="submit" 
                   disabled={isLoading || createCompanyMutation.isPending}
-                  onClick={() => {
+                  onClick={(e) => {
                     console.log('Submit button clicked');
-                    form.handleSubmit(onSubmit)();
+                    e.preventDefault(); // Prevent default form submission
+                    
+                    // Validate form before submission
+                    form.trigger().then(isValid => {
+                      if (isValid) {
+                        console.log('Form is valid, submitting with values:', form.getValues());
+                        const formValues = form.getValues();
+                        createCompanyMutation.mutate(formValues);
+                      } else {
+                        console.error('Form validation failed:', form.formState.errors);
+                        toast({
+                          title: 'Form validation failed',
+                          description: 'Please check the form for errors and try again.',
+                          variant: 'destructive',
+                        });
+                      }
+                    });
                   }}
                 >
                   {(isLoading || createCompanyMutation.isPending) && (
