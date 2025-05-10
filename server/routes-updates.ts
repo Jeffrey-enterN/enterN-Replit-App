@@ -171,7 +171,7 @@ export function setupCompanyRoutes(router: Router) {
       
       // Check if user is authorized to view team members
       if (req.user.companyId !== companyId) {
-        return res.status(403).json({ error: 'You are not authorized to view this company\\'s team' });
+        return res.status(403).json({ error: 'You are not authorized to view this company team' });
       }
       
       const teamMembers = await storage.getCompanyTeamMembers(companyId);

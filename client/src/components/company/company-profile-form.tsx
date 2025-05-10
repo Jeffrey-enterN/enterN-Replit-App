@@ -233,10 +233,13 @@ export function CompanyProfileForm({ companyId }: { companyId?: number }) {
   // Create company mutation
   const createCompanyMutation = useMutation({
     mutationFn: async (formData: CompanyProfileFormValues) => {
-      const res = await apiRequest('POST', '/api/companies', formData);
+      console.log('Making API request to /api/company with form data:', formData);
+      const res = await apiRequest('POST', '/api/company', formData);
       
       if (!res.ok) {
-        throw new Error('Failed to create company profile');
+        const errorData = await res.json().catch(() => ({}));
+        console.error('API error response:', res.status, errorData);
+        throw new Error(errorData.error || 'Failed to create company profile');
       }
       
       return await res.json();

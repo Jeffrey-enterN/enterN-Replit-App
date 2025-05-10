@@ -14,6 +14,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Set up auth routes
   setupAuth(app);
   
+  // Set up a single router for all our API routes
+  const router = Router();
+  
+  // Set up company routes from routes-updates.ts
+  setupCompanyRoutes(router);
+  
+  // Set up match routes for swipe-to-match functionality
+  setupMatchRoutes(router);
+  
+  // Use the router in our app
+  app.use(router);
+  
   // Test routes for system status and diagnostics
   app.get("/api/test", (req, res) => {
     res.status(200).json({
@@ -2272,10 +2284,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Set up match routes (swipe-to-match functionality)
-  const router = Router();
-  setupMatchRoutes(router);
-  app.use(router);
+  // Set up match routes (swipe-to-match functionality) using the existing router
 
   // Create HTTP server
   const httpServer = createServer(app);
