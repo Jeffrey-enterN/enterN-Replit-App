@@ -48,6 +48,7 @@ export default function JobsFeed() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const [isProcessingInterest, setIsProcessingInterest] = useState(false);
+  const [currentErrorMessage, setCurrentErrorMessage] = useState<string | null>(null);
 
   // Redirect if not authenticated or if user is not a jobseeker
   useEffect(() => {
@@ -66,7 +67,6 @@ export default function JobsFeed() {
   } = useQuery<any>({
     queryKey: ['/api/jobseeker/jobs/available'],
     enabled: !!user && user.userType === USER_TYPES.JOBSEEKER,
-    // Use the default queryFn from the client setup to benefit from all auth handling logic
     staleTime: 0, // Force refetch every time
     retry: 2 // Retry a few times to handle auth issues
   });
@@ -124,9 +124,6 @@ export default function JobsFeed() {
       });
     }
   }, [jobsError, toast]);
-
-  // State to track current error status
-  const [currentErrorMessage, setCurrentErrorMessage] = useState<string | null>(null);
 
   // Define the type for the job interest mutation variables
   interface JobInterestMutationVariables {
@@ -217,7 +214,7 @@ export default function JobsFeed() {
   // Determine if we should show the loading state
   const showLoadingState = isLoading || isRefetching || isLoadingInterestedJobs || 
     isLoadingNotInterestedJobs || isProcessingInterest || jobInterestMutation.isPending;
-  
+
   return (
     <JobseekerLayout>
       <div className="container px-4 py-6">
@@ -256,254 +253,141 @@ export default function JobsFeed() {
               ) : (
                 <div className="grid grid-cols-1 gap-6">
                   {Array.isArray(availableJobs) && availableJobs.map((job: JobPosting) => {
-              // Create more detailed job descriptions if needed
-              // Parse workType if it's a string
-              let workType = [];
-              try {
-                workType = typeof job.workType === 'string'
-                  ? JSON.parse(job.workType as string)
-                  : (Array.isArray(job.workType) ? job.workType : []);
-              } catch (error) {
-                console.error("Error parsing workType:", error);
-                workType = Array.isArray(job.workType) ? job.workType : [];
-              }
-                
-              const enhancedJob = {
-                ...job,
-                workType: workType,
-                description: job.description || 'Join our team in this exciting role!',
-                responsibilities: job.responsibilities || `
-                  • Collaborate with cross-functional teams to design, develop, and implement innovative solutions
-                  • Participate in the entire application lifecycle, from concept to technical design, coding, testing, and deployment
-                  • Write clean, maintainable code while adhering to best practices and coding standards
-                  • Troubleshoot and debug applications to optimize performance
-                  • Stay current with emerging trends and technologies in the field
-                `,
-                qualifications: job.qualifications || `
-                  • Bachelor's degree in Computer Science, Engineering, or related field
-                  • Experience with relevant programming languages and technologies
-                  • Strong problem-solving abilities and attention to detail
-                  • Excellent communication and teamwork skills
-                  • Ability to learn quickly and adapt to changing priorities
-                `,
-                benefits: job.benefits || `
-                  • Competitive salary and comprehensive benefits package
-                  • Flexible work arrangements and generous paid time off
-                  • Professional development opportunities
-                  • Collaborative and inclusive work environment
-                  • Employee wellness programs
-                `
-              };
-              
-              return (
-                <Card key={job.id} className="overflow-hidden">
-                  <CardHeader className="pb-3">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <CardTitle className="text-xl font-bold">{enhancedJob.title}</CardTitle>
-                        <CardDescription className="flex items-center mt-1">
-                          <Building2 className="h-4 w-4 mr-1" /> 
-                          {enhancedJob.companyName}
-                        </CardDescription>
-                      </div>
-                      {enhancedJob.logo && (
-                        <div className="w-16 h-16 rounded overflow-hidden flex-shrink-0">
-                          <img 
-                            src={enhancedJob.logo} 
-                            alt={`${enhancedJob.companyName} logo`} 
-                            className="w-full h-full object-contain"
-                          />
-                        </div>
-                      )}
-                    </div>
-                  </CardHeader>
-                  
-                  <CardContent>
-                    <div className="flex flex-wrap gap-2 mb-3">
-                      <div className="flex items-center text-sm text-gray-500">
-                        <MapPin className="h-4 w-4 mr-1" /> 
-                        {enhancedJob.location}
-                      </div>
-                      <div className="flex items-center text-sm text-gray-500">
-                        <Briefcase className="h-4 w-4 mr-1" /> 
-                        {enhancedJob.employmentType}
-                      </div>
-                      <div className="flex items-center text-sm text-gray-500">
-                        <DollarSign className="h-4 w-4 mr-1" /> 
-                        {enhancedJob.salary || "$65,000 - $95,000/year"}
-                      </div>
-                      {enhancedJob.department && (
-                        <Badge variant="outline" className="text-xs">
-                          {enhancedJob.department}
-                        </Badge>
-                      )}
-                    </div>
+                    // Parse workType if it's a string
+                    let workType = [];
+                    try {
+                      workType = typeof job.workType === 'string'
+                        ? JSON.parse(job.workType as string)
+                        : (Array.isArray(job.workType) ? job.workType : []);
+                    } catch (error) {
+                      workType = Array.isArray(job.workType) ? job.workType : [];
+                    }
+                      
+                    const enhancedJob = {
+                      ...job,
+                      workType: workType
+                    };
                     
-                    <div className="flex flex-wrap gap-1 mb-3">
-                      {enhancedJob.workType && Array.isArray(enhancedJob.workType) && enhancedJob.workType.map((type: string, index: number) => (
-                        <Badge key={index} variant="secondary" className="text-xs">
-                          {type}
-                        </Badge>
-                      ))}
-                    </div>
-                    
-                    <Separator className="my-3" />
-                    
-                    <p className="text-sm text-gray-700 line-clamp-3">
-                      {enhancedJob.description}
-                    </p>
-                    
-                    <div className="mt-3 flex justify-center">
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button variant="ghost" size="sm" className="flex items-center text-primary hover:text-primary">
-                            <ChevronDown className="h-4 w-4 mr-1" />
-                            View Details
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="max-w-2xl overflow-y-auto max-h-[80vh]" aria-describedby={`job-details-${job.id}`}>
-                          <DialogHeader>
-                            <DialogTitle className="text-xl">{enhancedJob.title}</DialogTitle>
-                            <DialogDescription id={`job-details-${job.id}`} className="flex flex-wrap gap-2 items-center mt-2">
-                              <span className="flex items-center">
+                    return (
+                      <Card key={job.id} className="overflow-hidden">
+                        <CardHeader className="pb-3">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <CardTitle className="text-xl font-bold">{enhancedJob.title}</CardTitle>
+                              <CardDescription className="flex items-center mt-1">
                                 <Building2 className="h-4 w-4 mr-1" /> 
                                 {enhancedJob.companyName}
-                              </span>
-                              <span className="flex items-center">
-                                <MapPin className="h-4 w-4 mr-1" /> 
-                                {enhancedJob.location}
-                              </span>
-                              <span className="flex items-center">
-                                <Briefcase className="h-4 w-4 mr-1" /> 
-                                {enhancedJob.employmentType}
-                              </span>
-                              <span className="flex items-center">
-                                <DollarSign className="h-4 w-4 mr-1" /> 
-                                {enhancedJob.salary || "$65,000 - $95,000/year"}
-                              </span>
-                            </DialogDescription>
-                          </DialogHeader>
-                          
-                          <div className="mt-4 space-y-6">
-                            <div>
-                              <h4 className="font-medium text-lg mb-2">About This Role</h4>
-                              <p className="text-sm text-gray-700 whitespace-pre-line">
-                                {enhancedJob.description}
-                              </p>
+                              </CardDescription>
                             </div>
-                            
-                            <div>
-                              <h4 className="font-medium text-lg mb-2 flex items-center">
-                                <Users className="h-5 w-5 mr-2" />
-                                Key Responsibilities
-                              </h4>
-                              <p className="text-sm text-gray-700 whitespace-pre-line">
-                                {enhancedJob.responsibilities}
-                              </p>
+                            {enhancedJob.logo && (
+                              <div className="w-16 h-16 rounded overflow-hidden flex-shrink-0">
+                                <img 
+                                  src={enhancedJob.logo} 
+                                  alt={`${enhancedJob.companyName} logo`} 
+                                  className="w-full h-full object-contain"
+                                />
+                              </div>
+                            )}
+                          </div>
+                        </CardHeader>
+                        
+                        <CardContent>
+                          <div className="flex flex-wrap gap-2 mb-3">
+                            <div className="flex items-center text-sm text-gray-500">
+                              <MapPin className="h-4 w-4 mr-1" /> 
+                              {enhancedJob.location}
                             </div>
-                            
-                            <div>
-                              <h4 className="font-medium text-lg mb-2 flex items-center">
-                                <GraduationCap className="h-5 w-5 mr-2" />
-                                Qualifications
-                              </h4>
-                              <p className="text-sm text-gray-700 whitespace-pre-line">
-                                {enhancedJob.qualifications}
-                              </p>
-                            </div>
-                            
-                            <div>
-                              <h4 className="font-medium text-lg mb-2 flex items-center">
-                                <DollarSign className="h-5 w-5 mr-2" />
-                                Benefits
-                              </h4>
-                              <p className="text-sm text-gray-700 whitespace-pre-line">
-                                {enhancedJob.benefits}
-                              </p>
+                            <div className="flex items-center text-sm text-gray-500">
+                              <Briefcase className="h-4 w-4 mr-1" /> 
+                              {enhancedJob.employmentType}
                             </div>
                           </div>
                           
-                          <DialogFooter className="mt-6 flex sm:justify-between gap-4">
-                            <DialogClose asChild>
-                              <Button variant="outline" size="sm">
-                                Close
+                          <div className="flex flex-wrap gap-1 mb-3">
+                            {enhancedJob.workType && Array.isArray(enhancedJob.workType) && enhancedJob.workType.map((type: string, index: number) => (
+                              <Badge key={index} variant="secondary" className="text-xs">
+                                {type}
+                              </Badge>
+                            ))}
+                          </div>
+                          
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button variant="outline" size="sm" className="w-full mt-2">
+                                View Details
                               </Button>
-                            </DialogClose>
-                            <div className="flex gap-2">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handleNotInterested(enhancedJob.id)}
-                                disabled={showLoadingState}
-                              >
-                                <ThumbsDown className="h-4 w-4 mr-2" />
-                                Not Interested
-                              </Button>
-                              <Button
-                                size="sm"
-                                onClick={() => handleInterested(enhancedJob.id)}
-                                disabled={showLoadingState}
-                              >
-                                <ThumbsUp className="h-4 w-4 mr-2" />
-                                Interested
-                              </Button>
-                            </div>
-                          </DialogFooter>
-                        </DialogContent>
-                      </Dialog>
-                    </div>
-                  </CardContent>
-                  
-                  <CardFooter className="flex justify-between pt-0">
-                    {/* Left side for status display */}
-                    <div className="flex items-center">
-                      {jobInterestMutation.isPending && jobInterestMutation.variables?.jobId === enhancedJob.id && (
-                        <div className="flex items-center text-gray-500 text-sm">
-                          <Loader2 className="h-4 w-4 mr-1 animate-spin" />
-                          <span>Processing...</span>
-                        </div>
-                      )}
-                      
-                      {currentErrorMessage && jobInterestMutation.variables?.jobId === enhancedJob.id && (
-                        <div className="flex items-center text-red-600 text-sm">
-                          <AlertCircle className="h-4 w-4 mr-1" />
-                          <span>{currentErrorMessage}</span>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-2xl overflow-y-auto max-h-[80vh]">
+                              <DialogHeader>
+                                <DialogTitle className="text-xl">{enhancedJob.title}</DialogTitle>
+                                <DialogDescription className="flex flex-wrap gap-2 items-center mt-2">
+                                  <span className="flex items-center">
+                                    <Building2 className="h-4 w-4 mr-1" /> 
+                                    {enhancedJob.companyName}
+                                  </span>
+                                  <span className="flex items-center">
+                                    <MapPin className="h-4 w-4 mr-1" /> 
+                                    {enhancedJob.location}
+                                  </span>
+                                </DialogDescription>
+                              </DialogHeader>
+                              
+                              <div className="mt-4">
+                                <p className="text-sm text-gray-700">
+                                  {enhancedJob.description}
+                                </p>
+                              </div>
+                              
+                              <DialogFooter className="mt-4">
+                                <Button 
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleNotInterested(enhancedJob.id)}
+                                  disabled={jobInterestMutation.isPending}
+                                  className="mr-2"
+                                >
+                                  <ThumbsDown className="h-4 w-4 mr-1" />
+                                  Not Interested
+                                </Button>
+                                <Button 
+                                  variant="default"
+                                  size="sm"
+                                  onClick={() => handleInterested(enhancedJob.id)}
+                                  disabled={jobInterestMutation.isPending}
+                                >
+                                  <ThumbsUp className="h-4 w-4 mr-1" />
+                                  Interested
+                                </Button>
+                              </DialogFooter>
+                            </DialogContent>
+                          </Dialog>
+                        </CardContent>
+                        
+                        <CardFooter className="flex gap-2 pt-0">
                           <Button 
-                            variant="ghost" 
+                            variant="outline"
                             size="sm"
-                            className="h-6 ml-1 text-red-600 hover:text-red-700 p-0 px-1"
-                            onClick={() => setCurrentErrorMessage(null)}
+                            onClick={() => handleNotInterested(enhancedJob.id)}
+                            disabled={jobInterestMutation.isPending}
+                            className="flex-1"
                           >
-                            <X className="h-3 w-3" />
+                            <ThumbsDown className="h-4 w-4 mr-1" />
+                            Not Interested
                           </Button>
-                        </div>
-                      )}
-                    </div>
-                    
-                    {/* Right side for action buttons */}
-                    <div className="flex space-x-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleNotInterested(enhancedJob.id)}
-                        disabled={showLoadingState || (jobInterestMutation.isPending && jobInterestMutation.variables?.jobId === enhancedJob.id)}
-                      >
-                        <ThumbsDown className="h-4 w-4 mr-2" />
-                        Not Interested
-                      </Button>
-                      <Button
-                        size="sm"
-                        onClick={() => handleInterested(enhancedJob.id)}
-                        disabled={showLoadingState || (jobInterestMutation.isPending && jobInterestMutation.variables?.jobId === enhancedJob.id)}
-                      >
-                        <ThumbsUp className="h-4 w-4 mr-2" />
-                        Interested
-                      </Button>
-                    </div>
-                  </CardFooter>
-                </Card>
-              );
-            })}
+                          <Button 
+                            variant="default"
+                            size="sm"
+                            onClick={() => handleInterested(enhancedJob.id)}
+                            disabled={jobInterestMutation.isPending}
+                            className="flex-1"
+                          >
+                            <ThumbsUp className="h-4 w-4 mr-1" />
+                            Interested
+                          </Button>
+                        </CardFooter>
+                      </Card>
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -607,6 +491,16 @@ export default function JobsFeed() {
                                   <ThumbsUp className="h-4 w-4 mr-1 text-emerald-500" />
                                   You expressed interest in this job
                                 </Badge>
+                                
+                                <Button 
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleNotInterested(enhancedJob.id)}
+                                  disabled={jobInterestMutation.isPending}
+                                >
+                                  <ThumbsDown className="h-4 w-4 mr-1" />
+                                  Change to Not Interested
+                                </Button>
                               </DialogFooter>
                             </DialogContent>
                           </Dialog>
@@ -713,10 +607,15 @@ export default function JobsFeed() {
                               </div>
                               
                               <DialogFooter className="mt-4">
+                                <Badge variant="outline" className="mr-auto text-gray-600">
+                                  <ThumbsDown className="h-4 w-4 mr-1" />
+                                  You expressed no interest in this job
+                                </Badge>
+                                
                                 <Button 
                                   variant="outline"
                                   size="sm"
-                                  onClick={() => jobInterestMutation.mutate({ jobId: enhancedJob.id, interested: true })}
+                                  onClick={() => handleInterested(enhancedJob.id)}
                                   disabled={jobInterestMutation.isPending}
                                   className="ml-auto"
                                 >
