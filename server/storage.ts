@@ -33,6 +33,7 @@ import session from "express-session";
 import createMemoryStore from "memorystore";
 import connectPg from "connect-pg-simple";
 import { pool } from "./db";
+import crypto from "crypto";
 
 const MemoryStore = createMemoryStore(session);
 const PostgresSessionStore = connectPg(session);
@@ -109,6 +110,7 @@ export class MemStorage implements IStorage {
   private swipes: Swipe[];
   private matches: Match[];
   private jobPostings: Map<string, JobPosting>;
+  private jobInterests: JobInterest[];
   private jobseekerProfileDrafts: Map<number, any>;
   private employerProfileDrafts: Map<number, any>;
   private companyProfileDrafts: Map<string, any>;
@@ -125,6 +127,7 @@ export class MemStorage implements IStorage {
     this.swipes = [];
     this.matches = [];
     this.jobPostings = new Map();
+    this.jobInterests = [];
     this.jobseekerProfileDrafts = new Map();
     this.employerProfileDrafts = new Map();
     this.companyProfileDrafts = new Map();
@@ -945,6 +948,57 @@ export class MemStorage implements IStorage {
     }
     
     this.jobPostings.delete(jobId);
+  }
+  
+  // Job interest methods
+  async getJobseekerJobInterests(userId: number): Promise<JobInterest[]> {
+    return this.jobInterests.filter(interest => interest.userId === userId);
+  }
+  
+  async expressJobInterest(userId: number, jobId: string, interested: boolean): Promise<JobInterest> {
+    // Check if the interest already exists
+    const existingInterestIndex = this.jobInterests.findIndex(
+      interest => interest.userId === userId && interest.jobId === jobId
+    );
+    
+    if (existingInterestIndex >= 0) {
+      // Update existing interest
+      this.jobInterests[existingInterestIndex].interested = interested;
+      return this.jobInterests[existingInterestIndex];
+    } else {
+      // Create new interest
+      const newInterest: JobInterest = {
+        id: crypto.randomUUID(),
+        userId,
+        jobId,
+        interested,
+        createdAt: new Date()
+      };
+      this.jobInterests.push(newInterest);
+      return newInterest;
+    }
+  }
+  
+  async getJobseekerInterestedJobs(userId: number): Promise<JobPosting[]> {
+    // Get all interested job IDs for this user
+    const interestedJobIds = this.jobInterests
+      .filter(interest => interest.userId === userId && interest.interested === true)
+      .map(interest => interest.jobId);
+    
+    // Return the job postings that match these IDs
+    return Array.from(this.jobPostings.values())
+      .filter(job => interestedJobIds.includes(job.id));
+  }
+  
+  async getJobseekerNotInterestedJobs(userId: number): Promise<JobPosting[]> {
+    // Get all not interested job IDs for this user
+    const notInterestedJobIds = this.jobInterests
+      .filter(interest => interest.userId === userId && interest.interested === false)
+      .map(interest => interest.jobId);
+    
+    // Return the job postings that match these IDs
+    return Array.from(this.jobPostings.values())
+      .filter(job => notInterestedJobIds.includes(job.id));
   }
   
   /**
