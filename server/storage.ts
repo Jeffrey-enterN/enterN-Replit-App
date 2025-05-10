@@ -1054,6 +1054,39 @@ export class DatabaseStorage implements IStorage {
   }
   
   // Company profile draft methods
+  // Helper function to sanitize data for JSON serialization
+  // This will convert Date objects to ISO strings and handle potential circular references
+  private sanitizeData(data: any): any {
+    // Handle null or undefined
+    if (data === null || data === undefined) {
+      return data;
+    }
+    
+    // Handle Date objects
+    if (data instanceof Date) {
+      return data.toISOString();
+    }
+    
+    // Handle arrays
+    if (Array.isArray(data)) {
+      return data.map(item => this.sanitizeData(item));
+    }
+    
+    // Handle objects (but not Date objects which are also objects)
+    if (typeof data === 'object') {
+      const result: { [key: string]: any } = {};
+      for (const key in data) {
+        if (Object.prototype.hasOwnProperty.call(data, key)) {
+          result[key] = this.sanitizeData(data[key]);
+        }
+      }
+      return result;
+    }
+    
+    // Return primitive values as is
+    return data;
+  }
+
   async saveCompanyProfileDraft(userId: number, draftData: any, companyId?: number, step?: number, draftType?: string): Promise<any> {
     try {
       const currentStep = step || 1;
@@ -1061,8 +1094,11 @@ export class DatabaseStorage implements IStorage {
       
       console.log(`DB: Saving draft for user ID ${userId}${companyId ? `, company ID ${companyId}` : ''}, step ${currentStep}, type: ${currentDraftType}`);
       
+      // Sanitize the draft data to handle dates properly
+      const sanitizedDraftData = this.sanitizeData(draftData);
+      
       // Debug to ensure we're receiving valid data
-      console.log(`Draft data sample: ${JSON.stringify(draftData).substring(0, 100)}...`);
+      console.log(`Draft data sample: ${JSON.stringify(sanitizedDraftData).substring(0, 100)}...`);
       
       try {
         // First try using Drizzle ORM to insert/update the data
@@ -1084,7 +1120,7 @@ export class DatabaseStorage implements IStorage {
           
           const [updatedDraft] = await db.update(companyProfileDrafts)
             .set({
-              draftData,
+              draftData: sanitizedDraftData,
               step: currentStep,
               draftType: currentDraftType,
               lastActive: new Date(),
@@ -1102,7 +1138,7 @@ export class DatabaseStorage implements IStorage {
             .values({
               userId,
               companyId: companyId || null, 
-              draftData,
+              draftData: sanitizedDraftData,
               step: currentStep,
               draftType: currentDraftType,
               lastActive: new Date()
@@ -1132,7 +1168,7 @@ export class DatabaseStorage implements IStorage {
           
           const result = await db.execute(sql`
             UPDATE company_profile_drafts
-            SET draft_data = ${JSON.stringify(draftData)},
+            SET draft_data = ${JSON.stringify(sanitizedDraftData)},
                 step = ${currentStep},
                 draft_type = ${currentDraftType},
                 last_active = NOW(),
@@ -1164,7 +1200,7 @@ export class DatabaseStorage implements IStorage {
             VALUES (
               ${userId}, 
               ${companyId || null}, 
-              ${JSON.stringify(draftData)}, 
+              ${JSON.stringify(sanitizedDraftData)}, 
               ${currentStep},
               ${currentDraftType},
               NOW(),
@@ -2524,20 +2560,31 @@ export class DatabaseStorage implements IStorage {
   }
   
   async updateCompany(companyId: number, companyData: any): Promise<Company> {
-    const [updatedCompany] = await db
-      .update(companies)
-      .set({
-        ...companyData,
-        updatedAt: new Date()
-      })
-      .where(eq(companies.id, companyId))
-      .returning();
+    // Sanitize companyData to handle dates and prevent toISOString errors
+    const sanitizedCompanyData = this.sanitizeData(companyData);
     
-    if (!updatedCompany) {
-      throw new Error(`Company with id ${companyId} not found`);
+    // Remove any circular references or problematic fields
+    const { updatedAt, createdAt, ...safeData } = sanitizedCompanyData;
+    
+    try {
+      const [updatedCompany] = await db
+        .update(companies)
+        .set({
+          ...safeData,
+          updatedAt: new Date()
+        })
+        .where(eq(companies.id, companyId))
+        .returning();
+      
+      if (!updatedCompany) {
+        throw new Error(`Company with id ${companyId} not found`);
+      }
+      
+      return updatedCompany;
+    } catch (error) {
+      console.error(`Error updating company ${companyId}:`, error);
+      throw new Error(`Failed to update company: ${(error as Error).message}`);
     }
-    
-    return updatedCompany;
   }
   
   async getCompanyTeamMembers(companyId: number): Promise<any[]> {
