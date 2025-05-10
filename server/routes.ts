@@ -770,8 +770,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const jobPostings = await storage.getAllJobPostings();
       console.log(`Found ${jobPostings.length} job postings in database`);
       
+      // Get the jobseeker's interests
+      const jobseekerInterests = await storage.getJobseekerJobInterests(req.user.id);
+      const interactedJobIds = jobseekerInterests.map(interest => interest.jobPostingId);
+      
+      // Filter out jobs that the user has already interacted with
+      const availableJobs = jobPostings.filter(job => !interactedJobIds.includes(job.id));
+      console.log(`Filtered to ${availableJobs.length} available jobs (excluding ${interactedJobIds.length} already interacted with)`);
+      
       // Get company info for each job
-      const jobsWithCompanyInfo = await Promise.all(jobPostings.map(async (job) => {
+      const jobsWithCompanyInfo = await Promise.all(availableJobs.map(async (job) => {
         console.log(`Processing job: ${job.id}, title: ${job.title}, companyId: ${job.companyId}`);
         const company = job.companyId ? await storage.getCompany(job.companyId) : null;
         console.log(`Company info for job ${job.id}:`, company ? `${company.id} - ${company.name}` : 'No company found');
@@ -1065,6 +1073,144 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
     } catch (error) {
       console.error('Error fetching available jobs:', error);
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
+  
+  // Express interest/disinterest in a job posting
+  app.post("/api/jobseeker/jobs/:jobId/interest", async (req, res) => {
+    // Check authentication
+    if (!req.isAuthenticated()) {
+      // Try mobile auth as fallback
+      const authHeader = req.headers.authorization;
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        const token = authHeader.substring(7);
+        try {
+          const tokenParts = token.split('.');
+          if (tokenParts.length === 2) {
+            const userId = parseInt(tokenParts[0], 10);
+            const user = await storage.getUser(userId);
+            if (user) {
+              (req as any).user = user;
+            } else {
+              return res.status(401).json({ message: "Unauthorized - invalid token" });
+            }
+          } else {
+            return res.status(401).json({ message: "Unauthorized - invalid token format" });
+          }
+        } catch (error) {
+          return res.status(401).json({ message: "Unauthorized - token error" });
+        }
+      } else {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+    }
+    
+    // Check user type
+    if (req.user.userType !== USER_TYPES.JOBSEEKER) {
+      return res.status(403).json({ message: "Forbidden - not a jobseeker" });
+    }
+    
+    try {
+      const { jobId } = req.params;
+      const { interested } = req.body;
+      
+      if (typeof interested !== 'boolean') {
+        return res.status(400).json({ message: "Missing or invalid 'interested' parameter" });
+      }
+      
+      // Record the job interest
+      const result = await storage.expressJobInterest(req.user.id, jobId, interested);
+      
+      res.status(200).json({
+        success: true,
+        interest: result,
+        message: interested ? "You expressed interest in this job" : "You saved this job as not interested"
+      });
+    } catch (error) {
+      console.error('Error expressing job interest:', error);
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
+  
+  // Get jobs that the jobseeker expressed interest in
+  app.get("/api/jobseeker/jobs/interested", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      // Same mobile token auth as above
+      const authHeader = req.headers.authorization;
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        const token = authHeader.substring(7);
+        try {
+          const tokenParts = token.split('.');
+          if (tokenParts.length === 2) {
+            const userId = parseInt(tokenParts[0], 10);
+            const user = await storage.getUser(userId);
+            if (user) {
+              (req as any).user = user;
+            } else {
+              return res.status(401).json({ message: "Unauthorized - invalid token" });
+            }
+          } else {
+            return res.status(401).json({ message: "Unauthorized - invalid token format" });
+          }
+        } catch (error) {
+          return res.status(401).json({ message: "Unauthorized - token error" });
+        }
+      } else {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+    }
+    
+    if (req.user.userType !== USER_TYPES.JOBSEEKER) {
+      return res.status(403).json({ message: "Forbidden - not a jobseeker" });
+    }
+    
+    try {
+      const interestedJobs = await storage.getJobseekerInterestedJobs(req.user.id);
+      res.status(200).json(interestedJobs);
+    } catch (error) {
+      console.error('Error fetching interested jobs:', error);
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
+  
+  // Get jobs that the jobseeker expressed disinterest in
+  app.get("/api/jobseeker/jobs/not-interested", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      // Same mobile token auth as above
+      const authHeader = req.headers.authorization;
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        const token = authHeader.substring(7);
+        try {
+          const tokenParts = token.split('.');
+          if (tokenParts.length === 2) {
+            const userId = parseInt(tokenParts[0], 10);
+            const user = await storage.getUser(userId);
+            if (user) {
+              (req as any).user = user;
+            } else {
+              return res.status(401).json({ message: "Unauthorized - invalid token" });
+            }
+          } else {
+            return res.status(401).json({ message: "Unauthorized - invalid token format" });
+          }
+        } catch (error) {
+          return res.status(401).json({ message: "Unauthorized - token error" });
+        }
+      } else {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+    }
+    
+    if (req.user.userType !== USER_TYPES.JOBSEEKER) {
+      return res.status(403).json({ message: "Forbidden - not a jobseeker" });
+    }
+    
+    try {
+      const notInterestedJobs = await storage.getJobseekerNotInterestedJobs(req.user.id);
+      res.status(200).json(notInterestedJobs);
+    } catch (error) {
+      console.error('Error fetching not interested jobs:', error);
       res.status(500).json({ message: (error as Error).message });
     }
   });

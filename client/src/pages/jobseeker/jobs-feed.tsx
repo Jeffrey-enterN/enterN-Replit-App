@@ -71,6 +71,26 @@ export default function JobsFeed() {
     retry: 2 // Retry a few times to handle auth issues
   });
   
+  // Fetch interested jobs
+  const {
+    data: interestedJobsData,
+    isLoading: isLoadingInterestedJobs,
+    refetch: refetchInterestedJobs
+  } = useQuery<JobPosting[]>({
+    queryKey: ['/api/jobseeker/jobs/interested'],
+    enabled: !!user && user.userType === USER_TYPES.JOBSEEKER,
+  });
+  
+  // Fetch not interested jobs
+  const {
+    data: notInterestedJobsData,
+    isLoading: isLoadingNotInterestedJobs,
+    refetch: refetchNotInterestedJobs
+  } = useQuery<JobPosting[]>({
+    queryKey: ['/api/jobseeker/jobs/not-interested'],
+    enabled: !!user && user.userType === USER_TYPES.JOBSEEKER,
+  });
+  
   // Process the raw jobs data to handle different response formats
   const availableJobs = React.useMemo(() => {
     if (!rawJobsData) return [];
@@ -122,7 +142,7 @@ export default function JobsFeed() {
       setIsProcessingInterest(true);
       
       try {
-        const response = await apiRequest('POST', `/api/jobs/${jobId}/interest`, { interested });
+        const response = await apiRequest('POST', `/api/jobseeker/jobs/${jobId}/interest`, { interested });
         const data = await response.json();
         return data;
       } catch (error) {
@@ -135,15 +155,22 @@ export default function JobsFeed() {
         throw error;
       }
     },
-    onSuccess: () => {
-      // Invalidate related queries
+    onSuccess: (data) => {
+      // Invalidate related queries to refresh all job lists
       queryClient.invalidateQueries({ queryKey: ['/api/jobseeker/dashboard'] });
       queryClient.invalidateQueries({ queryKey: ['/api/jobseeker/matches/recent'] });
       queryClient.invalidateQueries({ queryKey: ['/api/jobseeker/jobs/available'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/jobseeker/jobs/interested'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/jobseeker/jobs/not-interested'] });
+      
+      // Refetch the job lists
+      refetchAvailableJobs();
+      refetchInterestedJobs();
+      refetchNotInterestedJobs();
       
       toast({
         title: 'Success',
-        description: 'Your interest has been recorded.',
+        description: data.message || 'Your interest has been recorded.',
       });
       
       setIsProcessingInterest(false);
