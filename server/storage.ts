@@ -23,7 +23,9 @@ import {
   CompanyInvite,
   InsertCompanyInvite,
   MATCH_STATUS,
-  MatchStatus
+  MatchStatus,
+  jobInterests,
+  JobInterest
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, sql, isNotNull } from "drizzle-orm";
@@ -90,6 +92,12 @@ export interface IStorage {
   updateJobPosting(jobId: string, jobData: any): Promise<JobPosting>;
   updateJobStatus(jobId: string, status: string): Promise<JobPosting>;
   deleteJobPosting(jobId: string): Promise<void>;
+  
+  // Job interest methods
+  getJobseekerJobInterests(userId: number): Promise<JobInterest[]>;
+  expressJobInterest(userId: number, jobId: string, interested: boolean): Promise<JobInterest>;
+  getJobseekerInterestedJobs(userId: number): Promise<JobPosting[]>;
+  getJobseekerNotInterestedJobs(userId: number): Promise<JobPosting[]>;
 
   // Session store
   sessionStore: SessionStore;
