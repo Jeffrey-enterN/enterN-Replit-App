@@ -82,21 +82,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
             `);
             console.log('Added swiped_by column');
             
-            // Set default values based on direction
+            // Set all existing records to 'employer' as the default swipedBy value
             await db.execute(`
               UPDATE swipes 
-              SET swiped_by = CASE 
-                WHEN direction = 'jobseeker-to-employer' THEN 'jobseeker' 
-                ELSE 'employer' 
-              END
+              SET swiped_by = 'employer'
             `);
             console.log('Updated existing records with default values');
             
             // Create new unique constraint including swipedBy
             await db.execute(`
               ALTER TABLE swipes 
-              ADD CONSTRAINT swipes_jobseeker_id_employer_id_direction_swiped_by_unique 
-              UNIQUE (jobseeker_id, employer_id, direction, swiped_by)
+              ADD CONSTRAINT swipes_jobseeker_id_employer_id_swiped_by_unique 
+              UNIQUE (jobseeker_id, employer_id, swiped_by)
             `);
             console.log('Added new constraint with swiped_by column');
             
