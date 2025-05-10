@@ -1246,9 +1246,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     if (req.user.userType !== USER_TYPES.EMPLOYER) return res.status(403).json({ message: "Forbidden" });
 
     try {
-      console.log(`Getting dashboard data for employer ID: ${req.user.id}, username: ${req.user.username}`);
+      console.log(`Getting dashboard data for employer`);
       const dashboardData = await storage.getEmployerDashboard(req.user.id);
-      console.log(`Sending dashboard data to client:`, JSON.stringify(dashboardData, null, 2));
+      console.log(`Dashboard data retrieved successfully`);
       res.status(200).json(dashboardData);
     } catch (error) {
       console.error(`Error getting dashboard data:`, error);
