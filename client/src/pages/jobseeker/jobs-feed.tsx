@@ -202,9 +202,21 @@ export default function JobsFeed() {
     jobInterestMutation.mutate({ jobId, interested: false });
   };
   
+  // Process interested jobs
+  const interestedJobs = React.useMemo(() => {
+    if (!interestedJobsData) return [];
+    return interestedJobsData;
+  }, [interestedJobsData]);
+  
+  // Process not interested jobs
+  const notInterestedJobs = React.useMemo(() => {
+    if (!notInterestedJobsData) return [];
+    return notInterestedJobsData;
+  }, [notInterestedJobsData]);
+  
   // Determine if we should show the loading state
-  const showLoadingState = isLoading || isRefetching || isProcessingInterest || 
-    jobInterestMutation.isPending;
+  const showLoadingState = isLoading || isRefetching || isLoadingInterestedJobs || 
+    isLoadingNotInterestedJobs || isProcessingInterest || jobInterestMutation.isPending;
   
   return (
     <JobseekerLayout>
@@ -213,7 +225,11 @@ export default function JobsFeed() {
           <h1 className="text-2xl font-bold tracking-tight">Jobs Feed</h1>
           <Button 
             variant="outline"
-            onClick={() => refetchAvailableJobs()}
+            onClick={() => {
+              refetchAvailableJobs();
+              refetchInterestedJobs();
+              refetchNotInterestedJobs();
+            }}
             disabled={showLoadingState}
           >
             <RefreshCw className="w-4 h-4 mr-2" />
@@ -225,16 +241,21 @@ export default function JobsFeed() {
           <div className="flex justify-center items-center h-60">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
-        ) : !availableJobs || !Array.isArray(availableJobs) || availableJobs.length === 0 ? (
-          <div className="text-center py-12">
-            <h3 className="text-lg font-medium text-gray-900">No jobs available</h3>
-            <p className="mt-2 text-sm text-gray-500">
-              There are currently no jobs available. Check back soon as new positions are added regularly.
-            </p>
-          </div>
         ) : (
-          <div className="grid grid-cols-1 gap-6">
-            {Array.isArray(availableJobs) && availableJobs.map((job: JobPosting) => {
+          <>
+            {/* Available Jobs Section */}
+            <div className="mb-10">
+              <h2 className="text-xl font-semibold mb-4">Available Jobs</h2>
+              {(!availableJobs || !Array.isArray(availableJobs) || availableJobs.length === 0) ? (
+                <div className="text-center py-8 bg-gray-50 rounded-lg">
+                  <h3 className="text-lg font-medium text-gray-900">No new jobs available</h3>
+                  <p className="mt-2 text-sm text-gray-500">
+                    You've reviewed all available jobs. Check back soon as new positions are added regularly.
+                  </p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 gap-6">
+                  {Array.isArray(availableJobs) && availableJobs.map((job: JobPosting) => {
               // Create more detailed job descriptions if needed
               // Parse workType if it's a string
               let workType = [];
@@ -483,7 +504,236 @@ export default function JobsFeed() {
                 </Card>
               );
             })}
-          </div>
+                </div>
+              )}
+            </div>
+            
+            {/* Interested Jobs Section */}
+            {interestedJobs.length > 0 && (
+              <div className="mb-10">
+                <h2 className="text-xl font-semibold mb-4 flex items-center">
+                  <ThumbsUp className="mr-2 h-5 w-5 text-emerald-500" />
+                  Jobs You're Interested In
+                </h2>
+                <div className="grid grid-cols-1 gap-6">
+                  {interestedJobs.map((job: JobPosting) => {
+                    // Parse workType if it's a string
+                    let workType = [];
+                    try {
+                      workType = typeof job.workType === 'string'
+                        ? JSON.parse(job.workType as string)
+                        : (Array.isArray(job.workType) ? job.workType : []);
+                    } catch (error) {
+                      workType = Array.isArray(job.workType) ? job.workType : [];
+                    }
+                      
+                    const enhancedJob = {
+                      ...job,
+                      workType: workType
+                    };
+                    
+                    return (
+                      <Card key={job.id} className="overflow-hidden border-l-4 border-l-emerald-500">
+                        <CardHeader className="pb-3">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <CardTitle className="text-xl font-bold">{enhancedJob.title}</CardTitle>
+                              <CardDescription className="flex items-center mt-1">
+                                <Building2 className="h-4 w-4 mr-1" /> 
+                                {enhancedJob.companyName}
+                              </CardDescription>
+                            </div>
+                            {enhancedJob.logo && (
+                              <div className="w-16 h-16 rounded overflow-hidden flex-shrink-0">
+                                <img 
+                                  src={enhancedJob.logo} 
+                                  alt={`${enhancedJob.companyName} logo`} 
+                                  className="w-full h-full object-contain"
+                                />
+                              </div>
+                            )}
+                          </div>
+                        </CardHeader>
+                        
+                        <CardContent>
+                          <div className="flex flex-wrap gap-2 mb-3">
+                            <div className="flex items-center text-sm text-gray-500">
+                              <MapPin className="h-4 w-4 mr-1" /> 
+                              {enhancedJob.location}
+                            </div>
+                            <div className="flex items-center text-sm text-gray-500">
+                              <Briefcase className="h-4 w-4 mr-1" /> 
+                              {enhancedJob.employmentType}
+                            </div>
+                          </div>
+                          
+                          <div className="flex flex-wrap gap-1 mb-3">
+                            {enhancedJob.workType && Array.isArray(enhancedJob.workType) && enhancedJob.workType.map((type: string, index: number) => (
+                              <Badge key={index} variant="secondary" className="text-xs">
+                                {type}
+                              </Badge>
+                            ))}
+                          </div>
+                          
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button variant="outline" size="sm" className="w-full mt-2">
+                                View Details
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-2xl overflow-y-auto max-h-[80vh]">
+                              <DialogHeader>
+                                <DialogTitle className="text-xl">{enhancedJob.title}</DialogTitle>
+                                <DialogDescription className="flex flex-wrap gap-2 items-center mt-2">
+                                  <span className="flex items-center">
+                                    <Building2 className="h-4 w-4 mr-1" /> 
+                                    {enhancedJob.companyName}
+                                  </span>
+                                  <span className="flex items-center">
+                                    <MapPin className="h-4 w-4 mr-1" /> 
+                                    {enhancedJob.location}
+                                  </span>
+                                </DialogDescription>
+                              </DialogHeader>
+                              
+                              <div className="mt-4">
+                                <p className="text-sm text-gray-700">
+                                  {enhancedJob.description}
+                                </p>
+                              </div>
+                              
+                              <DialogFooter className="mt-4">
+                                <Badge variant="outline" className="mr-auto">
+                                  <ThumbsUp className="h-4 w-4 mr-1 text-emerald-500" />
+                                  You expressed interest in this job
+                                </Badge>
+                              </DialogFooter>
+                            </DialogContent>
+                          </Dialog>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+            
+            {/* Not Interested Jobs Section */}
+            {notInterestedJobs.length > 0 && (
+              <div className="mb-10">
+                <h2 className="text-xl font-semibold mb-4 flex items-center">
+                  <ThumbsDown className="mr-2 h-5 w-5 text-gray-500" />
+                  Jobs You're Not Interested In
+                </h2>
+                <div className="grid grid-cols-1 gap-6">
+                  {notInterestedJobs.map((job: JobPosting) => {
+                    // Parse workType if it's a string
+                    let workType = [];
+                    try {
+                      workType = typeof job.workType === 'string'
+                        ? JSON.parse(job.workType as string)
+                        : (Array.isArray(job.workType) ? job.workType : []);
+                    } catch (error) {
+                      workType = Array.isArray(job.workType) ? job.workType : [];
+                    }
+                      
+                    const enhancedJob = {
+                      ...job,
+                      workType: workType
+                    };
+                    
+                    return (
+                      <Card key={job.id} className="overflow-hidden border-l-4 border-l-gray-300 opacity-75 hover:opacity-100 transition-opacity">
+                        <CardHeader className="pb-3">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <CardTitle className="text-xl font-bold">{enhancedJob.title}</CardTitle>
+                              <CardDescription className="flex items-center mt-1">
+                                <Building2 className="h-4 w-4 mr-1" /> 
+                                {enhancedJob.companyName}
+                              </CardDescription>
+                            </div>
+                            {enhancedJob.logo && (
+                              <div className="w-16 h-16 rounded overflow-hidden flex-shrink-0">
+                                <img 
+                                  src={enhancedJob.logo} 
+                                  alt={`${enhancedJob.companyName} logo`} 
+                                  className="w-full h-full object-contain"
+                                />
+                              </div>
+                            )}
+                          </div>
+                        </CardHeader>
+                        
+                        <CardContent>
+                          <div className="flex flex-wrap gap-2 mb-3">
+                            <div className="flex items-center text-sm text-gray-500">
+                              <MapPin className="h-4 w-4 mr-1" /> 
+                              {enhancedJob.location}
+                            </div>
+                            <div className="flex items-center text-sm text-gray-500">
+                              <Briefcase className="h-4 w-4 mr-1" /> 
+                              {enhancedJob.employmentType}
+                            </div>
+                          </div>
+                          
+                          <div className="flex flex-wrap gap-1 mb-3">
+                            {enhancedJob.workType && Array.isArray(enhancedJob.workType) && enhancedJob.workType.map((type: string, index: number) => (
+                              <Badge key={index} variant="secondary" className="text-xs">
+                                {type}
+                              </Badge>
+                            ))}
+                          </div>
+                          
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button variant="outline" size="sm" className="w-full mt-2">
+                                View Details
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-2xl overflow-y-auto max-h-[80vh]">
+                              <DialogHeader>
+                                <DialogTitle className="text-xl">{enhancedJob.title}</DialogTitle>
+                                <DialogDescription className="flex flex-wrap gap-2 items-center mt-2">
+                                  <span className="flex items-center">
+                                    <Building2 className="h-4 w-4 mr-1" /> 
+                                    {enhancedJob.companyName}
+                                  </span>
+                                  <span className="flex items-center">
+                                    <MapPin className="h-4 w-4 mr-1" /> 
+                                    {enhancedJob.location}
+                                  </span>
+                                </DialogDescription>
+                              </DialogHeader>
+                              
+                              <div className="mt-4">
+                                <p className="text-sm text-gray-700">
+                                  {enhancedJob.description}
+                                </p>
+                              </div>
+                              
+                              <DialogFooter className="mt-4">
+                                <Button 
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => jobInterestMutation.mutate({ jobId: enhancedJob.id, interested: true })}
+                                  disabled={jobInterestMutation.isPending}
+                                  className="ml-auto"
+                                >
+                                  <ThumbsUp className="h-4 w-4 mr-1" />
+                                  Change to Interested
+                                </Button>
+                              </DialogFooter>
+                            </DialogContent>
+                          </Dialog>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
     </JobseekerLayout>
