@@ -952,27 +952,29 @@ export class MemStorage implements IStorage {
   
   // Job interest methods
   async getJobseekerJobInterests(userId: number): Promise<JobInterest[]> {
-    return this.jobInterests.filter(interest => interest.userId === userId);
+    return this.jobInterests.filter(interest => interest.jobseekerId === userId);
   }
   
   async expressJobInterest(userId: number, jobId: string, interested: boolean): Promise<JobInterest> {
     // Check if the interest already exists
     const existingInterestIndex = this.jobInterests.findIndex(
-      interest => interest.userId === userId && interest.jobId === jobId
+      interest => interest.jobseekerId === userId && interest.jobPostingId === jobId
     );
     
     if (existingInterestIndex >= 0) {
       // Update existing interest
       this.jobInterests[existingInterestIndex].interested = interested;
+      this.jobInterests[existingInterestIndex].updatedAt = new Date();
       return this.jobInterests[existingInterestIndex];
     } else {
       // Create new interest
       const newInterest: JobInterest = {
         id: crypto.randomUUID(),
-        userId,
-        jobId,
+        jobseekerId: userId,
+        jobPostingId: jobId,
         interested,
-        createdAt: new Date()
+        createdAt: new Date(),
+        updatedAt: new Date()
       };
       this.jobInterests.push(newInterest);
       return newInterest;
@@ -982,8 +984,8 @@ export class MemStorage implements IStorage {
   async getJobseekerInterestedJobs(userId: number): Promise<JobPosting[]> {
     // Get all interested job IDs for this user
     const interestedJobIds = this.jobInterests
-      .filter(interest => interest.userId === userId && interest.interested === true)
-      .map(interest => interest.jobId);
+      .filter(interest => interest.jobseekerId === userId && interest.interested === true)
+      .map(interest => interest.jobPostingId);
     
     // Return the job postings that match these IDs
     return Array.from(this.jobPostings.values())
@@ -993,8 +995,8 @@ export class MemStorage implements IStorage {
   async getJobseekerNotInterestedJobs(userId: number): Promise<JobPosting[]> {
     // Get all not interested job IDs for this user
     const notInterestedJobIds = this.jobInterests
-      .filter(interest => interest.userId === userId && interest.interested === false)
-      .map(interest => interest.jobId);
+      .filter(interest => interest.jobseekerId === userId && interest.interested === false)
+      .map(interest => interest.jobPostingId);
     
     // Return the job postings that match these IDs
     return Array.from(this.jobPostings.values())
@@ -2839,6 +2841,93 @@ export class DatabaseStorage implements IStorage {
     if (result.rowCount === 0) {
       throw new Error(`Job posting with id ${jobId} not found`);
     }
+  }
+  
+  // Job interest methods
+  async getJobseekerJobInterests(userId: number): Promise<JobInterest[]> {
+    const interests = await db
+      .select()
+      .from(jobInterests)
+      .where(eq(jobInterests.jobseekerId, userId));
+    
+    return interests;
+  }
+  
+  async expressJobInterest(userId: number, jobId: string, interested: boolean): Promise<JobInterest> {
+    // Check if the interest already exists
+    const [existingInterest] = await db
+      .select()
+      .from(jobInterests)
+      .where(
+        and(
+          eq(jobInterests.jobseekerId, userId),
+          eq(jobInterests.jobPostingId, jobId)
+        )
+      );
+    
+    if (existingInterest) {
+      // Update existing interest
+      const [updatedInterest] = await db
+        .update(jobInterests)
+        .set({ 
+          interested,
+          updatedAt: new Date()
+        })
+        .where(eq(jobInterests.id, existingInterest.id))
+        .returning();
+      
+      return updatedInterest;
+    } else {
+      // Create new interest
+      const [newInterest] = await db
+        .insert(jobInterests)
+        .values({
+          jobseekerId: userId,
+          jobPostingId: jobId,
+          interested
+        })
+        .returning();
+      
+      return newInterest;
+    }
+  }
+  
+  async getJobseekerInterestedJobs(userId: number): Promise<JobPosting[]> {
+    // Get all job postings that the user has expressed interest in
+    const interestedJobs = await db
+      .select({
+        job: jobPostings
+      })
+      .from(jobPostings)
+      .innerJoin(
+        jobInterests,
+        and(
+          eq(jobInterests.jobPostingId, jobPostings.id),
+          eq(jobInterests.jobseekerId, userId),
+          eq(jobInterests.interested, true)
+        )
+      );
+    
+    return interestedJobs.map(row => row.job);
+  }
+  
+  async getJobseekerNotInterestedJobs(userId: number): Promise<JobPosting[]> {
+    // Get all job postings that the user has expressed disinterest in
+    const notInterestedJobs = await db
+      .select({
+        job: jobPostings
+      })
+      .from(jobPostings)
+      .innerJoin(
+        jobInterests,
+        and(
+          eq(jobInterests.jobPostingId, jobPostings.id),
+          eq(jobInterests.jobseekerId, userId),
+          eq(jobInterests.interested, false)
+        )
+      );
+    
+    return notInterestedJobs.map(row => row.job);
   }
 
   /**
