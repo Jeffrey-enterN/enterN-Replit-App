@@ -4,6 +4,7 @@ import { storage } from "./storage";
 import { setupAuth } from "./auth";
 import { USER_TYPES } from "../shared/schema";
 import { setupMatchRoutes } from "./routes-match";
+import { setupCompanyRoutes } from "./routes-updates";
 import { WebSocketServer } from 'ws';
 import { Router } from "express";
 import { scrapeCompanyWebsite } from "./utils/website-scraper";
