@@ -128,6 +128,7 @@ function Router() {
       {/* Admin routes - direct access without ProtectedRoute */}
       <Route path="/admin/database-operations" component={DatabaseOperationsPage} />
       <Route path="/admin/jobs" component={JobsViewPage} />
+      <Route path="/admin/migration" component={MigrationPage} />
       <Route component={NotFound} />
     </Switch>
   );
