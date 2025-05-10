@@ -95,7 +95,7 @@ export function setupAuth(app: Express) {
         session.isIOSClient = true;
         
         // Log session details for debugging
-        console.log(`iOS client detected. Session ID: ${req.sessionID}, User authenticated: ${req.isAuthenticated()}`);
+        console.log(`iOS client detected. User authenticated: ${req.isAuthenticated()}`);
         
         // Set up a hook to save session data after response is sent
         const oldEnd = res.end;
@@ -112,7 +112,7 @@ export function setupAuth(app: Express) {
     // For all requests (iOS or not), log auth issues
     if (!req.isAuthenticated() && req.session) {
       if (req.method !== 'GET' || req.path.includes('/api/')) {
-        console.log(`Not authenticated - Session ID: ${req.sessionID}, Path: ${req.path}, Method: ${req.method}`);
+        console.log(`Not authenticated - Path: ${req.path}, Method: ${req.method}`);
       }
     }
     
@@ -152,7 +152,8 @@ export function setupAuth(app: Express) {
 
   app.post("/api/register", async (req, res, next) => {
     try {
-      console.log("Registration request received:", req.body);
+      // Only log that a registration was attempted, not the actual data
+      console.log("Registration request received");
       
       const { 
         username, 
@@ -198,11 +199,7 @@ export function setupAuth(app: Express) {
       const hashedPassword = await hashPassword(password);
       
       // Create user with minimal data - contact details will be added later
-      console.log("Creating user with data:", { 
-        username, 
-        userType, 
-        email: email || username
-      });
+      console.log(`Creating new ${userType} user`);
       
       const user = await storage.createUser({
         username,
@@ -386,7 +383,7 @@ export function setupAuth(app: Express) {
           const [userIdStr, sessionToken] = token.split(':');
           const userId = parseInt(userIdStr, 10);
           
-          console.log(`Mobile token auth attempt - User ID: ${userId}, Token: ${sessionToken.substring(0, 5)}...`);
+          console.log(`Mobile token auth attempt for user ID: ${userId}`);
           
           if (!isNaN(userId) && sessionToken) {
             storage.getUser(userId).then(user => {

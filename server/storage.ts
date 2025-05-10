@@ -1380,7 +1380,14 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const [user] = await db.insert(users).values(insertUser).returning();
+    // For jobseekers, explicitly set companyRole to null to override the default
+    const userData = {
+      ...insertUser,
+      // If this is a jobseeker, explicitly set companyRole to null
+      ...(insertUser.userType === 'jobseeker' ? { companyRole: null } : {})
+    };
+    
+    const [user] = await db.insert(users).values(userData).returning();
     return user;
   }
   
