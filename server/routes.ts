@@ -49,6 +49,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Check if a specific migration was requested
+      if (req.body.migration === 'job-interests') {
+        try {
+          // Import the database client
+          const { db } = await import("./db");
+          
+          // Check if job_interests table exists
+          const checkTableExists = await db.execute(`
+            SELECT tablename 
+            FROM pg_catalog.pg_tables
+            WHERE tablename = 'job_interests'
+          `);
+          
+          if (checkTableExists.rows.length === 0) {
+            console.log('Creating job_interests table...');
+            
+            // Create the job_interests table
+            await db.execute(`
+              CREATE TABLE IF NOT EXISTS job_interests (
+                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                jobseeker_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                job_posting_id UUID NOT NULL REFERENCES job_postings(id) ON DELETE CASCADE,
+                interested BOOLEAN NOT NULL,
+                created_at TIMESTAMP DEFAULT NOW(),
+                updated_at TIMESTAMP DEFAULT NOW(),
+                UNIQUE(jobseeker_id, job_posting_id)
+              );
+            `);
+            
+            console.log('Successfully created job_interests table');
+            
+            return res.status(200).json({ 
+              success: true, 
+              message: "Created job_interests table",
+              migration: "job-interests"
+            });
+          } else {
+            return res.status(200).json({ 
+              success: true, 
+              message: "job_interests table already exists",
+              migration: "job-interests" 
+            });
+          }
+        } catch (error) {
+          console.error("job-interests migration error:", error);
+          return res.status(500).json({ 
+            error: "Migration failed", 
+            message: (error as Error).message,
+            migration: "job-interests"
+          });
+        }
+      }
+      
       if (req.body.migration === 'swiped_by') {
         try {
           // Import the database client
