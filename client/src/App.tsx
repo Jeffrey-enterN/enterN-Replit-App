@@ -35,6 +35,7 @@ import SupportPage from "@/pages/support";
 import JobsPage from "@/pages/employer/jobs";
 import NewJobPage from "@/pages/employer/jobs/new";
 import SliderPreferencesPage from "@/pages/employer/slider-preferences-page";
+import MigrationPage from "@/pages/migration-page";
 import NotFound from "@/pages/not-found";
 
 // Lazy-loaded admin pages

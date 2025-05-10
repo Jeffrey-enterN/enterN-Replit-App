@@ -47,6 +47,80 @@ export async function registerRoutes(app: Express): Promise<Server> {
           message: "Valid admin key required for database operations" 
         });
       }
+      
+      // Check if a specific migration was requested
+      if (req.body.migration === 'swiped_by') {
+        try {
+          // Import the database client
+          const { db } = await import("./db");
+          
+          // Check if the column already exists
+          const checkColumnExists = await db.execute(`
+            SELECT column_name 
+            FROM information_schema.columns 
+            WHERE table_name = 'swipes' AND column_name = 'swiped_by'
+          `);
+          
+          if (checkColumnExists.rows.length === 0) {
+            console.log('Adding swiped_by column to swipes table');
+            
+            // Drop existing constraint if it exists
+            try {
+              await db.execute(`
+                ALTER TABLE swipes 
+                DROP CONSTRAINT IF EXISTS swipes_jobseeker_id_employer_id_direction_unique
+              `);
+              console.log('Dropped existing constraint');
+            } catch (error) {
+              console.log('No constraint to drop or error dropping constraint:', error.message);
+            }
+            
+            // Add the swipedBy column
+            await db.execute(`
+              ALTER TABLE swipes 
+              ADD COLUMN swiped_by VARCHAR(20) NOT NULL DEFAULT 'employer'
+            `);
+            console.log('Added swiped_by column');
+            
+            // Set default values based on direction
+            await db.execute(`
+              UPDATE swipes 
+              SET swiped_by = CASE 
+                WHEN direction = 'jobseeker-to-employer' THEN 'jobseeker' 
+                ELSE 'employer' 
+              END
+            `);
+            console.log('Updated existing records with default values');
+            
+            // Create new unique constraint including swipedBy
+            await db.execute(`
+              ALTER TABLE swipes 
+              ADD CONSTRAINT swipes_jobseeker_id_employer_id_direction_swiped_by_unique 
+              UNIQUE (jobseeker_id, employer_id, direction, swiped_by)
+            `);
+            console.log('Added new constraint with swiped_by column');
+            
+            return res.status(200).json({ 
+              success: true, 
+              message: "Added swiped_by column to swipes table",
+              migration: "swiped_by"
+            });
+          } else {
+            return res.status(200).json({ 
+              success: true, 
+              message: "swiped_by column already exists",
+              migration: "swiped_by" 
+            });
+          }
+        } catch (error) {
+          console.error("swiped_by migration error:", error);
+          return res.status(500).json({ 
+            error: "Migration failed", 
+            message: (error as Error).message,
+            migration: "swiped_by"
+          });
+        }
+      }
 
       // Import the database client
       const { db } = await import("./db");
