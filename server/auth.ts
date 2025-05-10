@@ -225,15 +225,8 @@ export function setupAuth(app: Express) {
             return next(saveErr);
           }
           
-          // Log session ID for debugging
-          console.log(`User registered and authenticated. Session ID: ${req.sessionID}`);
-          console.log(`Registration session cookie settings:`, {
-            secure: req.session.cookie.secure,
-            httpOnly: req.session.cookie.httpOnly,
-            sameSite: req.session.cookie.sameSite,
-            path: req.session.cookie.path,
-            maxAge: req.session.cookie.maxAge
-          });
+          // Log basic info without sensitive data
+          console.log(`User registered and authenticated successfully`);
           
           // Add additional headers to help preserve session
           res.set('Cache-Control', 'private, no-cache, no-store, must-revalidate');
@@ -317,15 +310,8 @@ export function setupAuth(app: Express) {
             return next(saveErr);
           }
           
-          // Log successful login for debugging
-          console.log(`User logged in and authenticated. Session ID: ${req.sessionID}, User ID: ${user.id}`);
-          console.log(`Session cookie settings:`, {
-            secure: req.session.cookie.secure,
-            httpOnly: req.session.cookie.httpOnly,
-            sameSite: req.session.cookie.sameSite,
-            path: req.session.cookie.path,
-            maxAge: req.session.cookie.maxAge
-          });
+          // Log successful login without sensitive data
+          console.log(`User logged in and authenticated successfully`);
           
           // Remove password from the response
           const { password: _, ...userWithoutPassword } = user;
@@ -364,7 +350,7 @@ export function setupAuth(app: Express) {
 
   app.get("/api/user", (req, res) => {
     // Log detailed debugging info for the user endpoint
-    console.log(`/api/user request - Session ID: ${req.sessionID}`);
+    console.log(`/api/user request`);
     console.log(`  isAuthenticated: ${req.isAuthenticated()}`);
     console.log(`  session exists: ${!!req.session}`);
     
@@ -500,7 +486,7 @@ export function setupAuth(app: Express) {
       res.set('Expires', '-1');
       res.set('Pragma', 'no-cache');
       
-      console.log(`User data successfully sent for user ID: ${user.id}`);
+      console.log(`User data successfully sent`);
       
       // For mobile clients, generate a token they can use as fallback
       if (isIOS || isMobile) {
