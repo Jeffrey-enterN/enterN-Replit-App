@@ -1,59 +1,28 @@
-import React, { forwardRef } from 'react';
-import { cn } from '@/lib/utils';
-import theme from '@/theme';
-
-export interface ContainerProps extends React.HTMLAttributes<HTMLDivElement> {
-  /**
-   * The content to be rendered within the container
-   */
-  children: React.ReactNode;
-  
-  /**
-   * Maximum width of the container
-   * @default "max-w-7xl"
-   */
-  maxWidth?: string;
-  
-  /**
-   * Whether to add default padding
-   * @default true
-   */
-  padded?: boolean;
-  
-  /**
-   * Whether the container should be centered
-   * @default true
-   */
-  centered?: boolean;
-  
-  /**
-   * Extra classes to apply
-   */
-  className?: string;
-}
+import React from "react";
+import { cn } from "@/lib/utils";
+import { containerVariants } from "@/components/ui/variants";
+import { type VariantProps } from "class-variance-authority";
 
 /**
- * Container component for consistent layout and spacing
+ * Container component that centers content horizontally with controlled max-width
+ * Easily create responsive layouts that maintain consistent spacing
  */
-export const Container = forwardRef<HTMLDivElement, ContainerProps>(
-  ({ children, maxWidth = "max-w-7xl", padded = true, centered = true, className, ...props }, ref) => {
-    return (
-      <div
-        ref={ref}
-        className={cn(
-          maxWidth,
-          padded && "px-4 sm:px-6 lg:px-8",
-          centered && "mx-auto",
-          className
-        )}
-        {...props}
-      >
-        {children}
-      </div>
-    );
-  }
-);
+export interface ContainerProps
+  extends React.HTMLAttributes<HTMLDivElement>,
+    VariantProps<typeof containerVariants> {}
 
-Container.displayName = "Container";
+export function Container({
+  className,
+  size,
+  padding,
+  ...props
+}: ContainerProps) {
+  return (
+    <div
+      className={cn(containerVariants({ size, padding }), className)}
+      {...props}
+    />
+  );
+}
 
 export default Container;

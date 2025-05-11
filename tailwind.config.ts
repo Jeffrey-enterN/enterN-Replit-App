@@ -183,16 +183,16 @@ export default {
           },
         },
         "pulse": {
-          '0%, 100%': { opacity: 1 },
-          '50%': { opacity: 0.7 },
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0.7' },
         },
         "fade-in": {
-          from: { opacity: 0 },
-          to: { opacity: 1 },
+          from: { opacity: '0' },
+          to: { opacity: '1' },
         },
         "fade-out": {
-          from: { opacity: 1 },
-          to: { opacity: 0 },
+          from: { opacity: '1' },
+          to: { opacity: '0' },
         },
         "slide-in-right": {
           from: { transform: 'translateX(100%)' },
