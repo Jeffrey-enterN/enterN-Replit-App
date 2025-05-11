@@ -37,7 +37,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Loader2, Plus, Trash2, Link as LinkIcon } from 'lucide-react';
-import EmployerLayout from '@/components/layouts/employer-layout';
+// import EmployerLayout from '@/components/layouts/employer-layout'; // Removed to prevent double navbar
 
 // Job posting form schema
 const jobPostingSchema = z.object({
@@ -219,301 +219,289 @@ Requirements:
   };
 
   return (
-    <EmployerLayout>
-      <div className="container py-8">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-bold">Job Management</h1>
-            <p className="text-muted-foreground">
-              Create a new job posting for your company
-            </p>
-          </div>
+    <div className="container py-8">
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-2xl font-bold">Job Management</h1>
+          <p className="text-muted-foreground">
+            Create a new job posting for your company
+          </p>
         </div>
+      </div>
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)}>
-            <Card>
-              <CardHeader>
-                <CardTitle>Create New Job Posting</CardTitle>
-                <CardDescription>
-                  Enter all the details about the position you're offering
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <FormField
-                  control={form.control}
-                  name="title"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Job Title*</FormLabel>
-                      <FormControl>
-                        <Input placeholder="e.g. Software Engineer" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+          <Card>
+            <CardHeader>
+              <CardTitle>Create New Job Posting</CardTitle>
+              <CardDescription>
+                Enter all the details about the position you're offering
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <FormField
+                control={form.control}
+                name="title"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Job Title*</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g. Software Engineer" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Zip Code with City, State output */}
-                  <div>
-                    <FormField
-                      control={form.control}
-                      name="zipCode"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Zip Code*</FormLabel>
-                          <FormControl>
-                            <Input 
-                              placeholder="Enter zip code" 
-                              {...field} 
-                              disabled={isRemote}
-                            />
-                          </FormControl>
-                          {cityState && !isRemote && (
-                            <p className="text-sm text-muted-foreground mt-2">
-                              Location: {cityState}
-                            </p>
-                          )}
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    {/* Remote checkbox */}
-                    <FormField
-                      control={form.control}
-                      name="isRemote"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-row items-start space-x-3 space-y-0 mt-2">
-                          <FormControl>
-                            <Checkbox
-                              checked={field.value}
-                              onCheckedChange={(checked) => {
-                                field.onChange(checked);
-                                if (checked) {
-                                  form.setValue('location', 'Remote');
-                                } else {
-                                  const zip = form.getValues('zipCode');
-                                  if (zip) {
-                                    form.setValue('location', cityState || '');
-                                  } else {
-                                    form.setValue('location', '');
-                                  }
-                                }
-                              }}
-                            />
-                          </FormControl>
-                          <div className="space-y-1 leading-none">
-                            <FormLabel>This position is fully remote</FormLabel>
-                          </div>
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  {/* Functional Area (formerly Department) */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Zip Code with City, State output */}
+                <div>
                   <FormField
                     control={form.control}
-                    name="functionalArea"
+                    name="zipCode"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Functional Area</FormLabel>
+                        <FormLabel>Zip Code*</FormLabel>
                         <FormControl>
-                          <Input placeholder="e.g. Engineering, Marketing, Sales" {...field} />
+                          <Input 
+                            placeholder="Enter zip code" 
+                            {...field} 
+                            disabled={isRemote}
+                          />
                         </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Updated Employment Type options */}
-                  <FormField
-                    control={form.control}
-                    name="employmentType"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Employment Type*</FormLabel>
-                        <Select 
-                          onValueChange={field.onChange} 
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select employment type" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="Part-time internship">Part-time internship</SelectItem>
-                            <SelectItem value="Full-time internship">Full-time internship</SelectItem>
-                            <SelectItem value="Part-time perm role">Part-time perm role</SelectItem>
-                            <SelectItem value="Full-time perm role">Full-time perm role</SelectItem>
-                            <SelectItem value="Contract">Contract</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="workType"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Work Type*</FormLabel>
-                        <Select 
-                          onValueChange={field.onChange} 
-                          defaultValue={field.value}
-                          disabled={isRemote}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select work type" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="Remote">Remote</SelectItem>
-                            <SelectItem value="In-office">In-office</SelectItem>
-                            <SelectItem value="Hybrid">Hybrid</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        {isRemote && (
-                          <p className="text-sm text-muted-foreground mt-1">
-                            Work type set to Remote for remote positions
+                        {cityState && !isRemote && (
+                          <p className="text-sm text-muted-foreground mt-2">
+                            Location: {cityState}
                           </p>
                         )}
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                </div>
-
-                {/* Job Description with URL scraping option */}
-                <div>
+                  
+                  {/* Remote checkbox */}
                   <FormField
                     control={form.control}
-                    name="descriptionUrl"
+                    name="isRemote"
                     render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Job Description URL (Optional)</FormLabel>
-                        <div className="flex space-x-2">
-                          <FormControl>
-                            <Input 
-                              placeholder="https://example.com/job-description" 
-                              {...field} 
-                            />
-                          </FormControl>
-                          <Button 
-                            type="button" 
-                            onClick={scrapeJobDescription}
-                            disabled={!descriptionUrl || isScraping}
-                          >
-                            {isScraping ? (
-                              <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                            ) : (
-                              <LinkIcon className="h-4 w-4 mr-2" />
-                            )}
-                            {isScraping ? 'Scraping...' : 'Scrape'}
-                          </Button>
-                        </div>
-                        <FormDescription>
-                          Enter a URL to scrape an existing job description, or manually enter it below
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="description"
-                    render={({ field }) => (
-                      <FormItem className="mt-4">
-                        <FormLabel>Job Description*</FormLabel>
+                      <FormItem className="flex flex-row items-start space-x-3 space-y-0 mt-2">
                         <FormControl>
-                          <Textarea 
-                            placeholder="Describe the role, company culture, and what makes this position exciting"
-                            className="min-h-[180px]"
-                            {...field} 
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                {/* Preferred Majors (optional) */}
-                <div>
-                  <FormField
-                    control={form.control}
-                    name="preferredMajors"
-                    render={() => (
-                      <FormItem>
-                        <FormLabel>Preferred Majors (Optional)</FormLabel>
-                        <div className="flex space-x-2 mb-2">
-                          <Input 
-                            placeholder="e.g. Computer Science, Business Administration"
-                            value={newMajor}
-                            onChange={(e) => setNewMajor(e.target.value)}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter') {
-                                e.preventDefault();
-                                addMajor();
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={(checked) => {
+                              field.onChange(checked);
+                              if (checked) {
+                                form.setValue('location', 'Remote');
+                              } else {
+                                const zip = form.getValues('zipCode');
+                                if (zip) {
+                                  form.setValue('location', cityState || '');
+                                } else {
+                                  form.setValue('location', '');
+                                }
                               }
                             }}
                           />
-                          <Button 
-                            type="button" 
-                            onClick={addMajor}
-                          >
-                            Add
-                          </Button>
+                        </FormControl>
+                        <div className="space-y-1 leading-none">
+                          <FormLabel>This position is fully remote</FormLabel>
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                          {form.watch('preferredMajors')?.map((major, index) => (
-                            <div key={index} className="flex items-center justify-between bg-muted rounded p-2">
-                              <span>{major}</span>
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => removeMajor(index)}
-                              >
-                                <Trash2 className="h-4 w-4 text-red-500" />
-                              </Button>
-                            </div>
-                          ))}
-                        </div>
-                        <FormMessage />
                       </FormItem>
                     )}
                   />
                 </div>
-              </CardContent>
-              <CardFooter className="flex justify-between">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => navigate('/employer/jobs')}
-                >
-                  Cancel
-                </Button>
-                <Button 
-                  type="submit"
-                  disabled={createJobMutation.isPending}
-                >
-                  {createJobMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Create Job Posting
-                </Button>
-              </CardFooter>
-            </Card>
-          </form>
-        </Form>
-      </div>
-    </EmployerLayout>
+
+                {/* Functional Area (formerly Department) */}
+                <FormField
+                  control={form.control}
+                  name="functionalArea"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Functional Area</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g. Engineering, Marketing, Sales" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Updated Employment Type options */}
+                <FormField
+                  control={form.control}
+                  name="employmentType"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Employment Type*</FormLabel>
+                      <Select 
+                        onValueChange={field.onChange} 
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select employment type" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="Part-time internship">Part-time internship</SelectItem>
+                          <SelectItem value="Full-time internship">Full-time internship</SelectItem>
+                          <SelectItem value="Part-time perm role">Part-time perm role</SelectItem>
+                          <SelectItem value="Full-time perm role">Full-time perm role</SelectItem>
+                          <SelectItem value="Contract">Contract</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="workType"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Work Type*</FormLabel>
+                      <Select 
+                        onValueChange={field.onChange} 
+                        defaultValue={field.value}
+                        disabled={isRemote}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select work type" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="Remote">Remote</SelectItem>
+                          <SelectItem value="In-office">In-office</SelectItem>
+                          <SelectItem value="Hybrid">Hybrid</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      {isRemote && (
+                        <p className="text-sm text-muted-foreground mt-1">
+                          Work type set to Remote for remote positions
+                        </p>
+                      )}
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              {/* Job Description with URL scraping option */}
+              <div>
+                <FormField
+                  control={form.control}
+                  name="descriptionUrl"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Job Description URL (Optional)</FormLabel>
+                      <div className="flex space-x-2">
+                        <FormControl>
+                          <Input 
+                            placeholder="https://example.com/job-description" 
+                            {...field} 
+                          />
+                        </FormControl>
+                        <Button 
+                          type="button" 
+                          onClick={scrapeJobDescription}
+                          disabled={!descriptionUrl || isScraping}
+                        >
+                          {isScraping ? (
+                            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                          ) : (
+                            <LinkIcon className="h-4 w-4 mr-2" />
+                          )}
+                          {isScraping ? 'Scraping...' : 'Scrape'}
+                        </Button>
+                      </div>
+                      <FormDescription>
+                        Enter a URL to scrape an existing job description, or manually enter it below
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem className="mt-4">
+                      <FormLabel>Job Description*</FormLabel>
+                      <FormControl>
+                        <Textarea 
+                          placeholder="Enter the job description including responsibilities and requirements..." 
+                          className="min-h-[200px]" 
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div>
+                <FormLabel>Preferred Majors (Optional)</FormLabel>
+                <FormDescription className="mb-2">
+                  Add academic backgrounds that would be a good fit for this role
+                </FormDescription>
+                
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {form.getValues('preferredMajors')?.map((major, index) => (
+                    <Badge key={index} variant="secondary" className="text-sm py-1 px-3">
+                      {major}
+                      <button 
+                        type="button" 
+                        className="ml-2 text-muted-foreground hover:text-foreground"
+                        onClick={() => removeMajor(index)}
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </button>
+                    </Badge>
+                  ))}
+                </div>
+                
+                <div className="flex">
+                  <Input 
+                    placeholder="e.g. Computer Science" 
+                    value={newMajor}
+                    onChange={(e) => setNewMajor(e.target.value)}
+                    className="mr-2"
+                  />
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={addMajor}
+                  >
+                    <Plus className="h-4 w-4 mr-1" /> Add
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+            <CardFooter className="flex justify-between">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => navigate('/employer/jobs')}
+              >
+                Cancel
+              </Button>
+              <Button 
+                type="submit"
+                disabled={createJobMutation.isPending}
+              >
+                {createJobMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Create Job Posting
+              </Button>
+            </CardFooter>
+          </Card>
+        </form>
+      </Form>
+    </div>
   );
 }
