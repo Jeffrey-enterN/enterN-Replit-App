@@ -8,7 +8,7 @@ import { type VariantProps } from "class-variance-authority";
  * Controls font size, weight, alignment, and colors
  */
 export interface TextProps
-  extends React.HTMLAttributes<HTMLParagraphElement>,
+  extends Omit<React.HTMLAttributes<HTMLParagraphElement>, 'color'>,
     VariantProps<typeof textVariants> {
   as?: React.ElementType;
 }

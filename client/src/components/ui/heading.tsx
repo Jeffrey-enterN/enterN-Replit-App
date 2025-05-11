@@ -8,7 +8,7 @@ import { type VariantProps } from "class-variance-authority";
  * Supports different levels (h1-h6), text alignment, and color variants
  */
 export interface HeadingProps
-  extends React.HTMLAttributes<HTMLHeadingElement>,
+  extends Omit<React.HTMLAttributes<HTMLHeadingElement>, 'color'>,
     VariantProps<typeof headingVariants> {
   as?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
 }

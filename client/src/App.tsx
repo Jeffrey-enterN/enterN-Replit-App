@@ -37,6 +37,7 @@ import NewJobPage from "@/pages/employer/jobs/new";
 import SliderPreferencesPage from "@/pages/employer/slider-preferences-page";
 import MigrationPage from "@/pages/migration-page";
 import NotFound from "@/pages/not-found";
+import DesignSystemPage from "@/pages/design-system-page";
 
 // Lazy-loaded admin pages
 const DatabaseOperationsPage = lazy(() => import("@/pages/admin/database-operations"));
@@ -129,6 +130,7 @@ function Router() {
       <Route path="/admin/database-operations" component={DatabaseOperationsPage} />
       <Route path="/admin/jobs" component={JobsViewPage} />
       <Route path="/admin/migration" component={MigrationPage} />
+      <Route path="/design-system" component={DesignSystemPage} />
       <Route component={NotFound} />
     </Switch>
   );
