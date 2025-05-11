@@ -223,9 +223,9 @@ Requirements:
       <div className="container py-8">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-bold">Create New Job Posting</h1>
+            <h1 className="text-2xl font-bold">Job Management</h1>
             <p className="text-muted-foreground">
-              Fill out the details to create a new job posting for your company
+              Create a new job posting for your company
             </p>
           </div>
         </div>
@@ -234,9 +234,9 @@ Requirements:
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <Card>
               <CardHeader>
-                <CardTitle>Job Details</CardTitle>
+                <CardTitle>Create New Job Posting</CardTitle>
                 <CardDescription>
-                  Basic information about the position
+                  Enter all the details about the position you're offering
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
