@@ -183,7 +183,7 @@ export default function JobsPage() {
       <div className="container py-8">
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h2 className="text-2xl font-bold">Job Postings</h2>
+            <h1 className="text-2xl font-bold">Job Management</h1>
             <p className="text-muted-foreground">
               Create and manage job postings for your company
             </p>
@@ -196,7 +196,13 @@ export default function JobsPage() {
         </div>
 
         <Card>
-          <CardContent className="p-6">
+          <CardHeader>
+            <CardTitle>Job Postings</CardTitle>
+            <CardDescription>
+              View and manage all your company's active and paused job listings
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
             {isJobsLoading ? (
               <div className="flex justify-center items-center p-8">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
