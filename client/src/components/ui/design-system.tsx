@@ -30,11 +30,45 @@ export { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 export { Toast, ToastAction } from '@/components/ui/toast';
 export { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
-// Re-export utility functions
+// Re-export utility functions selectively to avoid conflicts
 export { cn } from '@/lib/utils';
-export * from '@/lib/utils';
-export * from '@/lib/design-tokens';
-export * from '@/components/ui/variants';
+export { 
+  formatDate, 
+  formatDateForInput, 
+  getInitials, 
+  truncateText,
+  cardStyles,
+  animations,
+  statusVariants,
+  layouts
+} from '@/lib/utils';
+
+// Export design tokens
+export { 
+  brandColors,
+  semanticColors,
+  typography,
+  spacing,
+  borderRadius,
+  shadows,
+  zIndex,
+  animation,
+  breakpoints,
+  layoutPatterns,
+  gradients
+} from '@/lib/design-tokens';
+
+// Export variants selectively
+export {
+  containerVariants,
+  sectionVariants,
+  cardVariants,
+  headingVariants,
+  textVariants,
+  badgeExtendedVariants,
+  gridVariants,
+  flexVariants
+} from '@/components/ui/variants';
 
 /**
  * Design System Documentation Component
