@@ -1,0 +1,26 @@
+
+I need help cleaning up and refactoring a React project that uses TailwindCSS. The current UI is made up of many components, but the styling is scattered, repetitive, and not scalable. I want to structure it so that branding or layout changes can be made once and reflected everywhere.
+
+Please follow these steps:
+	1.	Centralize UI components
+Move all repeated UI elements (e.g., Button, Input, Card, Container, Heading, etc.) into a components/ui/ directory. Each should be a reusable component that accepts props and applies consistent Tailwind utility classes.
+	2.	Create a design system using Tailwind’s config
+Update tailwind.config.js to define a centralized theme with:
+
+	•	Custom color palette for brand colors
+	•	Font families and sizes
+	•	Spacing scale
+	•	Border radius and shadow presets
+	•	Any variants (hover, focus, etc.) that are reused across the app
+
+Components should use classes derived from this config to ensure consistency.
+	3.	Use shared utility classes
+If you see common patterns (like card shadows, form control spacing, text sizes), create custom utility classes or extract them into reusable class strings or clsx/classnames helpers.
+	4.	Refactor duplicated Tailwind classes
+Scan the project for duplicated class strings across components and pages. Migrate these into reusable components or helper functions to reduce redundancy and improve maintainability.
+	5.	Ensure responsiveness and accessibility
+Apply responsive Tailwind classes and verify all components follow accessible design patterns (e.g., labeled inputs, correct contrast ratios, focus states).
+	6.	Update all imports
+Once reusable components are created, update all component and page files to import from components/ui/ instead of manually duplicating markup and Tailwind classes.
+
+Goal: I want to be able to change a brand color, font size, or layout spacing in one place (via Tailwind config or a shared component), and see that update reflected across the app. This should make the UI scalable, maintainable, and consistent.
