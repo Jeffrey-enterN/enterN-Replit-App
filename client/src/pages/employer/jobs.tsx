@@ -57,7 +57,7 @@ import { Badge } from '@/components/ui/badge';
 import { Building, Calendar, Edit, MoreHorizontal, Plus, Trash2, Users } from 'lucide-react';
 import { Link } from 'wouter';
 import { Loader2 } from 'lucide-react';
-import EmployerLayout from '@/components/layouts/employer-layout';
+//import EmployerLayout from '@/components/layouts/employer-layout'; // Removed to prevent double navbar
 
 interface JobPosting {
   id: string;
@@ -179,163 +179,161 @@ export default function JobsPage() {
   const filteredJobs = jobPostings || [];
 
   return (
-    <EmployerLayout>
-      <div className="container py-8">
-        <div className="flex justify-between items-center mb-6">
-          <div>
-            <h1 className="text-2xl font-bold">Job Management</h1>
-            <p className="text-muted-foreground">
-              Create and manage job postings for your company
-            </p>
-          </div>
-          <Button>
-            <Link href="/employer/jobs/new">
-              <Plus className="mr-2 h-4 w-4" /> Create Job Posting
-            </Link>
-          </Button>
+    <div className="container py-8">
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h1 className="text-2xl font-bold">Job Management</h1>
+          <p className="text-muted-foreground">
+            Create and manage job postings for your company
+          </p>
         </div>
+        <Button>
+          <Link href="/employer/jobs/new">
+            <Plus className="mr-2 h-4 w-4" /> Create Job Posting
+          </Link>
+        </Button>
+      </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Job Postings</CardTitle>
-            <CardDescription>
-              View and manage all your company's active and paused job listings
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {isJobsLoading ? (
-              <div className="flex justify-center items-center p-8">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              </div>
-            ) : filteredJobs.length === 0 ? (
-              <div className="text-center p-8">
-                <h3 className="font-medium text-lg mb-2">No job postings found</h3>
-                <p className="text-muted-foreground mb-4">
-                  Get started by creating your first job posting to find matching candidates.
-                </p>
-                <Button>
-                  <Link href="/employer/jobs/new">
-                    <Plus className="mr-2 h-4 w-4" /> Create your first job posting
-                  </Link>
-                </Button>
-              </div>
-            ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Position</TableHead>
-                    <TableHead>Location</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Matches</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredJobs.map((job) => (
-                    <TableRow key={job.id}>
-                      <TableCell className="font-medium">
-                        <div>
-                          <div className="font-medium">{job.title}</div>
-                          <div className="text-sm text-muted-foreground">{job.department}</div>
-                        </div>
-                      </TableCell>
-                      <TableCell>{job.location}</TableCell>
-                      <TableCell>
-                        <div className="flex flex-col">
-                          <span>{job.employmentType}</span>
-                          <span className="text-xs text-muted-foreground">{job.workType}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>{getStatusBadge(job.status)}</TableCell>
-                      <TableCell>
-                        <Badge variant="outline">{job.matchCount || 0}</Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem asChild>
-                              <Link href={`/employer/jobs/${job.id}`}>
-                                <Edit className="mr-2 h-4 w-4" />
-                                Edit Job
-                              </Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            {job.status === 'active' ? (
-                              <DropdownMenuItem 
-                                onClick={() => updateJobStatusMutation.mutate({ 
-                                  jobId: job.id, 
-                                  status: 'paused' 
-                                })}
-                              >
-                                <span className="text-yellow-500 mr-2">⏸</span>
-                                Pause Listing
-                              </DropdownMenuItem>
-                            ) : job.status === 'paused' ? (
-                              <DropdownMenuItem 
-                                onClick={() => updateJobStatusMutation.mutate({ 
-                                  jobId: job.id, 
-                                  status: 'active' 
-                                })}
-                              >
-                                <span className="text-green-500 mr-2">▶️</span>
-                                Activate Listing
-                              </DropdownMenuItem>
-                            ) : null}
+      <Card>
+        <CardHeader>
+          <CardTitle>Job Postings</CardTitle>
+          <CardDescription>
+            View and manage all your company's active and paused job listings
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {isJobsLoading ? (
+            <div className="flex justify-center items-center p-8">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          ) : filteredJobs.length === 0 ? (
+            <div className="text-center p-8">
+              <h3 className="font-medium text-lg mb-2">No job postings found</h3>
+              <p className="text-muted-foreground mb-4">
+                Get started by creating your first job posting to find matching candidates.
+              </p>
+              <Button>
+                <Link href="/employer/jobs/new">
+                  <Plus className="mr-2 h-4 w-4" /> Create your first job posting
+                </Link>
+              </Button>
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Position</TableHead>
+                  <TableHead>Location</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Matches</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredJobs.map((job) => (
+                  <TableRow key={job.id}>
+                    <TableCell className="font-medium">
+                      <div>
+                        <div className="font-medium">{job.title}</div>
+                        <div className="text-sm text-muted-foreground">{job.department}</div>
+                      </div>
+                    </TableCell>
+                    <TableCell>{job.location}</TableCell>
+                    <TableCell>
+                      <div className="flex flex-col">
+                        <span>{job.employmentType}</span>
+                        <span className="text-xs text-muted-foreground">{job.workType}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>{getStatusBadge(job.status)}</TableCell>
+                    <TableCell>
+                      <Badge variant="outline">{job.matchCount || 0}</Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem asChild>
+                            <Link href={`/employer/jobs/${job.id}`}>
+                              <Edit className="mr-2 h-4 w-4" />
+                              Edit Job
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          {job.status === 'active' ? (
                             <DropdownMenuItem 
                               onClick={() => updateJobStatusMutation.mutate({ 
                                 jobId: job.id, 
-                                status: 'closed' 
+                                status: 'paused' 
                               })}
-                              className="text-destructive"
                             >
-                              Close Listing
+                              <span className="text-yellow-500 mr-2">⏸</span>
+                              Pause Listing
                             </DropdownMenuItem>
-                            <DropdownMenuSeparator />
+                          ) : job.status === 'paused' ? (
                             <DropdownMenuItem 
-                              onClick={() => confirmDelete(job)}
-                              className="text-destructive"
+                              onClick={() => updateJobStatusMutation.mutate({ 
+                                jobId: job.id, 
+                                status: 'active' 
+                              })}
                             >
-                              <Trash2 className="mr-2 h-4 w-4" />
-                              Delete
+                              <span className="text-green-500 mr-2">▶️</span>
+                              Activate Listing
                             </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            )}
-          </CardContent>
-        </Card>
+                          ) : null}
+                          <DropdownMenuItem 
+                            onClick={() => updateJobStatusMutation.mutate({ 
+                              jobId: job.id, 
+                              status: 'closed' 
+                            })}
+                            className="text-destructive"
+                          >
+                            Close Listing
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem 
+                            onClick={() => confirmDelete(job)}
+                            className="text-destructive"
+                          >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
 
-        {/* Delete Confirmation Dialog */}
-        <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-              <AlertDialogDescription>
-                This action will permanently delete this job posting and cannot be undone.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction
-                onClick={executeDelete}
-                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              >
-                Delete
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      </div>
-    </EmployerLayout>
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action will permanently delete this job posting and cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={executeDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
   );
 }
