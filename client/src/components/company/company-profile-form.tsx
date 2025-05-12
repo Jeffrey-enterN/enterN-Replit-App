@@ -220,13 +220,62 @@ export function CompanyProfileForm({ companyId }: { companyId?: number }) {
       companyId?: number;
       step: number;
     }) => {
-      const res = await apiRequest('POST', '/api/employer/company-profile/draft', payload);
-      
-      if (!res.ok) {
-        throw new Error('Failed to save company profile draft');
+      try {
+        // Process yearFounded before sending - ensuring proper format
+        if (payload.draftData.yearFounded) {
+          // Make sure it's a valid year
+          const yearNumber = parseInt(payload.draftData.yearFounded);
+          if (!isNaN(yearNumber)) {
+            payload.draftData.yearFounded = String(yearNumber);
+          } else {
+            // Invalid year format - set to empty string
+            payload.draftData.yearFounded = '';
+          }
+        }
+        
+        // Ensure arrays are properly initialized
+        if (!Array.isArray(payload.draftData.industries)) {
+          payload.draftData.industries = [];
+        }
+        
+        if (!Array.isArray(payload.draftData.functionalAreas)) {
+          payload.draftData.functionalAreas = [];
+        }
+        
+        if (!Array.isArray(payload.draftData.workArrangements)) {
+          payload.draftData.workArrangements = [];
+        }
+        
+        if (!Array.isArray(payload.draftData.benefits)) {
+          payload.draftData.benefits = [];
+        }
+        
+        const res = await apiRequest('POST', '/api/employer/company-profile/draft', payload);
+        
+        if (!res.ok) {
+          // Try to parse error response
+          let errorMessage = 'Failed to save company profile draft';
+          
+          try {
+            const errorData = await res.json();
+            
+            if (errorData.message) {
+              errorMessage = errorData.message;
+            }
+            
+            console.error('API error when saving draft:', errorData);
+          } catch (jsonError) {
+            console.error('Could not parse error response as JSON:', jsonError);
+          }
+          
+          throw new Error(errorMessage);
+        }
+        
+        return await res.json();
+      } catch (error) {
+        console.error('Error in saveDraftMutation:', error);
+        throw error;
       }
-      
-      return await res.json();
     }
   });
   
@@ -234,15 +283,43 @@ export function CompanyProfileForm({ companyId }: { companyId?: number }) {
   const createCompanyMutation = useMutation({
     mutationFn: async (formData: CompanyProfileFormValues) => {
       console.log('Making API request to /api/company with form data:', formData);
-      const res = await apiRequest('POST', '/api/company', formData);
-      
-      if (!res.ok) {
-        const errorData = await res.json().catch(() => ({}));
-        console.error('API error response:', res.status, errorData);
-        throw new Error(errorData.error || 'Failed to create company profile');
+      try {
+        const res = await apiRequest('POST', '/api/company', formData);
+        
+        if (!res.ok) {
+          // Try to parse the error response JSON
+          let errorMessage = 'Failed to create company profile';
+          let errorDetail = null;
+          
+          try {
+            const errorData = await res.json();
+            console.error('API error response:', res.status, errorData);
+            
+            if (errorData.message) {
+              errorMessage = errorData.message;
+            }
+            
+            if (errorData.detail) {
+              errorDetail = errorData.detail;
+            }
+            
+            // Check for field-specific errors
+            if (errorData.field === 'yearFounded') {
+              errorMessage = 'Invalid year format. Please enter a valid year or leave it empty.';
+            }
+          } catch (jsonError) {
+            console.error('Could not parse error response as JSON:', jsonError);
+          }
+          
+          throw new Error(errorMessage + (errorDetail ? `: ${errorDetail}` : ''));
+        }
+        
+        return await res.json();
+      } catch (error: any) {
+        console.error('Error in mutation:', error);
+        // Re-throw to be handled by onError
+        throw error;
       }
-      
-      return await res.json();
     },
     onSuccess: (data) => {
       toast({
@@ -252,10 +329,10 @@ export function CompanyProfileForm({ companyId }: { companyId?: number }) {
       // Redirect to dashboard
       setLocation('/employer/dashboard');
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast({
         title: 'Creation failed',
-        description: error.message,
+        description: error.message || 'An unexpected error occurred',
         variant: 'destructive',
       });
     }
@@ -540,9 +617,42 @@ export function CompanyProfileForm({ companyId }: { companyId?: number }) {
   // Final submission
   const onSubmit = async (values: CompanyProfileFormValues) => {
     try {
-      console.log('Form submission started with values:', values);
+      // Pre-process form values to ensure proper format before submission
+      const processedValues = { ...values };
+      
+      // Handle yearFounded
+      if (processedValues.yearFounded === '') {
+        processedValues.yearFounded = undefined; // Let the server handle converting to null
+      } else if (processedValues.yearFounded) {
+        // Make sure it's a valid year number
+        const yearNumber = parseInt(processedValues.yearFounded);
+        if (!isNaN(yearNumber)) {
+          processedValues.yearFounded = String(yearNumber); // Convert back to string as expected by the form
+        } else {
+          processedValues.yearFounded = ''; // Invalid year, send empty string
+        }
+      }
+      
+      // Ensure arrays are properly initialized
+      if (!Array.isArray(processedValues.industries)) {
+        processedValues.industries = [];
+      }
+      
+      if (!Array.isArray(processedValues.functionalAreas)) {
+        processedValues.functionalAreas = [];
+      }
+      
+      if (!Array.isArray(processedValues.workArrangements)) {
+        processedValues.workArrangements = [];
+      }
+      
+      if (!Array.isArray(processedValues.benefits)) {
+        processedValues.benefits = [];
+      }
+      
+      console.log('Form submission started with processed values:', processedValues);
       setIsLoading(true);
-      await createCompanyMutation.mutateAsync(values);
+      await createCompanyMutation.mutateAsync(processedValues);
     } catch (error: any) {
       console.error('Form submission error:', error);
       toast({
@@ -785,10 +895,20 @@ export function CompanyProfileForm({ companyId }: { companyId?: number }) {
                 <FormItem>
                   <FormLabel>Year Founded (Optional)</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter year founded (e.g., 2010)" {...field} />
+                    <Input 
+                      placeholder="Enter year founded (e.g., 2010)" 
+                      {...field} 
+                      onChange={(e) => {
+                        // Filter out non-numeric characters
+                        const value = e.target.value.replace(/[^\d]/g, '');
+                        // Limit to 4 digits
+                        const limitedValue = value.slice(0, 4);
+                        field.onChange(limitedValue);
+                      }}
+                    />
                   </FormControl>
                   <FormDescription>
-                    Enter a valid 4-digit year (e.g., 2010)
+                    Enter a valid 4-digit year (e.g., 2010). Leave empty if unknown.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
