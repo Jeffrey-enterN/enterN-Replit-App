@@ -93,7 +93,7 @@ const companyProfileSchema = z.object({
   about: z.string().min(1, FORM_VALIDATION.required),
   mission: z.string().optional(), // Made optional
   vision: z.string().optional(),
-  values: z.array(z.string()).optional(),
+  values: z.union([z.array(z.string()), z.string()]).optional(),
   
   // Step 3: Work Environment & Development Programs (Combined)
   workArrangements: z.array(z.string()).min(1, "Select at least one work arrangement"),
@@ -248,6 +248,13 @@ export function CompanyProfileForm({ companyId }: { companyId?: number }) {
         
         if (!Array.isArray(payload.draftData.benefits)) {
           payload.draftData.benefits = [];
+        }
+        
+        // Handle 'values' field - convert array to string for backend compatibility
+        if (Array.isArray(payload.draftData.values)) {
+          // Join array elements with commas to create a single string
+          // @ts-ignore - we know it's an array due to the check above
+          payload.draftData.values = payload.draftData.values.join(', ');
         }
         
         const res = await apiRequest('POST', '/api/employer/company-profile/draft', payload);
@@ -648,6 +655,13 @@ export function CompanyProfileForm({ companyId }: { companyId?: number }) {
       
       if (!Array.isArray(processedValues.benefits)) {
         processedValues.benefits = [];
+      }
+      
+      // Handle 'values' field - convert array to string for backend compatibility
+      if (Array.isArray(processedValues.values)) {
+        // Join array elements with commas to create a single string
+        // @ts-ignore - we know it's an array due to the check above
+        processedValues.values = processedValues.values.join(', ');
       }
       
       console.log('Form submission started with processed values:', processedValues);

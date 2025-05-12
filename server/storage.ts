@@ -2697,6 +2697,12 @@ export class DatabaseStorage implements IStorage {
         processedData.benefits = [];
       }
       
+      // Handle values field - ensure it's a string (not an array) for database compatibility
+      if (processedData.values && Array.isArray(processedData.values)) {
+        // @ts-ignore - We're handling the type conversion ourselves
+        processedData.values = processedData.values.join(', ');
+      }
+      
       // Ensure date fields are proper Date objects
       processedData.createdAt = new Date();
       processedData.updatedAt = new Date();
@@ -2772,6 +2778,12 @@ export class DatabaseStorage implements IStorage {
       
       if (processedData.benefits && !Array.isArray(processedData.benefits)) {
         processedData.benefits = [];
+      }
+      
+      // Handle values field - ensure it's a string (not an array) for database compatibility
+      if (processedData.values && Array.isArray(processedData.values)) {
+        // @ts-ignore - We're handling the type conversion ourselves
+        processedData.values = processedData.values.join(', ');
       }
       
       // Always use fresh Date object for updatedAt
