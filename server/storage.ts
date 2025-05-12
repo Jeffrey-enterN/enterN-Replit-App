@@ -2631,36 +2631,126 @@ export class DatabaseStorage implements IStorage {
   }
   
   async createCompany(companyData: any, creatorUserId: number): Promise<Company> {
-    const [company] = await db
-      .insert(companies)
-      .values(companyData)
-      .returning();
-    
-    // Update the creator user to be an admin of this company
-    await db
-      .update(users)
-      .set({
-        companyId: company.id,
-        companyRole: 'admin',
-        updatedAt: new Date()
-      })
-      .where(eq(users.id, creatorUserId));
-    
-    return company;
+    try {
+      // Sanitize and prepare the data
+      const sanitizedData = this.sanitizeData(companyData);
+      
+      // Handle specific fields that need processing
+      const processedData = { ...sanitizedData };
+      
+      // Handle yearFounded specifically - must be number or null for DB
+      if (processedData.yearFounded === '') {
+        processedData.yearFounded = null;
+      } else if (processedData.yearFounded !== null && processedData.yearFounded !== undefined) {
+        // Try to convert to integer
+        const yearAsNumber = parseInt(processedData.yearFounded);
+        if (!isNaN(yearAsNumber)) {
+          processedData.yearFounded = yearAsNumber;
+        } else {
+          processedData.yearFounded = null;
+        }
+      }
+      
+      // Ensure arrays are properly handled
+      if (processedData.industries && !Array.isArray(processedData.industries)) {
+        processedData.industries = [];
+      }
+      
+      if (processedData.functionalAreas && !Array.isArray(processedData.functionalAreas)) {
+        processedData.functionalAreas = [];
+      }
+      
+      if (processedData.workArrangements && !Array.isArray(processedData.workArrangements)) {
+        processedData.workArrangements = [];
+      }
+      
+      if (processedData.benefits && !Array.isArray(processedData.benefits)) {
+        processedData.benefits = [];
+      }
+      
+      console.log('Sanitized company data for creation:', 
+        JSON.stringify({
+          ...processedData,
+          yearFounded: processedData.yearFounded
+        })
+      );
+      
+      // Insert into database
+      const [company] = await db
+        .insert(companies)
+        .values(processedData)
+        .returning();
+      
+      // Update the creator user to be an admin of this company
+      await db
+        .update(users)
+        .set({
+          companyId: company.id,
+          companyRole: 'admin',
+          updatedAt: new Date()
+        })
+        .where(eq(users.id, creatorUserId));
+      
+      return company;
+    } catch (error) {
+      console.error('Error creating company:', error);
+      throw error;
+    }
   }
   
   async updateCompany(companyId: number, companyData: any): Promise<Company> {
-    // Sanitize companyData to handle dates and prevent toISOString errors
-    const sanitizedCompanyData = this.sanitizeData(companyData);
-    
-    // Remove any circular references or problematic fields
-    const { updatedAt, createdAt, ...safeData } = sanitizedCompanyData;
-    
     try {
+      // Sanitize and prepare the data
+      const sanitizedData = this.sanitizeData(companyData);
+      
+      // Remove any circular references or problematic fields
+      const { updatedAt, createdAt, ...safeData } = sanitizedData;
+      
+      // Handle specific fields that need processing
+      const processedData = { ...safeData };
+      
+      // Handle yearFounded specifically - must be number or null for DB
+      if (processedData.yearFounded === '') {
+        processedData.yearFounded = null;
+      } else if (processedData.yearFounded !== null && processedData.yearFounded !== undefined) {
+        // Try to convert to integer
+        const yearAsNumber = parseInt(processedData.yearFounded);
+        if (!isNaN(yearAsNumber)) {
+          processedData.yearFounded = yearAsNumber;
+        } else {
+          processedData.yearFounded = null;
+        }
+      }
+      
+      // Ensure arrays are properly handled
+      if (processedData.industries && !Array.isArray(processedData.industries)) {
+        processedData.industries = [];
+      }
+      
+      if (processedData.functionalAreas && !Array.isArray(processedData.functionalAreas)) {
+        processedData.functionalAreas = [];
+      }
+      
+      if (processedData.workArrangements && !Array.isArray(processedData.workArrangements)) {
+        processedData.workArrangements = [];
+      }
+      
+      if (processedData.benefits && !Array.isArray(processedData.benefits)) {
+        processedData.benefits = [];
+      }
+      
+      console.log('Sanitized company data for update:', 
+        JSON.stringify({
+          id: companyId,
+          yearFounded: processedData.yearFounded
+        })
+      );
+      
+      // Update in database
       const [updatedCompany] = await db
         .update(companies)
         .set({
-          ...safeData,
+          ...processedData,
           updatedAt: new Date()
         })
         .where(eq(companies.id, companyId))

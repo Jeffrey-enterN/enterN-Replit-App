@@ -2268,6 +2268,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (error) {
       console.error("Error saving company profile:", error);
+      
+      // Check for specific database error types
+      const pgError = error as any;
+      if (pgError.code === '22P02') {
+        // Invalid input syntax error (type conversion failure)
+        const errorDetail = pgError.where || pgError.detail || '';
+        let fieldName = 'unknown field';
+        
+        // Try to extract field name from error message
+        if (errorDetail.includes('yearFounded')) {
+          fieldName = 'yearFounded';
+        } else if (errorDetail.match(/parameter \$\d+/)) {
+          const paramMatch = errorDetail.match(/parameter \$(\d+)/);
+          if (paramMatch) {
+            fieldName = `parameter ${paramMatch[1]}`;
+          }
+        }
+        
+        return res.status(400).json({
+          message: `Invalid data format for ${fieldName}. Please check your input.`,
+          detail: pgError.message,
+          field: fieldName,
+          _meta: {
+            userId: req.user?.id,
+            companyId: parsedCompanyId,
+            timestamp: new Date().toISOString(),
+            errorType: 'InvalidDataFormat'
+          }
+        });
+      }
+      
+      // Generic error response
       res.status(500).json({ 
         message: (error as Error).message,
         _meta: {
