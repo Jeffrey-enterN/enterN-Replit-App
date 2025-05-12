@@ -9,6 +9,8 @@ import RecentMatches, { Match } from '@/components/dashboard/recent-matches';
 import { useAuth } from '@/context/auth-context';
 import { USER_TYPES } from '@/lib/constants';
 import { apiRequest, queryClient } from '@/lib/queryClient';
+import { Button } from '@/components/ui/button';
+import { Briefcase, Building2, MapPin, ExternalLink } from 'lucide-react';
 
 // Interface for employer data in match card
 interface EmployerMatch {
@@ -18,6 +20,19 @@ interface EmployerMatch {
   description: string;
   positions: string[];
   logo?: string;
+}
+
+// Interface for job posting data
+interface JobPosting {
+  id: string;
+  title: string;
+  companyName: string;
+  location: string;
+  description: string;
+  workType: string | string[];
+  employmentType: string;
+  department: string;
+  companyId: number;
 }
 
 export default function JobseekerDashboard() {
@@ -39,12 +54,22 @@ export default function JobseekerDashboard() {
   });
 
   // Fetch potential matches
-  const { data: potentialMatches = [], refetch: refetchPotentialMatches } = useQuery({
+  const { data: potentialMatches = [], refetch: refetchPotentialMatches } = useQuery<EmployerMatch[]>({
     queryKey: ['/api/jobseeker/matches/potential'],
     enabled: !!user && user.userType === USER_TYPES.JOBSEEKER,
   });
+  
+  // Fetch available jobs for jobs feed
+  const { data: availableJobs = [], isLoading: isLoadingJobs } = useQuery<JobPosting[]>({
+    queryKey: ['/api/jobseeker/jobs/available'],
+    enabled: !!user && user.userType === USER_TYPES.JOBSEEKER,
+    select: (data) => {
+      // Extract just the first few jobs for the dashboard preview
+      return Array.isArray(data) ? data.slice(0, 3) : [];
+    }
+  });
 
-  const currentEmployer = potentialMatches[0] as EmployerMatch | undefined;
+  const currentEmployer = potentialMatches[0];
 
   // Handle interest/not interest
   const swipeMutation = useMutation({
@@ -118,6 +143,91 @@ export default function JobseekerDashboard() {
         emptyMessage="You haven't matched with any employers yet. Start swiping to find matches!"
         viewAllLink="/jobseeker/matches"
       />
+
+      {/* Jobs Feed */}
+      <div className="bg-white dark:bg-gray-700 shadow-md rounded-lg overflow-hidden mb-8 border border-border transform transition-all hover:shadow-lg">
+        <div className="px-4 py-5 border-b border-border sm:px-6 flex justify-between items-center">
+          <div>
+            <h3 className="text-lg leading-6 font-medium text-foreground">Jobs Feed</h3>
+            <p className="mt-1 text-sm text-muted-foreground">Discover job opportunities tailored to your skills and preferences.</p>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigate('/jobseeker/jobs-feed-optimized')}
+            className="flex items-center"
+          >
+            <ExternalLink className="h-4 w-4 mr-2" />
+            View All Jobs
+          </Button>
+        </div>
+        <div className="px-4 py-6 sm:p-6">
+          {isLoadingJobs ? (
+            <div className="text-center py-8">
+              <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mx-auto"></div>
+              <p className="mt-2 text-sm text-muted-foreground">Loading available jobs...</p>
+            </div>
+          ) : availableJobs.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {availableJobs.map(job => {
+                // Parse workType if it's a string
+                let workTypeArray = [];
+                try {
+                  workTypeArray = typeof job.workType === 'string' 
+                    ? JSON.parse(job.workType) 
+                    : (Array.isArray(job.workType) ? job.workType : []);
+                } catch (error) {
+                  workTypeArray = Array.isArray(job.workType) ? job.workType : [];
+                }
+                
+                return (
+                  <div 
+                    key={job.id} 
+                    className="rounded-lg border border-border bg-card text-card-foreground shadow-sm overflow-hidden hover:shadow-md transition-shadow"
+                  >
+                    <div className="p-4">
+                      <h4 className="font-semibold text-md mb-1 truncate">{job.title}</h4>
+                      <div className="flex items-center text-sm text-muted-foreground mb-2">
+                        <Building2 className="h-3.5 w-3.5 mr-1 flex-shrink-0" />
+                        <span className="truncate">{job.companyName}</span>
+                      </div>
+                      <div className="flex items-center text-sm text-muted-foreground mb-2">
+                        <MapPin className="h-3.5 w-3.5 mr-1 flex-shrink-0" />
+                        <span className="truncate">{job.location}</span>
+                      </div>
+                      <div className="flex items-start text-sm text-muted-foreground mb-3">
+                        <Briefcase className="h-3.5 w-3.5 mr-1 mt-0.5 flex-shrink-0" />
+                        <div className="flex flex-wrap gap-1">
+                          {workTypeArray.map((type, index) => (
+                            <span key={index} className="bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-xs">
+                              {type}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                      <Button
+                        variant="link"
+                        className="p-0 h-auto text-primary"
+                        onClick={() => navigate(`/jobseeker/jobs-feed-optimized?jobId=${job.id}`)}
+                      >
+                        View details
+                        <ExternalLink className="h-3 w-3 ml-1" />
+                      </Button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <h3 className="text-lg font-medium text-foreground">No new jobs available</h3>
+              <p className="mt-2 text-sm text-muted-foreground">
+                You've reviewed all available jobs. Check back soon as new positions are added regularly.
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
     </JobseekerLayout>
   );
 }
