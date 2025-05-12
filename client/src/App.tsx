@@ -38,6 +38,7 @@ import SliderPreferencesPage from "@/pages/employer/slider-preferences-page";
 import MigrationPage from "@/pages/migration-page";
 import NotFound from "@/pages/not-found";
 import DesignSystemPage from "@/pages/design-system-page";
+import SiteMap from "@/pages/site-map";
 
 // Lazy-loaded admin pages
 const DatabaseOperationsPage = lazy(() => import("@/pages/admin/database-operations"));
@@ -58,6 +59,7 @@ function Router() {
       <Route path="/privacy-policy" component={PrivacyPolicyPage} />
       <Route path="/terms-of-service" component={TermsOfServicePage} />
       <Route path="/support" component={SupportPage} />
+      <Route path="/site-map" component={SiteMap} />
       <ProtectedRoute path="/contact-details" component={ContactDetailsPage} />
       <ProtectedRoute path="/jobseeker/dashboard" component={JobseekerDashboard} />
       <ProtectedRoute path="/jobseeker/profile" component={JobseekerProfilePage} />

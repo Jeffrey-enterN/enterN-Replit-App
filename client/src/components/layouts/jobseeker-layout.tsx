@@ -33,6 +33,11 @@ export default function JobseekerLayout({ children }: JobseekerLayoutProps) {
                 Terms
               </Link>
             </div>
+            <div className="px-5 py-2">
+              <Link href="/site-map" className="text-sm text-gray-500 hover:text-gray-900">
+                Site Map
+              </Link>
+            </div>
           </nav>
           <p className="mt-4 text-center text-xs text-gray-400">
             &copy; 2025 enterN, Inc. All rights reserved.
