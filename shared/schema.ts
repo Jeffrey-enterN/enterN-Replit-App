@@ -53,7 +53,7 @@ export const companies = pgTable("companies", {
     preferredSides: Record<string, "left" | "right">
   }>(),
   mission: text("mission"),
-  values: text("values"),
+  values: jsonb("values").$type<string[]>(), // Changed from text to jsonb array
   benefits: jsonb("benefits").$type<string[]>(),
   additionalBenefits: text("additional_benefits"),
   hasInterns: boolean("has_interns").default(false),

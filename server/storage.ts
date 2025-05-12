@@ -1126,9 +1126,21 @@ export class DatabaseStorage implements IStorage {
       return data;
     }
     
-    // Handle Date objects
+    // Handle Date objects safely
     if (data instanceof Date) {
-      return data.toISOString();
+      // Return the actual Date object instead of converting to string
+      // This ensures proper handling by Drizzle ORM's timestamp columns
+      return data;
+    }
+    
+    // Handle date-like strings and convert them to Date objects
+    if (typeof data === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(data)) {
+      try {
+        return new Date(data);
+      } catch (e) {
+        // If conversion fails, return the original string
+        return data;
+      }
     }
     
     // Handle arrays
@@ -1141,8 +1153,25 @@ export class DatabaseStorage implements IStorage {
       const result: { [key: string]: any } = {};
       for (const key in data) {
         if (Object.prototype.hasOwnProperty.call(data, key)) {
+          // Special handling for date fields
+          if (key === 'createdAt' || key === 'updatedAt') {
+            // Ensure these are proper Date objects
+            if (data[key] instanceof Date) {
+              result[key] = data[key];
+            } else if (data[key] && typeof data[key] === 'string') {
+              try {
+                result[key] = new Date(data[key]);
+              } catch (e) {
+                // If conversion fails, use current date
+                result[key] = new Date();
+              }
+            } else {
+              // Use current date as default
+              result[key] = new Date();
+            }
+          }
           // Special handling for yearFounded field
-          if (key === 'yearFounded') {
+          else if (key === 'yearFounded') {
             // Convert empty string to null
             if (data[key] === '') {
               result[key] = null;
@@ -2668,9 +2697,13 @@ export class DatabaseStorage implements IStorage {
         processedData.benefits = [];
       }
       
+      // Ensure date fields are proper Date objects
+      processedData.createdAt = new Date();
+      processedData.updatedAt = new Date();
+      
       console.log('Sanitized company data for creation:', 
         JSON.stringify({
-          ...processedData,
+          name: processedData.name,
           yearFounded: processedData.yearFounded
         })
       );
@@ -2704,7 +2737,9 @@ export class DatabaseStorage implements IStorage {
       const sanitizedData = this.sanitizeData(companyData);
       
       // Remove any circular references or problematic fields
-      const { updatedAt, createdAt, ...safeData } = sanitizedData;
+      // Don't use destructuring here to avoid issues with date fields
+      const safeData = { ...sanitizedData };
+      delete safeData.createdAt; // Don't modify creation date
       
       // Handle specific fields that need processing
       const processedData = { ...safeData };
@@ -2739,9 +2774,13 @@ export class DatabaseStorage implements IStorage {
         processedData.benefits = [];
       }
       
+      // Always use fresh Date object for updatedAt
+      processedData.updatedAt = new Date();
+      
       console.log('Sanitized company data for update:', 
         JSON.stringify({
           id: companyId,
+          name: processedData.name,
           yearFounded: processedData.yearFounded
         })
       );
@@ -2749,10 +2788,7 @@ export class DatabaseStorage implements IStorage {
       // Update in database
       const [updatedCompany] = await db
         .update(companies)
-        .set({
-          ...processedData,
-          updatedAt: new Date()
-        })
+        .set(processedData)
         .where(eq(companies.id, companyId))
         .returning();
       
