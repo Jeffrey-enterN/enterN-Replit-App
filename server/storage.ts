@@ -1141,7 +1141,23 @@ export class DatabaseStorage implements IStorage {
       const result: { [key: string]: any } = {};
       for (const key in data) {
         if (Object.prototype.hasOwnProperty.call(data, key)) {
-          result[key] = this.sanitizeData(data[key]);
+          // Special handling for yearFounded field
+          if (key === 'yearFounded') {
+            // Convert empty string to null
+            if (data[key] === '') {
+              result[key] = null;
+            }
+            // Convert string to integer
+            else if (data[key] && typeof data[key] === 'string' && /^\d+$/.test(data[key])) {
+              result[key] = parseInt(data[key]);
+            }
+            // Already a number or null
+            else {
+              result[key] = data[key];
+            }
+          } else {
+            result[key] = this.sanitizeData(data[key]);
+          }
         }
       }
       return result;
