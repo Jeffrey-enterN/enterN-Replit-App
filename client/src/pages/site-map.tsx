@@ -46,6 +46,10 @@ export default function SiteMap() {
       { path: '/terms', name: 'Terms of Service', icon: <FileText className="h-4 w-4 mr-2" /> },
       { path: '/site-map', name: 'Site Map', icon: <FileCode className="h-4 w-4 mr-2" /> },
     ],
+    development: [
+      { path: '/design-system', name: 'UI Style Guide', icon: <FileCode className="h-4 w-4 mr-2" /> },
+      { path: '/admin/migration', name: 'Migration Tool', icon: <FileCode className="h-4 w-4 mr-2" /> },
+    ],
     jobseeker: [
       { path: '/jobseeker/dashboard', name: 'Dashboard', icon: <Home className="h-4 w-4 mr-2" /> },
       { path: '/jobseeker/profile', name: 'Profile', icon: <User className="h-4 w-4 mr-2" /> },
@@ -127,6 +131,25 @@ export default function SiteMap() {
           <CardContent>
             <ul className="space-y-2">
               {routes.public.map((route) => (
+                <li key={route.path}>
+                  <Link href={route.path} className="flex items-center text-blue-600 hover:underline">
+                    {route.icon}
+                    {route.name} <span className="text-xs text-muted-foreground ml-2">{route.path}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Development & Design Routes</CardTitle>
+            <CardDescription>Pages for design reference and development</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ul className="space-y-2">
+              {routes.development.map((route) => (
                 <li key={route.path}>
                   <Link href={route.path} className="flex items-center text-blue-600 hover:underline">
                     {route.icon}
