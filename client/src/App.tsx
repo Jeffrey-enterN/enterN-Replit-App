@@ -25,6 +25,7 @@ import EmployerMatchFeed from "@/pages/employer/match-feed";
 import OptimizedMatchFeed from "@/pages/employer/optimized-match-feed";
 import JobseekerMatchFeed from "@/pages/jobseeker/match-feed";
 import JobsFeed from "@/pages/jobseeker/jobs-feed";
+import JobsFeedOptimized from "@/pages/jobseeker/jobs-feed-optimized";
 import JobseekerCalendar from "@/pages/jobseeker/calendar";
 import JobseekerProfilePreview from "@/pages/jobseeker/profile-preview";
 import JobseekerSignUpPage from "@/pages/jobseeker/sign-up-page";
@@ -67,6 +68,7 @@ function Router() {
       <ProtectedRoute path="/jobseeker/profile-preview" component={JobseekerProfilePreview} />
       <ProtectedRoute path="/jobseeker/match-feed" component={JobseekerMatchFeed} />
       <ProtectedRoute path="/jobseeker/jobs-feed" component={JobsFeed} />
+      <ProtectedRoute path="/jobseeker/jobs-feed-optimized" component={JobsFeedOptimized} />
       <ProtectedRoute path="/jobseeker/calendar" component={JobseekerCalendar} />
       <Route path="/employer/dashboard">
         <EmployerLayout>

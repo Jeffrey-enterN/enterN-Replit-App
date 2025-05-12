@@ -218,20 +218,31 @@ export default function JobsFeed() {
   return (
     <JobseekerLayout>
       <div className="container px-4 py-6">
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
           <h1 className="text-2xl font-bold tracking-tight">Jobs Feed</h1>
-          <Button 
-            variant="outline"
-            onClick={() => {
-              refetchAvailableJobs();
-              refetchInterestedJobs();
-              refetchNotInterestedJobs();
-            }}
-            disabled={showLoadingState}
-          >
-            <RefreshCw className="w-4 h-4 mr-2" />
-            Refresh Jobs
-          </Button>
+          <div className="flex gap-2">
+            <Button 
+              variant="outline"
+              onClick={() => navigate('/jobseeker/jobs-feed-optimized')}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="mr-2">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h18M3 14h18M3 18h18M3 6h18" />
+              </svg>
+              Table View
+            </Button>
+            <Button 
+              variant="outline"
+              onClick={() => {
+                refetchAvailableJobs();
+                refetchInterestedJobs();
+                refetchNotInterestedJobs();
+              }}
+              disabled={showLoadingState}
+            >
+              <RefreshCw className="w-4 h-4 mr-2" />
+              Refresh
+            </Button>
+          </div>
         </div>
         
         {showLoadingState ? (

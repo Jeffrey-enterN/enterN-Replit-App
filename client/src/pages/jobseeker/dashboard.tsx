@@ -47,8 +47,18 @@ export default function JobseekerDashboard() {
     }
   }, [user, navigate]);
 
+  // Interface for dashboard data
+  interface DashboardData {
+    stats: {
+      profileCompletion?: { percentage: number };
+      profileViews?: number;
+      matches?: number;
+    };
+    recentMatches: Match[];
+  }
+
   // Fetch dashboard data
-  const { data: dashboardData = { stats: {}, recentMatches: [] } } = useQuery({
+  const { data: dashboardData = { stats: {}, recentMatches: [] } } = useQuery<DashboardData>({
     queryKey: ['/api/jobseeker/dashboard'],
     enabled: !!user && user.userType === USER_TYPES.JOBSEEKER,
   });
@@ -198,7 +208,7 @@ export default function JobseekerDashboard() {
                       <div className="flex items-start text-sm text-muted-foreground mb-3">
                         <Briefcase className="h-3.5 w-3.5 mr-1 mt-0.5 flex-shrink-0" />
                         <div className="flex flex-wrap gap-1">
-                          {workTypeArray.map((type, index) => (
+                          {workTypeArray.map((type: string, index: number) => (
                             <span key={index} className="bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-xs">
                               {type}
                             </span>
