@@ -22,6 +22,7 @@ import JobseekerProfilePage from "@/pages/jobseeker/profile-page";
 import CompanyProfilePage from "@/pages/employer/company-profile-page";
 import CompanyTeamPage from "@/pages/employer/company-team-page";
 import EmployerMatchFeed from "@/pages/employer/match-feed";
+import OptimizedMatchFeed from "@/pages/employer/optimized-match-feed";
 import JobseekerMatchFeed from "@/pages/jobseeker/match-feed";
 import JobsFeed from "@/pages/jobseeker/jobs-feed";
 import JobseekerCalendar from "@/pages/jobseeker/calendar";
@@ -96,6 +97,12 @@ function Router() {
         <ProtectedRoute 
           path="/employer/match-feed" 
           component={EmployerMatchFeed}
+        />
+      </Route>
+      <Route path="/employer/optimized-match-feed">
+        <ProtectedRoute 
+          path="/employer/optimized-match-feed" 
+          component={OptimizedMatchFeed}
         />
       </Route>
       <Route path="/employer/company-profile/preview">
