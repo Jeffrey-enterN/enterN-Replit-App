@@ -127,6 +127,39 @@ export default function EmployerMatchFeed() {
   
   return (
     <DashboardLayout title="Match Feed" subtitle="Discover potential candidates">
+      <div className="container mb-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-bold">Match Feed</h1>
+            <p className="text-muted-foreground">
+              Find your next great hire
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="ghost" onClick={() => navigate('/employer/dashboard')}>
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Dashboard
+            </Button>
+            <Button 
+              variant="secondary"
+              onClick={() => navigate('/employer/optimized-match-feed')}
+            >
+              <svg className="h-4 w-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+              Try Optimized Feed
+            </Button>
+            <Button 
+              variant="outline" 
+              onClick={() => refetchPotentialMatches()} 
+              disabled={isRefetching}
+            >
+              {isRefetching ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+              <span className="ml-2">Refresh</span>
+            </Button>
+          </div>
+        </div>
+      </div>
       <div className="flex flex-col items-center space-y-6">
         {showLoadingState ? (
           <div className="flex justify-center items-center h-60">
