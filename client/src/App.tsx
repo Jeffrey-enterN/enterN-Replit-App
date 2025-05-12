@@ -130,12 +130,10 @@ function Router() {
         </EmployerLayout>
       </Route>
       <Route path="/employer/slider-preferences">
-        <EmployerLayout>
-          <ProtectedRoute 
-            path="/employer/slider-preferences" 
-            component={SliderPreferencesPage}
-          />
-        </EmployerLayout>
+        <ProtectedRoute 
+          path="/employer/slider-preferences" 
+          component={SliderPreferencesPage}
+        />
       </Route>
       {/* Admin routes - direct access without ProtectedRoute */}
       <Route path="/admin/database-operations" component={DatabaseOperationsPage} />
