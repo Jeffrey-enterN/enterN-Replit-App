@@ -147,20 +147,20 @@ export async function getEmployerMatchFeedOptimized(
     let sortedJobseekers = jobseekers;
     
     // If the company has slider preferences, use them to score and sort jobseekers
-    const hasPreferences = employer.company.sliderPreferences && 
+    const hasPreferences = employer.company?.sliderPreferences && 
                          employer.company.sliderPreferences.preferredSliders &&
                          employer.company.sliderPreferences.preferredSliders.length > 0;
     
-    if (sortBy === 'match' && hasPreferences) {
+    if (sortBy === 'match' && hasPreferences && employer.company) {
       sortedJobseekers = jobseekers.sort((a, b) => {
         const scoreA = calculateMatchScore(
           a.jobseekerProfile?.sliderValues || {}, 
-          employer.company.sliderPreferences
+          employer.company?.sliderPreferences || undefined
         );
         
         const scoreB = calculateMatchScore(
           b.jobseekerProfile?.sliderValues || {}, 
-          employer.company.sliderPreferences
+          employer.company?.sliderPreferences || undefined
         );
         
         // Sort in descending order (highest match score first)

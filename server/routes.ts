@@ -4,6 +4,7 @@ import { storage } from "./storage";
 import { setupAuth } from "./auth";
 import { USER_TYPES } from "../shared/schema";
 import { setupMatchRoutes } from "./routes-match";
+import { setupOptimizedMatchRoutes } from "./routes-match-optimized";
 import { setupCompanyRoutes } from "./routes-updates";
 import { WebSocketServer } from 'ws';
 import { Router } from "express";
@@ -22,6 +23,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Set up match routes for swipe-to-match functionality
   setupMatchRoutes(router);
+  
+  // Set up optimized match routes with pagination
+  setupOptimizedMatchRoutes(router);
   
   // Use the router in our app
   app.use(router);

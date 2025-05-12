@@ -5,12 +5,12 @@
  * as the application scales to hundreds or thousands of users.
  */
 
-import { pool } from '../server/db';
+import { pool } from '../server/db.js';
 
 /**
  * Add indexes to tables for performance improvement
  */
-async function addPerformanceIndexes() {
+export async function addPerformanceIndexes() {
   const client = await pool.connect();
   try {
     // Start transaction
@@ -117,10 +117,5 @@ async function main() {
   }
 }
 
-// Execute the migration if this file is run directly
-if (require.main === module) {
-  main();
-}
-
-// Export for testing or programmatic use
-export { addPerformanceIndexes };
+// Execute the migration if this is the main module
+main();

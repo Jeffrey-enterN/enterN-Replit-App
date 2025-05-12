@@ -8,8 +8,8 @@
  * node scripts/run-performance-indexes.js
  */
 
-require('dotenv').config();
-const { spawn } = require('child_process');
+import 'dotenv/config';
+import { spawn } from 'child_process';
 
 console.log('Running performance indexes migration...');
 
